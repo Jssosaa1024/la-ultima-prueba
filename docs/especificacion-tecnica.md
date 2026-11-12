@@ -654,7 +654,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 ### Fase 2 · Motor y controles táctiles
 
-- [ ] **T12** Renderer y bucle con DPR limitado; pausa al ocultar la pestaña — 40 min
+- [x] **T12** Renderer y bucle con DPR limitado; pausa al ocultar la pestaña — 40 min
 - [ ] **T13** Escala dinámica de resolución según los fps medidos — 45 min
 - [ ] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [ ] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min

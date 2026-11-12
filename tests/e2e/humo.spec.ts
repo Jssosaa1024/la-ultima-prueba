@@ -30,6 +30,38 @@ test('/jugar muestra el canvas a pantalla completa, sin scroll y sin errores', a
   expect(errores).toEqual([]);
 });
 
+test('/jugar arranca el motor 3D y lo pausa al ocultar la pestaña', async ({ page }) => {
+  const errores: string[] = [];
+  page.on('pageerror', (e) => errores.push(e.message));
+  await page.goto('/jugar');
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(canvas).toHaveAttribute('data-motor', 'activo');
+
+  const cambiarVisibilidad = (oculta: boolean) =>
+    page.evaluate((oculta) => {
+      Object.defineProperty(document, 'hidden', { value: oculta, configurable: true });
+      Object.defineProperty(document, 'visibilityState', {
+        value: oculta ? 'hidden' : 'visible',
+        configurable: true,
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }, oculta);
+
+  await cambiarVisibilidad(true);
+  await expect(canvas).toHaveAttribute('data-motor', 'pausado');
+  await cambiarVisibilidad(false);
+  await expect(canvas).toHaveAttribute('data-motor', 'activo');
+
+  // El canvas tiene contexto WebGL2 y el búfer respeta el DPR máximo de 1,25.
+  const info = await canvas.evaluate((c: HTMLCanvasElement) => ({
+    webgl2: c.getContext('webgl2') !== null,
+    relacion: c.width / c.clientWidth,
+  }));
+  expect(info.webgl2).toBe(true);
+  expect(info.relacion).toBeLessThanOrEqual(1.26);
+  expect(errores).toEqual([]);
+});
+
 test('/jugar?prueba=glb carga el GLB de prueba con meshopt y KTX2 desde el propio sitio', async ({
   page,
   baseURL,

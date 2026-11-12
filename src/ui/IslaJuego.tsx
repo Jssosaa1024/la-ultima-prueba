@@ -33,7 +33,7 @@ export default function IslaJuego() {
 
 /**
  * Por ahora: canvas a pantalla completa con un patrón de prueba y un HUD que respeta la
- * zona segura. El renderer de Three.js llega en T12 y reemplaza `dibujarPrueba`.
+ * zona segura. El motor 3D (engine/motor.ts, T12) dibuja en el canvas.
  * Con `?prueba=glb`, en lugar del patrón se carga el GLB de prueba (T10).
  */
 function Escena() {
@@ -53,8 +53,6 @@ function Escena() {
     const hud = hudRef.current;
     if (!canvas || !hud) return;
     const detenerAjuste = ajustarCanvas(canvas, () => {
-      // En la prueba de carga, Three.js dibuja el canvas en cada cuadro.
-      if (!pruebaGlb) dibujarPrueba(canvas);
       const estilo = getComputedStyle(hud);
       setMargenes({
         arriba: parseFloat(estilo.paddingTop),
@@ -64,12 +62,16 @@ function Escena() {
       });
     });
 
-    // Three.js se descarga solo en la prueba: import dinámico, en su propio archivo.
+    // El motor (Three.js) va en su propio archivo: import dinámico (T12).
     let detenerPrueba: (() => void) | undefined;
     let cancelado = false;
     if (pruebaGlb) {
       void import('../engine/carga/prueba').then(({ iniciarPruebaCarga }) => {
         if (!cancelado) detenerPrueba = iniciarPruebaCarga(canvas);
+      });
+    } else {
+      void import('../engine/motor').then(({ iniciarMotor }) => {
+        if (!cancelado) detenerPrueba = iniciarMotor(canvas);
       });
     }
     return () => {
@@ -115,31 +117,4 @@ function Escena() {
       </div>
     </div>
   );
-}
-
-/** Patrón temporal: cuadrícula cada 50 px CSS y borde, para comprobar tamaño y nitidez. */
-function dibujarPrueba(canvas: HTMLCanvasElement): void {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  const escala = canvas.width / Math.max(1, canvas.clientWidth);
-  const { width: w, height: h } = canvas;
-  ctx.fillStyle = '#111418';
-  ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = '#2a3340';
-  ctx.lineWidth = 1;
-  const paso = 50 * escala;
-  ctx.beginPath();
-  for (let x = paso; x < w; x += paso) {
-    ctx.moveTo(Math.round(x) + 0.5, 0);
-    ctx.lineTo(Math.round(x) + 0.5, h);
-  }
-  for (let y = paso; y < h; y += paso) {
-    ctx.moveTo(0, Math.round(y) + 0.5);
-    ctx.lineTo(w, Math.round(y) + 0.5);
-  }
-  ctx.stroke();
-  // Borde del canvas: debe tocar los cuatro bordes de la pantalla, incluso bajo el notch.
-  ctx.strokeStyle = '#e8a33d';
-  ctx.lineWidth = 4 * escala;
-  ctx.strokeRect(0, 0, w, h);
 }
