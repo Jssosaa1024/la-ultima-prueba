@@ -623,7 +623,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T07** Añadir KTX2 (ETC1S y UASTC) y el límite de 1024² al pipeline — 50 min
 - [x] **T08** Script `build-manifest`: hash, bytes y triángulos por sala — 40 min
 - [x] **T09** Script `check-budget`: falla el build si una sala excede el presupuesto — 40 min
-- [ ] **T10** Servir los decodificadores y cargar un GLB de prueba con Meshopt + KTX2 — 40 min
+- [x] **T10** Servir los decodificadores y cargar un GLB de prueba con Meshopt + KTX2 — 40 min
 - [ ] **T11** Medir una escena de estrés (60k triángulos, 40 draw calls) en el celular de referencia — 45 min
 - [ ] **T11a** (v1.1) `optimize-models` lee la `fuente` en `art/credits.json` y aplica su perfil de limpieza — 45 min
 - [ ] **T11b** (v1.1) Perfil Kenney: escala por pack, `join`, `instance` y `palette` — 45 min
