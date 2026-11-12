@@ -30,6 +30,40 @@ test('/jugar muestra el canvas a pantalla completa, sin scroll y sin errores', a
   expect(errores).toEqual([]);
 });
 
+test('/jugar?prueba=glb carga el GLB de prueba con meshopt y KTX2 desde el propio sitio', async ({
+  page,
+  baseURL,
+}) => {
+  const errores: string[] = [];
+  page.on('pageerror', (e) => errores.push(e.message));
+  const transcodificador = page.waitForResponse((r) =>
+    /\/basis_transcoder[^/]*\.wasm$/.test(new URL(r.url()).pathname),
+  );
+  await page.goto('/jugar?prueba=glb');
+
+  await expect(page.getByRole('status')).toContainText('Modelo de prueba listo', {
+    timeout: 20_000,
+  });
+  await expect(page.getByRole('status')).toContainText('12 triángulos');
+  // Dos texturas (color y normal), cada una con el formato de GPU que eligió el equipo.
+  await expect(page.getByRole('status')).toContainText(/Texturas: [^,]+, [^,]+/);
+
+  // El transcodificador Basis se sirve desde el sitio, con hash en /_astro/ (sin CDN).
+  const wasm = await transcodificador;
+  expect(wasm.ok()).toBe(true);
+  expect(wasm.url()).toMatch(new RegExp(`^${baseURL}/_astro/basis_transcoder\\.[^/]+\\.wasm$`));
+  expect(errores).toEqual([]);
+});
+
+test('/jugar?prueba=otra no carga three.js', async ({ page }) => {
+  const pedidos: string[] = [];
+  page.on('request', (r) => pedidos.push(new URL(r.url()).pathname));
+  await page.goto('/jugar?prueba=otra');
+  await expect(page.getByLabel('Escena del juego')).toBeVisible();
+  await expect(page.getByRole('status')).toHaveCount(0);
+  expect(pedidos.filter((p) => p.includes('basis') || p.endsWith('.glb'))).toEqual([]);
+});
+
 test('/jugar?sinwebgl2=1 muestra el aviso de equipo no compatible', async ({ page }) => {
   await page.goto('/jugar?sinwebgl2=1');
   await expect(
