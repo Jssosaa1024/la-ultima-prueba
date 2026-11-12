@@ -656,7 +656,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 - [x] **T12** Renderer y bucle con DPR limitado; pausa al ocultar la pestaña — 40 min
 - [ ] **T13** Escala dinámica de resolución según los fps medidos — 45 min
-- [ ] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
+- [x] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [ ] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min
 - [ ] **T16** Exportar cajas de colisión desde Blender y cargarlas — 30 min
 - [ ] **T17** Colisión de cápsula contra cajas, sin atravesar paredes — 50 min

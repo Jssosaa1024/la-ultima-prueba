@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PUERTO = 4321;
+// PUERTO_E2E permite correr dos sesiones de pruebas a la vez en el mismo equipo sin chocar.
+const PUERTO = Number(process.env['PUERTO_E2E'] ?? 4321);
 
 // Pruebas e2e con emulación de celular (especificación, T05). Se prueba el sitio ya
 // construido (`astro build` + `astro preview`), que es lo que se publica en Cloudflare Pages.
