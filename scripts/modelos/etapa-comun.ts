@@ -1,8 +1,8 @@
 /**
- * Etapa común del pipeline de modelos (T06).
+ * Etapa común del pipeline de modelos (T06, T07).
  *
- * Orden de la especificación: dedup → prune → weld → instance → quantize → meshopt.
- * KTX2 (T07) y asset.copyright (T11a) se agregan después, en este mismo orden.
+ * Orden de la especificación: dedup → prune → weld → instance → quantize → meshopt → ktx2.
+ * asset.copyright (T11a) se agrega después, en este mismo orden.
  * Nunca se usa `simplify` aquí: simplificar va solo en la etapa de limpieza, antes de hornear.
  */
 import { NodeIO, Primitive } from '@gltf-transform/core';
@@ -11,6 +11,8 @@ import { ALL_EXTENSIONS, EXTMeshoptCompression } from '@gltf-transform/extension
 import type { InstancedMesh } from '@gltf-transform/extensions';
 import { dedup, instance, prune, quantize, reorder, weld } from '@gltf-transform/functions';
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
+import { comprimirTexturas } from './ktx2.ts';
+import type { InformeTextura, OpcionesKtx2 } from './ktx2.ts';
 
 export interface OpcionesEtapaComun {
   /**
@@ -20,6 +22,8 @@ export interface OpcionesEtapaComun {
   instanciar?: boolean;
   /** Mínimo de copias de una malla para instanciarla. Por defecto, 5. */
   minimoInstancias?: number;
+  /** Opciones del paso KTX2 (tamaño máximo, ejecutable de KTX-Software). */
+  ktx2?: OpcionesKtx2;
 }
 
 export interface Medidas {
@@ -42,12 +46,12 @@ export async function crearIO(): Promise<NodeIO> {
   });
 }
 
-/** Aplica la etapa común al documento, en el sitio. */
+/** Aplica la etapa común al documento, en el sitio. Devuelve el informe de texturas. */
 export async function aplicarEtapaComun(
   documento: Document,
   opciones: OpcionesEtapaComun = {},
-): Promise<void> {
-  const { instanciar = true, minimoInstancias = 5 } = opciones;
+): Promise<InformeTextura[]> {
+  const { instanciar = true, minimoInstancias = 5, ktx2 = {} } = opciones;
   await MeshoptEncoder.ready;
 
   await documento.transform(
@@ -70,6 +74,9 @@ export async function aplicarEtapaComun(
     .createExtension(EXTMeshoptCompression)
     .setRequired(true)
     .setEncoderOptions({ method: EXTMeshoptCompression.EncoderMethod.QUANTIZE });
+
+  // ktx2: ETC1S para color y lightmap, UASTC para mapas normales, máximo 1024 px.
+  return comprimirTexturas(documento, ktx2);
 }
 
 /** Cuenta triángulos y draw calls de la escena principal. */
