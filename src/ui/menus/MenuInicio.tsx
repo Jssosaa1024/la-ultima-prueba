@@ -1,4 +1,9 @@
-import { cargarEjemplo, pideEjemplo } from '../../signals/ejemplo';
+import {
+  cargarEjemplo,
+  cargarEjemploDeFinal,
+  finalPedido,
+  pideEjemplo,
+} from '../../signals/ejemplo';
 import { enviar } from '../../signals/puente';
 import '../botones.css';
 import './menus.css';
@@ -26,7 +31,15 @@ export default function MenuInicio() {
             onClick={() => {
               enviar({ t: 'iniciar', modo: 'individual' });
               // `/jugar?ejemplo=1`: datos de ejemplo mientras no existan el motor y el contenido.
-              if (pideEjemplo(window.location.search)) cargarEjemplo();
+              const busqueda = window.location.search;
+              if (!pideEjemplo(busqueda)) return;
+              cargarEjemplo();
+              // `&final=<id>`: salta directo a ese final, para revisarlo.
+              const fin = finalPedido(busqueda);
+              if (fin) {
+                cargarEjemploDeFinal();
+                enviar({ t: 'elegir_final', final: fin });
+              }
             }}
           >
             Jugar solo

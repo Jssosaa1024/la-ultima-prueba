@@ -1,0 +1,109 @@
+/* Pantallas de final, créditos y poscréditos: a pantalla completa, con scroll si no cabe. */
+.final {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: #111418;
+  color: #f2f2f2;
+  touch-action: pan-y;
+  user-select: text;
+}
+
+.final-caja {
+  width: 100%;
+  max-width: 32rem;
+  line-height: 1.55;
+}
+
+.final-antetitulo {
+  margin: 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b8c2cc;
+}
+
+.final-titulo {
+  margin: 0.25rem 0 1rem;
+  font-size: clamp(1.75rem, 8vw, 2.5rem);
+  line-height: 1.15;
+  color: #e8a33d;
+  outline: none;
+}
+
+.final-titulo:focus-visible {
+  outline: 3px solid #e8a33d;
+  outline-offset: 4px;
+}
+
+.final-subtitulo {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.0625rem;
+}
+
+.final-lista {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.final-lista li + li {
+  margin-top: 0.5rem;
+}
+
+.final-agradecimiento {
+  margin-top: 1.25rem;
+  font-weight: 600;
+}
+
+.final-nota {
+  font-size: 0.875rem;
+  color: #b8c2cc;
+}
+
+.final-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 1.25rem 0;
+}
+
+.final-resumen > div {
+  padding: 10px 8px;
+  border-radius: 10px;
+  background: #1c2229;
+  text-align: center;
+}
+
+.final-resumen dt {
+  font-size: 0.8125rem;
+  color: #b8c2cc;
+}
+
+.final-resumen dd {
+  margin: 2px 0 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La hoja que imprime la fotocopiadora. */
+.final-hoja {
+  margin: 1rem 0;
+  padding: 16px 18px;
+  border-radius: 4px;
+  background: #f4efe3;
+  color: #1d1d1d;
+  font-family: 'Courier New', monospace;
+  font-size: 1.0625rem;
+}
+
+.final-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1.5rem;
+}

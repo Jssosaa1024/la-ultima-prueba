@@ -49,6 +49,8 @@ async function arrastrarRaton(page: Page, a: Punto, b: Punto, quieto = 0): Promi
 /** Abre /jugar y toca «Jugar solo»: los controles solo funcionan con la partida en marcha. */
 async function abrirJuego(page: Page) {
   await page.goto('/jugar');
+  // El menú de inicio (T32) tapa la escena hasta que se toca «Jugar solo».
+  await page.getByRole('button', { name: 'Jugar solo' }).click();
   const canvas = page.getByLabel('Escena del juego');
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
   await page.getByRole('button', { name: 'Jugar solo' }).click();

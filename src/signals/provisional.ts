@@ -1,4 +1,4 @@
-import { batch } from '@preact/signals';
+import { batch, effect } from '@preact/signals';
 import { datosEncontrados, limpiarNota, notas, reiniciarCuaderno } from './cuaderno';
 import { enfocarSiguiente, quitarEjemplo } from './ejemplo';
 import { abrirInspeccion, enfocado, reiniciarInterfaz, type AccionObjeto } from './interfaz';
@@ -111,7 +111,25 @@ function atenderAccion(objeto: string, accion: AccionObjeto): void {
   });
 }
 
+/** Cuando el reloj llega a cero mientras se juega, termina en «Tiempo cumplido». */
+function vigilarTiempo(): () => void {
+  return effect(() => {
+    const r = reloj.value;
+    if (fase.value !== 'jugando' || r.pausado) return;
+    const id = setTimeout(
+      () => atender({ t: 'elegir_final', final: 'tiempo_cumplido' }),
+      restanteEn(r, ahora()),
+    );
+    return () => clearTimeout(id);
+  });
+}
+
 /** Empieza a atender órdenes. Devuelve la función para detenerlo. */
 export function iniciarControladorProvisional(): () => void {
-  return escuchar(atender);
+  const dejarDeEscuchar = escuchar(atender);
+  const dejarDeVigilar = vigilarTiempo();
+  return () => {
+    dejarDeEscuchar();
+    dejarDeVigilar();
+  };
 }

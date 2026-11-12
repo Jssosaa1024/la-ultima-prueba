@@ -126,7 +126,7 @@ function Escena() {
       </div>
       {/* La prueba de carga es técnica: va directo a la escena, sin menú. */}
       {!pruebaGlb && fase.value === 'inicio' && <MenuInicio />}
-      {!pruebaGlb && fase.value === 'jugando' && <Partida />}
+      {!pruebaGlb && (fase.value === 'jugando' || fase.value === 'final') && <Partida />}
     </div>
   );
 }
