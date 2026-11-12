@@ -16,3 +16,7 @@ npm-debug.log*
 # sistema
 .DS_Store
 Thumbs.db
+
+# resultados de Playwright
+test-results/
+playwright-report/

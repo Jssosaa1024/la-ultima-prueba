@@ -6,3 +6,5 @@ public/
 docs/
 AGENTS.md
 CLAUDE.md
+test-results/
+playwright-report/
