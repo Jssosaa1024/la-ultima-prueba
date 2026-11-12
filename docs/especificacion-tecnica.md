@@ -679,7 +679,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 ### Fase 4 · HUD y menús (Preact + Signals)
 
-- [ ] **T31** Store de signals y puente con el motor — 40 min
+- [x] **T31** Store de signals y puente con el motor — 40 min
 - [ ] **T32** Menú de inicio: jugar solo, crear partida, unirse con código — 45 min
 - [ ] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio — 45 min
