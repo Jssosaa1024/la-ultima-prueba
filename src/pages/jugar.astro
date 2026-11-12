@@ -1,0 +1,23 @@
+---
+import Juego from '../layouts/Juego.astro';
+import IslaJuego from '../ui/IslaJuego';
+---
+
+<Juego title="Jugar · La Última Prueba">
+  <!-- client:only: el juego necesita el navegador (canvas, WebGL), no se renderiza en el build. -->
+  <IslaJuego client:only="preact">
+    <p slot="fallback" class="cargando">
+      Cargando…
+    </p>
+  </IslaJuego>
+</Juego>
+
+<style>
+  .cargando {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+  }
+</style>

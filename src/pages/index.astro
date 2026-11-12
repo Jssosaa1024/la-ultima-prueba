@@ -8,5 +8,24 @@ import Contador from '../ui/Contador';
     <h1>La Última Prueba</h1>
     <p>Base del proyecto (T01): Astro + Preact + Signals.</p>
     <Contador client:load />
+    <p>
+      <a class="jugar" href="/jugar">
+        Jugar
+      </a>
+    </p>
   </main>
 </Base>
+
+<style>
+  .jugar {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 1.5rem;
+    border-radius: 0.5rem;
+    background: #e8a33d;
+    color: #111418;
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>
