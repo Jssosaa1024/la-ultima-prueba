@@ -684,7 +684,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
-- [ ] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
+- [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [ ] **T37** Panel de mecanismo genérico: opciones y teclado numérico con coma decimal — 50 min
 - [ ] **T38** Panel de pistas y retroalimentación por distractor — 35 min
 - [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min

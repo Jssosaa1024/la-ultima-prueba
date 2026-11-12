@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { enfocado, panel, type AccionObjeto } from '../../signals/interfaz';
+import { abrirCuaderno, enfocado, panel, type AccionObjeto } from '../../signals/interfaz';
 import {
   inventario,
   reloj,
@@ -26,7 +26,12 @@ export default function Hud() {
   return (
     <div class="hud-partida">
       <div class="hud-fila hud-arriba">
-        <BotonSalir />
+        <div class="hud-grupo">
+          <BotonSalir />
+          <button type="button" class="hud-boton-redondo" onClick={abrirCuaderno}>
+            Cuaderno
+          </button>
+        </div>
         <Reloj />
         <Sellos />
       </div>

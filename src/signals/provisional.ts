@@ -1,4 +1,5 @@
 import { batch } from '@preact/signals';
+import { datosEncontrados, limpiarNota, notas, reiniciarCuaderno } from './cuaderno';
 import { enfocarSiguiente, quitarEjemplo } from './ejemplo';
 import { abrirInspeccion, enfocado, reiniciarInterfaz, type AccionObjeto } from './interfaz';
 import {
@@ -24,6 +25,9 @@ import { escuchar, type Comando } from './puente';
 
 const ahora = (): number => performance.now();
 
+let contadorNotas = 0;
+const nuevoIdNota = (): string => `n${++contadorNotas}`;
+
 function pausar(): void {
   const r = reloj.value;
   if (r.pausado) return;
@@ -45,6 +49,7 @@ function atender(comando: Comando): void {
       reiniciarInterfaz();
       batch(() => {
         reiniciarPartida();
+        reiniciarCuaderno();
         modo.value = 'individual';
         sala.value = 'porteria';
         fase.value = 'jugando';
@@ -57,6 +62,7 @@ function atender(comando: Comando): void {
       quitarEjemplo();
       reiniciarInterfaz();
       reiniciarPartida();
+      reiniciarCuaderno();
       return;
     case 'pausar':
       pausar();
@@ -74,6 +80,14 @@ function atender(comando: Comando): void {
     case 'accion':
       atenderAccion(comando.objeto, comando.accion);
       return;
+    case 'nota':
+      if (comando.op === 'agregar') {
+        const texto = limpiarNota(comando.texto);
+        if (texto) notas.value = [...notas.value, { id: nuevoIdNota(), texto }];
+      } else {
+        notas.value = notas.value.filter((n) => n.id !== comando.id);
+      }
+      return;
   }
 }
 
@@ -81,7 +95,13 @@ function atenderAccion(objeto: string, accion: AccionObjeto): void {
   const actual = enfocado.value;
   if (!actual || actual.id !== objeto) return;
   batch(() => {
-    if (accion === 'examinar') abrirInspeccion(objeto);
+    if (accion === 'examinar') {
+      abrirInspeccion(objeto);
+      // Lo que se inspecciona queda anotado en «Datos encontrados» del cuaderno.
+      if (!datosEncontrados.value.includes(objeto)) {
+        datosEncontrados.value = [...datosEncontrados.value, objeto];
+      }
+    }
     if (accion === 'recoger' && !inventario.value.some((o) => o.id === objeto)) {
       inventario.value = [...inventario.value, { id: objeto, nombre: actual.nombre }];
     }

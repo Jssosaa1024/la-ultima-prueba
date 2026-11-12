@@ -1,4 +1,5 @@
 import { panel } from '../signals/interfaz';
+import Cuaderno from './cuaderno/Cuaderno';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
 
@@ -15,6 +16,7 @@ export default function Partida() {
         <Hud />
       </div>
       {abierto === 'inspeccion' && <Inspeccion />}
+      {abierto === 'cuaderno' && <Cuaderno />}
     </>
   );
 }

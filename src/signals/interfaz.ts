@@ -45,6 +45,14 @@ export function abrirInspeccion(objeto: string): void {
   });
 }
 
+/** Abre el cuaderno. La pausa del reloj la pide el propio cuaderno al abrirse. */
+export function abrirCuaderno(): void {
+  batch(() => {
+    inspeccionando.value = null;
+    panel.value = 'cuaderno';
+  });
+}
+
 /** Cierra cualquier panel y vuelve a la escena. */
 export function cerrarPanel(): void {
   batch(() => {

@@ -1,7 +1,7 @@
-import { fichas, type BloqueFicha } from '../../signals/contenido';
+import { fichas } from '../../signals/contenido';
 import { cerrarPanel, inspeccionando } from '../../signals/interfaz';
 import Dialogo from '../paneles/Dialogo';
-import './inspeccion.css';
+import ContenidoFicha from './ContenidoFicha';
 
 /**
  * Vista de inspección 2D (T35): muestra en texto nítido los datos de un objeto (facturas,
@@ -16,58 +16,7 @@ export default function Inspeccion() {
   return (
     <Dialogo antetitulo="Inspección" titulo={ficha?.titulo ?? 'Objeto'} alCerrar={cerrarPanel}>
       {ficha?.descripcion && <p class="ficha-descripcion">{ficha.descripcion}</p>}
-      {ficha ? (
-        <div class="ficha">
-          {ficha.bloques.map((b, i) => (
-            <Bloque key={i} bloque={b} />
-          ))}
-        </div>
-      ) : (
-        <p>No hay nada escrito en este objeto.</p>
-      )}
+      {ficha ? <ContenidoFicha ficha={ficha} /> : <p>No hay nada escrito en este objeto.</p>}
     </Dialogo>
   );
-}
-
-function Bloque({ bloque }: { bloque: BloqueFicha }) {
-  switch (bloque.tipo) {
-    case 'texto':
-      return <p>{bloque.texto}</p>;
-    case 'nota':
-      return <p class="ficha-nota">{bloque.texto}</p>;
-    case 'lista':
-      return (
-        <ul class="ficha-lista">
-          {bloque.items.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      );
-    case 'tabla':
-      return (
-        <div class="ficha-tabla-caja">
-          <table class="ficha-tabla">
-            <caption>{bloque.titulo}</caption>
-            <thead>
-              <tr>
-                {bloque.columnas.map((c, i) => (
-                  <th key={i} scope="col">
-                    {c}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {bloque.filas.map((fila, i) => (
-                <tr key={i}>
-                  {fila.map((celda, j) => (
-                    <td key={j}>{celda}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-  }
 }
