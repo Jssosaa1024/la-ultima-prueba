@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { tieneWebGL2 } from '../engine/compatibilidad';
 import { ajustarCanvas } from '../engine/pantalla';
 import { pantalla } from '../signals/pantalla';
+import NoCompatible from './NoCompatible';
 import './IslaJuego.css';
 
 interface Margenes {
@@ -13,11 +15,19 @@ interface Margenes {
 const nf = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 });
 
 /**
- * Isla del juego (client:only). Por ahora: canvas a pantalla completa con un patrón de
- * prueba y un HUD que respeta la zona segura. El renderer de Three.js llega en T12 y
- * reemplaza `dibujarPrueba`.
+ * Isla del juego (client:only). Primero comprueba WebGL2 (T04): sin él, muestra el aviso
+ * de equipo no compatible y no arranca la escena.
  */
 export default function IslaJuego() {
+  const [compatible] = useState(tieneWebGL2);
+  return compatible ? <Escena /> : <NoCompatible />;
+}
+
+/**
+ * Por ahora: canvas a pantalla completa con un patrón de prueba y un HUD que respeta la
+ * zona segura. El renderer de Three.js llega en T12 y reemplaza `dibujarPrueba`.
+ */
+function Escena() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hudRef = useRef<HTMLDivElement>(null);
   const [margenes, setMargenes] = useState<Margenes>({

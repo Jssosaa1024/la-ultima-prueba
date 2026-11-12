@@ -1,0 +1,51 @@
+/* Pantalla de equipo no compatible: ocupa toda la ventana y respeta la zona segura. */
+.no-compatible {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: #111418;
+  color: #f2f2f2;
+  /* El layout del juego desactiva la selección; aquí el texto sí se puede copiar. */
+  user-select: text;
+}
+
+.no-compatible-caja {
+  max-width: 32rem;
+  line-height: 1.5;
+}
+
+.no-compatible h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  color: #e8a33d;
+}
+
+.no-compatible p,
+.no-compatible ul {
+  margin: 0 0 1rem;
+}
+
+.no-compatible ul {
+  padding-left: 1.25rem;
+}
+
+.no-compatible li + li {
+  margin-top: 0.5rem;
+}
+
+.no-compatible-boton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  border-radius: 0.5rem;
+  background: #e8a33d;
+  color: #111418;
+  font-weight: 600;
+  text-decoration: none;
+}
