@@ -1,5 +1,6 @@
 /**
- * optimize-models (T06): aplica la etapa común a uno o varios modelos .glb/.gltf.
+ * optimize-models (T06, T07): aplica la etapa común a uno o varios modelos .glb/.gltf.
+ * Las texturas se pasan a KTX2 con `ktx` (KTX-Software 4.4.0 o superior en el PATH).
  *
  *   npm run optimize-models -- <entrada> <salida> [--sin-instance]
  *
@@ -12,6 +13,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { aplicarEtapaComun, crearIO, medir } from './modelos/etapa-comun.ts';
 import type { Medidas } from './modelos/etapa-comun.ts';
+import type { InformeTextura } from './modelos/ktx2.ts';
 
 const AYUDA = `Uso: npm run optimize-models -- <entrada> <salida> [--sin-instance]
 
@@ -23,6 +25,7 @@ interface Fila {
   archivo: string;
   antes: Medidas & { bytes: number };
   despues: Medidas & { bytes: number };
+  texturas: InformeTextura[];
 }
 
 async function buscarModelos(entrada: string): Promise<string[]> {
@@ -68,15 +71,15 @@ async function principal(): Promise<number> {
   for (const archivo of modelos) {
     const documento = await io.read(archivo);
     const antes = { ...medir(documento), bytes: await pesoEnDisco(archivo) };
-    await aplicarEtapaComun(documento, { instanciar: !values['sin-instance'] });
+    const texturas = await aplicarEtapaComun(documento, { instanciar: !values['sin-instance'] });
     const destino = path.join(salida, `${path.parse(archivo).name}.glb`);
     await io.write(destino, documento);
     const despues = { ...medir(documento), bytes: await pesoEnDisco(destino) };
-    filas.push({ archivo: path.relative(process.cwd(), destino), antes, despues });
+    filas.push({ archivo: path.relative(process.cwd(), destino), antes, despues, texturas });
   }
 
   console.log('\nInforme de optimize-models\n');
-  for (const { archivo, antes, despues } of filas) {
+  for (const { archivo, antes, despues, texturas } of filas) {
     console.log(archivo);
     console.log(
       `  peso        ${kb(antes.bytes)} → ${kb(despues.bytes)}${cambio(antes.bytes, despues.bytes)}`,
@@ -85,6 +88,12 @@ async function principal(): Promise<number> {
     console.log(`  draw calls  ${antes.drawCalls} → ${despues.drawCalls}`);
     console.log(`  mallas      ${antes.mallas} → ${despues.mallas}`);
     console.log(`  materiales  ${antes.materiales} → ${despues.materiales}`);
+    for (const t of texturas) {
+      console.log(
+        `  textura     ${t.nombre}: ${t.antes.ancho}×${t.antes.alto} → ${t.despues.ancho}×${t.despues.alto} ` +
+          `${t.modo.toUpperCase()}, ${kb(t.antes.bytes)} → ${kb(t.despues.bytes)}`,
+      );
+    }
   }
   const total = (lado: 'antes' | 'despues'): number =>
     filas.reduce((suma, fila) => suma + fila[lado].bytes, 0);
