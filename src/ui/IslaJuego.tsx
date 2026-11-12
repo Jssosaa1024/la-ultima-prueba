@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { tieneWebGL2 } from '../engine/compatibilidad';
 import { ajustarCanvas } from '../engine/pantalla';
 import { pantalla } from '../signals/pantalla';
+import { pruebaCarga } from '../signals/prueba-carga';
 import NoCompatible from './NoCompatible';
 import './IslaJuego.css';
 
@@ -15,6 +16,13 @@ interface Margenes {
 const nf = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 });
 
 /**
+ * `/jugar?prueba=glb` carga el GLB de prueba con meshopt y KTX2 (T10).
+ * El parámetro viene de la URL: solo se acepta el valor exacto `glb`.
+ */
+const esPruebaGlb = (): boolean =>
+  new URLSearchParams(window.location.search).get('prueba') === 'glb';
+
+/**
  * Isla del juego (client:only). Primero comprueba WebGL2 (T04): sin él, muestra el aviso
  * de equipo no compatible y no arranca la escena.
  */
@@ -26,6 +34,7 @@ export default function IslaJuego() {
 /**
  * Por ahora: canvas a pantalla completa con un patrón de prueba y un HUD que respeta la
  * zona segura. El renderer de Three.js llega en T12 y reemplaza `dibujarPrueba`.
+ * Con `?prueba=glb`, en lugar del patrón se carga el GLB de prueba (T10).
  */
 function Escena() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -37,12 +46,15 @@ function Escena() {
     izquierda: 0,
   });
 
+  const [pruebaGlb] = useState(esPruebaGlb);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const hud = hudRef.current;
     if (!canvas || !hud) return;
-    return ajustarCanvas(canvas, () => {
-      dibujarPrueba(canvas);
+    const detenerAjuste = ajustarCanvas(canvas, () => {
+      // En la prueba de carga, Three.js dibuja el canvas en cada cuadro.
+      if (!pruebaGlb) dibujarPrueba(canvas);
       const estilo = getComputedStyle(hud);
       setMargenes({
         arriba: parseFloat(estilo.paddingTop),
@@ -51,9 +63,24 @@ function Escena() {
         izquierda: parseFloat(estilo.paddingLeft),
       });
     });
-  }, []);
+
+    // Three.js se descarga solo en la prueba: import dinámico, en su propio archivo.
+    let detenerPrueba: (() => void) | undefined;
+    let cancelado = false;
+    if (pruebaGlb) {
+      void import('../engine/carga/prueba').then(({ iniciarPruebaCarga }) => {
+        if (!cancelado) detenerPrueba = iniciarPruebaCarga(canvas);
+      });
+    }
+    return () => {
+      cancelado = true;
+      detenerPrueba?.();
+      detenerAjuste();
+    };
+  }, [pruebaGlb]);
 
   const p = pantalla.value;
+  const carga = pruebaCarga.value;
 
   return (
     <div class="juego">
@@ -69,6 +96,21 @@ function Escena() {
             Zona segura: ↑{margenes.arriba} →{margenes.derecha} ↓{margenes.abajo} ←
             {margenes.izquierda}
           </p>
+          {pruebaGlb && (
+            <p class="hud-info" role="status">
+              {carga.estado === 'lista' && (
+                <>
+                  Modelo de prueba listo en {carga.ms} ms · {carga.triangulos} triángulos ·{' '}
+                  {carga.drawCalls} {carga.drawCalls === 1 ? 'draw call' : 'draw calls'}
+                  <br />
+                  Texturas: {carga.texturas.join(', ')}
+                </>
+              )}
+              {carga.estado === 'error' && 'No se pudo cargar el modelo de prueba.'}
+              {(carga.estado === 'cargando' || carga.estado === 'inactiva') &&
+                'Cargando modelo de prueba…'}
+            </p>
+          )}
         </div>
       </div>
     </div>
