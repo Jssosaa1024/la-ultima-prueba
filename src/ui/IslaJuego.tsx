@@ -5,9 +5,9 @@ import { pantalla } from '../signals/pantalla';
 import { fase } from '../signals/partida';
 import { iniciarControladorProvisional } from '../signals/provisional';
 import { pruebaCarga } from '../signals/prueba-carga';
-import Hud from './hud/Hud';
 import MenuInicio from './menus/MenuInicio';
 import NoCompatible from './NoCompatible';
+import Partida from './Partida';
 import './IslaJuego.css';
 
 interface Margenes {
@@ -126,7 +126,7 @@ function Escena() {
       </div>
       {/* La prueba de carga es técnica: va directo a la escena, sin menú. */}
       {!pruebaGlb && fase.value === 'inicio' && <MenuInicio />}
-      {!pruebaGlb && fase.value === 'jugando' && <Hud />}
+      {!pruebaGlb && fase.value === 'jugando' && <Partida />}
     </div>
   );
 }

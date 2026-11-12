@@ -1,0 +1,62 @@
+/* Ficha de inspección: papel claro con texto oscuro, para que se lea como un documento. */
+.ficha-descripcion {
+  margin: 0 0 12px;
+  color: #b8c2cc;
+}
+
+.ficha {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: #f4efe3;
+  color: #1d1d1d;
+  font-size: 1.0625rem;
+}
+
+.ficha > :first-child {
+  margin-top: 0;
+}
+
+.ficha > :last-child {
+  margin-bottom: 0;
+}
+
+.ficha-nota {
+  padding: 6px 10px;
+  border-left: 4px solid #2a5bb8;
+  background: #e6ecf7;
+  color: #1b3f86;
+  font-style: italic;
+}
+
+.ficha-lista {
+  padding-left: 1.25rem;
+}
+
+/* Tablas anchas: scroll horizontal dentro de la ficha, nunca de la página. */
+.ficha-tabla-caja {
+  overflow-x: auto;
+}
+
+.ficha-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha-tabla caption {
+  margin-bottom: 6px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.ficha-tabla th,
+.ficha-tabla td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #c9c0ad;
+  text-align: left;
+}
+
+.ficha-tabla th {
+  font-size: 0.875rem;
+  color: #4a4438;
+}

@@ -1,0 +1,68 @@
+/* Panel modal: en celular ocupa casi toda la pantalla; en PC, una columna centrada. */
+.dialogo-fondo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right))
+    calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  background: rgb(0 0 0 / 70%);
+  color: #f2f2f2;
+  /* Dentro del panel sí se hace scroll con el dedo y se puede seleccionar texto. */
+  touch-action: pan-y;
+  user-select: text;
+}
+
+.dialogo {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 100%;
+  border-radius: 16px;
+  background: #1c2229;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 50%);
+  outline: none;
+}
+
+.dialogo:focus-visible {
+  outline: 3px solid #e8a33d;
+  outline-offset: 2px;
+}
+
+.dialogo-cabecera {
+  padding: 16px 20px 8px;
+}
+
+.dialogo-antetitulo {
+  margin: 0;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b8c2cc;
+}
+
+.dialogo-titulo {
+  margin: 2px 0 0;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  color: #e8a33d;
+}
+
+.dialogo-cuerpo {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 20px 16px;
+  line-height: 1.5;
+}
+
+.dialogo-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid #2f3843;
+}

@@ -1,5 +1,6 @@
 import { cargarEjemplo, pideEjemplo } from '../../signals/ejemplo';
 import { enviar } from '../../signals/puente';
+import '../botones.css';
 import './menus.css';
 
 /**
