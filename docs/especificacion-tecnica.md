@@ -620,7 +620,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 1 · Pipeline de modelos, presupuesto y laboratorio de assets (v1.1: T11a–T11z)
 
 - [ ] **T06** Script `optimize-models`: dedup, prune, weld, instance, quantize y meshopt — 50 min
-- [ ] **T07** Añadir KTX2 (ETC1S y UASTC) y el límite de 1024² al pipeline — 50 min
+- [x] **T07** Añadir KTX2 (ETC1S y UASTC) y el límite de 1024² al pipeline — 50 min
 - [ ] **T08** Script `build-manifest`: hash, bytes y triángulos por sala — 40 min
 - [ ] **T09** Script `check-budget`: falla el build si una sala excede el presupuesto — 40 min
 - [ ] **T10** Servir los decodificadores y cargar un GLB de prueba con Meshopt + KTX2 — 40 min
