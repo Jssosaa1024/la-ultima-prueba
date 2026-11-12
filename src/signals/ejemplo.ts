@@ -1,4 +1,5 @@
 import { batch, signal } from '@preact/signals';
+import { fichas, type Ficha } from './contenido';
 import { enfocado, type ObjetoEnfocado } from './interfaz';
 import { sellos } from './partida';
 
@@ -17,6 +18,37 @@ export const OBJETOS_EJEMPLO: readonly ObjetoEnfocado[] = [
   { id: 's1-tarjeta', nombre: 'Tarjeta de porcentajes', accion: 'recoger' },
 ];
 
+/**
+ * Fichas de ejemplo de la sala 1: la factura está dividida entre la caja y el reverso del
+ * menú, así que ninguna de las dos basta sola. No incluyen la respuesta.
+ */
+export const FICHAS_EJEMPLO: Readonly<Record<string, Ficha>> = {
+  's1-factura': {
+    titulo: 'Factura de la caja',
+    descripcion: 'Media factura arrugada, encontrada junto a la registradora.',
+    bloques: [
+      {
+        tipo: 'tabla',
+        titulo: 'Cooperativa escolar · Factura de venta',
+        columnas: ['Producto', 'Cantidad', 'Precio unitario'],
+        filas: [['Refrigerio', '4', '$5.000']],
+      },
+      { tipo: 'texto', texto: 'La parte de abajo de la factura está rota.' },
+    ],
+  },
+  's1-menu': {
+    titulo: 'Menú de la cooperativa',
+    descripcion: 'Al reverso del menú está pegada la otra mitad de la factura.',
+    bloques: [
+      {
+        tipo: 'lista',
+        items: ['Refrigerio: $5.000', 'Jugo: $2.500', 'Empanada: $2.000'],
+      },
+      { tipo: 'nota', texto: 'Descuento de 15 % sobre el total de la compra.' },
+    ],
+  },
+};
+
 /** `true` mientras la partida usa datos de ejemplo. */
 export const conEjemplo = signal(false);
 
@@ -32,6 +64,7 @@ export function cargarEjemplo(): void {
   siguiente = 0;
   batch(() => {
     conEjemplo.value = true;
+    fichas.value = FICHAS_EJEMPLO;
     sellos.value = ['s1-cooperativa'];
     enfocarSiguiente();
   });
@@ -46,5 +79,6 @@ export function enfocarSiguiente(): void {
 
 export function quitarEjemplo(): void {
   conEjemplo.value = false;
+  fichas.value = {};
   siguiente = 0;
 }
