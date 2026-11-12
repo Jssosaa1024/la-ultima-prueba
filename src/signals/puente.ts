@@ -9,7 +9,8 @@ import type { FinalId, Modo } from './partida';
  * anfitrión en cooperativo) se suscribe con `escuchar()` y actualiza los signals.
  * Así ninguna capa importa a otra: todas importan de `signals/`.
  *
- * Las órdenes llevan solo ids y valores de listas cerradas, nunca texto libre.
+ * Las órdenes llevan ids y valores de listas cerradas. La única excepción es la nota del
+ * cuaderno, que el jugador escribe y se limita a 280 caracteres.
  */
 export type Comando =
   /** Empezar una partida desde el menú de inicio. */
@@ -21,7 +22,10 @@ export type Comando =
   /** Pausar el reloj (el cuaderno lo pausa en modo individual). */
   | { t: 'pausar' }
   | { t: 'reanudar' }
-  | { t: 'elegir_final'; final: FinalId };
+  | { t: 'elegir_final'; final: FinalId }
+  /** Notas del cuaderno: texto escrito por el propio jugador, de 280 caracteres o menos. */
+  | { t: 'nota'; op: 'agregar'; texto: string }
+  | { t: 'nota'; op: 'borrar'; id: string };
 
 export type Oyente = (comando: Comando) => void;
 

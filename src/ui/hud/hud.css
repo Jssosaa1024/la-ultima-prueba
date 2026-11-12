@@ -23,6 +23,12 @@
   align-items: flex-end;
 }
 
+.hud-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .hud-boton-redondo {
   pointer-events: auto;
   min-width: 48px;

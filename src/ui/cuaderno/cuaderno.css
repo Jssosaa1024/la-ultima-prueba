@@ -1,0 +1,119 @@
+.cuaderno-pausa {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #2a3340;
+  font-size: 0.9375rem;
+}
+
+.cuaderno-seccion + .cuaderno-seccion {
+  margin-top: 20px;
+}
+
+.cuaderno-subtitulo {
+  margin: 0 0 8px;
+  font-size: 1.0625rem;
+}
+
+.cuaderno-vacio {
+  margin: 0;
+  color: #b8c2cc;
+}
+
+.cuaderno-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cuaderno-dato {
+  border-radius: 8px;
+  background: #252d36;
+}
+
+/* El resumen es el objetivo táctil para abrir o cerrar cada dato. */
+.cuaderno-dato > summary {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cuaderno-dato > .ficha {
+  margin: 0 8px 8px;
+}
+
+.cuaderno-notas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.cuaderno-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 8px 8px 12px;
+  border-radius: 8px;
+  background: #252d36;
+}
+
+.cuaderno-nota-texto {
+  flex: 1 1 auto;
+  margin: 0;
+  padding-top: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cuaderno-borrar {
+  flex: none;
+  padding: 0 14px;
+}
+
+.cuaderno-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cuaderno-etiqueta {
+  font-weight: 600;
+}
+
+/* 16 px como mínimo: con menos, Safari en iPhone hace zoom al escribir. */
+.cuaderno-texto {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #6b7785;
+  border-radius: 8px;
+  background: #111418;
+  color: #f2f2f2;
+  font: inherit;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.cuaderno-texto:focus-visible {
+  outline: 3px solid #e8a33d;
+  outline-offset: 1px;
+}
+
+.cuaderno-form-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cuaderno-cuenta {
+  font-size: 0.875rem;
+  color: #b8c2cc;
+}
