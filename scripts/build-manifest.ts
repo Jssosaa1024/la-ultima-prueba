@@ -69,6 +69,7 @@ async function principal(): Promise<number> {
     console.log(`  audio       ${audio.length} archivo(s), ${kb(totales.bytesAudio)}`);
     console.log(`  triángulos  ${totales.triangulos}`);
     console.log(`  draw calls  ${totales.drawCalls}`);
+    console.log(`  texturas    ${kb(totales.bytesGpu)} en GPU`);
   }
   return 0;
 }

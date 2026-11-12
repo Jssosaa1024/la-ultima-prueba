@@ -13,6 +13,8 @@ import { createHash } from 'node:crypto';
 import { readdir, readFile, rename, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { crearIO, medir } from '../modelos/etapa-comun.ts';
+import { medirImagen, medirTexturas } from './texturas.ts';
+import type { TexturaMedida } from './texturas.ts';
 
 export const VERSION_MANIFIESTO = 1;
 /** Caracteres del hash que van en el nombre del archivo. */
@@ -27,6 +29,8 @@ export interface ArchivoSala {
   /** Solo en modelos .glb. */
   triangulos?: number;
   drawCalls?: number;
+  /** Texturas de un modelo, o la imagen misma si es un .ktx2 suelto (T09). */
+  texturas?: TexturaMedida[];
 }
 
 export interface ArchivoAudio {
@@ -45,6 +49,8 @@ export interface Sala {
     bytesAudio: number;
     triangulos: number;
     drawCalls: number;
+    /** Memoria estimada de todas las texturas en GPU, con mipmaps (T09). */
+    bytesGpu: number;
   };
 }
 
@@ -72,6 +78,15 @@ export function separarHash(nombre: string): { base: string; hash: string | null
 export function nombreConHash(base: string, sha256: string, ext: string): string {
   return `${base}.${sha256.slice(0, LARGO_HASH)}${ext}`;
 }
+
+/** Imágenes sueltas en una sala: cuentan como texturas en GPU. */
+const MIME_IMAGEN: Record<string, string> = {
+  '.ktx2': 'image/ktx2',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+};
 
 const sha256De = (datos: Uint8Array): string => createHash('sha256').update(datos).digest('hex');
 const aPosix = (ruta: string): string => ruta.split(path.sep).join('/');
@@ -173,7 +188,7 @@ export async function generarManifiesto(
     (salas[id] ??= {
       archivos: [],
       audio: [],
-      totales: { bytes: 0, bytesAudio: 0, triangulos: 0, drawCalls: 0 },
+      totales: { bytes: 0, bytesAudio: 0, triangulos: 0, drawCalls: 0, bytesGpu: 0 },
     });
   const io = await crearIO();
 
@@ -201,20 +216,28 @@ export async function generarManifiesto(
       vistos.set(clave, archivo);
 
       const entrada: ArchivoSala = { archivo, sha256, bytes: datos.byteLength };
+      const mimeImagen = MIME_IMAGEN[ext.toLowerCase()];
       if (ext.toLowerCase() === '.glb') {
         try {
-          const { triangulos, drawCalls } = medir(await io.readBinary(new Uint8Array(datos)));
+          const documento = await io.readBinary(new Uint8Array(datos));
+          const { triangulos, drawCalls } = medir(documento);
           entrada.triangulos = triangulos;
           entrada.drawCalls = drawCalls;
+          entrada.texturas = medirTexturas(documento);
         } catch (error) {
           problemas.push(`${archivo}: no se pudo leer el modelo (${String(error)})`);
         }
+      } else if (mimeImagen) {
+        const imagen = medirImagen(base, new Uint8Array(datos), mimeImagen);
+        if (imagen) entrada.texturas = [imagen];
+        else problemas.push(`${archivo}: no se pudo leer la imagen`);
       }
       const s = sala(id);
       s.archivos.push(entrada);
       s.totales.bytes += entrada.bytes;
       s.totales.triangulos += entrada.triangulos ?? 0;
       s.totales.drawCalls += entrada.drawCalls ?? 0;
+      s.totales.bytesGpu += (entrada.texturas ?? []).reduce((suma, t) => suma + t.bytesGpu, 0);
     }
   }
 
