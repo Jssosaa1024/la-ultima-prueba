@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { tieneWebGL2 } from '../engine/compatibilidad';
 import { ajustarCanvas } from '../engine/pantalla';
 import { pantalla } from '../signals/pantalla';
+import { fase } from '../signals/partida';
+import { iniciarControladorProvisional } from '../signals/provisional';
 import { pruebaCarga } from '../signals/prueba-carga';
+import MenuInicio from './menus/MenuInicio';
 import NoCompatible from './NoCompatible';
 import './IslaJuego.css';
 
@@ -47,6 +50,10 @@ function Escena() {
   });
 
   const [pruebaGlb] = useState(esPruebaGlb);
+
+  // Hasta que exista la lógica del juego (game/), un controlador provisional atiende las
+  // órdenes del menú y del HUD.
+  useEffect(() => iniciarControladorProvisional(), []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -113,6 +120,8 @@ function Escena() {
           )}
         </div>
       </div>
+      {/* La prueba de carga es técnica: va directo a la escena, sin menú. */}
+      {!pruebaGlb && fase.value === 'inicio' && <MenuInicio />}
     </div>
   );
 }
