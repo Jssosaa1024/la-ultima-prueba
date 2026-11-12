@@ -1,0 +1,20 @@
+# Cloudflare Pages: cabeceras de caché (T02).
+# Solo los archivos con hash en el nombre van "immutable" (un año).
+# Lo demás se revalida en cada visita para ver siempre la versión nueva.
+
+# Seguridad básica para todo el sitio
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# JS y CSS que genera Astro (llevan hash en el nombre)
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Salida del pipeline de modelos (escena.<hash>.glb)
+/assets/salas/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Decodificadores meshopt y basis (.js + .wasm)
+/decoders/*
+  Cache-Control: public, max-age=31536000, immutable
