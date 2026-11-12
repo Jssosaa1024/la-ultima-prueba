@@ -1,7 +1,17 @@
 import { batch } from '@preact/signals';
-import { fase, final, modo, reiniciarPartida, reloj, restanteEn, sala } from './partida';
+import { enfocarSiguiente, quitarEjemplo } from './ejemplo';
+import { abrirInspeccion, enfocado, reiniciarInterfaz, type AccionObjeto } from './interfaz';
+import {
+  fase,
+  final,
+  inventario,
+  modo,
+  reiniciarPartida,
+  reloj,
+  restanteEn,
+  sala,
+} from './partida';
 import { escuchar, type Comando } from './puente';
-import { reiniciarInterfaz } from './interfaz';
 
 /**
  * Controlador PROVISIONAL de la partida individual.
@@ -38,10 +48,13 @@ function atender(comando: Comando): void {
         modo.value = 'individual';
         sala.value = 'porteria';
         fase.value = 'jugando';
+        // En el modo individual se empieza con linterna (y el cuaderno, que va en el HUD).
+        inventario.value = [{ id: 'linterna', nombre: 'Linterna' }];
         reloj.value = { ...reloj.value, pausado: false, desde: ahora() };
       });
       return;
     case 'salir':
+      quitarEjemplo();
       reiniciarInterfaz();
       reiniciarPartida();
       return;
@@ -59,9 +72,23 @@ function atender(comando: Comando): void {
       });
       return;
     case 'accion':
-      // Recoger y usar objetos llegan con la lógica del juego.
+      atenderAccion(comando.objeto, comando.accion);
       return;
   }
+}
+
+function atenderAccion(objeto: string, accion: AccionObjeto): void {
+  const actual = enfocado.value;
+  if (!actual || actual.id !== objeto) return;
+  batch(() => {
+    if (accion === 'examinar') abrirInspeccion(objeto);
+    if (accion === 'recoger' && !inventario.value.some((o) => o.id === objeto)) {
+      inventario.value = [...inventario.value, { id: objeto, nombre: actual.nombre }];
+    }
+    // «Usar» una herramienta sobre un objeto llega con la lógica del juego.
+    enfocado.value = null;
+    enfocarSiguiente();
+  });
 }
 
 /** Empieza a atender órdenes. Devuelve la función para detenerlo. */

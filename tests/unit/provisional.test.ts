@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
+import { cargarEjemplo, quitarEjemplo } from '../../src/signals/ejemplo';
+import { enfocado, inspeccionando, panel, reiniciarInterfaz } from '../../src/signals/interfaz';
 import {
   DURACION_MS,
   fase,
   final,
+  inventario,
   modo,
   reiniciarPartida,
   reloj,
@@ -23,6 +25,7 @@ beforeEach(() => {
 
 afterEach(() => {
   detener();
+  quitarEjemplo();
   vi.restoreAllMocks();
   reiniciarPartida();
   reiniciarInterfaz();
@@ -68,5 +71,29 @@ describe('controlador provisional', () => {
     enviar({ t: 'salir' });
     expect(fase.value).toBe('inicio');
     expect(modo.value).toBeNull();
+  });
+
+  it('empieza con la linterna en el inventario', () => {
+    enviar({ t: 'iniciar', modo: 'individual' });
+    expect(inventario.value.map((o) => o.id)).toEqual(['linterna']);
+  });
+
+  it('con datos de ejemplo, examinar abre la inspección y recoger guarda el objeto', () => {
+    enviar({ t: 'iniciar', modo: 'individual' });
+    cargarEjemplo();
+    expect(enfocado.value?.id).toBe('s1-factura');
+    enviar({ t: 'accion', objeto: 's1-factura', accion: 'examinar' });
+    expect(panel.value).toBe('inspeccion');
+    expect(inspeccionando.value).toBe('s1-factura');
+    expect(enfocado.value?.id).toBe('s1-menu');
+    enviar({ t: 'accion', objeto: 's1-menu', accion: 'examinar' });
+    enviar({ t: 'accion', objeto: 's1-tarjeta', accion: 'recoger' });
+    expect(inventario.value.map((o) => o.id)).toEqual(['linterna', 's1-tarjeta']);
+  });
+
+  it('ignora la acción si el objeto no es el enfocado', () => {
+    enviar({ t: 'iniciar', modo: 'individual' });
+    enviar({ t: 'accion', objeto: 's1-factura', accion: 'examinar' });
+    expect(panel.value).toBeNull();
   });
 });

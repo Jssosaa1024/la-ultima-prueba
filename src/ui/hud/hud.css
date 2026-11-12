@@ -1,0 +1,136 @@
+/* HUD de la partida. La capa no recibe toques; solo sus botones (la escena va debajo). */
+.hud-partida {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right))
+    calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  color: #f2f2f2;
+}
+
+.hud-fila {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hud-abajo {
+  align-items: flex-end;
+}
+
+.hud-boton-redondo {
+  pointer-events: auto;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 24px;
+  background: rgb(0 0 0 / 60%);
+  color: #f2f2f2;
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+/* Reloj: números tabulares para que no baile al cambiar los dígitos. */
+.hud-reloj {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 48px;
+  justify-content: center;
+  padding: 2px 14px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 60%);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.hud-reloj-poco {
+  color: #ffb4a8;
+}
+
+.hud-reloj-pausa {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #b8c2cc;
+}
+
+.hud-sellos {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 60%);
+}
+
+.hud-sello {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px dashed #8a96a3;
+  border-radius: 50%;
+  font-size: 0.8125rem;
+  color: #b8c2cc;
+}
+
+.hud-sello-ganado {
+  border: 2px solid #e8a33d;
+  background: #e8a33d;
+  color: #111418;
+  font-weight: 700;
+}
+
+.hud-inventario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 60%;
+}
+
+.hud-objeto {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 60%);
+  font-size: 0.875rem;
+}
+
+/* Botón contextual: grande y a la derecha, sobre la zona de mirar (modo zurdo en T39). */
+.hud-accion {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 120px;
+  max-width: 50%;
+  min-height: 64px;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 16px;
+  background: #e8a33d;
+  color: #111418;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hud-accion-verbo {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.hud-accion-objeto {
+  font-size: 0.875rem;
+}

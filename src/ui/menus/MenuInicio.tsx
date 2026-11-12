@@ -1,3 +1,4 @@
+import { cargarEjemplo, pideEjemplo } from '../../signals/ejemplo';
 import { enviar } from '../../signals/puente';
 import './menus.css';
 
@@ -21,7 +22,11 @@ export default function MenuInicio() {
           <button
             type="button"
             class="boton boton-principal"
-            onClick={() => enviar({ t: 'iniciar', modo: 'individual' })}
+            onClick={() => {
+              enviar({ t: 'iniciar', modo: 'individual' });
+              // `/jugar?ejemplo=1`: datos de ejemplo mientras no existan el motor y el contenido.
+              if (pideEjemplo(window.location.search)) cargarEjemplo();
+            }}
           >
             Jugar solo
           </button>
