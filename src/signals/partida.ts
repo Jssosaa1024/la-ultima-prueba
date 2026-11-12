@@ -26,7 +26,7 @@ export const SALAS_CON_SELLO = SALAS.filter(
 export type SalaConSello = (typeof SALAS_CON_SELLO)[number];
 
 /** Fragmentos opcionales de la grabación (salas 2, 3 y 4). */
-export const GRABACIONES = ['g1', 'g2', 'g3'] as const;
+export const GRABACIONES = ['grab-1', 'grab-2', 'grab-3'] as const;
 export type GrabacionId = (typeof GRABACIONES)[number];
 
 /** Los cuatro finales del diseño. */

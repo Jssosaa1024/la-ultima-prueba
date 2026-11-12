@@ -1,7 +1,7 @@
 import { batch, signal } from '@preact/signals';
 import { fichas, type Ficha } from './contenido';
 import { enfocado, type ObjetoEnfocado } from './interfaz';
-import { sellos } from './partida';
+import { FINALES, grabaciones, sellos, type FinalId } from './partida';
 
 /**
  * DATOS DE EJEMPLO para ver el HUD, la inspección y el cuaderno antes de que existan el
@@ -57,6 +57,29 @@ let siguiente = 0;
 /** Lee el parámetro de la URL. Solo se acepta el valor exacto `1`. */
 export function pideEjemplo(busqueda: string): boolean {
   return new URLSearchParams(busqueda).get('ejemplo') === '1';
+}
+
+/**
+ * `/jugar?ejemplo=1&final=<id>`: para ver una pantalla de final sin jugar la partida.
+ * Solo se aceptan los ids de la lista de finales; cualquier otro valor se ignora.
+ */
+export function finalPedido(busqueda: string): FinalId | null {
+  const valor = new URLSearchParams(busqueda).get('final');
+  return FINALES.find((f) => f === valor) ?? null;
+}
+
+/** Datos para que el resumen del final no salga vacío. */
+export function cargarEjemploDeFinal(): void {
+  batch(() => {
+    sellos.value = [
+      's1-cooperativa',
+      's2-laboratorio',
+      's3-gimnasio',
+      's4-biblioteca',
+      's5-rectoria',
+    ];
+    grabaciones.value = ['grab-1', 'grab-2', 'grab-3'];
+  });
 }
 
 /** Pone el primer objeto enfocado y un sello ya ganado, para ver el HUD con datos. */
