@@ -1,14 +1,25 @@
 /**
- * Controles táctiles sobre el canvas (T14): arrastrar en la mitad derecha para mirar.
+ * Controles táctiles sobre el canvas.
+ * - Mitad derecha (T14): arrastrar para mirar.
+ * - Mitad izquierda (T15): joystick flotante para caminar.
  *
- * Cada dedo se sigue por su `pointerId`, así que mirar no se mezcla con el joystick de la
- * mitad izquierda (T15). Con ratón también funciona (arrastrar con el botón presionado).
+ * Cada dedo se sigue por su `pointerId`: se puede caminar y mirar a la vez con dos dedos.
+ * Con ratón también funciona (arrastrar con el botón izquierdo).
  */
 import type { Entrada } from './entrada';
+import { perilla, vectorJoystick } from './joystick';
 
 export interface OpcionesTactil {
   /** `false` mientras hay un panel abierto: se ignoran los toques nuevos. */
   activos: () => boolean;
+}
+
+interface Dedo {
+  id: number;
+  inicioX: number;
+  inicioY: number;
+  ultimoX: number;
+  ultimoY: number;
 }
 
 export function conectarTactil(
@@ -16,35 +27,63 @@ export function conectarTactil(
   entrada: Entrada,
   { activos }: OpcionesTactil,
 ): () => void {
-  let dedoMirada: number | null = null;
-  let ultimoX = 0;
-  let ultimoY = 0;
+  let mirada: Dedo | null = null;
+  let joystick: Dedo | null = null;
 
-  const enMitadDerecha = (e: PointerEvent): boolean => {
+  const local = (e: PointerEvent): { x: number; y: number; derecha: boolean } => {
     const caja = canvas.getBoundingClientRect();
-    return e.clientX - caja.left >= caja.width / 2;
+    const x = e.clientX - caja.left;
+    return { x, y: e.clientY - caja.top, derecha: x >= caja.width / 2 };
+  };
+
+  const actualizarJoystick = (d: Dedo): void => {
+    const dx = d.ultimoX - d.inicioX;
+    const dy = d.ultimoY - d.inicioY;
+    const v = vectorJoystick(dx, dy);
+    entrada.moverX = v.x;
+    entrada.moverY = v.y;
+    const p = perilla(dx, dy);
+    entrada.joystick = { baseX: d.inicioX, baseY: d.inicioY, perillaX: p.x, perillaY: p.y };
+  };
+
+  const soltarJoystick = (): void => {
+    joystick = null;
+    entrada.moverX = 0;
+    entrada.moverY = 0;
+    entrada.joystick = null;
   };
 
   const alBajar = (e: PointerEvent): void => {
-    if (!activos() || dedoMirada !== null || !enMitadDerecha(e)) return;
+    if (!activos()) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    dedoMirada = e.pointerId;
-    ultimoX = e.clientX;
-    ultimoY = e.clientY;
+    const { x, y, derecha } = local(e);
+    const dedo: Dedo = { id: e.pointerId, inicioX: x, inicioY: y, ultimoX: x, ultimoY: y };
+    if (derecha && mirada === null) mirada = dedo;
+    else if (!derecha && joystick === null) {
+      joystick = dedo;
+      actualizarJoystick(dedo);
+    } else return;
     canvas.setPointerCapture(e.pointerId);
   };
 
   const alMover = (e: PointerEvent): void => {
-    if (e.pointerId !== dedoMirada) return;
-    entrada.miradaX += e.clientX - ultimoX;
-    entrada.miradaY += e.clientY - ultimoY;
-    ultimoX = e.clientX;
-    ultimoY = e.clientY;
+    const { x, y } = local(e);
+    if (mirada && e.pointerId === mirada.id) {
+      entrada.miradaX += x - mirada.ultimoX;
+      entrada.miradaY += y - mirada.ultimoY;
+      mirada.ultimoX = x;
+      mirada.ultimoY = y;
+    } else if (joystick && e.pointerId === joystick.id) {
+      joystick.ultimoX = x;
+      joystick.ultimoY = y;
+      actualizarJoystick(joystick);
+    }
   };
 
   const alSoltar = (e: PointerEvent): void => {
-    if (e.pointerId !== dedoMirada) return;
-    dedoMirada = null;
+    if (mirada && e.pointerId === mirada.id) mirada = null;
+    else if (joystick && e.pointerId === joystick.id) soltarJoystick();
+    else return;
     if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
   };
 
