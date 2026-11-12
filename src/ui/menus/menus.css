@@ -1,0 +1,77 @@
+/* Menús a pantalla completa encima de la escena (inicio y, más adelante, pausa y ajustes). */
+.menu {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: rgb(17 20 24 / 92%);
+  color: #f2f2f2;
+  /* Dentro del menú sí se hace scroll si el texto no cabe (pantallas pequeñas, letra grande). */
+  touch-action: pan-y;
+}
+
+.menu-caja {
+  width: 100%;
+  max-width: 28rem;
+  line-height: 1.5;
+}
+
+.menu-antetitulo {
+  margin: 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b8c2cc;
+}
+
+.menu-titulo {
+  margin: 0.25rem 0 1rem;
+  font-size: clamp(2rem, 9vw, 3rem);
+  line-height: 1.1;
+  color: #e8a33d;
+}
+
+.menu-texto {
+  margin: 0 0 1.5rem;
+}
+
+.menu-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-nota {
+  margin: 1.5rem 0 0;
+  font-size: 0.875rem;
+  color: #b8c2cc;
+}
+
+/* Botones compartidos por menús y paneles: mínimo 48 px de alto (objetivo táctil ≥ 44 px). */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.boton-principal {
+  background: #e8a33d;
+  color: #111418;
+}
+
+.boton-secundario {
+  background: transparent;
+  border-color: #6b7785;
+  color: #f2f2f2;
+}
