@@ -1,0 +1,18 @@
+# build
+dist/
+.astro/
+
+# dependencias
+node_modules/
+
+# logs
+npm-debug.log*
+
+# variables de entorno (nunca se suben)
+.env
+.env.*
+!.env.example
+
+# sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import Contador from '../ui/Contador';
+---
+
+<Base title="La Última Prueba">
+  <main>
+    <h1>La Última Prueba</h1>
+    <p>Base del proyecto (T01): Astro + Preact + Signals.</p>
+    <Contador client:load />
+  </main>
+</Base>
