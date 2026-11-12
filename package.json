@@ -19,13 +19,15 @@
     "test:e2e": "playwright test",
     "optimize-models": "node scripts/optimize-models.ts",
     "build-manifest": "node scripts/build-manifest.ts",
-    "check-budget": "node scripts/check-budget.ts"
+    "check-budget": "node scripts/check-budget.ts",
+    "modelo-prueba": "node scripts/modelo-prueba.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.2",
     "@preact/signals": "^2.11.4",
     "astro": "^7.4.7",
-    "preact": "^11.2.0"
+    "preact": "^11.2.0",
+    "three": "0.187.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
@@ -35,6 +37,7 @@
     "@gltf-transform/functions": "^4.5.1",
     "@playwright/test": "^1.65.0",
     "@types/node": "^22.20.5",
+    "@types/three": "0.187.0",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^3.2.1",
