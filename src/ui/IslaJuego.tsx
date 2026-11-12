@@ -5,6 +5,7 @@ import { pantalla } from '../signals/pantalla';
 import { fase } from '../signals/partida';
 import { iniciarControladorProvisional } from '../signals/provisional';
 import { pruebaCarga } from '../signals/prueba-carga';
+import Hud from './hud/Hud';
 import MenuInicio from './menus/MenuInicio';
 import NoCompatible from './NoCompatible';
 import './IslaJuego.css';
@@ -94,7 +95,8 @@ function Escena() {
   return (
     <div class="juego">
       <canvas ref={canvasRef} class="juego-canvas" aria-label="Escena del juego" />
-      <div ref={hudRef} class="hud">
+      {/* Datos técnicos de pantalla: solo en la prueba de carga. */}
+      <div ref={hudRef} class="hud" hidden={!pruebaGlb}>
         <div class="zona-segura">
           <a class="hud-boton" href="/">
             Salir
@@ -124,6 +126,7 @@ function Escena() {
       </div>
       {/* La prueba de carga es técnica: va directo a la escena, sin menú. */}
       {!pruebaGlb && fase.value === 'inicio' && <MenuInicio />}
+      {!pruebaGlb && fase.value === 'jugando' && <Hud />}
     </div>
   );
 }
