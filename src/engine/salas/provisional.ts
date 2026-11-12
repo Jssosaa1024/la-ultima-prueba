@@ -11,6 +11,7 @@ import {
   MeshLambertMaterial,
   PlaneGeometry,
 } from 'three';
+import { marcarSolido } from './colisiones';
 
 const ANCHO = 8;
 const FONDO = 6;
@@ -27,27 +28,27 @@ export function crearEscenaProvisional(): Group {
   piso.rotation.x = -Math.PI / 2;
   sala.add(piso);
 
+  // Paredes de 10 cm de grosor, por fuera del piso: sólidas para el jugador (T17).
   const pared = new MeshLambertMaterial({ color: 0xd9d2c3 });
-  const muro = (ancho: number, x: number, z: number, giro: number): Mesh => {
-    const m = new Mesh(new PlaneGeometry(ancho, ALTO), pared);
+  const GROSOR = 0.1;
+  const muro = (ancho: number, fondo: number, x: number, z: number): Mesh => {
+    const m = new Mesh(new BoxGeometry(ancho, ALTO, fondo), pared);
     m.position.set(x, ALTO / 2, z);
-    m.rotation.y = giro;
-    return m;
+    return marcarSolido(m);
   };
   sala.add(
-    muro(ANCHO, 0, -FONDO / 2, 0),
-    muro(ANCHO, 0, FONDO / 2, Math.PI),
-    muro(FONDO, -ANCHO / 2, 0, Math.PI / 2),
-    muro(FONDO, ANCHO / 2, 0, -Math.PI / 2),
+    muro(ANCHO, GROSOR, 0, -(FONDO + GROSOR) / 2),
+    muro(ANCHO, GROSOR, 0, (FONDO + GROSOR) / 2),
+    muro(GROSOR, FONDO, -(ANCHO + GROSOR) / 2, 0),
+    muro(GROSOR, FONDO, (ANCHO + GROSOR) / 2, 0),
   );
 
   // Muebles de referencia: una mesa y dos cajas, para ver profundidad y escala.
   const madera = new MeshLambertMaterial({ color: 0x8a5a2b });
-  const mesa = new Mesh(new BoxGeometry(1.6, 0.75, 0.8), madera);
+  const mesa = marcarSolido(new Mesh(new BoxGeometry(1.6, 0.75, 0.8), madera));
   mesa.position.set(0, 0.375, -1.5);
-  const caja = new Mesh(
-    new BoxGeometry(0.6, 0.6, 0.6),
-    new MeshLambertMaterial({ color: 0x2f5d8a }),
+  const caja = marcarSolido(
+    new Mesh(new BoxGeometry(0.6, 0.6, 0.6), new MeshLambertMaterial({ color: 0x2f5d8a })),
   );
   caja.position.set(-2.5, 0.3, -2);
   const caja2 = caja.clone();

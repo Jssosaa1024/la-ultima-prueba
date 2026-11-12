@@ -14,9 +14,11 @@ import { estadoMotor } from '../signals/motor';
 import { liberarObjeto } from './carga/liberar';
 import { aplicarACamara, girar } from './jugador/camara';
 import type { Orientacion } from './jugador/camara';
+import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
 import { crearBucle } from './loop';
 import { crearRenderer, seguirTamano } from './renderer';
+import { cajasDeColision } from './salas/colisiones';
 import { crearEscenaProvisional } from './salas/provisional';
 
 /** Altura de los ojos del jugador, en metros. */
@@ -53,6 +55,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
 
   const sala = crearEscenaProvisional();
   escena.add(sala);
+  // Cajas de colisión generadas por código desde las mallas sólidas de la sala (T17).
+  const cajas = cajasDeColision(sala);
 
   const entrada = crearEntrada();
   // Los controles solo funcionan jugando y sin un panel 2D abierto (signals/interfaz.ts).
@@ -74,8 +78,10 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         }
         if (entrada.moverX !== 0 || entrada.moverY !== 0) {
           const d = desplazamiento(orientacion.yaw, entrada.moverX, entrada.moverY, dt);
-          camara.position.x += d.x;
-          camara.position.z += d.z;
+          // Los pies están en el piso (y = 0); la cámara va a la altura de los ojos.
+          const p = moverConColision(camara.position.x, camara.position.z, d.x, d.z, 0, cajas);
+          camara.position.x = p.x;
+          camara.position.z = p.z;
         }
       }
       publicarJoystick(entrada);
