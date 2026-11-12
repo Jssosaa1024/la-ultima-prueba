@@ -118,3 +118,23 @@ test('con dos dedos se camina y se mira a la vez', async ({ page }, info) => {
   const [x1, z1] = await leer(page, 'data-posicion');
   expect(Math.hypot(x1, z1 - z0)).toBeGreaterThan(0.3);
 });
+
+test('caminar de frente se detiene contra la mesa sin atravesarla (T17)', async ({
+  page,
+}, info) => {
+  const { caja } = await abrirJuego(page);
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  const desde = { x, y };
+  const hasta = { x, y: y - 80 };
+
+  // Joystick a fondo durante 3,5 s: sin colisión llegaría a z ≈ −4,8, detrás de la pared.
+  if (info.project.use.hasTouch) await arrastrarDedos(page, [[desde, hasta]], { quieto: 3500 });
+  else await arrastrarRaton(page, desde, hasta, 3500);
+
+  // La mesa va de z = −1,9 a −1,1; con 30 cm de radio, el jugador se queda en z = −0,8.
+  const [px, pz] = await leer(page, 'data-posicion');
+  expect(pz).toBeGreaterThan(-0.85);
+  expect(pz).toBeLessThan(0);
+  expect(Math.abs(px)).toBeLessThan(0.05);
+});
