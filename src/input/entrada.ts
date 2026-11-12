@@ -1,5 +1,5 @@
 /**
- * Estado de entrada que el motor lee en cada cuadro (T14).
+ * Estado de entrada que el motor lee en cada cuadro (T14, T15).
  *
  * Táctil, teclado y ratón escriben aquí; el motor lo consume. No usa signals: cambia
  * decenas de veces por segundo y solo lo lee el motor, no la interfaz.
@@ -10,10 +10,15 @@ export interface Entrada {
   miradaY: number;
   /** Escala de la mirada: táctil 1; el ratón con puntero bloqueado usa otra. */
   escalaMirada: number;
+  /** Joystick: movimiento lateral (+ derecha) y hacia adelante (+ adelante), de −1 a 1. */
+  moverX: number;
+  moverY: number;
+  /** Joystick visible: base y perilla en píxeles CSS del canvas; `null` si no se usa. */
+  joystick: { baseX: number; baseY: number; perillaX: number; perillaY: number } | null;
 }
 
 export function crearEntrada(): Entrada {
-  return { miradaX: 0, miradaY: 0, escalaMirada: 1 };
+  return { miradaX: 0, miradaY: 0, escalaMirada: 1, moverX: 0, moverY: 0, joystick: null };
 }
 
 /** Devuelve el arrastre acumulado y lo pone en cero. */
@@ -23,4 +28,13 @@ export function consumirMirada(e: Entrada): { dx: number; dy: number } {
   e.miradaX = 0;
   e.miradaY = 0;
   return { dx, dy };
+}
+
+/** Suelta todo: al abrir un panel o perder el foco, el jugador se detiene. */
+export function soltarTodo(e: Entrada): void {
+  e.miradaX = 0;
+  e.miradaY = 0;
+  e.moverX = 0;
+  e.moverY = 0;
+  e.joystick = null;
 }

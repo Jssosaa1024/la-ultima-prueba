@@ -4,14 +4,17 @@
  * Se comunica con ui/ solo por src/signals/.
  */
 import { PerspectiveCamera, Scene } from 'three';
+import { consumirMirada, crearEntrada, soltarTodo } from '../input/entrada';
+import type { Entrada } from '../input/entrada';
+import { RADIO_JOYSTICK } from '../input/joystick';
 import { conectarTactil } from '../input/tactil';
-import { consumirMirada, crearEntrada } from '../input/entrada';
-import { panel } from '../signals/interfaz';
+import { joystick } from '../signals/controles';
+import { controlesActivos } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
-import { fase } from '../signals/partida';
 import { liberarObjeto } from './carga/liberar';
 import { aplicarACamara, girar } from './jugador/camara';
 import type { Orientacion } from './jugador/camara';
+import { desplazamiento } from './jugador/movimiento';
 import { crearBucle } from './loop';
 import { crearRenderer, seguirTamano } from './renderer';
 import { crearEscenaProvisional } from './salas/provisional';
@@ -19,12 +22,25 @@ import { crearEscenaProvisional } from './salas/provisional';
 /** Altura de los ojos del jugador, en metros. */
 export const ALTURA_OJOS = 1.6;
 
-/**
- * El jugador se mueve y mira solo si no hay un panel 2D abierto y la partida no terminó.
- * Cuando exista el controlador de la partida (T24) que pone `fase = 'jugando'`, esto pasa a
- * ser `controlesActivos` de signals/interfaz.ts; hoy `fase` se queda en 'inicio'.
- */
-const controlesActivos = (): boolean => panel.value === null && fase.value !== 'final';
+/** Publica el joystick para el HUD solo si cambió (una vez por cuadro como máximo). */
+function publicarJoystick(entrada: Entrada): void {
+  const j = entrada.joystick;
+  const actual = joystick.value;
+  if (!j) {
+    if (actual) joystick.value = null;
+    return;
+  }
+  if (
+    actual &&
+    actual.baseX === j.baseX &&
+    actual.baseY === j.baseY &&
+    actual.perillaX === j.perillaX &&
+    actual.perillaY === j.perillaY
+  ) {
+    return;
+  }
+  joystick.value = { ...j, radio: RADIO_JOYSTICK };
+}
 
 export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   estadoMotor.value = 'cargando';
@@ -39,20 +55,32 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   escena.add(sala);
 
   const entrada = crearEntrada();
-  const desconectarTactil = conectarTactil(canvas, entrada, { activos: controlesActivos });
-  let miradaPublicada = '';
+  // Los controles solo funcionan jugando y sin un panel 2D abierto (signals/interfaz.ts).
+  const activos = (): boolean => controlesActivos.value;
+  const desconectarTactil = conectarTactil(canvas, entrada, { activos });
+  const depuracion = { mirada: '', posicion: '' };
 
   const bucle = crearBucle({
     programar: (cuadro) => renderer.setAnimationLoop(cuadro),
-    alCuadro: () => {
-      const { dx, dy } = consumirMirada(entrada);
-      if (controlesActivos() && (dx !== 0 || dy !== 0)) {
-        orientacion = girar(orientacion, dx, dy);
-        aplicarACamara(camara, orientacion);
-        // Para pruebas e2e y depuración; solo se escribe cuando cambia.
-        const mirada = `${orientacion.yaw.toFixed(2)},${orientacion.pitch.toFixed(2)}`;
-        if (mirada !== miradaPublicada) canvas.dataset['mirada'] = miradaPublicada = mirada;
+    alCuadro: (dt) => {
+      if (!activos()) {
+        // Con un panel abierto el jugador se queda quieto y no gira.
+        soltarTodo(entrada);
+      } else {
+        const { dx, dy } = consumirMirada(entrada);
+        if (dx !== 0 || dy !== 0) {
+          orientacion = girar(orientacion, dx, dy);
+          aplicarACamara(camara, orientacion);
+        }
+        if (entrada.moverX !== 0 || entrada.moverY !== 0) {
+          const d = desplazamiento(orientacion.yaw, entrada.moverX, entrada.moverY, dt);
+          camara.position.x += d.x;
+          camara.position.z += d.z;
+        }
       }
+      publicarJoystick(entrada);
+      escribirDepuracion(canvas, depuracion, orientacion, camara.position);
+
       seguirTamano(renderer, camara);
       renderer.info.reset();
       renderer.render(escena, camara);
@@ -67,9 +95,24 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   return () => {
     bucle.detener();
     desconectarTactil();
+    joystick.value = null;
     liberarObjeto(sala);
     renderer.dispose();
     delete canvas.dataset['motor'];
     delete canvas.dataset['mirada'];
+    delete canvas.dataset['posicion'];
   };
+}
+
+/** Mirada y posición en atributos del canvas, para pruebas e2e. Solo escribe si cambian. */
+function escribirDepuracion(
+  canvas: HTMLCanvasElement,
+  previo: { mirada: string; posicion: string },
+  o: Orientacion,
+  p: { x: number; z: number },
+): void {
+  const mirada = `${o.yaw.toFixed(2)},${o.pitch.toFixed(2)}`;
+  const posicion = `${p.x.toFixed(2)},${p.z.toFixed(2)}`;
+  if (mirada !== previo.mirada) canvas.dataset['mirada'] = previo.mirada = mirada;
+  if (posicion !== previo.posicion) canvas.dataset['posicion'] = previo.posicion = posicion;
 }
