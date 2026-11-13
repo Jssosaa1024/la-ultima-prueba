@@ -84,11 +84,11 @@ describe('máquina de estados de la partida (T24)', () => {
   });
 
   it('al terminar, la partida queda en el final y ya no acepta acciones', () => {
-    const p = aplicar(crearPartida(), { t: 'terminar', final: 'pedir_ayuda' });
+    const p = aplicar(crearPartida(), { t: 'pedir_ayuda' });
     expect(p.fase).toBe('final');
     expect(p.final).toBe('pedir_ayuda');
     expect(aplicar(p, { t: 'entrar', sala: 's1-cooperativa' })).toBe(p);
-    expect(aplicar(p, { t: 'terminar', final: 'tiempo_cumplido' })).toBe(p);
+    expect(aplicar(p, { t: 'tiempo_agotado' })).toBe(p);
   });
 
   it('no modifica el estado que recibe', () => {
@@ -101,7 +101,7 @@ describe('máquina de estados de la partida (T24)', () => {
   it('ignora acciones con datos fuera de la lista (por ejemplo, de la red)', () => {
     const p = crearPartida();
     expect(aplicar(p, { t: 'entrar', sala: 'sotano' as SalaId })).toBe(p);
-    expect(aplicar(p, { t: 'terminar', final: 'ganar' as never })).toBe(p);
+    expect(aplicar(p, { t: 'elegir_final', opcion: 'ganar' as 'salir' })).toBe(p);
   });
 
   it('convierte entre número e id de sala', () => {

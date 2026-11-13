@@ -26,6 +26,20 @@ export const ETAPAS_POR_SALA = 3;
 export const FINALES = ['justo_a_tiempo', 'el_legado', 'pedir_ayuda', 'tiempo_cumplido'] as const;
 export type FinalId = (typeof FINALES)[number];
 
+/** Las tres grabaciones opcionales; los ids coinciden con `signals/partida.ts`. */
+export const GRABACIONES = ['g1', 'g2', 'g3'] as const;
+export type GrabacionId = (typeof GRABACIONES)[number];
+
+/** Dónde está escondida cada grabación (salas 2, 3 y 4). */
+export const GRABACION_EN_SALA: Readonly<Record<GrabacionId, SalaId>> = {
+  g1: 's2-laboratorio',
+  g2: 's3-gimnasio',
+  g3: 's4-biblioteca',
+};
+
+/** Lo que se elige frente a la puerta de salida con los cinco sellos. */
+export type OpcionFinal = 'salir' | 'restaurar';
+
 export type FasePartida = 'jugando' | 'final';
 
 export interface Partida {
@@ -34,6 +48,8 @@ export interface Partida {
   /** Etapas resueltas en cada sala, de 0 a 3. Con 3 la sala está resuelta. */
   etapas: Readonly<Record<SalaId, number>>;
   final: FinalId | null;
+  /** Grabaciones recogidas, en el orden en que se encontraron. */
+  grabaciones: readonly GrabacionId[];
 }
 
 export type Accion =
@@ -43,8 +59,14 @@ export type Accion =
   | { t: 'volver_porteria' }
   /** El mecanismo de la sala cumplió la etapa (la decide `game/puzzles/`). */
   | { t: 'resolver_etapa'; sala: SalaId; etapa: number }
-  /** Termina la partida con un final. Las reglas de cada final llegan en T28. */
-  | { t: 'terminar'; final: FinalId };
+  /** Recoger una grabación estando en su sala. */
+  | { t: 'recoger_grabacion'; grabacion: GrabacionId }
+  /** En la portería, con los cinco sellos: salir o restaurar el archivo. */
+  | { t: 'elegir_final'; opcion: OpcionFinal }
+  /** Usar el intercomunicador y confirmar, en cualquier momento. */
+  | { t: 'pedir_ayuda' }
+  /** El reloj llegó a 00:40. */
+  | { t: 'tiempo_agotado' };
 
 /** Número de sala (1 a 5) de un id de sala. */
 export const numeroDeSala = (sala: SalaId): number => SALAS.indexOf(sala) + 1;
@@ -64,6 +86,7 @@ export function crearPartida(): Partida {
       's5-rectoria': 0,
     },
     final: null,
+    grabaciones: [],
   };
 }
 
@@ -85,6 +108,35 @@ export function etapaActual(p: Partida, sala: SalaId): number | null {
 /** Salas resueltas, en el orden del recorrido. */
 export const salasResueltas = (p: Partida): SalaId[] => SALAS.filter((s) => salaResuelta(p, s));
 
+/** Sellos del mural: uno por sala resuelta, en el orden del recorrido. */
+export const sellos = salasResueltas;
+
+export const tieneCincoSellos = (p: Partida): boolean => sellos(p).length === SALAS.length;
+
+export interface OpcionesDeFinal {
+  /** «Salir»: hay cinco sellos y se está en la portería. */
+  salir: boolean;
+  /** «Restaurar archivo»: además, las tres grabaciones. */
+  restaurar: boolean;
+  faltanGrabaciones: number;
+  /** Salas que aún esconden una grabación, para el mapa junto al botón desactivado. */
+  salasConGrabacion: SalaId[];
+}
+
+/** Qué finales se pueden elegir ahora frente a la puerta de salida. */
+export function opcionesDeFinal(p: Partida): OpcionesDeFinal {
+  const salir = p.fase === 'jugando' && p.lugar === 'porteria' && tieneCincoSellos(p);
+  const pendientes = GRABACIONES.filter((g) => !p.grabaciones.includes(g));
+  return {
+    salir,
+    restaurar: salir && pendientes.length === 0,
+    faltanGrabaciones: pendientes.length,
+    salasConGrabacion: pendientes.map((g) => GRABACION_EN_SALA[g]),
+  };
+}
+
+const terminar = (p: Partida, final: FinalId): Partida => ({ ...p, fase: 'final', final });
+
 export function aplicar(p: Partida, a: Accion): Partida {
   if (p.fase !== 'jugando') return p;
   switch (a.t) {
@@ -98,8 +150,22 @@ export function aplicar(p: Partida, a: Accion): Partida {
       // Solo la etapa que sigue, y solo estando en esa sala.
       if (p.lugar !== a.sala || etapaActual(p, a.sala) !== a.etapa) return p;
       return { ...p, etapas: { ...p.etapas, [a.sala]: a.etapa + 1 } };
-    case 'terminar':
-      if (!FINALES.includes(a.final)) return p;
-      return { ...p, fase: 'final', final: a.final };
+    case 'recoger_grabacion': {
+      if (!GRABACIONES.includes(a.grabacion)) return p;
+      if (p.lugar !== GRABACION_EN_SALA[a.grabacion] || p.grabaciones.includes(a.grabacion)) {
+        return p;
+      }
+      return { ...p, grabaciones: [...p.grabaciones, a.grabacion] };
+    }
+    case 'elegir_final': {
+      const opciones = opcionesDeFinal(p);
+      if (a.opcion === 'salir' && opciones.salir) return terminar(p, 'justo_a_tiempo');
+      if (a.opcion === 'restaurar' && opciones.restaurar) return terminar(p, 'el_legado');
+      return p;
+    }
+    case 'pedir_ayuda':
+      return terminar(p, 'pedir_ayuda');
+    case 'tiempo_agotado':
+      return terminar(p, 'tiempo_cumplido');
   }
 }
