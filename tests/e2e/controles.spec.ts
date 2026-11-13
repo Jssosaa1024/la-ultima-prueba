@@ -251,3 +251,88 @@ test('en celular, tocar la escena nunca bloquea el puntero (T19)', async ({ page
   await page.waitForTimeout(300);
   expect(await canvas.evaluate((c) => document.pointerLockElement === c)).toBe(false);
 });
+
+/**
+ * Dónde se ve en pantalla un punto 3D, con la posición y la mirada que publica el motor
+ * (cámara a 1,6 m, campo de visión vertical de 70°).
+ */
+async function enPantalla(page: Page, caja: Caja, punto: [number, number, number]): Promise<Punto> {
+  const [cx, cz] = await leer(page, 'data-posicion');
+  const [yaw, pitch] = await leer(page, 'data-mirada');
+  const d = [punto[0] - cx, punto[1] - 1.6, punto[2] - cz] as const;
+  const f = [-Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch)];
+  const r = [Math.cos(yaw), 0, -Math.sin(yaw)];
+  const u = [Math.sin(yaw) * Math.sin(pitch), Math.cos(pitch), Math.cos(yaw) * Math.sin(pitch)];
+  const punto3 = (v: readonly number[]) =>
+    d[0] * (v[0] ?? 0) + d[1] * (v[1] ?? 0) + d[2] * (v[2] ?? 0);
+  const profundidad = punto3(f);
+  const t = Math.tan((35 * Math.PI) / 180);
+  const ndcX = punto3(r) / (profundidad * t * (caja.width / caja.height));
+  const ndcY = punto3(u) / (profundidad * t);
+  return { x: caja.x + ((ndcX + 1) / 2) * caja.width, y: caja.y + ((1 - ndcY) / 2) * caja.height };
+}
+
+/** Gira la cámara arrastrando en horizontal (negativo: a la izquierda). */
+async function girarCamara(page: Page, caja: Caja, dx: number, conDedo: boolean | undefined) {
+  const y = caja.y + caja.height * 0.4;
+  const desde = { x: dx > 0 ? caja.x + caja.width * 0.52 : caja.x + caja.width * 0.97, y };
+  const hasta = { x: desde.x + dx, y };
+  if (conDedo) await arrastrarDedos(page, [[desde, hasta]]);
+  else await arrastrarRaton(page, desde, hasta);
+}
+
+test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera (T20)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch;
+  const { canvas, caja } = await abrirJuego(page);
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+
+  // Girar hacia la puerta 2 (pared este) y acercarse un poco.
+  await girarCamara(page, caja, Math.min(187, caja.width * 0.46), conDedo);
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  if (conDedo)
+    await arrastrarDedos(
+      page,
+      [
+        [
+          { x, y },
+          { x, y: y - 80 },
+        ],
+      ],
+      { quieto: 600 },
+    );
+  else await arrastrarRaton(page, { x, y }, { x, y: y - 80 }, 600);
+
+  // Tocar la puerta 2 donde se ve en pantalla y usarla.
+  await tocar(page, await enPantalla(page, caja, [2.96, 1.1, 1.55]), conDedo);
+  const puerta2 = page.getByRole('button', { name: /Usar.*Puerta 2/ });
+  await expect(puerta2).toBeVisible();
+  await puerta2.click();
+  await expect(canvas).toHaveAttribute('data-sala', 's2-laboratorio');
+
+  // En el laboratorio se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
+  const [, zLab] = await leer(page, 'data-posicion');
+  expect(zLab).toBeCloseTo(1.98, 1);
+  const media = -Math.min(353, caja.width * 0.9);
+  await girarCamara(page, caja, media, conDedo);
+  await girarCamara(page, caja, -Math.PI / 0.0045 - media, conDedo);
+  await tocar(page, await enPantalla(page, caja, [0, 1.1, 2.96]), conDedo);
+  const volver = page.getByRole('button', { name: /Usar.*Puerta a la portería/ });
+  await expect(volver).toBeVisible();
+  await volver.click();
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+
+  // De vuelta en la portería: frente a la puerta 2, y el laboratorio ya no ocupa memoria.
+  // Three sube cada geometría la primera vez que se ve, así que en la GPU puede haber menos
+  // geometrías que mallas, pero nunca más: si el laboratorio no se hubiera liberado, sobrarían.
+  const [xP, zP] = await leer(page, 'data-posicion');
+  expect(xP).toBeCloseTo(1.98, 1);
+  expect(zP).toBeCloseTo(1.55, 1);
+  const mallasPorteria = Number(await canvas.getAttribute('data-mallas'));
+  expect(mallasPorteria).toBeGreaterThan(0);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-geometrias')))
+    .toBeLessThanOrEqual(mallasPorteria);
+});
