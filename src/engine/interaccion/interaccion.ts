@@ -109,6 +109,8 @@ export function crearInteraccion(camara: Camera, raiz: Object3D): Interaccion {
   };
 
   const resaltar = (objeto: Object3D): void => {
+    // Ya estaba enfocado: no se vuelve a escribir el signal (la mira apunta 10 veces por segundo).
+    if (actual?.objeto === objeto && enfocado.value?.id === datosDe(objeto).id) return;
     quitarResaltado();
     const partes = resaltables(objeto);
     for (const { material } of partes) material.emissive?.copy(BRILLO);

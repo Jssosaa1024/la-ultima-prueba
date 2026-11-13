@@ -18,3 +18,9 @@ export interface JoystickVisible {
 
 /** `null` cuando ningún dedo usa el joystick: el HUD no lo dibuja. */
 export const joystick = signal<JoystickVisible | null>(null);
+
+/**
+ * `true` mientras el ratón está bloqueado en la escena (escritorio, T19). El HUD puede dibujar
+ * una mira en el centro y recordar «Esc para soltar el ratón». Lo escribe engine/.
+ */
+export const punteroBloqueado = signal(false);

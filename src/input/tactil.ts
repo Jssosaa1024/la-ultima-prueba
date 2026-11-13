@@ -64,6 +64,8 @@ export function conectarTactil(
   const alBajar = (e: PointerEvent): void => {
     if (!activos()) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    // Con el puntero bloqueado (escritorio, T19), el ratón lo maneja input/escritorio.ts.
+    if (e.pointerType === 'mouse' && document.pointerLockElement === canvas) return;
     const { x, y, derecha } = local(e);
     const dedo: Dedo = {
       id: e.pointerId,
