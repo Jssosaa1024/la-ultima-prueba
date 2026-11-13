@@ -3,7 +3,10 @@
  * La interfaz lo monta con `iniciarMotor(canvas)` y lo desmonta con la función que devuelve.
  * Se comunica con ui/ solo por src/signals/.
  */
+import { effect } from '@preact/signals';
 import { PerspectiveCamera, Scene } from 'three';
+import type { Lugar } from '../content/esquema-salas';
+import { salaPorId } from '../content/salas';
 import { consumirMirada, crearEntrada, movimiento, soltarTodo } from '../input/entrada';
 import type { Entrada } from '../input/entrada';
 import { RADIO_JOYSTICK } from '../input/joystick';
@@ -12,20 +15,25 @@ import { conectarTactil } from '../input/tactil';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
+import { sala } from '../signals/partida';
 import { enviar } from '../signals/puente';
 import { liberarObjeto } from './carga/liberar';
 import { crearInteraccion } from './interaccion/interaccion';
+import type { Interaccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
 import type { Orientacion } from './jugador/camara';
 import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
 import { crearBucle } from './loop';
 import { crearRenderer, seguirTamano } from './renderer';
-import { cajasDeColision } from './salas/colisiones';
-import { crearEscenaProvisional } from './salas/provisional';
+import { construirSala } from './salas/construir';
+import type { SalaConstruida } from './salas/construir';
+import { salaDeLaUrl } from './salas/url';
 
 /** Altura de los ojos del jugador, en metros. */
 export const ALTURA_OJOS = 1.6;
+/** Al entrar a una sala se mira un poco hacia abajo, a la altura de los muebles. */
+const PITCH_INICIAL = -0.12;
 
 /** Publica el joystick para el HUD solo si cambió (una vez por cuadro como máximo). */
 function publicarJoystick(entrada: Entrada): void {
@@ -52,26 +60,46 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const renderer = crearRenderer(canvas);
   const escena = new Scene();
   const camara = new PerspectiveCamera(70, 1, 0.05, 50);
-  camara.position.set(0, ALTURA_OJOS, 2.2);
-  let orientacion: Orientacion = { yaw: 0, pitch: -0.12 };
-  aplicarACamara(camara, orientacion);
+  let orientacion: Orientacion = { yaw: 0, pitch: PITCH_INICIAL };
 
-  const sala = crearEscenaProvisional();
-  escena.add(sala);
-  // Cajas de colisión generadas por código desde las mallas sólidas de la sala (T17).
-  const cajas = cajasDeColision(sala);
+  // Salas por código: la sala de `signals/partida.ts` (la portería al empezar), armada con
+  // primitivas desde src/content/salas.json, con sus cajas de colisión (T17).
+  let actual: SalaConstruida | null = null;
+  // Tocar un objeto lo enfoca y el HUD muestra su botón contextual (T18).
+  let interaccion: Interaccion | null = null;
+  const entrar = (lugar: Lugar): void => {
+    if (actual?.id === lugar) return;
+    if (actual) {
+      interaccion?.liberar();
+      liberarObjeto(actual.raiz);
+    }
+    actual = construirSala(salaPorId(lugar));
+    escena.add(actual.raiz);
+    interaccion = crearInteraccion(camara, actual.raiz);
+    camara.position.set(actual.inicio.x, ALTURA_OJOS, actual.inicio.z);
+    orientacion = { yaw: actual.inicio.yaw, pitch: PITCH_INICIAL };
+    aplicarACamara(camara, orientacion);
+    canvas.dataset['sala'] = lugar;
+  };
+  // `?sala=…` solo elige la primera sala que se dibuja; en cuanto la partida cambia de sala,
+  // manda la partida.
+  let forzada = salaDeLaUrl(window.location.search);
+  const salaInicial = sala.value;
+  const dejarDeSeguirSala = effect(() => {
+    const lugar = sala.value;
+    if (lugar !== salaInicial) forzada = null;
+    entrar(forzada ?? lugar);
+  });
 
   const entrada = crearEntrada();
   // Los controles solo funcionan jugando y sin un panel 2D abierto (signals/interfaz.ts).
   const activos = (): boolean => controlesActivos.value;
-  // Tocar un objeto lo enfoca y el HUD muestra su botón contextual (T18).
-  const interaccion = crearInteraccion(camara, sala);
   const desconectarTactil = conectarTactil(canvas, entrada, {
     activos,
     alTocar: (x, y) => {
       const ancho = Math.max(1, canvas.clientWidth);
       const alto = Math.max(1, canvas.clientHeight);
-      interaccion.tocar((x / ancho) * 2 - 1, -(y / alto) * 2 + 1);
+      interaccion?.tocar((x / ancho) * 2 - 1, -(y / alto) * 2 + 1);
     },
   });
   // Escritorio (T19): WASD, puntero bloqueado y E o clic para usar lo apuntado.
@@ -82,7 +110,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       if (objeto) enviar({ t: 'accion', objeto: objeto.id, accion: objeto.accion });
     },
     // El toque (pointerup) llega antes que el clic: si seleccionó un objeto, no se bloquea.
-    puedeBloquear: () => interaccion.seleccionado === null,
+    puedeBloquear: () => !interaccion?.seleccionado,
     alCambiarBloqueo: (bloqueado) => {
       punteroBloqueado.value = bloqueado;
     },
@@ -108,14 +136,15 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         if (pedido.x !== 0 || pedido.y !== 0) {
           const d = desplazamiento(orientacion.yaw, pedido.x, pedido.y, dt);
           // Los pies están en el piso (y = 0); la cámara va a la altura de los ojos.
+          const cajas = actual?.cajas ?? [];
           const p = moverConColision(camara.position.x, camara.position.z, d.x, d.z, 0, cajas);
           camara.position.x = p.x;
           camara.position.z = p.z;
         }
       }
       // Con el puntero bloqueado, la mira del centro apunta (unas 10 veces por segundo).
-      if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion.tocar(0, 0);
-      interaccion.actualizar();
+      if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion?.tocar(0, 0);
+      interaccion?.actualizar();
       publicarJoystick(entrada);
       escribirDepuracion(canvas, depuracion, orientacion, camara.position);
 
@@ -135,13 +164,15 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     desconectarTactil();
     desconectarEscritorio();
     punteroBloqueado.value = false;
-    interaccion.liberar();
+    dejarDeSeguirSala();
+    interaccion?.liberar();
     joystick.value = null;
-    liberarObjeto(sala);
+    if (actual) liberarObjeto(actual.raiz);
     renderer.dispose();
     delete canvas.dataset['motor'];
     delete canvas.dataset['mirada'];
     delete canvas.dataset['posicion'];
+    delete canvas.dataset['sala'];
   };
 }
 

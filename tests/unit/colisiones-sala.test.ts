@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial } from 'three';
 import { moverConColision, CAPSULA_JUGADOR } from '../../src/engine/jugador/colision';
 import { cajasDeColision, marcarSolido } from '../../src/engine/salas/colisiones';
-import { crearEscenaProvisional } from '../../src/engine/salas/provisional';
+import { salaPorId } from '../../src/content/salas';
+import { construirSala } from '../../src/engine/salas/construir';
 
 describe('cajas de colisión generadas por código', () => {
   it('toma solo las mallas sólidas, en coordenadas del mundo', () => {
@@ -29,17 +30,17 @@ describe('cajas de colisión generadas por código', () => {
     ]);
   });
 
-  it('en la escena provisional el jugador no sale del salón ni atraviesa la mesa', () => {
-    const cajas = cajasDeColision(crearEscenaProvisional());
-    // 4 paredes, la mesa y 2 cajas.
+  it('en la portería el jugador no sale del pasillo ni atraviesa el escritorio', () => {
+    const { cajas } = construirSala(salaPorId('porteria'));
+    // 4 paredes, el casillero, el escritorio y la silla.
     expect(cajas).toHaveLength(7);
 
-    // Caminar de frente desde el punto de partida: se detiene contra la mesa.
-    const frente = moverConColision(0, 2.2, 0, -10, 0, cajas);
-    expect(frente.z).toBeCloseTo(-1.1 + CAPSULA_JUGADOR.radio);
+    // Caminar de frente desde la entrada: se detiene contra la pared del fondo (z = −5).
+    const frente = moverConColision(0, 4.2, 0, -20, 0, cajas);
+    expect(frente.z).toBeCloseTo(-5 + CAPSULA_JUGADOR.radio);
 
-    // Caminar hacia la derecha: se detiene contra la pared (x = 4).
-    const lado = moverConColision(0, 0, 20, 0, 0, cajas);
-    expect(lado.x).toBeCloseTo(4 - CAPSULA_JUGADOR.radio);
+    // Caminar hacia la derecha a la altura del escritorio: se detiene contra él (x = 1,6).
+    const lado = moverConColision(0, 3.4, 20, 0, 0, cajas);
+    expect(lado.x).toBeCloseTo(1.6 - CAPSULA_JUGADOR.radio);
   });
 });
