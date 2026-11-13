@@ -1,0 +1,112 @@
+{
+  "id": "s2-tanques",
+  "version": 1,
+  "sala": 2,
+  "titulo": "Los tanques y el graficador",
+  "tema": "funciones_lineales",
+  "proceso": "modelar",
+  "grado": 9,
+  "dificultad": 2,
+  "concepto": "Algo que cambia a ritmo constante dibuja una recta: el ritmo es su inclinación, el punto de partida es donde corta el eje, y donde dos rectas se cruzan las dos cosas valen lo mismo al mismo tiempo.",
+  "intuicion": "Para que se encuentren, el que va más abajo tiene que subir más rápido. ¿Pero cuánto más?",
+  "mecanismo": "tanques",
+  "etapas": [
+    {
+      "id": "presentar",
+      "situacion": "Solo está el tanque A, vacío. Debe llegar a la línea roja de 30 cm cuando suene la campana, a los 10 segundos.",
+      "aja": "Cada caudal dibuja una recta más o menos inclinada.",
+      "estado_inicial": { "a": { "nivel": 0, "caudal": 0, "visible": true }, "b": null },
+      "controles": { "perillas": ["a"], "caudal_min": 0, "caudal_max": 6, "altura_cm": 60 },
+      "exito": { "campana_s": 10, "objetivo": { "tipo": "linea", "nivel": 30 } },
+      "solucion": { "a": { "nivel": 0, "caudal": 3, "visible": true }, "b": null }
+    },
+    {
+      "id": "torcer",
+      "situacion": "A empieza en 10 cm. B empieza en 50 cm y se vacía a 2 cm por segundo; su perilla está bloqueada. La campana suena a los 8 segundos.",
+      "aja": "Tras una corrida de prueba, basta prolongar la recta morada hasta el segundo 8 para ver a dónde tiene que llegar la verde.",
+      "estado_inicial": {
+        "a": { "nivel": 10, "caudal": 0, "visible": true },
+        "b": { "nivel": 50, "caudal": -2, "visible": true }
+      },
+      "controles": { "perillas": ["a"], "caudal_min": 0, "caudal_max": 6, "altura_cm": 60 },
+      "exito": { "campana_s": 8, "objetivo": { "tipo": "cruce" } },
+      "solucion": {
+        "a": { "nivel": 10, "caudal": 3, "visible": true },
+        "b": { "nivel": 50, "caudal": -2, "visible": true }
+      }
+    },
+    {
+      "id": "dominar",
+      "situacion": "B está tapado con cinta: no se ve su nivel. En el piso hay una hoja del graficador de ayer con dos marcas moradas. A empieza vacío y la campana suena a los 12 segundos.",
+      "aja": "De dos puntos sale toda la recta: B baja 2 cm por segundo y empezó en 48 cm.",
+      "estado_inicial": {
+        "a": { "nivel": 0, "caudal": 0, "visible": true },
+        "b": {
+          "nivel": 48,
+          "caudal": -2,
+          "visible": false,
+          "registro": [
+            { "t": 2, "nivel": 44 },
+            { "t": 6, "nivel": 36 }
+          ]
+        }
+      },
+      "controles": { "perillas": ["a"], "caudal_min": 0, "caudal_max": 6, "altura_cm": 60 },
+      "exito": { "campana_s": 12, "objetivo": { "tipo": "cruce" } },
+      "solucion": {
+        "a": { "nivel": 0, "caudal": 2, "visible": true },
+        "b": {
+          "nivel": 48,
+          "caudal": -2,
+          "visible": false,
+          "registro": [
+            { "t": 2, "nivel": 44 },
+            { "t": 6, "nivel": 36 }
+          ]
+        }
+      }
+    }
+  ],
+  "pistas": [
+    {
+      "nivel": 1,
+      "tras_segundos": 120,
+      "tras_intentos": 3,
+      "texto": "Haz una corrida y mira lo que dibuja el graficador."
+    },
+    {
+      "nivel": 2,
+      "tras_segundos": 240,
+      "tras_intentos": 6,
+      "texto": "Donde se cruzan las dos líneas, los tanques tienen la misma altura."
+    },
+    {
+      "nivel": 3,
+      "tras_segundos": 360,
+      "tras_intentos": 9,
+      "texto": "En la hoja de ayer, B bajó 8 cm en 4 segundos. ¿Dónde estaría a los 12?"
+    }
+  ],
+  "cuaderno": {
+    "concepto": "La función lineal",
+    "texto": "Una función lineal: altura = inicio + caudal × tiempo. El caudal es la pendiente. El cruce de dos rectas es la solución de un sistema de ecuaciones."
+  },
+  "pista_por_jugador": {
+    "A": {
+      "objeto": "s2-perilla-verde",
+      "texto": "La perilla verde cambia el caudal del tanque A de 1 en 1 cm por segundo."
+    },
+    "B": {
+      "objeto": "s2-hoja-ayer",
+      "texto": "Con la linterna, bajo un mesón aparece una hoja del graficador de ayer con dos marcas moradas."
+    },
+    "C": {
+      "objeto": "s2-campana",
+      "texto": "El temporizador de la campana dice a qué segundo sonará."
+    },
+    "D": {
+      "objeto": "s2-palanca",
+      "texto": "La palanca arranca la corrida y el graficador dibuja mientras el líquido corre."
+    }
+  }
+}
