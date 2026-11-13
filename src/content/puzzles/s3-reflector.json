@@ -1,0 +1,135 @@
+{
+  "id": "s3-reflector",
+  "version": 1,
+  "sala": 3,
+  "titulo": "El reflector y las sombras",
+  "tema": "semejanza_tangente",
+  "proceso": "formular_resolver",
+  "grado": 10,
+  "dificultad": 2,
+  "concepto": "Con la misma luz, todas las sombras guardan la misma proporción con la altura de lo que las proyecta, y esa proporción depende solo del ángulo de la luz.",
+  "intuicion": "Lo que está muy alto no se puede medir sin subir.",
+  "mecanismo": "reflector",
+  "etapas": [
+    {
+      "id": "presentar",
+      "situacion": "Un poste de 2 m tiene un sensor a 2 m de su base. Inclina el reflector hasta que la punta de la sombra toque el sensor.",
+      "aja": "A 45° la sombra mide lo mismo que el poste.",
+      "estado_inicial": {
+        "muesca": 63,
+        "postes": [{ "id": "poste-2", "altura": 2, "distancia": 2 }],
+        "polea": null
+      },
+      "controles": {
+        "muescas": [27, 37, 45, 53, 63],
+        "girar": true,
+        "postes_moviles": [],
+        "distancia_min": 1,
+        "distancia_max": 10,
+        "polea": null
+      },
+      "exito": { "sensores": ["poste-2"], "marcador": null },
+      "solucion": {
+        "muesca": 45,
+        "postes": [{ "id": "poste-2", "altura": 2, "distancia": 2 }],
+        "polea": null
+      }
+    },
+    {
+      "id": "torcer",
+      "situacion": "Con la misma luz, el poste de 1 m tiene un sensor a 2 m de su base y el poste de 3 m debe tocar con su sombra un segundo sensor. Ese poste se desliza por su riel.",
+      "aja": "Si el poste pequeño da una sombra del doble de su altura, el grande también: las sombras son proporcionales.",
+      "estado_inicial": {
+        "muesca": 45,
+        "postes": [
+          { "id": "poste-1", "altura": 1, "distancia": 2 },
+          { "id": "poste-3", "altura": 3, "distancia": 4 }
+        ],
+        "polea": null
+      },
+      "controles": {
+        "muescas": [27, 37, 45, 53, 63],
+        "girar": true,
+        "postes_moviles": ["poste-3"],
+        "distancia_min": 1,
+        "distancia_max": 10,
+        "polea": null
+      },
+      "exito": { "sensores": ["poste-1", "poste-3"], "marcador": null },
+      "solucion": {
+        "muesca": 27,
+        "postes": [
+          { "id": "poste-1", "altura": 1, "distancia": 2 },
+          { "id": "poste-3", "altura": 3, "distancia": 6 }
+        ],
+        "polea": null
+      }
+    },
+    {
+      "id": "dominar",
+      "situacion": "El marcador con el sello cuelga muy arriba y su sombra cae en la cinta métrica del piso. Suelta la polea, graduada en metros, justo hasta el marcador.",
+      "aja": "Una sombra medible y un poste conocido bastan para medir lo inalcanzable. A 45°, la cinta marca la altura directamente.",
+      "estado_inicial": {
+        "muesca": 63,
+        "postes": [{ "id": "poste-2", "altura": 2, "distancia": null }],
+        "polea": 3
+      },
+      "controles": {
+        "muescas": [27, 37, 45, 53, 63],
+        "girar": true,
+        "postes_moviles": [],
+        "distancia_min": 1,
+        "distancia_max": 10,
+        "polea": { "min": 1, "max": 9 }
+      },
+      "exito": { "sensores": [], "marcador": { "altura": 8 } },
+      "solucion": {
+        "muesca": 45,
+        "postes": [{ "id": "poste-2", "altura": 2, "distancia": null }],
+        "polea": 8
+      }
+    }
+  ],
+  "pistas": [
+    {
+      "nivel": 1,
+      "tras_segundos": 120,
+      "tras_intentos": 3,
+      "texto": "Mueve el reflector y mira las sombras de dos postes a la vez."
+    },
+    {
+      "nivel": 2,
+      "tras_segundos": 240,
+      "tras_intentos": 6,
+      "texto": "Con la misma luz, ¿cuántas veces cabe la altura de un poste en su sombra? ¿Y la del otro?"
+    },
+    {
+      "nivel": 3,
+      "tras_segundos": 360,
+      "tras_intentos": 9,
+      "texto": "Recuerda qué pasaba a 45°."
+    }
+  ],
+  "cuaderno": {
+    "concepto": "Triángulos semejantes y tangente",
+    "texto": "Con el mismo ángulo, altura ÷ sombra es siempre igual: son triángulos semejantes. A esa razón se le llama tangente del ángulo. Ya la usaste: tan 45° = 1."
+  },
+  "pista_por_jugador": {
+    "A": {
+      "objeto": "s3-postes",
+      "texto": "Los postes de 1, 2 y 3 m se deslizan por rieles marcados cada metro."
+    },
+    "B": {
+      "objeto": "s3-reflector",
+      "texto": "La perilla del reflector tiene cinco muescas: 27°, 37°, 45°, 53° y 63°."
+    },
+    "C": {
+      "objeto": "s3-cinta-metrica",
+      "texto": "La cinta métrica del piso y los sensores dicen dónde cae cada sombra."
+    },
+    "D": {
+      "objeto": "s3-polea",
+      "texto": "La polea de la pared se gradúa en metros: suéltala justo hasta el marcador."
+    }
+  }
+}

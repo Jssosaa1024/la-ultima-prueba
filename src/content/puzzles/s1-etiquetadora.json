@@ -1,0 +1,84 @@
+{
+  "id": "s1-etiquetadora",
+  "version": 1,
+  "sala": 1,
+  "titulo": "La etiquetadora",
+  "tema": "porcentajes",
+  "proceso": "procedimientos",
+  "grado": 9,
+  "dificultad": 1,
+  "concepto": "Un porcentaje es un multiplicador: bajar 20 % y luego subir 20 % no devuelve el precio original, y dos cambios seguidos se combinan multiplicando, no sumando.",
+  "intuicion": "Si quito 20 % y pongo 20 %, quedo igual.",
+  "mecanismo": "etiquetadora",
+  "etapas": [
+    {
+      "id": "presentar",
+      "situacion": "La etiqueta del jugo dice $2.000 y la pizarra, $1.600. Pon una etiqueta en blanco, elige los rodillos y baja la palanca.",
+      "aja": "Funciona a la primera: aprendes cómo responde la máquina.",
+      "estado_inicial": { "producto": "jugo", "precio": 2000, "rodillos": [] },
+      "controles": { "rodillos": [-20, 20, 25, -50, 50], "max_rodillos": 2 },
+      "exito": { "precio": 1600 },
+      "solucion": { "producto": "jugo", "precio": 2000, "rodillos": [-20] }
+    },
+    {
+      "id": "torcer",
+      "situacion": "A la empanada le aplicaron la promo por error: su etiqueta dice $1.600 y la pizarra, $2.000.",
+      "aja": "Con +20 % imprime $1.920. Deshacer un −20 % pide más del 20 %, porque se calcula sobre un precio menor.",
+      "estado_inicial": { "producto": "empanada", "precio": 1600, "rodillos": [] },
+      "controles": { "rodillos": [-20, 20, 25, -50, 50], "max_rodillos": 2 },
+      "exito": { "precio": 2000 },
+      "solucion": { "producto": "empanada", "precio": 1600, "rodillos": [25] }
+    },
+    {
+      "id": "dominar",
+      "situacion": "La etiqueta del combo dice $4.000 y la pizarra, $3.000. En la caja no hay rodillo de −25 %.",
+      "aja": "−50 % y +50 % no se anulan: dan $3.000. Y si cambias el orden, el resultado no cambia, porque los rodillos se multiplican.",
+      "estado_inicial": { "producto": "combo", "precio": 4000, "rodillos": [] },
+      "controles": { "rodillos": [-20, 20, 25, -50, 50], "max_rodillos": 2 },
+      "exito": { "precio": 3000 },
+      "solucion": { "producto": "combo", "precio": 4000, "rodillos": [-50, 50] }
+    }
+  ],
+  "pistas": [
+    {
+      "nivel": 1,
+      "tras_segundos": 120,
+      "tras_intentos": 3,
+      "texto": "Mira cuántos pesos quita o pone cada rodillo. ¿Siempre es la misma cantidad?"
+    },
+    {
+      "nivel": 2,
+      "tras_segundos": 240,
+      "tras_intentos": 6,
+      "texto": "+20 % sobre $1.600 no es lo mismo que +20 % sobre $2.000."
+    },
+    {
+      "nivel": 3,
+      "tras_segundos": 360,
+      "tras_intentos": 9,
+      "texto": "Piensa en cada rodillo como un multiplicador: −20 % es ×0,8."
+    }
+  ],
+  "cuaderno": {
+    "concepto": "El porcentaje como multiplicador",
+    "texto": "Un cambio de p % multiplica por (1 + p/100). Dos cambios seguidos se multiplican. Por eso −20 % y +25 % se anulan: 0,8 × 1,25 = 1."
+  },
+  "pista_por_jugador": {
+    "A": {
+      "objeto": "s1-productos",
+      "texto": "Tres productos tienen la etiqueta mal: el jugo, la empanada y el combo."
+    },
+    "B": {
+      "objeto": "s1-pizarra",
+      "texto": "La pizarra del menú, en penumbra, tiene los precios correctos de hoy."
+    },
+    "C": {
+      "objeto": "s1-caja-rodillos",
+      "texto": "En la caja hay cinco rodillos: −20 %, +20 %, +25 %, −50 % y +50 %."
+    },
+    "D": {
+      "objeto": "s1-palanca",
+      "texto": "La etiquetadora tiene dos ranuras: pon uno o dos rodillos y baja la palanca."
+    }
+  }
+}

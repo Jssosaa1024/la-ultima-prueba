@@ -1,0 +1,84 @@
+{
+  "id": "s5-urna",
+  "version": 1,
+  "sala": 5,
+  "titulo": "El juego justo de La Voz",
+  "tema": "probabilidad_sin_reemplazo",
+  "proceso": "modelar",
+  "grado": 10,
+  "dificultad": 3,
+  "concepto": "Si sacas dos fichas sin devolver la primera, la segunda extracción depende de la primera. Contar las parejas posibles es una forma clara de ver probabilidades.",
+  "intuicion": "Con 2 azules y 2 amarillas, sacar dos del mismo color es 50 y 50.",
+  "mecanismo": "urna",
+  "etapas": [
+    {
+      "id": "presentar",
+      "situacion": "La placa dice: «Saco dos fichas sin devolver. Si son del mismo color, ganas tú. Con 3 fichas, que ganes siempre».",
+      "aja": "Es fácil a propósito: el simulador da 100 de 100 y con 3 fichas hay 3 parejas.",
+      "estado_inicial": { "azules": 0, "amarillas": 0 },
+      "controles": { "max_por_color": 10 },
+      "exito": { "fichas": 3, "juego": "siempre_gana" },
+      "solucion": { "azules": 3, "amarillas": 0 }
+    },
+    {
+      "id": "torcer",
+      "situacion": "La placa cambia: «Con 4 fichas, un juego justo».",
+      "aja": "Con 2 y 2, «mismo color» sale cerca de 33 de 100: solo 2 de las 6 parejas son iguales. Con 3 y 1 hay 3 iguales y 3 distintas.",
+      "estado_inicial": { "azules": 3, "amarillas": 0 },
+      "controles": { "max_por_color": 10 },
+      "exito": { "fichas": 4, "juego": "justo" },
+      "solucion": { "azules": 3, "amarillas": 1 }
+    },
+    {
+      "id": "dominar",
+      "situacion": "Última placa: «Con 9 fichas, un juego justo».",
+      "aja": "Ya no se puede adivinar: con 6 y 3 hay 15 + 3 = 18 parejas iguales de 36. Con 5 y 4 o con 7 y 2 no es justo.",
+      "estado_inicial": { "azules": 3, "amarillas": 1 },
+      "controles": { "max_por_color": 10 },
+      "exito": { "fichas": 9, "juego": "justo" },
+      "solucion": { "azules": 6, "amarillas": 3 }
+    }
+  ],
+  "pistas": [
+    {
+      "nivel": 1,
+      "tras_segundos": 120,
+      "tras_intentos": 3,
+      "texto": "Usa el simulador. ¿Qué sale más, mismo color o distinto?"
+    },
+    {
+      "nivel": 2,
+      "tras_segundos": 240,
+      "tras_intentos": 6,
+      "texto": "Toca «ver parejas». Cada línea es una forma de sacar dos fichas."
+    },
+    {
+      "nivel": 3,
+      "tras_segundos": 360,
+      "tras_intentos": 9,
+      "texto": "Con 4 fichas hay 6 parejas. Un juego justo necesita 3 del mismo color."
+    }
+  ],
+  "cuaderno": {
+    "concepto": "Probabilidad sin reemplazo",
+    "texto": "Sin devolver, la segunda ficha depende de la primera. Con 3 azules y 1 amarilla: P(dos azules) = 3/4 × 2/3 = 1/2. Contar parejas y multiplicar probabilidades dan lo mismo."
+  },
+  "pista_por_jugador": {
+    "A": {
+      "objeto": "s5-dispensadores",
+      "texto": "Los dispensadores dan círculos azules y triángulos amarillos: llena la urna como quieras."
+    },
+    "B": {
+      "objeto": "s5-simulador",
+      "texto": "La palanca del simulador saca dos fichas 100 veces y cuenta «mismo color» y «distinto»."
+    },
+    "C": {
+      "objeto": "s5-ver-parejas",
+      "texto": "El botón «ver parejas» une con una línea cada par de fichas de la urna."
+    },
+    "D": {
+      "objeto": "s5-caja-fuerte",
+      "texto": "La placa de la caja fuerte dice cuántas fichas usar y qué juego quiere La Voz."
+    }
+  }
+}

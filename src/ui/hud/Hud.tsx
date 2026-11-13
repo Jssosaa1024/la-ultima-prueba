@@ -10,6 +10,7 @@ import {
 } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import { formatoReloj, relojEnPalabras } from './formato';
+import '../botones.css';
 import './hud.css';
 
 const VERBO: Record<AccionObjeto, string> = {
@@ -25,6 +26,7 @@ const VERBO: Record<AccionObjeto, string> = {
 export default function Hud() {
   return (
     <div class="hud-partida">
+      <h1 class="solo-lector">Partida en curso</h1>
       <div class="hud-fila hud-arriba">
         <div class="hud-grupo">
           <BotonSalir />
