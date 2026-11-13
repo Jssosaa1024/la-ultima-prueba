@@ -21,6 +21,12 @@ Alex dirige el proyecto y está aprendiendo git. No escribe código: revisa la v
    - `npm run verify` (formato, lint, tipos, tests de unidad y build)
    - `npm run test:e2e` si tocaste algo de `src/` o de páginas
    - los checks que ya existan (`check-budget` desde T09, `check-credits` desde T11h, `check-audio` desde T11j)
+
+   **Ahorro de builds en Cloudflare (plan gratis: 500 builds al mes, 1 a la vez).**
+   - Las pruebas corren en local (`npm run verify`, `npm run test:e2e`), no en Cloudflare. Cloudflare solo construye la vista previa.
+   - Haz tus commits en local y sube con `git push` una sola vez, cuando todo esté en verde y vayas a abrir el PR. Si después corriges algo, junta las correcciones en un solo push.
+   - Usa `[skip ci]` en el mensaje de commit solo si el PR completo toca únicamente archivos de `docs/` o `*.md`. Nunca en un PR que cambie código, configuración o `public/`, ni en el último commit de un PR con código, porque ese PR se quedaría sin vista previa actualizada.
+
 5. Abre el PR contra `main` con título `TNN · <nombre de la tarea>` y en el cuerpo:
    - qué hiciste, en 3 a 6 viñetas
    - cómo probarlo en la vista previa (`https://<rama>.la-ultima-prueba-duz.pages.dev/...`), paso a paso y pensado para un celular
