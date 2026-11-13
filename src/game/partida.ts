@@ -27,14 +27,14 @@ export const FINALES = ['justo_a_tiempo', 'el_legado', 'pedir_ayuda', 'tiempo_cu
 export type FinalId = (typeof FINALES)[number];
 
 /** Las tres grabaciones opcionales; los ids coinciden con `signals/partida.ts`. */
-export const GRABACIONES = ['g1', 'g2', 'g3'] as const;
+export const GRABACIONES = ['grab-1', 'grab-2', 'grab-3'] as const;
 export type GrabacionId = (typeof GRABACIONES)[number];
 
 /** Dónde está escondida cada grabación (salas 2, 3 y 4). */
 export const GRABACION_EN_SALA: Readonly<Record<GrabacionId, SalaId>> = {
-  g1: 's2-laboratorio',
-  g2: 's3-gimnasio',
-  g3: 's4-biblioteca',
+  'grab-1': 's2-laboratorio',
+  'grab-2': 's3-gimnasio',
+  'grab-3': 's4-biblioteca',
 };
 
 /** Lo que se elige frente a la puerta de salida con los cinco sellos. */

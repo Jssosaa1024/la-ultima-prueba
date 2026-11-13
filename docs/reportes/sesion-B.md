@@ -137,10 +137,10 @@ Las 113 pruebas de unidad de esta sesión pasan en local (`npx vitest run`), y `
 - Elegir final exige estar en la portería.
 - Pedir ayuda se permite desde cualquier lugar, porque el diseño dice «en cualquier momento», aunque el intercomunicador está en la portería.
 
-**Error conocido (mío)**
-- `game/partida.ts` usa los ids de grabación `g1`, `g2` y `g3`, pero `src/signals/partida.ts` usa `grab-1`, `grab-2` y `grab-3` desde T40.
+**Error mío, ya corregido**
+- `game/partida.ts` usaba los ids de grabación `g1`, `g2` y `g3`, pero `src/signals/partida.ts` usa `grab-1`, `grab-2` y `grab-3` desde T40.
 - En el PR #24 escribí que los ids eran los mismos de signals. **Era falso**: me basé en una lectura anterior a T40.
-- Hay que unificarlos antes de conectar: cambiar `GRABACIONES` y `GRABACION_EN_SALA` en `game/`, y `guardado.ts`, que los reutiliza.
+- Se corrigió en un PR aparte (rama `t28-ids-grabaciones`): `game/` usa ahora `grab-1`, `grab-2` y `grab-3`. Una prueba en `tests/unit/reglas-finales.test.ts` falla si los ids de salas, grabaciones o finales de `game/` y `signals/` vuelven a separarse.
 
 ### T30 · Guardar y reanudar ([#25](https://github.com/Jssosaa1024/la-ultima-prueba/pull/25))
 
@@ -168,7 +168,7 @@ No hay signals ni eventos de esta sesión: todo son funciones puras. Las tiene q
 2. **Partida:** guarda un `Partida` (de `crearPartida()`) y pasa cada orden por `aplicar()`. Para saber si se aplicó, compara con `===`. Luego copia a los signals:
    - `sala` ← `p.lugar`
    - `sellos` ← `sellos(p)` (mismos ids de sala)
-   - `grabaciones` ← `p.grabaciones` **convirtiendo `g1` → `grab-1`, mientras no se unifiquen**
+   - `grabaciones` ← `p.grabaciones` (mismos ids `grab-1`…`grab-3`)
    - `final` ← `p.final`
    - `fase` ← `'final'` cuando `p.fase === 'final'`
 3. **Reloj:** `game/reloj.ts` tiene la misma forma que el signal `reloj`, así que se puede asignar directo. Cuando `agotado(r, ahora)`, aplica `{ t: 'tiempo_agotado' }`.
@@ -185,11 +185,10 @@ No hay signals ni eventos de esta sesión: todo son funciones puras. Las tiene q
 ### Riesgos para la integración del sábado
 
 1. **Nada de `game/` está conectado.** El controlador, los paneles de las cinco máquinas (T45, T52, T58, T64, T70) y el panel de pistas (T38) no existen en `main`. Es el riesgo más grande.
-2. **Ids de grabación distintos** (`g1` contra `grab-1`), explicado arriba.
-3. **Ids de objetos distintos.** El motor y `signals/ejemplo.ts` usan objetos del diseño viejo de la sala 1 (`s1-factura`, `s1-menu`, `s1-tarjeta`). Los JSON usan `s1-productos`, `s1-pizarra`, `s1-caja-rodillos` y `s1-palanca`. Hay que alinear unos con otros.
-4. **Campana y duración de la corrida (sala 2).** El diseño dice que cada corrida dura unos 10 s, pero en la etapa «dominar» la campana suena a los 12 s. La animación debe durar al menos `exito.campana_s`.
-5. **Intentos sin definir:** sin esa decisión, las pistas por intentos no funcionan igual en todas las salas.
-6. **Contenido sin revisión humana:** textos, proceso, grado y razones idealizadas de las sombras.
+2. **Ids de objetos distintos.** El motor y `signals/ejemplo.ts` usan objetos del diseño viejo de la sala 1 (`s1-factura`, `s1-menu`, `s1-tarjeta`). Los JSON usan `s1-productos`, `s1-pizarra`, `s1-caja-rodillos` y `s1-palanca`. Hay que alinear unos con otros.
+3. **Campana y duración de la corrida (sala 2).** El diseño dice que cada corrida dura unos 10 s, pero en la etapa «dominar» la campana suena a los 12 s. La animación debe durar al menos `exito.campana_s`.
+4. **Intentos sin definir:** sin esa decisión, las pistas por intentos no funcionan igual en todas las salas.
+5. **Contenido sin revisión humana:** textos, proceso, grado y razones idealizadas de las sombras.
 
 ## 2. Pruebas humanas
 
