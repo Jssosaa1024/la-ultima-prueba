@@ -4,13 +4,15 @@
  * Se comunica con ui/ solo por src/signals/.
  */
 import { PerspectiveCamera, Scene } from 'three';
-import { consumirMirada, crearEntrada, soltarTodo } from '../input/entrada';
+import { consumirMirada, crearEntrada, movimiento, soltarTodo } from '../input/entrada';
 import type { Entrada } from '../input/entrada';
 import { RADIO_JOYSTICK } from '../input/joystick';
+import { conectarEscritorio } from '../input/escritorio';
 import { conectarTactil } from '../input/tactil';
-import { joystick } from '../signals/controles';
-import { controlesActivos } from '../signals/interfaz';
+import { joystick, punteroBloqueado } from '../signals/controles';
+import { controlesActivos, enfocado } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
+import { enviar } from '../signals/puente';
 import { liberarObjeto } from './carga/liberar';
 import { crearInteraccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
@@ -72,28 +74,47 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       interaccion.tocar((x / ancho) * 2 - 1, -(y / alto) * 2 + 1);
     },
   });
+  // Escritorio (T19): WASD, puntero bloqueado y E o clic para usar lo apuntado.
+  const desconectarEscritorio = conectarEscritorio(canvas, entrada, {
+    activos,
+    alUsar: () => {
+      const objeto = enfocado.value;
+      if (objeto) enviar({ t: 'accion', objeto: objeto.id, accion: objeto.accion });
+    },
+    // El toque (pointerup) llega antes que el clic: si seleccionó un objeto, no se bloquea.
+    puedeBloquear: () => interaccion.seleccionado === null,
+    alCambiarBloqueo: (bloqueado) => {
+      punteroBloqueado.value = bloqueado;
+    },
+  });
   const depuracion = { mirada: '', posicion: '' };
+  let cuadro = 0;
 
   const bucle = crearBucle({
     programar: (cuadro) => renderer.setAnimationLoop(cuadro),
     alCuadro: (dt) => {
+      cuadro++;
       if (!activos()) {
-        // Con un panel abierto el jugador se queda quieto y no gira.
+        // Con un panel abierto el jugador se queda quieto y no gira, y se suelta el puntero.
         soltarTodo(entrada);
+        if (punteroBloqueado.value) document.exitPointerLock();
       } else {
         const { dx, dy } = consumirMirada(entrada);
         if (dx !== 0 || dy !== 0) {
           orientacion = girar(orientacion, dx, dy);
           aplicarACamara(camara, orientacion);
         }
-        if (entrada.moverX !== 0 || entrada.moverY !== 0) {
-          const d = desplazamiento(orientacion.yaw, entrada.moverX, entrada.moverY, dt);
+        const pedido = movimiento(entrada);
+        if (pedido.x !== 0 || pedido.y !== 0) {
+          const d = desplazamiento(orientacion.yaw, pedido.x, pedido.y, dt);
           // Los pies están en el piso (y = 0); la cámara va a la altura de los ojos.
           const p = moverConColision(camara.position.x, camara.position.z, d.x, d.z, 0, cajas);
           camara.position.x = p.x;
           camara.position.z = p.z;
         }
       }
+      // Con el puntero bloqueado, la mira del centro apunta (unas 10 veces por segundo).
+      if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion.tocar(0, 0);
       interaccion.actualizar();
       publicarJoystick(entrada);
       escribirDepuracion(canvas, depuracion, orientacion, camara.position);
@@ -112,6 +133,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   return () => {
     bucle.detener();
     desconectarTactil();
+    desconectarEscritorio();
+    punteroBloqueado.value = false;
     interaccion.liberar();
     joystick.value = null;
     liberarObjeto(sala);

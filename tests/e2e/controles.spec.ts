@@ -51,6 +51,8 @@ async function abrirJuego(page: Page) {
   await page.goto('/jugar');
   const canvas = page.getByLabel('Escena del juego');
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  // El menú de inicio (T32) tapa la escena hasta que se toca «Jugar solo». Un solo clic:
+  // después del primero el menú desaparece.
   await page.getByRole('button', { name: 'Jugar solo' }).click();
   const caja = await canvas.boundingBox();
   if (!caja) throw new Error('sin canvas');
@@ -192,4 +194,61 @@ test('tocar el piso no enfoca nada', async ({ page }, info) => {
   );
   await page.waitForTimeout(300);
   await expect(page.getByRole('button', { name: /Examinar|Recoger|Usar/ })).toHaveCount(0);
+});
+
+test('en escritorio, W camina hacia adelante y E examina lo enfocado (T19)', async ({
+  page,
+}, info) => {
+  test.skip(!!info.project.use.hasTouch, 'teclado solo en el perfil de escritorio');
+  const { caja } = await abrirJuego(page);
+  const [, z0] = await leer(page, 'data-posicion');
+
+  // Las flechas y WASD no deben hacer scroll de la página.
+  await page.keyboard.down('KeyW');
+  await page.waitForTimeout(3000);
+  await page.keyboard.up('KeyW');
+  const [, z1] = await leer(page, 'data-posicion');
+  expect(z1).toBeLessThan(z0 - 1);
+  // Se detiene contra la mesa (T17).
+  expect(z1).toBeGreaterThan(-0.85);
+
+  // Apuntar al cartel con un clic y examinarlo con E.
+  await page.mouse.click(caja.x + caja.width / 2, caja.y + caja.height / 2);
+  await expect(page.getByRole('button', { name: /Examinar.*Cartel de la pared/ })).toBeVisible();
+  await page.keyboard.press('KeyE');
+  await expect(page.getByText('No hay nada escrito en este objeto.')).toBeVisible();
+});
+
+test('en escritorio, un clic en el piso bloquea el ratón y el ratón mira (T19)', async ({
+  page,
+}, info) => {
+  test.skip(!!info.project.use.hasTouch, 'ratón solo en el perfil de escritorio');
+  const { canvas, caja } = await abrirJuego(page);
+  const bloqueado = () => canvas.evaluate((c) => document.pointerLockElement === c);
+
+  // Arrastrar con el ratón (caminar) no bloquea, aunque al soltar el navegador dispare `click`.
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  await arrastrarRaton(page, { x, y }, { x, y: y - 80 }, 200);
+  expect(await bloqueado()).toBe(false);
+
+  // Un clic corto en el piso sí bloquea, y entonces mover el ratón gira la cámara.
+  // (Esc lo suelta el propio navegador; una tecla simulada no lo hace, por eso no se prueba.)
+  await page.mouse.click(caja.x + caja.width * 0.7, caja.y + caja.height * 0.9);
+  await expect.poll(bloqueado).toBe(true);
+  const [yaw0] = await leer(page, 'data-mirada');
+  await page.mouse.move(caja.x + caja.width * 0.9, caja.y + caja.height * 0.9, { steps: 5 });
+  await expect.poll(async () => (await leer(page, 'data-mirada'))[0]).not.toBe(yaw0);
+});
+
+test('en celular, tocar la escena nunca bloquea el puntero (T19)', async ({ page }, info) => {
+  test.skip(!info.project.use.hasTouch, 'táctil solo en el perfil celular');
+  const { canvas, caja } = await abrirJuego(page);
+  const cdp = await page.context().newCDPSession(page);
+  const p = { x: caja.x + caja.width * 0.7, y: caja.y + caja.height * 0.9, id: 1 };
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [p] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+  await page.waitForTimeout(300);
+  expect(await canvas.evaluate((c) => document.pointerLockElement === c)).toBe(false);
 });
