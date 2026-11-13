@@ -49,7 +49,7 @@ const enCurso = (): Guardado => ({
     { t: 'volver_porteria' },
     { t: 'entrar', sala: 's2-laboratorio' },
     { t: 'resolver_etapa', sala: 's2-laboratorio', etapa: 0 },
-    { t: 'recoger_grabacion', grabacion: 'g1' },
+    { t: 'recoger_grabacion', grabacion: 'grab-1' },
   ]),
   restanteMs: 31 * 60 * 1000,
   pistas: {
@@ -139,13 +139,17 @@ describe('guardar y reanudar (T30)', () => {
     ).toBeNull();
     // Una grabación de una sala cerrada, repetida o inventada.
     expect(
-      conCambio((g) => ((g['partida'] as { grabaciones: string[] }).grabaciones = ['g1', 'g3'])),
+      conCambio(
+        (g) => ((g['partida'] as { grabaciones: string[] }).grabaciones = ['grab-1', 'grab-3']),
+      ),
     ).toBeNull();
     expect(
-      conCambio((g) => ((g['partida'] as { grabaciones: string[] }).grabaciones = ['g1', 'g1'])),
+      conCambio(
+        (g) => ((g['partida'] as { grabaciones: string[] }).grabaciones = ['grab-1', 'grab-1']),
+      ),
     ).toBeNull();
     expect(
-      conCambio((g) => ((g['partida'] as { grabaciones: string[] }).grabaciones = ['g7'])),
+      conCambio((g) => ((g['partida'] as { grabaciones: string[] }).grabaciones = ['grab-7'])),
     ).toBeNull();
     // Una partida terminada no se reanuda.
     expect(conCambio((g) => ((g['partida'] as { fase: string }).fase = 'final'))).toBeNull();

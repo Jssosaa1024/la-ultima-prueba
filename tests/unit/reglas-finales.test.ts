@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import * as signals from '../../src/signals/partida';
 import {
   aplicar,
   crearPartida,
+  FINALES,
   GRABACION_EN_SALA,
+  GRABACIONES,
   opcionesDeFinal,
   SALAS,
   sellos,
@@ -55,10 +58,10 @@ describe('grabaciones (T28)', () => {
       ...resolverSala('s1-cooperativa'),
       { t: 'entrar', sala: 's2-laboratorio' },
     ]);
-    expect(aplicar(p, { t: 'recoger_grabacion', grabacion: 'g2' })).toBe(p);
-    p = aplicar(p, { t: 'recoger_grabacion', grabacion: 'g1' });
-    expect(p.grabaciones).toEqual(['g1']);
-    expect(aplicar(p, { t: 'recoger_grabacion', grabacion: 'g1' })).toBe(p);
+    expect(aplicar(p, { t: 'recoger_grabacion', grabacion: 'grab-2' })).toBe(p);
+    p = aplicar(p, { t: 'recoger_grabacion', grabacion: 'grab-1' });
+    expect(p.grabaciones).toEqual(['grab-1']);
+    expect(aplicar(p, { t: 'recoger_grabacion', grabacion: 'grab-1' })).toBe(p);
   });
 
   it('se puede volver a una sala resuelta a buscar su grabación', () => {
@@ -66,16 +69,16 @@ describe('grabaciones (T28)', () => {
       ...resolverSala('s1-cooperativa'),
       ...resolverSala('s2-laboratorio'),
       { t: 'entrar', sala: 's2-laboratorio' },
-      { t: 'recoger_grabacion', grabacion: 'g1' },
+      { t: 'recoger_grabacion', grabacion: 'grab-1' },
     ]);
-    expect(p.grabaciones).toEqual(['g1']);
+    expect(p.grabaciones).toEqual(['grab-1']);
   });
 
   it('las grabaciones están en las salas 2, 3 y 4', () => {
     expect(GRABACION_EN_SALA).toEqual({
-      g1: 's2-laboratorio',
-      g2: 's3-gimnasio',
-      g3: 's4-biblioteca',
+      'grab-1': 's2-laboratorio',
+      'grab-2': 's3-gimnasio',
+      'grab-3': 's4-biblioteca',
     });
   });
 });
@@ -125,7 +128,7 @@ describe('los cuatro finales (T28)', () => {
   it('«Restaurar» pide las tres grabaciones y dice cuántas faltan y dónde', () => {
     const p = varias(crearPartida(), [
       ...resolverSala('s1-cooperativa'),
-      ...resolverSala('s2-laboratorio', ['g1']),
+      ...resolverSala('s2-laboratorio', ['grab-1']),
       ...SALAS.slice(2).flatMap((s) => resolverSala(s)),
     ]);
     expect(aplicar(p, { t: 'elegir_final', opcion: 'restaurar' })).toBe(p);
@@ -153,7 +156,15 @@ describe('los cuatro finales (T28)', () => {
 
   it('ignora grabaciones y opciones que no existen', () => {
     const p = cincoSellos(true);
-    expect(aplicar(p, { t: 'recoger_grabacion', grabacion: 'g9' as GrabacionId })).toBe(p);
+    expect(aplicar(p, { t: 'recoger_grabacion', grabacion: 'grab-9' as GrabacionId })).toBe(p);
     expect(aplicar(p, { t: 'elegir_final', opcion: 'ganar' as 'salir' })).toBe(p);
+  });
+});
+
+describe('ids compartidos con src/signals/partida.ts', () => {
+  it('salas, grabaciones y finales usan los mismos ids en game/ y en signals/', () => {
+    expect([...GRABACIONES]).toEqual([...signals.GRABACIONES]);
+    expect([...FINALES]).toEqual([...signals.FINALES]);
+    expect([...SALAS]).toEqual([...signals.SALAS_CON_SELLO]);
   });
 });
