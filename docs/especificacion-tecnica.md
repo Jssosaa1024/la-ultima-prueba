@@ -689,7 +689,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T38** Panel de pistas y retroalimentación por distractor — 35 min
 - [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
-- [ ] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min
+- [x] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min
 
 ### Fase 5 · Audio
 
