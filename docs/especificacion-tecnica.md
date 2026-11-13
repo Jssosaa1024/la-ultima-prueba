@@ -637,7 +637,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T22** (v1.2) Escribir los 5 puzzles en JSON con sus tres etapas, soluciones, pistas y pistas por rol — 50 min
 - [ ] **T23** (v1.2) Script `hash-answers`: hash del estado resuelto de cada etapa y validador que compara hashes — 45 min
 - [x] **T24** Máquina de estados de la partida: portería, salas y final — 50 min
-- [ ] **T25** Reloj de 40 minutos activos con pausa, con tests — 40 min
+- [x] **T25** Reloj de 40 minutos activos con pausa, con tests — 40 min
 - [ ] **T26** (v1.2) Una función pura por puzzle en `src/game/puzzles/` que recibe el estado y dice qué condiciones se cumplen, con tests — 50 min
 - [ ] **T27** Pistas graduales por intentos o tiempo en la etapa — 35 min
 - [ ] **T28** Sellos, grabaciones y reglas de los cuatro finales, con un test por final — 50 min
