@@ -1,0 +1,794 @@
+[
+  {
+    "id": "porteria",
+    "nombre": "La portería",
+    "ancho": 6,
+    "fondo": 10,
+    "alto": 3.2,
+    "colores": { "piso": "#7d7468", "paredes": "#d8d2c4", "techo": "#eceae4" },
+    "inicio": { "x": 0, "z": 4.2, "giro": 0 },
+    "objetos": [
+      {
+        "id": "porteria-salida",
+        "nombre": "Puerta de salida",
+        "forma": "plano",
+        "tam": [1.6, 2.4, 0],
+        "pos": [0, 0, -4.98],
+        "color": "#5a3e2b",
+        "accion": "usar"
+      },
+      {
+        "id": "porteria-reloj",
+        "nombre": "Reloj de pared",
+        "forma": "plano",
+        "tam": [0.5, 0.5, 0],
+        "pos": [0, 2.55, -4.98],
+        "color": "#f2efe6",
+        "accion": "examinar"
+      },
+      {
+        "id": "porteria-mural",
+        "nombre": "Mural de sellos",
+        "forma": "plano",
+        "tam": [1.6, 1, 0],
+        "pos": [-1.95, 1, -4.98],
+        "color": "#6d7f8c",
+        "accion": "examinar"
+      },
+      {
+        "id": "porteria-casillero",
+        "nombre": "Casillero de objetos perdidos",
+        "forma": "caja",
+        "tam": [1, 1.8, 0.5],
+        "pos": [2, 0, -4.7],
+        "color": "#8c8f94",
+        "solido": true,
+        "accion": "examinar"
+      },
+      {
+        "id": "porteria-intercomunicador",
+        "nombre": "Intercomunicador de emergencia",
+        "forma": "plano",
+        "tam": [0.3, 0.4, 0],
+        "pos": [-2.98, 1.3, -3.9],
+        "giro": 90,
+        "color": "#c0392b",
+        "accion": "usar"
+      },
+      {
+        "id": "porteria-puerta-1",
+        "nombre": "Puerta 1 · La cooperativa",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-2.98, 0, 2.8],
+        "giro": 90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "s1-cooperativa"
+      },
+      {
+        "id": "porteria-puerta-2",
+        "nombre": "Puerta 2 · El laboratorio",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [2.98, 0, 1.55],
+        "giro": -90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "s2-laboratorio"
+      },
+      {
+        "id": "porteria-puerta-3",
+        "nombre": "Puerta 3 · El gimnasio",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-2.98, 0, 0.3],
+        "giro": 90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "s3-gimnasio"
+      },
+      {
+        "id": "porteria-puerta-4",
+        "nombre": "Puerta 4 · La biblioteca",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [2.98, 0, -0.95],
+        "giro": -90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "s4-biblioteca"
+      },
+      {
+        "id": "porteria-puerta-5",
+        "nombre": "Puerta 5 · La rectoría",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-2.98, 0, -2.2],
+        "giro": 90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "s5-rectoria"
+      },
+      {
+        "id": "porteria-escritorio",
+        "forma": "caja",
+        "tam": [1.2, 0.75, 0.6],
+        "pos": [2.2, 0, 3.4],
+        "color": "#6b4a2f",
+        "solido": true
+      },
+      {
+        "id": "porteria-linterna",
+        "nombre": "Linterna",
+        "forma": "cilindro",
+        "tam": [0.07, 0.24, 0],
+        "pos": [2, 0.75, 3.4],
+        "color": "#f1c40f",
+        "accion": "recoger"
+      },
+      {
+        "id": "porteria-silla",
+        "forma": "grupo",
+        "tam": [0.45, 0.9, 0.45],
+        "pos": [-2.3, 0, 3.6],
+        "color": "#34495e",
+        "solido": true,
+        "partes": [
+          { "forma": "caja", "tam": [0.45, 0.45, 0.45], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.45, 0.45, 0.05], "pos": [0, 0.45, 0.2] }
+        ]
+      },
+      {
+        "id": "porteria-cuaderno",
+        "nombre": "Cuaderno",
+        "forma": "caja",
+        "tam": [0.2, 0.03, 0.28],
+        "pos": [-2.3, 0.45, 3.55],
+        "color": "#1f618d",
+        "accion": "recoger"
+      }
+    ]
+  },
+  {
+    "id": "s1-cooperativa",
+    "nombre": "La cooperativa",
+    "ancho": 7,
+    "fondo": 5,
+    "alto": 3,
+    "colores": { "piso": "#8e7f6a", "paredes": "#efe3c8", "techo": "#f4f1ea" },
+    "inicio": { "x": 0, "z": 1.9, "giro": 0 },
+    "objetos": [
+      {
+        "id": "s1-puerta",
+        "nombre": "Puerta a la portería",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [0, 0, 2.48],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "porteria"
+      },
+      {
+        "id": "s1-estante-1",
+        "forma": "caja",
+        "tam": [0.5, 1.8, 1.4],
+        "pos": [-3.2, 0, -1.2],
+        "color": "#a0522d",
+        "solido": true
+      },
+      {
+        "id": "s1-estante-2",
+        "forma": "caja",
+        "tam": [0.5, 1.8, 1.4],
+        "pos": [-3.2, 0, 0.6],
+        "color": "#a0522d",
+        "solido": true
+      },
+      {
+        "id": "s1-estante-3",
+        "forma": "caja",
+        "tam": [1.6, 1.8, 0.5],
+        "pos": [-1.6, 0, -2.2],
+        "color": "#a0522d",
+        "solido": true
+      },
+      {
+        "id": "s1-productos",
+        "nombre": "Productos con etiqueta",
+        "forma": "grupo",
+        "tam": [1.2, 0.3, 0.2],
+        "pos": [-1.6, 1, -1.85],
+        "color": "#d35400",
+        "accion": "examinar",
+        "partes": [
+          { "forma": "caja", "tam": [0.25, 0.3, 0.2], "pos": [-0.45, 0, 0], "color": "#e67e22" },
+          { "forma": "cilindro", "tam": [0.2, 0.28, 0], "pos": [0, 0, 0], "color": "#f5b041" },
+          { "forma": "caja", "tam": [0.3, 0.2, 0.2], "pos": [0.45, 0, 0], "color": "#c0392b" }
+        ]
+      },
+      {
+        "id": "s1-mostrador",
+        "forma": "caja",
+        "tam": [2.6, 1, 0.7],
+        "pos": [1.2, 0, -0.6],
+        "color": "#8a5a2b",
+        "solido": true
+      },
+      {
+        "id": "s1-etiquetadora",
+        "nombre": "Etiquetadora",
+        "forma": "caja",
+        "tam": [0.45, 0.3, 0.35],
+        "pos": [0.55, 1, -0.6],
+        "color": "#2c3e50",
+        "accion": "usar"
+      },
+      {
+        "id": "s1-palanca",
+        "nombre": "Palanca de la etiquetadora",
+        "forma": "cilindro",
+        "tam": [0.06, 0.4, 0],
+        "pos": [0.95, 1, -0.6],
+        "color": "#c0392b",
+        "accion": "usar"
+      },
+      {
+        "id": "s1-caja-rodillos",
+        "nombre": "Caja de rodillos",
+        "forma": "caja",
+        "tam": [0.35, 0.15, 0.25],
+        "pos": [1.55, 1, -0.6],
+        "color": "#b7950b",
+        "accion": "examinar"
+      },
+      {
+        "id": "s1-registradora",
+        "nombre": "Registradora",
+        "forma": "caja",
+        "tam": [0.45, 0.35, 0.4],
+        "pos": [2.15, 1, -0.6],
+        "color": "#566573",
+        "accion": "usar"
+      },
+      {
+        "id": "s1-pizarra",
+        "nombre": "Pizarra de precios",
+        "forma": "plano",
+        "tam": [1.8, 1, 0],
+        "pos": [1.3, 1.2, -2.48],
+        "color": "#1e3d32",
+        "accion": "examinar"
+      },
+      {
+        "id": "s1-corcho",
+        "nombre": "Tablero de corcho",
+        "forma": "plano",
+        "tam": [1, 0.7, 0],
+        "pos": [3.48, 1.2, -0.8],
+        "giro": -90,
+        "color": "#b9895a",
+        "accion": "examinar"
+      },
+      {
+        "id": "s1-mesa",
+        "forma": "caja",
+        "tam": [1, 0.75, 0.7],
+        "pos": [2, 0, 1.4],
+        "color": "#6e4b2a",
+        "solido": true
+      }
+    ]
+  },
+  {
+    "id": "s2-laboratorio",
+    "nombre": "El laboratorio",
+    "ancho": 9,
+    "fondo": 6,
+    "alto": 3.2,
+    "colores": { "piso": "#5f6a6a", "paredes": "#c9d4d6", "techo": "#dfe6e7" },
+    "inicio": { "x": 0, "z": 2.4, "giro": 0 },
+    "objetos": [
+      {
+        "id": "s2-puerta",
+        "nombre": "Puerta a la portería",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [0, 0, 2.98],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "porteria"
+      },
+      {
+        "id": "s2-tanque-a",
+        "nombre": "Tanque A (verde)",
+        "forma": "cilindro",
+        "tam": [0.7, 1.6, 0],
+        "pos": [-2, 0, -1.8],
+        "color": "#3fa34d",
+        "solido": true,
+        "accion": "examinar"
+      },
+      {
+        "id": "s2-tanque-b",
+        "nombre": "Tanque B (morado)",
+        "forma": "cilindro",
+        "tam": [0.7, 1.6, 0],
+        "pos": [-0.6, 0, -1.8],
+        "color": "#7d3c98",
+        "solido": true,
+        "accion": "examinar"
+      },
+      {
+        "id": "s2-panel",
+        "forma": "caja",
+        "tam": [2, 0.9, 0.3],
+        "pos": [-1.3, 0, -1],
+        "color": "#4d5656",
+        "solido": true
+      },
+      {
+        "id": "s2-perilla-verde",
+        "nombre": "Perilla verde",
+        "forma": "cilindro",
+        "tam": [0.14, 0.07, 0],
+        "pos": [-2, 0.9, -1],
+        "color": "#58d68d",
+        "accion": "usar"
+      },
+      {
+        "id": "s2-perilla-morada",
+        "nombre": "Perilla morada (bloqueada)",
+        "forma": "cilindro",
+        "tam": [0.14, 0.07, 0],
+        "pos": [-0.6, 0.9, -1],
+        "color": "#a569bd",
+        "accion": "examinar"
+      },
+      {
+        "id": "s2-palanca",
+        "nombre": "Palanca de los tanques",
+        "forma": "cilindro",
+        "tam": [0.06, 0.4, 0],
+        "pos": [-1.3, 0.9, -1],
+        "color": "#c0392b",
+        "accion": "usar"
+      },
+      {
+        "id": "s2-graficador",
+        "nombre": "Graficador",
+        "forma": "plano",
+        "tam": [2.4, 1.4, 0],
+        "pos": [1.8, 0.9, -2.98],
+        "color": "#f4f1e8",
+        "accion": "examinar"
+      },
+      {
+        "id": "s2-incubadora",
+        "nombre": "Incubadora",
+        "forma": "caja",
+        "tam": [1, 1.2, 0.8],
+        "pos": [3.7, 0, -2.4],
+        "color": "#aab7b8",
+        "solido": true,
+        "accion": "usar"
+      },
+      {
+        "id": "s2-campana",
+        "nombre": "Campana con temporizador",
+        "forma": "cilindro",
+        "tam": [0.25, 0.2, 0],
+        "pos": [3.7, 1.2, -2.4],
+        "color": "#d4ac0d",
+        "accion": "examinar"
+      },
+      {
+        "id": "s2-meson-1",
+        "forma": "caja",
+        "tam": [2.4, 0.9, 0.8],
+        "pos": [2.2, 0, 0.6],
+        "color": "#5d6d7e",
+        "solido": true
+      },
+      {
+        "id": "s2-meson-2",
+        "forma": "caja",
+        "tam": [2, 0.9, 0.8],
+        "pos": [-2.8, 0, 1],
+        "color": "#5d6d7e",
+        "solido": true
+      },
+      {
+        "id": "s2-taza",
+        "nombre": "Taza «T. R.»",
+        "forma": "cilindro",
+        "tam": [0.09, 0.1, 0],
+        "pos": [1.5, 0.9, 0.6],
+        "color": "#ecf0f1",
+        "accion": "examinar"
+      },
+      {
+        "id": "s2-hoja-ayer",
+        "nombre": "Hoja del graficador de ayer",
+        "forma": "caja",
+        "tam": [0.3, 0.01, 0.22],
+        "pos": [-2.5, 0, 1.6],
+        "color": "#fdfefe",
+        "accion": "recoger"
+      },
+      {
+        "id": "s2-gabinete",
+        "nombre": "Gabinete",
+        "forma": "caja",
+        "tam": [0.6, 1.8, 0.8],
+        "pos": [-4.2, 0, -2.4],
+        "color": "#4d5656",
+        "solido": true,
+        "accion": "usar"
+      }
+    ]
+  },
+  {
+    "id": "s3-gimnasio",
+    "nombre": "El gimnasio",
+    "ancho": 20,
+    "fondo": 12,
+    "alto": 9,
+    "colores": { "piso": "#c8a165", "paredes": "#d5dbdb", "techo": "#aeb6bf" },
+    "inicio": { "x": 0, "z": 5.2, "giro": 0 },
+    "objetos": [
+      {
+        "id": "s3-puerta",
+        "nombre": "Puerta a la portería",
+        "forma": "plano",
+        "tam": [1.4, 2.4, 0],
+        "pos": [0, 0, 5.98],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "porteria"
+      },
+      {
+        "id": "s3-grada-1",
+        "forma": "caja",
+        "tam": [8, 0.5, 1.4],
+        "pos": [-4, 0, -5.3],
+        "color": "#85929e",
+        "solido": true
+      },
+      {
+        "id": "s3-grada-2",
+        "forma": "caja",
+        "tam": [8, 0.5, 0.9],
+        "pos": [-4, 0.5, -5.55],
+        "color": "#85929e",
+        "solido": true
+      },
+      {
+        "id": "s3-grada-3",
+        "forma": "caja",
+        "tam": [8, 0.5, 0.4],
+        "pos": [-4, 1, -5.8],
+        "color": "#85929e",
+        "solido": true
+      },
+      {
+        "id": "s3-reflector",
+        "nombre": "Reflector",
+        "forma": "cilindro",
+        "tam": [0.5, 0.6, 0],
+        "pos": [-4, 1.5, -5.75],
+        "color": "#f7dc6f",
+        "accion": "usar"
+      },
+      {
+        "id": "s3-postes",
+        "nombre": "Postes de voleibol",
+        "forma": "grupo",
+        "tam": [5, 3, 0.15],
+        "pos": [2, 0, -1],
+        "color": "#ecf0f1",
+        "solido": true,
+        "accion": "usar",
+        "partes": [
+          { "forma": "caja", "tam": [5, 0.04, 0.15], "pos": [0, 0, 0], "color": "#7f8c8d" },
+          { "forma": "cilindro", "tam": [0.1, 1, 0], "pos": [-1.5, 0.04, 0] },
+          { "forma": "cilindro", "tam": [0.1, 2, 0], "pos": [0, 0.04, 0] },
+          { "forma": "cilindro", "tam": [0.1, 3, 0], "pos": [1.5, 0.04, 0] }
+        ]
+      },
+      {
+        "id": "s3-sensores",
+        "nombre": "Sensores de luz",
+        "forma": "caja",
+        "tam": [4, 0.02, 0.3],
+        "pos": [2, 0, 1],
+        "color": "#2ecc71",
+        "accion": "examinar"
+      },
+      {
+        "id": "s3-cinta-metrica",
+        "nombre": "Cinta métrica del piso",
+        "forma": "caja",
+        "tam": [0.3, 0.02, 8],
+        "pos": [6.5, 0, -1],
+        "color": "#f1c40f",
+        "accion": "examinar"
+      },
+      {
+        "id": "s3-marcador",
+        "forma": "plano",
+        "tam": [2, 1, 0],
+        "pos": [9.98, 7.4, -2],
+        "giro": -90,
+        "color": "#17202a"
+      },
+      {
+        "id": "s3-polea",
+        "nombre": "Polea del marcador",
+        "forma": "caja",
+        "tam": [0.3, 0.6, 0.3],
+        "pos": [9.8, 1, -0.5],
+        "color": "#7f8c8d",
+        "accion": "usar"
+      },
+      {
+        "id": "s3-banca",
+        "forma": "caja",
+        "tam": [3, 0.45, 0.5],
+        "pos": [-6, 0, 3],
+        "color": "#a04000",
+        "solido": true
+      },
+      {
+        "id": "s3-planilla",
+        "nombre": "Planilla del torneo de profes",
+        "forma": "caja",
+        "tam": [0.3, 0.01, 0.22],
+        "pos": [-6.6, 0.45, 3],
+        "color": "#fdfefe",
+        "accion": "examinar"
+      },
+      {
+        "id": "s3-carro-balones",
+        "nombre": "Carro de balones",
+        "forma": "caja",
+        "tam": [1, 0.9, 0.7],
+        "pos": [-8.6, 0, 0],
+        "color": "#2e86c1",
+        "solido": true,
+        "accion": "usar"
+      }
+    ]
+  },
+  {
+    "id": "s4-biblioteca",
+    "nombre": "La biblioteca",
+    "ancho": 10,
+    "fondo": 8,
+    "alto": 3.2,
+    "colores": { "piso": "#7b5d3f", "paredes": "#e8dcc5", "techo": "#f2ede3" },
+    "inicio": { "x": 0, "z": 3.4, "giro": 0 },
+    "objetos": [
+      {
+        "id": "s4-puerta",
+        "nombre": "Puerta a la portería",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [0, 0, 3.98],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "porteria"
+      },
+      {
+        "id": "s4-estante-1",
+        "forma": "caja",
+        "tam": [0.5, 2.2, 2.5],
+        "pos": [-4.7, 0, -2],
+        "color": "#6e2c00",
+        "solido": true
+      },
+      {
+        "id": "s4-estante-m",
+        "nombre": "Estante M",
+        "forma": "caja",
+        "tam": [0.5, 2.2, 2],
+        "pos": [-4.7, 0, 1.2],
+        "color": "#784212",
+        "solido": true,
+        "accion": "usar"
+      },
+      {
+        "id": "s4-casilleros",
+        "nombre": "Pared de casilleros",
+        "forma": "caja",
+        "tam": [4, 2, 0.5],
+        "pos": [2.5, 0, -3.7],
+        "color": "#7f8c8d",
+        "solido": true,
+        "accion": "usar"
+      },
+      {
+        "id": "s4-lamparas",
+        "nombre": "Resumen semanal",
+        "forma": "plano",
+        "tam": [2.4, 0.6, 0],
+        "pos": [-1.5, 1.6, -3.98],
+        "color": "#34495e",
+        "accion": "examinar"
+      },
+      {
+        "id": "s4-mostrador",
+        "nombre": "Mostrador",
+        "forma": "caja",
+        "tam": [2.4, 1, 0.7],
+        "pos": [2.5, 0, 1],
+        "color": "#6e2c00",
+        "solido": true,
+        "accion": "examinar"
+      },
+      {
+        "id": "s4-caja-devoluciones",
+        "nombre": "Caja de devoluciones",
+        "forma": "caja",
+        "tam": [0.5, 0.3, 0.35],
+        "pos": [3.4, 1, 1],
+        "color": "#a04000",
+        "accion": "examinar"
+      },
+      {
+        "id": "s4-ficha-rota",
+        "nombre": "Ficha rota",
+        "forma": "caja",
+        "tam": [0.15, 0.01, 0.1],
+        "pos": [1.7, 1, 1],
+        "color": "#fdfefe",
+        "accion": "recoger"
+      },
+      {
+        "id": "s4-carritos",
+        "nombre": "Carritos de préstamo",
+        "forma": "grupo",
+        "tam": [4.9, 0.7, 0.4],
+        "pos": [-1, 0, -1.2],
+        "color": "#2471a3",
+        "solido": true,
+        "accion": "usar",
+        "partes": [
+          { "forma": "caja", "tam": [0.5, 0.7, 0.4], "pos": [-2.2, 0, 0] },
+          { "forma": "caja", "tam": [0.5, 0.7, 0.4], "pos": [-1.1, 0, 0] },
+          { "forma": "caja", "tam": [0.5, 0.7, 0.4], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.5, 0.7, 0.4], "pos": [1.1, 0, 0] },
+          { "forma": "caja", "tam": [0.5, 0.7, 0.4], "pos": [2.2, 0, 0] }
+        ]
+      },
+      {
+        "id": "s4-pila-libros",
+        "nombre": "Pila de 20 libros",
+        "forma": "caja",
+        "tam": [0.4, 0.6, 0.3],
+        "pos": [-0.6, 0, 1],
+        "color": "#922b21",
+        "solido": true,
+        "accion": "usar"
+      },
+      {
+        "id": "s4-mesa-lectura",
+        "forma": "caja",
+        "tam": [1.6, 0.75, 0.8],
+        "pos": [-2.6, 0, 2.4],
+        "color": "#935116",
+        "solido": true
+      }
+    ]
+  },
+  {
+    "id": "s5-rectoria",
+    "nombre": "La rectoría",
+    "ancho": 6,
+    "fondo": 5,
+    "alto": 3,
+    "colores": { "piso": "#5b4636", "paredes": "#d6cdb8", "techo": "#ece7dc" },
+    "inicio": { "x": 0, "z": 1.9, "giro": 0 },
+    "objetos": [
+      {
+        "id": "s5-puerta",
+        "nombre": "Puerta a la portería",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [0, 0, 2.48],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "puerta": "porteria"
+      },
+      {
+        "id": "s5-mesa",
+        "forma": "caja",
+        "tam": [2, 0.75, 1],
+        "pos": [-0.4, 0, -0.5],
+        "color": "#5b3a1e",
+        "solido": true
+      },
+      {
+        "id": "s5-urna",
+        "nombre": "Urna transparente",
+        "forma": "cilindro",
+        "tam": [0.35, 0.45, 0],
+        "pos": [-0.6, 0.75, -0.5],
+        "color": "#d6eaf8",
+        "accion": "usar"
+      },
+      {
+        "id": "s5-dispensadores",
+        "nombre": "Dispensadores de fichas",
+        "forma": "grupo",
+        "tam": [0.4, 0.3, 0.15],
+        "pos": [0.15, 0.75, -0.6],
+        "color": "#2e86c1",
+        "accion": "usar",
+        "partes": [
+          { "forma": "cilindro", "tam": [0.15, 0.3, 0], "pos": [-0.12, 0, 0], "color": "#2e86c1" },
+          { "forma": "cilindro", "tam": [0.15, 0.3, 0], "pos": [0.12, 0, 0], "color": "#f4d03f" }
+        ]
+      },
+      {
+        "id": "s5-simulador",
+        "nombre": "Simulador",
+        "forma": "caja",
+        "tam": [0.25, 0.25, 0.25],
+        "pos": [-1.15, 0.75, -0.5],
+        "color": "#7f8c8d",
+        "accion": "usar"
+      },
+      {
+        "id": "s5-ver-parejas",
+        "nombre": "Botón «ver parejas»",
+        "forma": "cilindro",
+        "tam": [0.12, 0.05, 0],
+        "pos": [0.35, 0.75, -0.15],
+        "color": "#e74c3c",
+        "accion": "usar"
+      },
+      {
+        "id": "s5-caja-fuerte",
+        "nombre": "Caja fuerte",
+        "forma": "caja",
+        "tam": [0.7, 0.9, 0.6],
+        "pos": [2.4, 0, -2],
+        "color": "#2c3e50",
+        "solido": true,
+        "accion": "usar"
+      },
+      {
+        "id": "s5-escritorio",
+        "forma": "caja",
+        "tam": [1.4, 0.75, 0.7],
+        "pos": [-1.9, 0, -1.9],
+        "color": "#4a2f1b",
+        "solido": true
+      },
+      {
+        "id": "s5-computador",
+        "nombre": "Computador",
+        "forma": "caja",
+        "tam": [0.5, 0.35, 0.05],
+        "pos": [-2, 0.75, -2.05],
+        "color": "#17202a",
+        "accion": "examinar"
+      },
+      {
+        "id": "s5-carta",
+        "nombre": "Carta de jubilación",
+        "forma": "caja",
+        "tam": [0.21, 0.01, 0.28],
+        "pos": [-1.5, 0.75, -1.8],
+        "color": "#fdfefe",
+        "accion": "examinar"
+      }
+    ]
+  }
+]
