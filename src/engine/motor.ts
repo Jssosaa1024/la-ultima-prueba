@@ -6,7 +6,7 @@
 import { effect } from '@preact/signals';
 import { PerspectiveCamera, Scene } from 'three';
 import type { Lugar } from '../content/esquema-salas';
-import { salaPorId } from '../content/salas';
+import { destinoDePuerta, salaPorId } from '../content/salas';
 import { consumirMirada, crearEntrada, movimiento, soltarTodo } from '../input/entrada';
 import type { Entrada } from '../input/entrada';
 import { RADIO_JOYSTICK } from '../input/joystick';
@@ -15,9 +15,8 @@ import { conectarTactil } from '../input/tactil';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
-import { sala } from '../signals/partida';
-import { enviar } from '../signals/puente';
-import { liberarObjeto } from './carga/liberar';
+import { sala, sellos } from '../signals/partida';
+import { enviar, escuchar } from '../signals/puente';
 import { crearInteraccion } from './interaccion/interaccion';
 import type { Interaccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
@@ -26,14 +25,17 @@ import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
 import { crearBucle } from './loop';
 import { crearRenderer, seguirTamano } from './renderer';
+import { crearCargadorSalas } from './salas/cargador';
 import { construirSala } from './salas/construir';
-import type { SalaConstruida } from './salas/construir';
+import { puntoDeEntrada, siguienteSala } from './salas/recorrido';
 import { salaDeLaUrl } from './salas/url';
 
 /** Altura de los ojos del jugador, en metros. */
 export const ALTURA_OJOS = 1.6;
 /** Al entrar a una sala se mira un poco hacia abajo, a la altura de los muebles. */
 const PITCH_INICIAL = -0.12;
+/** Espera antes de preparar la siguiente sala, para no competir con la entrada. */
+const ESPERA_PRECARGA_MS = 1500;
 
 /** Publica el joystick para el HUD solo si cambió (una vez por cuadro como máximo). */
 function publicarJoystick(entrada: Entrada): void {
@@ -62,25 +64,47 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const camara = new PerspectiveCamera(70, 1, 0.05, 50);
   let orientacion: Orientacion = { yaw: 0, pitch: PITCH_INICIAL };
 
-  // Salas por código: la sala de `signals/partida.ts` (la portería al empezar), armada con
-  // primitivas desde src/content/salas.json, con sus cajas de colisión (T17).
-  let actual: SalaConstruida | null = null;
+  // Salas por código (src/content/salas.json) con el cargador de salas (T20): compila antes
+  // de mostrar, deja en la GPU solo la portería y la sala actual, y prepara la siguiente.
+  const cargador = crearCargadorSalas({
+    renderer,
+    escena,
+    camara,
+    distribucion: salaPorId,
+    construir: construirSala,
+  });
   // Tocar un objeto lo enfoca y el HUD muestra su botón contextual (T18).
   let interaccion: Interaccion | null = null;
-  const entrar = (lugar: Lugar): void => {
-    if (actual?.id === lugar) return;
-    if (actual) {
-      interaccion?.liberar();
-      liberarObjeto(actual.raiz);
-    }
-    actual = construirSala(salaPorId(lugar));
-    escena.add(actual.raiz);
-    interaccion = crearInteraccion(camara, actual.raiz);
-    camara.position.set(actual.inicio.x, ALTURA_OJOS, actual.inicio.z);
-    orientacion = { yaw: actual.inicio.yaw, pitch: PITCH_INICIAL };
+  let mostrada: Lugar | null = null;
+  let precarga: ReturnType<typeof setTimeout> | undefined;
+  let detenido = false;
+
+  const cambiarA = async (lugar: Lugar): Promise<void> => {
+    if (mostrada === lugar) return;
+    const desde = mostrada;
+    mostrada = lugar;
+    clearTimeout(precarga);
+    interaccion?.liberar();
+    interaccion = null;
+    const nueva = await cargador.entrar(lugar);
+    // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
+    if (!nueva || detenido || mostrada !== lugar) return;
+    interaccion = crearInteraccion(camara, nueva.raiz);
+    // Se aparece frente a la puerta por la que se llegó (o en el inicio de la sala).
+    const p = puntoDeEntrada(salaPorId(lugar), desde);
+    camara.position.set(p.x, ALTURA_OJOS, p.z);
+    orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
     canvas.dataset['sala'] = lugar;
+    // Mallas de la sala: las geometrías en la GPU no deben pasar de aquí (más las de la portería).
+    canvas.dataset['mallas'] = String(nueva.mallas);
+    // Con calma, se arma en la CPU la siguiente sala sin sello.
+    precarga = setTimeout(() => {
+      const siguiente = siguienteSala(lugar, sellos.value);
+      if (siguiente && !detenido) cargador.precargar(siguiente);
+    }, ESPERA_PRECARGA_MS);
   };
+
   // `?sala=…` solo elige la primera sala que se dibuja; en cuanto la partida cambia de sala,
   // manda la partida.
   let forzada = salaDeLaUrl(window.location.search);
@@ -88,7 +112,17 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const dejarDeSeguirSala = effect(() => {
     const lugar = sala.value;
     if (lugar !== salaInicial) forzada = null;
-    entrar(forzada ?? lugar);
+    void cambiarA(forzada ?? lugar);
+  });
+  // Con `?sala=`, usar la puerta hacia la sala en la que la partida ya está no cambia el
+  // signal: se deja de forzar y se muestra la sala de la partida.
+  const dejarDeEscuchar = escuchar((c) => {
+    if (forzada && c.t === 'accion' && c.accion === 'usar') {
+      if (destinoDePuerta(c.objeto) === sala.value) {
+        forzada = null;
+        void cambiarA(sala.value);
+      }
+    }
   });
 
   const entrada = crearEntrada();
@@ -136,7 +170,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         if (pedido.x !== 0 || pedido.y !== 0) {
           const d = desplazamiento(orientacion.yaw, pedido.x, pedido.y, dt);
           // Los pies están en el piso (y = 0); la cámara va a la altura de los ojos.
-          const cajas = actual?.cajas ?? [];
+          const cajas = cargador.actual?.cajas ?? [];
           const p = moverConColision(camara.position.x, camara.position.z, d.x, d.z, 0, cajas);
           camara.position.x = p.x;
           camara.position.z = p.z;
@@ -147,6 +181,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       interaccion?.actualizar();
       publicarJoystick(entrada);
       escribirDepuracion(canvas, depuracion, orientacion, camara.position);
+      const geometrias = String(renderer.info.memory.geometries);
+      if (canvas.dataset['geometrias'] !== geometrias) canvas.dataset['geometrias'] = geometrias;
 
       seguirTamano(renderer, camara);
       renderer.info.reset();
@@ -164,15 +200,20 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     desconectarTactil();
     desconectarEscritorio();
     punteroBloqueado.value = false;
+    detenido = true;
+    clearTimeout(precarga);
     dejarDeSeguirSala();
+    dejarDeEscuchar();
     interaccion?.liberar();
     joystick.value = null;
-    if (actual) liberarObjeto(actual.raiz);
+    cargador.liberar();
     renderer.dispose();
     delete canvas.dataset['motor'];
     delete canvas.dataset['mirada'];
     delete canvas.dataset['posicion'];
     delete canvas.dataset['sala'];
+    delete canvas.dataset['geometrias'];
+    delete canvas.dataset['mallas'];
   };
 }
 

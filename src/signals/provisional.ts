@@ -13,6 +13,7 @@ import {
   sala,
 } from './partida';
 import { escuchar, type Comando } from './puente';
+import { destinoDePuerta } from '../content/salas';
 
 /**
  * Controlador PROVISIONAL de la partida individual.
@@ -105,7 +106,11 @@ function atenderAccion(objeto: string, accion: AccionObjeto): void {
     if (accion === 'recoger' && !inventario.value.some((o) => o.id === objeto)) {
       inventario.value = [...inventario.value, { id: objeto, nombre: actual.nombre }];
     }
-    // «Usar» una herramienta sobre un objeto llega con la lógica del juego.
+    // Usar una puerta lleva a su sala (T20); el resto de «Usar» llega con la lógica del juego.
+    if (accion === 'usar') {
+      const destino = destinoDePuerta(objeto);
+      if (destino) sala.value = destino;
+    }
     enfocado.value = null;
     enfocarSiguiente();
   });
