@@ -121,23 +121,36 @@ test('con dos dedos se camina y se mira a la vez', async ({ page }, info) => {
   expect(Math.hypot(x1, z1 - z0)).toBeGreaterThan(0.3);
 });
 
-test('caminar de frente se detiene contra la mesa sin atravesarla (T17)', async ({
+/** Camina de frente con el joystick (o el ratón) hasta la pared del fondo de la portería. */
+async function caminarAlFondo(page: Page, caja: Caja, conDedo: boolean | undefined) {
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  const trazo: [Punto, Punto] = [
+    { x, y },
+    { x, y: y - 80 },
+  ];
+  // A 2 m/s, 6,5 s alcanzan para 13 m; el pasillo mide 10 m.
+  if (conDedo) await arrastrarDedos(page, [trazo], { quieto: 6500 });
+  else await arrastrarRaton(page, trazo[0], trazo[1], 6500);
+}
+
+interface Caja {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+test('caminar de frente se detiene contra la pared del fondo sin atravesarla (T17)', async ({
   page,
 }, info) => {
   const { caja } = await abrirJuego(page);
-  const x = caja.x + caja.width * 0.2;
-  const y = caja.y + caja.height * 0.7;
-  const desde = { x, y };
-  const hasta = { x, y: y - 80 };
+  await caminarAlFondo(page, caja, info.project.use.hasTouch);
 
-  // Joystick a fondo durante 3,5 s: sin colisión llegaría a z ≈ −4,8, detrás de la pared.
-  if (info.project.use.hasTouch) await arrastrarDedos(page, [[desde, hasta]], { quieto: 3500 });
-  else await arrastrarRaton(page, desde, hasta, 3500);
-
-  // La mesa va de z = −1,9 a −1,1; con 30 cm de radio, el jugador se queda en z = −0,8.
+  // La pared del fondo de la portería está en z = −5; con 30 cm de radio, el jugador queda en −4,7.
   const [px, pz] = await leer(page, 'data-posicion');
-  expect(pz).toBeGreaterThan(-0.85);
-  expect(pz).toBeLessThan(0);
+  expect(pz).toBeGreaterThan(-4.75);
+  expect(pz).toBeLessThan(-4);
   expect(Math.abs(px)).toBeLessThan(0.05);
 });
 
@@ -156,33 +169,21 @@ async function tocar(page: Page, p: Punto, conDedo: boolean | undefined): Promis
   await cdp.detach();
 }
 
-test('tocar el cartel lo enfoca y el botón del HUD abre su ficha (T18)', async ({ page }, info) => {
+test('tocar la puerta de salida la enfoca y el botón del HUD la usa (T18)', async ({
+  page,
+}, info) => {
   const { caja } = await abrirJuego(page);
   const conDedo = info.project.use.hasTouch;
+  await caminarAlFondo(page, caja, conDedo);
 
-  // Caminar hasta la mesa: desde ahí el cartel de la pared del fondo queda a 2,2 m.
-  const x = caja.x + caja.width * 0.2;
-  const y = caja.y + caja.height * 0.7;
-  if (conDedo)
-    await arrastrarDedos(
-      page,
-      [
-        [
-          { x, y },
-          { x, y: y - 80 },
-        ],
-      ],
-      { quieto: 3000 },
-    );
-  else await arrastrarRaton(page, { x, y }, { x, y: y - 80 }, 3000);
-
-  // El centro de la pantalla apunta al cartel.
+  // El centro de la pantalla apunta a la puerta de salida, a 30 cm.
   await tocar(page, { x: caja.x + caja.width / 2, y: caja.y + caja.height / 2 }, conDedo);
-  const boton = page.getByRole('button', { name: /Examinar.*Cartel de la pared/ });
+  const boton = page.getByRole('button', { name: /Usar.*Puerta de salida/ });
   await expect(boton).toBeVisible();
 
+  // La orden va por el puente; el controlador la atiende y suelta el objeto.
   await boton.click();
-  await expect(page.getByText('No hay nada escrito en este objeto.')).toBeVisible();
+  await expect(boton).toHaveCount(0);
 });
 
 test('tocar el piso no enfoca nada', async ({ page }, info) => {
@@ -196,27 +197,25 @@ test('tocar el piso no enfoca nada', async ({ page }, info) => {
   await expect(page.getByRole('button', { name: /Examinar|Recoger|Usar/ })).toHaveCount(0);
 });
 
-test('en escritorio, W camina hacia adelante y E examina lo enfocado (T19)', async ({
-  page,
-}, info) => {
+test('en escritorio, W camina hacia adelante y E usa lo enfocado (T19)', async ({ page }, info) => {
   test.skip(!!info.project.use.hasTouch, 'teclado solo en el perfil de escritorio');
   const { caja } = await abrirJuego(page);
-  const [, z0] = await leer(page, 'data-posicion');
 
   // Las flechas y WASD no deben hacer scroll de la página.
   await page.keyboard.down('KeyW');
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(6500);
   await page.keyboard.up('KeyW');
   const [, z1] = await leer(page, 'data-posicion');
-  expect(z1).toBeLessThan(z0 - 1);
-  // Se detiene contra la mesa (T17).
-  expect(z1).toBeGreaterThan(-0.85);
+  // Se detiene contra la pared del fondo (T17).
+  expect(z1).toBeGreaterThan(-4.75);
+  expect(z1).toBeLessThan(-4);
 
-  // Apuntar al cartel con un clic y examinarlo con E.
+  // Apuntar a la puerta de salida con un clic y usarla con E.
   await page.mouse.click(caja.x + caja.width / 2, caja.y + caja.height / 2);
-  await expect(page.getByRole('button', { name: /Examinar.*Cartel de la pared/ })).toBeVisible();
+  const boton = page.getByRole('button', { name: /Usar.*Puerta de salida/ });
+  await expect(boton).toBeVisible();
   await page.keyboard.press('KeyE');
-  await expect(page.getByText('No hay nada escrito en este objeto.')).toBeVisible();
+  await expect(boton).toHaveCount(0);
 });
 
 test('en escritorio, un clic en el piso bloquea el ratón y el ratón mira (T19)', async ({
