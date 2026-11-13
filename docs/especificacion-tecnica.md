@@ -628,7 +628,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T16** Exportar cajas de colisión desde Blender y cargarlas — 30 min
 - [x] **T17** Colisión de cápsula contra cajas, sin atravesar paredes — 50 min
 - [x] **T18** Toque sobre objetos: raycast, resaltado y botón «Usar» — 50 min
-- [ ] **T19** Teclado y ratón con bloqueo de puntero en escritorio — 30 min
+- [x] **T19** Teclado y ratón con bloqueo de puntero en escritorio — 30 min
 - [ ] **T20** Cargador de salas: `compileAsync`, liberación de memoria y precarga de la siguiente — 55 min
 
 ### Fase 3 · Lógica de juego (sin gráficos)
