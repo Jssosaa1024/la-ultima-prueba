@@ -1,8 +1,10 @@
 # La Última Prueba — Especificación técnica
 
-5 de noviembre de 2026 · Versión 1.1 · Documento vivo: https://claude.ai/artifact/HqKa6YbWbcB8g8ryk55ixB
+12 de noviembre de 2026 · Versión 1.2 · Documento vivo: https://claude.ai/artifact/HqKa6YbWbcB8g8ryk55ixB
 
 **Versión 1.1** (enmienda del 5 de noviembre de 2026): agrega el laboratorio de assets, el modo `?lab=1`, el panel de métricas y la prueba de estrés, el registro de créditos, las reglas de audio y los riesgos de licencia, con base en `docs/investigacion-assets.md`. El diseño, las salas, el presupuesto, el protocolo y la numeración T01–T102 no cambian; las tareas nuevas son T11a–T11z.
+
+**Versión 1.2** (enmienda del 12 de noviembre de 2026, con base en `docs/salas-y-puzzles.md`): el juego no tiene relación con el ICFES ni con el Saber 11; el público es grado 9 en adelante, con foco en grado 10; la premisa es recuperar la memoria USB con el proyecto de la feria de ciencias; cada sala es un puzzle de tres etapas en lugar de una pregunta con cuatro opciones (sección 2), con `proceso` de los Estándares del MEN y `grado` en lugar de `competencia`. Cambian las descripciones de T21–T23, T26, T27, T34, T37, T38, T45, T52, T58, T64, T70, T75 y T100; la numeración y el orden de las fases no cambian.
 
 ## Alcance y decisiones de arquitectura
 
@@ -15,7 +17,7 @@ El juego es un sitio estático en Astro con una sola isla de juego a pantalla co
 | Lógica de juego | Módulo TypeScript puro, sin DOM ni Three | Se prueba con tests unitarios y la usan igual el modo individual y el anfitrión del cooperativo |
 | Puente motor ↔ interfaz | Signals de Preact como único estado observable | El HUD y la escena reaccionan al mismo estado sin acoplarse |
 | Render | Three.js con WebGL2 obligatorio | Three.js actual ya no soporta WebGL1; se muestra aviso en equipos sin WebGL2 |
-| Contenido | Salas, preguntas, diálogos y finales en JSON validado en build | El equipo pedagógico edita datos sin tocar código |
+| Contenido | Salas, puzzles, diálogos y finales en JSON validado en build | El equipo pedagógico edita datos sin tocar código |
 | Lectura de datos | Al inspeccionar un objeto con datos, se abre una vista 2D nítida en el HUD | Texto legible en pantallas pequeñas, compatible con lector de pantalla y sin texturas grandes |
 | Mecanismos de respuesta | Entrada en un panel 2D (Preact); el objeto 3D solo anima | Tocar ruedas o teclas 3D pequeñas es impreciso en celular |
 | Cooperativo | Anfitrión autoritativo sobre Broadcast + Presence; sin servidor de juego | Encaja con hosting estático y con partidas de 2 a 4 jugadores |
@@ -301,17 +303,18 @@ la-ultima-prueba/
 ├─ src/
 │  ├─ pages/                     # index, jugar, creditos (generada desde credits.json), docentes
 │  ├─ layouts/
+│  ├─ content.config.ts          # v1.2: colecciones de Astro 7 (usa los esquemas de content/)
 │  ├─ content/                   # datos validados en build (Astro content collections)
-│  │  ├─ config.ts                # esquemas de preguntas, salas, diálogos, finales
-│  │  ├─ preguntas/               # s1-porcentajes.json … s5-probabilidad-urna.json
-│  │  ├─ salas/                   # objetos A/B/C, mecanismo D, fragmento de grabación
+│  │  ├─ esquema.ts               # v1.2: esquemas zod de puzzles (y luego salas, diálogos, finales)
+│  │  ├─ puzzles/                 # v1.2: s1-etiquetadora.json … s5-urna.json
+│  │  ├─ salas/                   # objetos por rol A–D y escondite de la grabación
 │  │  ├─ dialogos/                # líneas de La Voz con tiempos de subtítulo
 │  │  └─ finales/
 │  ├─ game/                      # REGLAS PURAS: sin DOM, sin Three, sin red
 │  │  ├─ partida.ts               # máquina de estados: portería → salas → final
 │  │  ├─ reloj.ts                 # 40 min activos, pausa
-│  │  ├─ respuestas.ts            # validación por opción, valor, pasos y formato es-CO
-│  │  ├─ pistas.ts                # pistas graduales
+│  │  ├─ puzzles/                 # v1.2: una función pura por puzzle: estado → condiciones cumplidas
+│  │  ├─ pistas.ts                # pistas graduales por tiempo en la etapa o intentos
 │  │  ├─ reparto.ts               # roles A–D por número de jugadores y rotación
 │  │  ├─ finales.ts
 │  │  └─ tipos.ts
@@ -322,7 +325,7 @@ la-ultima-prueba/
 │  │  ├─ interaccion/             # raycast, resaltado, inspección
 │  │  ├─ avatares/                # otros jugadores interpolados
 │  │  ├─ audio/                   # incluye efectos Web Audio por código (rectoría)
-│  │  └─ salas/                   # un módulo por sala; s5 crea urna, fichas y ruedas por código
+│  │  └─ salas/                   # un módulo por sala; s5 crea urna, fichas y mano mecánica por código
 │  ├─ debug/                     # v1.1: solo se carga con ?debug=1 o ?lab=1
 │  │  ├─ metricas.ts              # signals de métricas, escritas cada 500 ms
 │  │  ├─ panel/                   # panel Preact y exportación JSON
@@ -334,7 +337,7 @@ la-ultima-prueba/
 │  │  ├─ menus/                   # inicio, pausa, ajustes, sala de espera cooperativa
 │  │  ├─ cuaderno/
 │  │  ├─ inspeccion/              # vista 2D de objetos con datos
-│  │  ├─ mecanismos/              # registradora, dial, placas, casilleros, ruedas
+│  │  ├─ mecanismos/              # v1.2: etiquetadora, tanques, reflector, carritos, urna
 │  │  └─ finales/                 # pantallas de final y créditos
 │  ├─ signals/                   # estado observable compartido por engine/ y ui/
 │  ├─ net/                       # Supabase: cliente, canal, protocolo, anfitrión, reconexión
@@ -345,186 +348,150 @@ la-ultima-prueba/
    └─ e2e/                       # Playwright con emulación de celular
 ```
 
-## 2) Esquema JSON de una pregunta
+## 2) Esquema JSON de un puzzle
 
-Cada pregunta es un archivo JSON con cuatro opciones al estilo Saber 11, una respuesta validable por opción o por valor, tres pistas graduales y una pista por rol (A, B, C, D). En modo individual el jugador reúne las cuatro pistas por rol en su cuaderno; en cooperativo cada una llega a quien tiene ese rol según el reparto.
+v1.2: reemplaza el esquema de «pregunta» con cuatro opciones. Cada sala tiene un puzzle: una máquina con una regla matemática que el jugador descubre manipulándola (ver `docs/salas-y-puzzles.md`). No hay opciones ni distractores, y la máquina nunca dice «incorrecto»: muestra lo que pasó.
 
-Reglas que el esquema no expresa y valida `content/config.ts`: `respuesta.opcion` debe existir en `opciones`; el `valor` de esa opción debe coincidir con `respuesta.valor`; y si hay `pasos`, su producto o resultado debe dar `respuesta.valor`. En el bundle publicado, `respuesta` y `pasos` se reemplazan por hashes (T23) para que no se lean a simple vista.
+Cada puzzle es un archivo JSON en `src/content/puzzles/` validado en build con el esquema zod de `src/content/esquema.ts` (la colección se declara en `src/content.config.ts`, como pide Astro 7). Todos los controles son discretos (rodillos, perillas de 1 en 1, muescas, metros enteros, libros, fichas), así que cada estado se compara de forma exacta.
 
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "pregunta.schema.json",
-  "title": "Pregunta de La Última Prueba",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["id", "version", "sala", "tema", "dificultad", "enunciado", "opciones", "respuesta", "mecanismo", "pistas", "pista_por_jugador"],
-  "properties": {
-    "id":        { "type": "string", "pattern": "^s[1-5]-[a-z0-9-]+$" },
-    "version":   { "type": "integer", "minimum": 1 },
-    "sala":      { "type": "integer", "minimum": 1, "maximum": 5 },
-    "tema":      { "enum": ["porcentajes", "funciones_lineales", "escala_area", "estadistica_mediana", "probabilidad_sin_reemplazo"] },
-    "competencia": { "enum": ["interpretacion_representacion", "formulacion_ejecucion", "argumentacion"] },
-    "dificultad":  { "type": "integer", "minimum": 1, "maximum": 3, "description": "1 básica, 2 media, 3 alta" },
-    "enunciado": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["texto", "objeto_datos"],
-      "properties": {
-        "texto":         { "type": "string", "maxLength": 280 },
-        "texto_lectura": { "type": "string", "description": "Versión para lector de pantalla y voz (p. ej. «tres quintos»)" },
-        "objeto_datos":  { "type": "string", "description": "id del objeto A que contiene los datos" }
-      }
-    },
-    "opciones": {
-      "type": "array", "minItems": 4, "maxItems": 4,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "texto", "valor"],
-        "properties": {
-          "id":          { "enum": ["o1", "o2", "o3", "o4"] },
-          "texto":       { "type": "string", "maxLength": 40 },
-          "valor":       { "type": "number" },
-          "error_comun": { "type": "string", "maxLength": 160, "description": "Retroalimentación si se elige este distractor" }
-        }
-      }
-    },
-    "respuesta": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["opcion", "valor", "explicacion"],
-      "properties": {
-        "opcion":     { "enum": ["o1", "o2", "o3", "o4"] },
-        "valor":      { "type": "number" },
-        "unidad":     { "type": "string", "description": "COP, °C, min, m², libros…" },
-        "tolerancia": { "type": "number", "minimum": 0, "default": 0 },
-        "formatos_aceptados": { "type": "array", "items": { "type": "string" }, "description": "Entradas libres válidas: 3/10, 0,3, 30 %" },
-        "pasos": {
-          "type": "array",
-          "description": "Valores intermedios que el mecanismo exige (p. ej. cada rueda)",
-          "items": {
-            "type": "object",
-            "required": ["etiqueta", "valor"],
-            "properties": { "etiqueta": { "type": "string" }, "valor": { "type": "number" }, "texto": { "type": "string" } }
-          }
-        },
-        "explicacion": { "type": "string", "maxLength": 200 }
-      }
-    },
-    "mecanismo": {
-      "type": "object",
-      "required": ["tipo"],
-      "properties": {
-        "tipo": { "enum": ["registradora", "dial_minutos", "tablero_placas", "casilleros", "ruedas_fraccion"] },
-        "entrada": { "enum": ["opciones", "numerica"], "default": "opciones" }
-      }
-    },
-    "pistas": {
-      "type": "array", "minItems": 3, "maxItems": 3,
-      "items": {
-        "type": "object",
-        "required": ["nivel", "texto"],
-        "properties": {
-          "nivel":         { "enum": [1, 2, 3] },
-          "tras_intentos": { "type": "integer", "minimum": 0, "description": "Se ofrece tras N intentos fallidos" },
-          "tras_segundos": { "type": "integer", "minimum": 0, "description": "o tras N segundos en la sala" },
-          "texto":         { "type": "string", "maxLength": 160 }
-        }
-      }
-    },
-    "pista_por_jugador": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["A", "B", "C", "D"],
-      "properties": {
-        "A": { "$ref": "#/$defs/pistaRol" },
-        "B": { "$ref": "#/$defs/pistaRol" },
-        "C": { "$ref": "#/$defs/pistaRol" },
-        "D": { "$ref": "#/$defs/pistaRol" }
-      }
-    }
-  },
-  "$defs": {
-    "pistaRol": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["objeto", "texto"],
-      "properties": {
-        "objeto": { "type": "string", "description": "id del objeto que porta ese rol en la sala" },
-        "texto":  { "type": "string", "maxLength": 160 }
-      }
-    }
-  }
-}
-```
+### Campos comunes
 
-Ejemplo con la sala 5. Los pasos obligan a configurar 3/5 y 2/4 en las ruedas, así que adivinar la opción no basta: el avance depende del cálculo, como pide el diseño.
+| Campo | Tipo | Qué es |
+| --- | --- | --- |
+| `id` | `s1-etiquetadora` … `s5-urna` | `^s[1-5]-[a-z0-9-]+$`; el número coincide con `sala` |
+| `version` | entero ≥ 1 | Sube al cambiar el contenido (`version_contenido` del cooperativo) |
+| `sala` | 1 a 5 | Cada sala tiene un mecanismo fijo: 1 etiquetadora, 2 tanques, 3 reflector, 4 carritos, 5 urna |
+| `titulo` | texto ≤ 60 | Nombre de la máquina en el juego |
+| `tema` | `porcentajes`, `funciones_lineales`, `semejanza_tangente`, `medidas_estadisticas`, `probabilidad_sin_reemplazo` | Concepto que nombra el cuaderno |
+| `proceso` | `formular_resolver`, `modelar`, `comunicar`, `razonar`, `procedimientos` | Proceso general principal de los Estándares Básicos de Competencias en Matemáticas del MEN (2006): formular y resolver problemas; modelar procesos y fenómenos de la realidad; comunicar; razonar; formular, comparar y ejercitar procedimientos |
+| `grado` | 9, 10 u 11 | Grado en que se estudia el concepto que nombra el cuaderno |
+| `dificultad` | 1 a 3 | 1 básica, 2 media, 3 alta |
+| `concepto` | texto ≤ 200 | Lo que se descubre |
+| `intuicion` | texto ≤ 160 | La intuición común que la etapa «torcer» pone a prueba |
+| `mecanismo` | `etiquetadora`, `tanques`, `reflector`, `carritos`, `urna` | Decide la forma de `estado_inicial`, `controles`, `exito` y `solucion` |
+| `etapas` | exactamente 3 | `presentar`, `torcer` y `dominar`, en ese orden |
+| `pistas` | exactamente 3 | `{ nivel: 1 \| 2 \| 3, tras_segundos, tras_intentos?, texto ≤ 160 }`; se ofrecen por tiempo en la etapa actual o por intentos fallidos en ella |
+| `cuaderno` | `{ concepto ≤ 80, texto ≤ 300 }` | Lo que el cuaderno escribe al resolver la sala: «Lo que acabas de descubrir se llama…» |
+| `pista_por_jugador` | `{ A, B, C, D }` | `{ objeto, texto ≤ 160 }`; el objeto empieza por `s<sala>-`. En individual el jugador las reúne todas; en cooperativo cada una llega a su rol |
+
+Cada etapa tiene:
+
+| Campo | Qué es |
+| --- | --- |
+| `id` | `presentar`, `torcer` o `dominar` |
+| `situacion` | Lo que el jugador ve al empezar la etapa (≤ 280) |
+| `aja` | El momento «ajá» de la etapa, para el docente y el modo práctica (≤ 200) |
+| `estado_inicial` | Estado completo de la máquina al empezar la etapa |
+| `controles` | Lo que el jugador puede cambiar en esa etapa y con qué valores |
+| `exito` | La condición de éxito; se descompone en condiciones con id |
+| `solucion` | Un estado que resuelve la etapa, con la misma forma de `estado_inicial` |
+
+### Por mecanismo
+
+| Mecanismo | `estado_inicial` y `solucion` | `controles` | `exito` → condiciones |
+| --- | --- | --- | --- |
+| `etiquetadora` | `{ producto, precio, rodillos: [] }` | `{ rodillos: [-20, 20, 25, -50, 50], max_rodillos: 2 }` | `{ precio }` → `precio`: el precio impreso, `precio × Π(1 + p/100)`, es el de la pizarra |
+| `tanques` | `{ a, b \| null }`, cada tanque `{ nivel, caudal, visible, registro? }` en cm y cm/s | `{ perillas: ["a"], caudal_min, caudal_max, altura_cm }` | `{ campana_s, objetivo: { tipo: "linea", nivel } \| { tipo: "cruce" } }` → `nivel`: al sonar la campana, A está en la línea o A y B tienen la misma altura |
+| `reflector` | `{ muesca, postes: [{ id, altura, distancia \| null }], polea \| null }` en grados y metros | `{ muescas, girar, postes_moviles, distancia_min, distancia_max, polea: { min, max } \| null }` | `{ sensores: [ids de poste], marcador: { altura } \| null }` → una condición por poste (su sombra toca su sensor) y `polea` (la longitud es la altura del marcador) |
+| `carritos` | `{ carritos: [5 enteros] }` | `{ carritos: 5, libros: 20 }` | `{ lamparas: { media?, mediana?, moda?, rango? } }` → una condición por lámpara encendida |
+| `urna` | `{ azules, amarillas }` | `{ max_por_color }` | `{ fichas, juego: "siempre_gana" \| "justo" }` → `fichas` (total pedido) y `juego` (parejas iguales = parejas distintas, o solo iguales) |
+
+En el reflector, la sombra usa razones idealizadas por muesca (sombra ÷ altura: 27° → 2, 37° → 4/3, 45° → 1, 53° → 3/4, 63° → 1/2) para que todo dé en metros enteros o medios. Los tanques se llenan hasta `altura_cm` y no bajan de 0.
+
+### Validaciones cruzadas
+
+`esquema.ts` revisa en build lo que zod no expresa por campo:
+
+- el número del `id` coincide con `sala` y el `mecanismo` es el de esa sala;
+- las etapas van en orden `presentar`, `torcer`, `dominar`; las pistas en niveles 1, 2, 3 con `tras_segundos` creciente (y `tras_intentos` creciente si existe);
+- `estado_inicial` y `solucion` respetan los `controles` (rodillos de la caja y sin repetir, caudales en rango, muescas existentes, libros que alcanzan, fichas por color), y `solucion` solo cambia lo que los controles permiten cambiar;
+- `solucion` cumple todas las condiciones de éxito y `estado_inicial` no (con las funciones de `src/game/puzzles/`, T26);
+- los objetos de `pista_por_jugador` son de la sala.
+
+Las funciones de `src/game/puzzles/` son puras: reciben la etapa y el estado, y devuelven qué condiciones se cumplen. Las usan el panel de cada mecanismo (por ejemplo, para encender las lámparas de la biblioteca en vivo), el modo individual y el anfitrión del cooperativo.
+
+Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos parejos (la media ya está verde) y la «dominar» con la solución de la anterior, para que el jugador vea qué lámparas se apagan.
 
 ```json
 {
-  "id": "s5-probabilidad-urna",
+  "id": "s4-carritos",
   "version": 1,
-  "sala": 5,
-  "tema": "probabilidad_sin_reemplazo",
-  "competencia": "formulacion_ejecucion",
+  "sala": 4,
+  "titulo": "Los carritos de préstamo",
+  "tema": "medidas_estadisticas",
+  "proceso": "razonar",
+  "grado": 9,
   "dificultad": 3,
-  "enunciado": {
-    "texto": "En la urna hay 3 fichas azules y 2 amarillas. Si sacas dos fichas al azar sin devolver la primera, ¿cuál es la probabilidad de que ambas sean azules?",
-    "objeto_datos": "s5-urna"
-  },
-  "opciones": [
-    { "id": "o1", "texto": "3/10", "valor": 0.3 },
-    { "id": "o2", "texto": "9/25", "valor": 0.36, "error_comun": "Calculaste con reemplazo: la primera ficha no vuelve a la urna." },
-    { "id": "o3", "texto": "3/5",  "valor": 0.6,  "error_comun": "Esa es solo la probabilidad de la primera extracción." },
-    { "id": "o4", "texto": "1/10", "valor": 0.1,  "error_comun": "Esa es la probabilidad de que ambas sean amarillas." }
+  "concepto": "Media, mediana, moda y rango miran cosas distintas de un conjunto de datos; juntas pueden determinarlo por completo.",
+  "intuicion": "La media y la mediana son más o menos lo mismo.",
+  "mecanismo": "carritos",
+  "etapas": [
+    {
+      "id": "presentar",
+      "situacion": "Solo está encendida la lámpara MEDIA 4. Reparte los 20 libros en los cinco carritos.",
+      "aja": "Hay muchas respuestas: mover un libro de un carrito a otro no apaga la media.",
+      "estado_inicial": { "carritos": [0, 0, 0, 0, 0] },
+      "controles": { "carritos": 5, "libros": 20 },
+      "exito": { "lamparas": { "media": 4 } },
+      "solucion": { "carritos": [4, 4, 4, 4, 4] }
+    },
+    {
+      "id": "torcer",
+      "situacion": "Se encendió la lámpara MEDIANA 3.",
+      "aja": "Puedes poner 11 libros en un día y la mediana no se entera: solo mira el del medio.",
+      "estado_inicial": { "carritos": [4, 4, 4, 4, 4] },
+      "controles": { "carritos": 5, "libros": 20 },
+      "exito": { "lamparas": { "media": 4, "mediana": 3 } },
+      "solucion": { "carritos": [1, 2, 3, 3, 11] }
+    },
+    {
+      "id": "dominar",
+      "situacion": "Las cuatro lámparas están encendidas: MEDIA 4, MEDIANA 3, MODA 2 y RANGO 7.",
+      "aja": "Con cuatro pistas solo hay una semana posible, salvo el orden de los días.",
+      "estado_inicial": { "carritos": [1, 2, 3, 3, 11] },
+      "controles": { "carritos": 5, "libros": 20 },
+      "exito": { "lamparas": { "media": 4, "mediana": 3, "moda": 2, "rango": 7 } },
+      "solucion": { "carritos": [2, 2, 3, 4, 9] }
+    }
   ],
-  "respuesta": {
-    "opcion": "o1",
-    "valor": 0.3,
-    "tolerancia": 0,
-    "formatos_aceptados": ["3/10", "6/20", "0,3", "30 %"],
-    "pasos": [
-      { "etiqueta": "primera extracción", "valor": 0.6, "texto": "3/5" },
-      { "etiqueta": "segunda extracción", "valor": 0.5, "texto": "2/4" }
-    ],
-    "explicacion": "3/5 × 2/4 = 6/20 = 3/10."
-  },
-  "mecanismo": { "tipo": "ruedas_fraccion", "entrada": "opciones" },
   "pistas": [
-    { "nivel": 1, "tras_intentos": 1, "texto": "Cuenta cuántas fichas hay de cada color antes de sacar ninguna." },
-    { "nivel": 2, "tras_intentos": 2, "texto": "Si la primera fue azul, ¿cuántas fichas quedan y cuántas son azules?" },
-    { "nivel": 3, "tras_intentos": 3, "texto": "Multiplica la probabilidad de la primera extracción por la de la segunda." }
+    { "nivel": 1, "tras_segundos": 120, "tras_intentos": 3, "texto": "Mueve un libro de un carrito a otro. ¿Se apagó la lámpara de la media?" },
+    { "nivel": 2, "tras_segundos": 240, "tras_intentos": 6, "texto": "Ordena los carritos de menor a mayor. ¿Cuál mira la mediana?" },
+    { "nivel": 3, "tras_segundos": 360, "tras_intentos": 9, "texto": "Si la moda es 2, al menos dos días tuvieron 2 libros. ¿Y dónde queda el mayor si el rango es 7?" }
   ],
+  "cuaderno": {
+    "concepto": "Medidas de tendencia central y de dispersión",
+    "texto": "Media, mediana, moda y rango miran cosas distintas. El rango es una medida de dispersión: dice qué tan separados están los datos. En 10° conocerás otra, la desviación estándar."
+  },
   "pista_por_jugador": {
-    "A": { "objeto": "s5-urna",    "texto": "Bajo la base de la urna hay un inventario: 3 azules y 2 amarillas." },
-    "B": { "objeto": "s5-lupa",    "texto": "Con la lupa se lee en la tapa: «la primera ficha no regresa»." },
-    "C": { "objeto": "s5-tarjeta", "texto": "Eventos dependientes: P(A y B) = P(A) × P(B si ya ocurrió A)." },
-    "D": { "objeto": "s5-ruedas",  "texto": "La rueda izquierda es la primera extracción; la derecha, la segunda." }
+    "A": { "objeto": "s4-pila-libros", "texto": "La pila tiene exactamente 20 libros: ni uno más ni uno menos." },
+    "B": { "objeto": "s4-mostrador", "texto": "Desde el mostrador se ven las cuatro lámparas del resumen semanal." },
+    "C": { "objeto": "s4-ficha-rota", "texto": "En el pedazo de ficha se lee «moda» subrayada dos veces." },
+    "D": { "objeto": "s4-carritos", "texto": "Los carritos van de lunes a viernes; el orden de los días no importa." }
   }
 }
 ```
 
 ## 3) Protocolo del modo cooperativo
 
-Cada partida usa un canal privado de Supabase Realtime (`partida:K7MP`) y un anfitrión autoritativo: quien crea la partida decide reloj, objetos, respuestas y finales; los demás envían intenciones y reciben eventos numerados. Los mensajes llevan identificadores, nunca textos, porque cada cliente ya tiene el contenido.
+Cada partida usa un canal privado de Supabase Realtime (`partida:K7MP`) y un anfitrión autoritativo: quien crea la partida decide reloj, objetos, etapas resueltas y finales; los demás envían intenciones y reciben eventos numerados. Los mensajes llevan identificadores, nunca textos, porque cada cliente ya tiene el contenido.
 
 ```mermaid
 flowchart LR
-    A["D propone<br/>int: proponer"] --> B["Se difunde<br/>evt: propuesta"]
+    A["D propone un estado<br/>int: proponer"] --> B["Se difunde<br/>evt: propuesta"]
     B --> C["Todos confirman<br/>int: confirmar"]
     C --> D{"¿Todos aceptan?"}
     D -- "no: la propuesta se anula" --> A
-    D -- "sí" --> E["Anfitrión valida<br/>compara hashes"]
+    D -- "sí" --> E["Anfitrión evalúa<br/>condiciones del puzzle"]
     E --> F{"¿Correcta?"}
     F -- "sí" --> G["Sello obtenido<br/>se abre la puerta"]
-    F -- "no" --> H["Explica el error<br/>pista disponible"]
+    F -- "no" --> H["La máquina muestra<br/>lo que pasó"]
     H -- "otra propuesta" --> A
 ```
 
-*Una respuesta solo se valida cuando todo el grupo la acepta. int = intención al anfitrión · evt = evento para todos.*
+*Un estado del mecanismo solo se acciona cuando todo el grupo lo acepta. int = intención al anfitrión · evt = evento para todos.*
 
-Un rechazo anula la propuesta y el rol D vuelve a proponer; una respuesta incorrecta muestra el error del distractor y habilita la siguiente pista.
+Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda resuelta, la máquina muestra lo que pasó (sin mensaje de «incorrecto») y el intento cuenta para las pistas. v1.2: `estado` es el estado discreto del mecanismo (solo números e ids, nunca texto), con la forma de `solucion` en la sección 2.
 
 ### Canal y presencia
 
@@ -549,9 +516,9 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer; una respuesta incorr
 | `recoger` | `{ objeto }` | El objeto está libre y en la sala del jugador |
 | `pasar` | `{ objeto, a }` | El emisor lo tiene y el destino está en la misma sala |
 | `usar` | `{ herramienta, objetivo }` | El emisor tiene la herramienta; entonces emite `revelado` |
-| `proponer` | `{ pregunta, opcion, pasos? }` | El emisor tiene el rol D en esa sala |
+| `proponer` | `{ puzzle, etapa, estado }` | El emisor tiene el rol D en esa sala |
 | `confirmar` | `{ propuesta, acepta }` | La propuesta sigue abierta; un voto por jugador |
-| `pedir_pista` | `{ pregunta }` | El siguiente nivel ya está habilitado por intentos o tiempo |
+| `pedir_pista` | `{ puzzle }` | El siguiente nivel ya está habilitado por intentos o tiempo |
 | `nota` | `{ op: agregar \| editar \| borrar, id, texto }` | Texto de 280 caracteres o menos |
 | `votar` | `{ asunto: pausa \| reanudar \| sala \| final \| ayuda, opcion? }` | Siempre; se resuelve por unanimidad |
 | `pedir_estado` | `{ desde_n }` | Siempre; responde con `estado` |
@@ -565,10 +532,10 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer; una respuesta incorr
 | `roles` | `{ sala, A, B, C, D }` | Al entrar el grupo a una sala; rotan según la tabla del diseño |
 | `objeto` | `{ objeto, portador \| null, sala }` | Tras recoger, pasar o soltar |
 | `revelado` | `{ objeto, por }` | Tras usar una herramienta sobre un objeto con datos |
-| `propuesta` | `{ id, pregunta, por, opcion, pasos? }` | Tras `proponer`; anula la propuesta anterior |
+| `propuesta` | `{ id, puzzle, etapa, por, estado }` | Tras `proponer`; anula la propuesta anterior |
 | `confirmacion` | `{ propuesta, jugador, acepta }` | Tras cada `confirmar` |
-| `resultado` | `{ pregunta, correcto, sello?, distractor? }` | Cuando todos los conectados aceptaron |
-| `pista` | `{ pregunta, nivel }` | Tras `pedir_pista` aceptada |
+| `resultado` | `{ puzzle, etapa, condiciones, resuelta, sello? }` | Cuando todos los conectados aceptaron |
+| `pista` | `{ puzzle, nivel }` | Tras `pedir_pista` aceptada |
 | `nota` | `{ op, id, texto, autor }` | Tras cada `nota` |
 | `voto` | `{ asunto, votos, resuelto }` | Tras cada `votar` |
 | `reloj` | `{ restante_ms, pausado }` | Solo al pausar o reanudar; no hay ticks |
@@ -588,7 +555,7 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer; una respuesta incorr
 - **Orden:** los eventos llevan `n` creciente. Si un cliente detecta un hueco, envía `pedir_estado` y aplica la foto completa. Las intenciones repetidas con el mismo `cid` se ignoran.
 - **Reloj:** el anfitrión guarda el tiempo restante; cada cliente descuenta con su reloj local desde que recibe `reloj` o `estado`, y cada `estado` corrige la deriva. La pausa exige que todos voten a favor.
 - **Avance en grupo:** todo el grupo está siempre en la misma sala. Para pasar a la siguiente, o volver a una anterior a buscar grabaciones, se vota `sala` por unanimidad; el anfitrión emite `roles` de la nueva sala y todos los clientes la cargan.
-- **Confirmar respuesta:** una propuesta solo se valida cuando todos los conectados aceptan; un rechazo o una propuesta nueva la anula. Elegir final y usar el intercomunicador siguen la misma unanimidad, para que nadie termine la partida por los demás.
+- **Confirmar una etapa:** una propuesta solo se acciona cuando todos los conectados aceptan; un rechazo o una propuesta nueva la anula. Elegir final y usar el intercomunicador siguen la misma unanimidad, para que nadie termine la partida por los demás.
 - **Desconexión:** al salir de Presence, los objetos del jugador quedan reservados 60 s y luego quedan en el piso de la sala; si tenía el rol D, se reasigna. Al volver con el mismo `jugador` (guardado en el navegador), recupera rol y objetos.
 - **Migración de anfitrión:** si el anfitrión falta 5 s, asume el jugador con `unido_en` más antiguo; pausa el reloj, emite `anfitrion` y `estado` desde su última copia, y reanuda a los 3 s.
 - **Versiones:** si `v` o `version_contenido` no coinciden, se rechaza la unión con el mensaje «Actualiza la página».
@@ -647,7 +614,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T11t** (v1.1) Laboratorio: generar instrumentos en Meshy (plan gratis, límite de caras) y registrarlos con evidencia — 50 min
 - [ ] **T11u** (v1.1) Gimnasio: elegir modelos CC BY de Sketchfab y guardar captura de su licencia — 45 min
 - [ ] **T11v** (v1.1) Biblioteca: descargar a mano modelos de Poly Haven en 1k y registrarlos — 40 min
-- [ ] **T11w** (v1.1) Rectoría: urna, fichas y ruedas generadas por código dentro del presupuesto — 50 min
+- [ ] **T11w** (v1.1) Rectoría: urna, fichas y mano mecánica generadas por código dentro del presupuesto — 50 min
 - [ ] **T11x** (v1.1) Rectoría: imágenes de IA a KTX2 y efectos con Web Audio, registrados en el manifiesto — 45 min
 - [ ] **T11y** (v1.1) Correr el estrés en un Android de 2 GB y un iPhone reales; fijar perfiles bajo, medio y alto — 55 min
 - [ ] **T11z** (v1.1) Tabla comparativa por fuente y dispositivo; decidir qué fuentes siguen en las salas definitivas — 40 min
@@ -666,13 +633,13 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 ### Fase 3 · Lógica de juego (sin gráficos)
 
-- [ ] **T21** Tipos y esquema de pregunta en content collections, con validaciones cruzadas — 45 min
-- [ ] **T22** Escribir las 5 preguntas en JSON con distractores, pistas y pistas por rol — 50 min
-- [ ] **T23** Script `hash-answers` y validador que compara hashes — 45 min
+- [ ] **T21** (v1.2) Tipos y esquema de puzzle en content collections: etapas, estado inicial, controles, condición de éxito, pistas, cuaderno y pistas por rol, con validaciones cruzadas — 45 min
+- [ ] **T22** (v1.2) Escribir los 5 puzzles en JSON con sus tres etapas, soluciones, pistas y pistas por rol — 50 min
+- [ ] **T23** (v1.2) Script `hash-answers`: hash del estado resuelto de cada etapa y validador que compara hashes — 45 min
 - [ ] **T24** Máquina de estados de la partida: portería, salas y final — 50 min
 - [ ] **T25** Reloj de 40 minutos activos con pausa, con tests — 40 min
-- [ ] **T26** Validar respuestas por opción, valor, pasos y formato es-CO (coma decimal), con tests — 50 min
-- [ ] **T27** Pistas graduales por intentos o tiempo — 35 min
+- [ ] **T26** (v1.2) Una función pura por puzzle en `src/game/puzzles/` que recibe el estado y dice qué condiciones se cumplen, con tests — 50 min
+- [ ] **T27** Pistas graduales por intentos o tiempo en la etapa — 35 min
 - [ ] **T28** Sellos, grabaciones y reglas de los cuatro finales, con un test por final — 50 min
 - [ ] **T29** Reparto de roles A–D por número de jugadores y rotación entre salas, con tests — 40 min
 - [ ] **T30** Guardar y reanudar la partida individual tras recargar — 40 min
@@ -682,11 +649,11 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T31** Store de signals y puente con el motor — 40 min
 - [x] **T32** Menú de inicio: jugar solo, crear partida, unirse con código — 45 min
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
-- [ ] **T34** Subtítulos de La Voz sincronizados con el audio — 45 min
+- [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
-- [ ] **T37** Panel de mecanismo genérico: opciones y teclado numérico con coma decimal — 50 min
-- [ ] **T38** Panel de pistas y retroalimentación por distractor — 35 min
+- [ ] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
+- [ ] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
 - [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
 - [ ] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min
@@ -699,7 +666,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 6 · Recorte vertical: portería y sala 1
 
 - [ ] **T44** Blockout de portería y sala 1 con cajas de colisión — 55 min
-- [ ] **T45** Factura dividida entre caja y menú, conectada a la registradora — 50 min
+- [ ] **T45** (v1.2) Sala 1: etiquetadora con rodillos y palanca, pizarra de precios y registradora, en tres etapas — 50 min
 - [ ] **T46** Props de la sala 1, lote 1: caja, registradora, menú — 55 min
 - [ ] **T47** Props de la sala 1, lote 2: estanterías y ambientación — 55 min
 - [ ] **T48** Hornear el lightmap de la sala 1 y exportar — 45 min
@@ -709,30 +676,30 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 7 · Salas 2 a 5
 
 - [ ] **T51** Sala 2: blockout del laboratorio con colisiones — 55 min
-- [ ] **T52** Sala 2: historial del termómetro visible con la linterna y dial de minutos — 50 min
+- [ ] **T52** (v1.2) Sala 2: tanques con perillas, graficador, campana y hoja de ayer, en tres etapas — 50 min
 - [ ] **T53** Sala 2: props, lote 1 — 55 min
 - [ ] **T54** Sala 2: props, lote 2 — 55 min
 - [ ] **T55** Sala 2: lightmap y exportación — 45 min
 - [ ] **T56** Sala 2: presupuesto y prueba en celular — 40 min
 - [ ] **T57** Sala 3: blockout del gimnasio con colisiones — 55 min
-- [ ] **T58** Sala 3: maqueta con escala bajo las graderías y tablero de placas — 50 min
+- [ ] **T58** (v1.2) Sala 3: reflector con muescas, postes, sensores y polea, en tres etapas — 50 min
 - [ ] **T59** Sala 3: props, lote 1 — 55 min
 - [ ] **T60** Sala 3: props, lote 2 — 55 min
 - [ ] **T61** Sala 3: lightmap y exportación — 45 min
 - [ ] **T62** Sala 3: presupuesto y prueba en celular — 40 min
 - [ ] **T63** Sala 4: blockout de la biblioteca con colisiones — 55 min
-- [ ] **T64** Sala 4: diccionario hueco con fichas, ordenar registros y casilleros — 50 min
+- [ ] **T64** (v1.2) Sala 4: carritos, pila de 20 libros y lámparas en vivo, en tres etapas — 50 min
 - [ ] **T65** Sala 4: props, lote 1 — 55 min
 - [ ] **T66** Sala 4: props, lote 2 — 55 min
 - [ ] **T67** Sala 4: lightmap y exportación — 45 min
 - [ ] **T68** Sala 4: presupuesto y prueba en celular — 40 min
 - [ ] **T69** Sala 5: blockout de la rectoría con colisiones — 55 min
-- [ ] **T70** Sala 5: urna con inventario bajo la base y dos ruedas con pasos — 50 min
+- [ ] **T70** (v1.2) Sala 5: urna, simulador de 100 extracciones y «ver parejas», en tres etapas — 50 min
 - [ ] **T71** Sala 5: props, lote 1 — 55 min
 - [ ] **T72** Sala 5: props, lote 2 — 55 min
 - [ ] **T73** Sala 5: lightmap y exportación — 45 min
 - [ ] **T74** Sala 5: presupuesto y prueba en celular — 40 min
-- [ ] **T75** Esconder los tres fragmentos de grabación en las salas 2, 3 y 4 con su audio — 45 min
+- [ ] **T75** Esconder las tres grabaciones en las salas 2, 3 y 4 con su audio (escondites de `docs/salas-y-puzzles.md`) — 45 min
 - [ ] **T76** Volver a salas anteriores: recarga desde caché y estado conservado — 45 min
 - [ ] **T77** Elección de final en la portería y prueba individual de punta a punta — 40 min
 
@@ -763,7 +730,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T97** Perfilar en el celular de referencia y corregir el mayor cuello de botella — 55 min
 - [ ] **T98** Analítica sin cookies ni datos personales — 30 min
 - [ ] **T99** Página de guía para docentes — 45 min
-- [ ] **T100** Piloto con un grupo de grado 9 a 11 — 55 min
+- [ ] **T100** Piloto con un grupo de grado 10 (y algunos de grado 9) — 55 min
 - [ ] **T101** Convertir los hallazgos del piloto en tareas de menos de una hora — 40 min
 - [ ] **T102** Publicación: dominio, versión de contenido y etiqueta en git — 30 min
 
@@ -773,7 +740,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 | --- | --- | --- |
 | Crecer a más de 3 partidas simultáneas en el plan Free de Supabase | Desconexiones por exceso de eventos a partir de unas 3 partidas | Por ahora el límite es 2 partidas: el plan Free basta. Pasar a Pro antes de crecer; poses a 2 Hz como respaldo; medir en T92 |
 | iPhone no admite la API de pantalla completa en Safari | Barras del navegador ocupan pantalla y gestos chocan con el joystick | PWA instalada (T95) y márgenes de gestos en el HUD |
-| Las respuestas viajan en el cliente | Un estudiante puede leerlas con herramientas del navegador | Hashes en el bundle (T23) y pasos obligatorios en la sala 5; se acepta el riesgo restante |
+| Las soluciones viajan en el cliente | Un estudiante puede leerlas con herramientas del navegador | Hash del estado resuelto en el bundle (T23); como los puzzles se resuelven experimentando, se acepta el riesgo restante |
 | El arte supera el presupuesto | Bajan los fps en gama baja | `check-budget` rompe el build (T09) y prueba en celular al cerrar cada sala |
 | Datos de menores de edad | Obligaciones de la Ley 1581 de 2012 | Sesión anónima, alias de lista, sin chat libre ni voz, analítica sin datos personales |
 | Guion y voz de La Voz | Sin audio final no se cierran subtítulos ni tiempos | Producción de contenido fuera de esta lista; usar voz temporal desde T34 |
@@ -785,7 +752,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 | Freesound con licencias mezcladas (v1.1) | Conviven CC0, CC BY, CC BY-NC y Sampling+ antiguo | Solo CC0 y CC BY; Sampling+ se trata como no comercial |
 | Salidas de IA sin copyright (v1.1) | En EE. UU., el material generado totalmente por IA no tiene copyright: otros pueden copiarlo | Lo protegible es la selección, la edición y el juego completo; no depender de la exclusividad de esos assets |
 | Marcas dentro de modelos o imágenes (v1.1) | Un modelo CC0 o CC BY puede mostrar logos o productos; esas licencias no cubren marcas (sin confirmar) | Revisar texturas y quitar logos, productos y personajes reconocibles |
-| Nombre «Saber 11» e ICFES (v1.1) | Registro de marca no verificado | Usar «tipo Saber 11» solo como descripción; sin logos ni sugerir aval oficial |
+| Nombres «Saber 11» e ICFES (v1.2) | El juego no tiene relación con ellos y podría parecer un aval oficial | No usar esos nombres ni sus logos en el juego, el sitio ni los assets |
 | Parecido con personajes o personas (v1.1) | Una imagen o modelo de IA puede imitar personajes protegidos o la imagen de alguien | Prompts genéricos; revisar cada resultado antes de publicarlo |
 | Safari en iPhone recarga la pestaña por memoria (v1.1) | Se pierde la partida sin aviso y el límite no se ve en las métricas | Marca en localStorage antes de cada escalón de estrés (T11o) y guardado local de la partida (T30) |
 
