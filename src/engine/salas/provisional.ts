@@ -11,6 +11,7 @@ import {
   MeshLambertMaterial,
   PlaneGeometry,
 } from 'three';
+import { marcarInteractivo } from '../interaccion/interaccion';
 import { marcarSolido } from './colisiones';
 
 const ANCHO = 8;
@@ -54,6 +55,21 @@ export function crearEscenaProvisional(): Group {
   const caja2 = caja.clone();
   caja2.position.set(2.8, 0.3, 1.5);
   sala.add(mesa, caja, caja2);
+
+  // Objetos de prueba para tocar (T18): un cartel para examinar y un libro para recoger.
+  // Lo que se recoge no es sólido: al desaparecer no debe dejar un obstáculo invisible.
+  marcarInteractivo(caja, { id: 'prueba-caja', nombre: 'Caja azul', accion: 'examinar' });
+  const cartel = marcarInteractivo(
+    new Mesh(new PlaneGeometry(1, 0.7), new MeshLambertMaterial({ color: 0xe8a33d })),
+    { id: 'prueba-cartel', nombre: 'Cartel de la pared', accion: 'examinar' },
+  );
+  cartel.position.set(0, 1.45, -FONDO / 2 + 0.01);
+  const libro = marcarInteractivo(
+    new Mesh(new BoxGeometry(0.22, 0.05, 0.16), new MeshLambertMaterial({ color: 0xb03a2e })),
+    { id: 'prueba-libro', nombre: 'Libro rojo', accion: 'recoger' },
+  );
+  libro.position.set(2.8, 0.625, 1.5);
+  sala.add(cartel, libro);
 
   // Dos luces dinámicas como máximo (presupuesto); el resto irá horneado.
   const cielo = new HemisphereLight(0xf2f0ff, 0x3a3028, 1.6);

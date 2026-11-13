@@ -2,16 +2,20 @@
  * Controles táctiles sobre el canvas.
  * - Mitad derecha (T14): arrastrar para mirar.
  * - Mitad izquierda (T15): joystick flotante para caminar.
+ * - En cualquier lado (T18): un toque corto, sin arrastrar, selecciona lo que está debajo.
  *
  * Cada dedo se sigue por su `pointerId`: se puede caminar y mirar a la vez con dos dedos.
  * Con ratón también funciona (arrastrar con el botón izquierdo).
  */
 import type { Entrada } from './entrada';
 import { perilla, vectorJoystick } from './joystick';
+import { esToque } from './toque';
 
 export interface OpcionesTactil {
   /** `false` mientras hay un panel abierto: se ignoran los toques nuevos. */
   activos: () => boolean;
+  /** Toque corto en (x, y), en píxeles CSS desde la esquina superior izquierda del canvas. */
+  alTocar?: (x: number, y: number) => void;
 }
 
 interface Dedo {
@@ -20,12 +24,16 @@ interface Dedo {
   inicioY: number;
   ultimoX: number;
   ultimoY: number;
+  /** Momento en que bajó el dedo, en ms. */
+  tiempo: number;
+  /** Distancia total recorrida, en píxeles CSS. */
+  recorrido: number;
 }
 
 export function conectarTactil(
   canvas: HTMLCanvasElement,
   entrada: Entrada,
-  { activos }: OpcionesTactil,
+  { activos, alTocar }: OpcionesTactil,
 ): () => void {
   let mirada: Dedo | null = null;
   let joystick: Dedo | null = null;
@@ -57,7 +65,15 @@ export function conectarTactil(
     if (!activos()) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const { x, y, derecha } = local(e);
-    const dedo: Dedo = { id: e.pointerId, inicioX: x, inicioY: y, ultimoX: x, ultimoY: y };
+    const dedo: Dedo = {
+      id: e.pointerId,
+      inicioX: x,
+      inicioY: y,
+      ultimoX: x,
+      ultimoY: y,
+      tiempo: e.timeStamp,
+      recorrido: 0,
+    };
     if (derecha && mirada === null) mirada = dedo;
     else if (!derecha && joystick === null) {
       joystick = dedo;
@@ -69,11 +85,13 @@ export function conectarTactil(
   const alMover = (e: PointerEvent): void => {
     const { x, y } = local(e);
     if (mirada && e.pointerId === mirada.id) {
+      mirada.recorrido += Math.hypot(x - mirada.ultimoX, y - mirada.ultimoY);
       entrada.miradaX += x - mirada.ultimoX;
       entrada.miradaY += y - mirada.ultimoY;
       mirada.ultimoX = x;
       mirada.ultimoY = y;
     } else if (joystick && e.pointerId === joystick.id) {
+      joystick.recorrido += Math.hypot(x - joystick.ultimoX, y - joystick.ultimoY);
       joystick.ultimoX = x;
       joystick.ultimoY = y;
       actualizarJoystick(joystick);
@@ -81,10 +99,26 @@ export function conectarTactil(
   };
 
   const alSoltar = (e: PointerEvent): void => {
-    if (mirada && e.pointerId === mirada.id) mirada = null;
-    else if (joystick && e.pointerId === joystick.id) soltarJoystick();
-    else return;
+    let dedo: Dedo;
+    if (mirada && e.pointerId === mirada.id) {
+      dedo = mirada;
+      mirada = null;
+    } else if (joystick && e.pointerId === joystick.id) {
+      dedo = joystick;
+      soltarJoystick();
+    } else return;
     if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+
+    // Un toque corto en el mismo lugar selecciona; `pointercancel` nunca es un toque.
+    const { x, y } = local(e);
+    const inicio = { x: dedo.inicioX, y: dedo.inicioY, tiempo: dedo.tiempo };
+    if (
+      e.type === 'pointerup' &&
+      activos() &&
+      esToque(inicio, { x, y, tiempo: e.timeStamp }, dedo.recorrido)
+    ) {
+      alTocar?.(x, y);
+    }
   };
 
   canvas.addEventListener('pointerdown', alBajar);

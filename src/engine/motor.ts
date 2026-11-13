@@ -12,6 +12,7 @@ import { joystick } from '../signals/controles';
 import { controlesActivos } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
 import { liberarObjeto } from './carga/liberar';
+import { crearInteraccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
 import type { Orientacion } from './jugador/camara';
 import { moverConColision } from './jugador/colision';
@@ -61,7 +62,16 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const entrada = crearEntrada();
   // Los controles solo funcionan jugando y sin un panel 2D abierto (signals/interfaz.ts).
   const activos = (): boolean => controlesActivos.value;
-  const desconectarTactil = conectarTactil(canvas, entrada, { activos });
+  // Tocar un objeto lo enfoca y el HUD muestra su botón contextual (T18).
+  const interaccion = crearInteraccion(camara, sala);
+  const desconectarTactil = conectarTactil(canvas, entrada, {
+    activos,
+    alTocar: (x, y) => {
+      const ancho = Math.max(1, canvas.clientWidth);
+      const alto = Math.max(1, canvas.clientHeight);
+      interaccion.tocar((x / ancho) * 2 - 1, -(y / alto) * 2 + 1);
+    },
+  });
   const depuracion = { mirada: '', posicion: '' };
 
   const bucle = crearBucle({
@@ -84,6 +94,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
           camara.position.z = p.z;
         }
       }
+      interaccion.actualizar();
       publicarJoystick(entrada);
       escribirDepuracion(canvas, depuracion, orientacion, camara.position);
 
@@ -101,6 +112,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   return () => {
     bucle.detener();
     desconectarTactil();
+    interaccion.liberar();
     joystick.value = null;
     liberarObjeto(sala);
     renderer.dispose();
