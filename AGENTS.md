@@ -1,7 +1,7 @@
 # AGENTS.md — La Última Prueba
 
-Escape room 3D en primera persona para grados 9 a 11 (Colombia). Modo individual y cooperativo (2 a 4 jugadores), 40 minutos, 5 salas.
-Especificación técnica completa: `docs/especificacion-tecnica.md` · Diseño: `docs/diseno.md`.
+Escape room 3D en primera persona para estudiantes de grado 9 en adelante, con foco en grado 10 (Colombia). Modo individual y cooperativo (2 a 4 jugadores), 40 minutos, 5 salas. Cada sala es una máquina con una regla matemática que se descubre jugando, no un problema con opciones. El juego no tiene relación con el ICFES ni con el Saber 11.
+Especificación técnica completa: `docs/especificacion-tecnica.md` · Diseño: `docs/diseno.md` · Salas y puzzles: `docs/salas-y-puzzles.md`.
 
 ## Reglas no negociables
 
@@ -29,7 +29,7 @@ src/ui/        Preact: hud, menus, cuaderno, inspeccion, mecanismos, finales.
 src/signals/   único estado observable compartido entre engine/ y ui/.
 src/net/       Supabase: canal, protocolo, anfitrión, reconexión. Solo habla con game/.
 src/input/     táctil (joystick, mirada, toque), teclado y ratón.
-src/content/   preguntas, salas, diálogos y finales en JSON validado en build.
+src/content/   puzzles, salas, diálogos y finales en JSON validado en build (colecciones en src/content.config.ts).
 src/debug/     métricas, panel ?debug=1, prueba de estrés y modo ?lab=1. Fuera del bundle de producción salvo el panel.
 art/           fuentes .blend, originales descargados y WAV (Git LFS). Nunca se publican.
 art/credits.json  una entrada por archivo publicado; capturas de licencia en art/evidencia/.
@@ -64,7 +64,7 @@ En GPU solo están la portería y la sala actual. La siguiente se descarga a la 
 - Un canal privado `partida:{codigo}` por partida. Quien la crea es el anfitrión autoritativo.
 - Eventos Broadcast: `int` (intenciones al anfitrión), `evt` (eventos numerados del anfitrión), `dir` (poses y señales).
 - Los mensajes llevan ids, nunca textos de contenido. Máximo 1 KB; `estado`, 8 KB.
-- El grupo avanza junto. Confirmar respuesta, pausar, cambiar de sala, elegir final y pedir ayuda requieren unanimidad.
+- El grupo avanza junto. Accionar el mecanismo que confirma una etapa, pausar, cambiar de sala, elegir final y pedir ayuda requieren unanimidad.
 - Poses a 4 Hz solo en movimiento. Por ahora el límite es 2 partidas simultáneas en el plan Free.
 - Si cambias el protocolo, sube `v` y actualiza los tests de `net/`.
 
@@ -80,7 +80,7 @@ Base: `docs/investigacion-assets.md` y la sección v1.1 de la especificación.
 | s2-laboratorio | Meshy, plan gratis (CC BY 4.0) | Crédito a Meshy obligatorio; límite de caras al generar; revisar luz horneada |
 | s3-gimnasio | Sketchfab, solo CC BY | Nada NC ni ND; captura de licencia en `art/evidencia/`; casi siempre `simplify` |
 | s4-biblioteca | Poly Haven (CC0) | Descarga manual en la web. **Nunca su API** (requiere licencia comercial) |
-| s5-rectoria | Geometría por código + imágenes de IA + audio | Urna, fichas y ruedas creadas en Three.js; imágenes a KTX2 1024; efectos con Web Audio |
+| s5-rectoria | Geometría por código + imágenes de IA + audio | Urna, fichas y mano mecánica creadas en Three.js; imágenes a KTX2 1024; efectos con Web Audio |
 
 Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo canal de color.
 
@@ -106,13 +106,15 @@ Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo ca
 
 **Audio.** Solo AAC (`.m4a`) normalizado a −16 LUFS (EBU R128, pico −1,5 dBTP). Nunca Ogg: `check-audio` falla si encuentra uno. Para Freesound, solo CC0 y CC BY. La voz final se hace con ElevenLabs y únicamente con plan de pago: su clave vive en una variable de entorno local, nunca en el repositorio.
 
-**Antes de agregar un asset:** sin logos, productos ni personajes reconocibles. Si es de IA, usa prompts genéricos y revisa el resultado. «Saber 11» solo como descripción, sin logos del ICFES.
+**Antes de agregar un asset:** sin logos, productos ni personajes reconocibles. Si es de IA, usa prompts genéricos y revisa el resultado. No uses los nombres ni los logos del ICFES o del Saber 11: el juego no tiene relación con ellos.
 
 ## Contenido
 
-- Cada pregunta cumple el esquema de `src/content/config.ts`: 4 opciones (`o1`–`o4`), respuesta con valor y pasos, 3 pistas graduales y `pista_por_jugador` para los roles A–D.
-- Español de Colombia: coma decimal (`0,3`), `$17.000`, `24 m²`.
-- `hash-answers` reemplaza las respuestas por hashes en el bundle publicado.
+- Cada sala tiene un **puzzle** (`src/content/puzzles/`) que cumple el esquema de `src/content/esquema.ts`: proceso (Estándares Básicos de Competencias del MEN), grado, 3 etapas (presentar, torcer, dominar) con estado inicial, controles, condición de éxito y una solución de ejemplo; 3 pistas graduales; el texto del cuaderno; y `pista_por_jugador` para los roles A–D. No hay opciones ni distractores.
+- La máquina nunca dice «incorrecto»: muestra lo que pasó. Las pistas invitan a mirar algo, no dan pasos de cálculo. El concepto se nombra en el cuaderno después de resolver.
+- Una función pura por puzzle en `src/game/puzzles/` recibe el estado y dice qué condiciones se cumplen.
+- Español de Colombia: coma decimal (`0,75`), `$1.600`, `24 m²`.
+- `hash-answers` (T23) guardará el hash del estado resuelto, no de una opción.
 
 ## Antes de dar una tarea por terminada
 

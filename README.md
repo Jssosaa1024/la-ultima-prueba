@@ -1,6 +1,6 @@
 # La Última Prueba
 
-Escape room 3D de matemáticas (grados 9 a 11) para el navegador. Reglas para agentes: [AGENTS.md](AGENTS.md). Especificación: [docs/especificacion-tecnica.md](docs/especificacion-tecnica.md).
+Escape room 3D de matemáticas (grado 9 en adelante, con foco en grado 10) para el navegador. Reglas para agentes: [AGENTS.md](AGENTS.md). Especificación: [docs/especificacion-tecnica.md](docs/especificacion-tecnica.md).
 
 ## Requisitos
 

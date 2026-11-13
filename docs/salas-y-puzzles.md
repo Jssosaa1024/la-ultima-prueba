@@ -293,6 +293,6 @@ Este diseño cambia el contrato de contenido de la especificación v1.1: el esqu
 | T75 · Grabaciones | Escondites y transcripciones de este documento. |
 
 - [ ] Revisar este diseño y decidir si alguna sala necesita otra idea
-- [ ] Actualizar `docs/diseno.md`, `AGENTS.md` y la especificación: quitar el Saber 11 y el ICFES, la nueva premisa, los cinco puzzles y el nuevo esquema de contenido
+- [x] Actualizar `docs/diseno.md`, `AGENTS.md` y la especificación: quitar el Saber 11 y el ICFES, la nueva premisa, los cinco puzzles y el nuevo esquema de contenido
 - [ ] Probar los cinco puzzles en papel con uno o dos estudiantes antes de T50: cartulina para la etiquetadora, vasos con agua, una linterna y palos para las sombras, 20 libros reales y una bolsa con fichas
 - [ ] Grabar las líneas de La Voz y las grabaciones con ElevenLabs (plan de pago, como pide AGENTS.md)
