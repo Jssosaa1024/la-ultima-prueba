@@ -1,4 +1,6 @@
 import { z } from 'astro/zod';
+import { evaluar, nivelEn, RAZON_SOMBRA } from '../game/puzzles';
+import { iguales } from '../game/puzzles/tipos';
 
 /**
  * Esquema de un puzzle (T21, especificación v1.2, sección 2).
@@ -256,8 +258,6 @@ export interface Problema {
 
 type Reportar = (ruta: (string | number)[], mensaje: string) => void;
 
-const iguales = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
-
 /**
  * Reglas que el esquema por campo no expresa. Devuelve la lista de problemas (vacía si el
  * puzzle está bien). La usa `esquemaPuzzle` y se puede probar sola.
@@ -329,6 +329,19 @@ export function problemasDelPuzzle(p: Puzzle): Problema[] {
       break;
   }
 
+  // Con las reglas de `game/puzzles/` (T26): la solución resuelve y el estado inicial no.
+  p.etapas.forEach((e, i) => {
+    const solucion = evaluar(p, i, e.solucion);
+    if (!solucion) reportar(['etapas', i, 'solucion'], 'La solución no respeta los controles');
+    else if (!solucion.resuelta) {
+      reportar(['etapas', i, 'solucion'], 'La solución no cumple la condición de éxito');
+    }
+    const inicial = evaluar(p, i, e.estado_inicial);
+    if (inicial?.resuelta) {
+      reportar(['etapas', i, 'estado_inicial'], 'El estado inicial ya resuelve la etapa');
+    }
+  });
+
   return problemas;
 }
 
@@ -375,6 +388,11 @@ function revisarTanques(e: EtapaDe<'tanques'>, r: Reportar): void {
         continue;
       }
       if (t.nivel > c.altura_cm) r([cual, id, 'nivel'], 'El nivel supera la altura del tanque');
+      t.registro?.forEach((marca, j) => {
+        if (nivelEn(t, marca.t, c.altura_cm) !== marca.nivel) {
+          r([cual, id, 'registro', j], 'La marca no coincide con el nivel y el caudal del tanque');
+        }
+      });
       if (c.perillas.includes(id) && (t.caudal < c.caudal_min || t.caudal > c.caudal_max)) {
         r([cual, id, 'caudal'], 'El caudal está fuera del rango de la perilla');
       }
@@ -396,6 +414,10 @@ function revisarReflector(e: EtapaDe<'reflector'>, r: Reportar): void {
     r(['controles'], 'distancia_min no puede ser mayor que distancia_max');
   if (c.polea && c.polea.min > c.polea.max)
     r(['controles', 'polea'], 'polea.min no puede ser mayor que polea.max');
+  for (const m of c.muescas) {
+    if (RAZON_SOMBRA[m] === undefined)
+      r(['controles', 'muescas'], `El reflector no tiene muesca de ${m}°`);
+  }
   const ids = e.estado_inicial.postes.map((x) => x.id);
   if (new Set(ids).size !== ids.length) r(['estado_inicial', 'postes'], 'Postes con id repetido');
   for (const id of c.postes_moviles) {

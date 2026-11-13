@@ -216,3 +216,36 @@ describe('validaciones cruzadas', () => {
     expect(mensajes({ ...s4(), id: 's3-carritos' }).join()).toMatch(/^id:/);
   });
 });
+
+describe('validaciones con las reglas de los puzzles (T26)', () => {
+  const problemas = (p: unknown) =>
+    problemasDelPuzzle(p as Puzzle).map((x) => `${x.ruta.join('.')}: ${x.mensaje}`);
+
+  it('la solución debe resolver la etapa', () => {
+    const p = s4() as { etapas: { solucion: { carritos: number[] } }[] };
+    n(p.etapas[2]).solucion.carritos = [1, 2, 3, 3, 11];
+    expect(problemas(p).join()).toMatch(/etapas\.2\.solucion: La solución no cumple/);
+  });
+
+  it('el estado inicial no puede resolver la etapa', () => {
+    const p = s4() as { etapas: { estado_inicial: { carritos: number[] } }[] };
+    n(p.etapas[1]).estado_inicial.carritos = [1, 2, 3, 3, 11];
+    expect(problemas(p).join()).toMatch(/etapas\.1\.estado_inicial: El estado inicial ya resuelve/);
+  });
+
+  it('el reflector solo tiene las cinco muescas con razón conocida', () => {
+    const p = reflector();
+    n(p.etapas[0]).controles.muescas = [27, 30, 45];
+    expect(problemas(p).join()).toMatch(
+      /etapas\.0\.controles\.muescas: El reflector no tiene muesca de 30°/,
+    );
+  });
+
+  it('las marcas de la hoja de ayer coinciden con el tanque', () => {
+    const p = tanques() as unknown as {
+      etapas: { estado_inicial: { b: { registro?: { t: number; nivel: number }[] } } }[];
+    };
+    n(p.etapas[0]).estado_inicial.b.registro = [{ t: 2, nivel: 40 }];
+    expect(problemas(p).join()).toMatch(/etapas\.0\.estado_inicial\.b\.registro\.0/);
+  });
+});
