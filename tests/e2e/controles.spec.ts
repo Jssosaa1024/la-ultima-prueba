@@ -138,3 +138,58 @@ test('caminar de frente se detiene contra la mesa sin atravesarla (T17)', async 
   expect(pz).toBeLessThan(0);
   expect(Math.abs(px)).toBeLessThan(0.05);
 });
+
+/** Toque corto en (x, y): dedo en celular, clic en escritorio. */
+async function tocar(page: Page, p: Punto, conDedo: boolean | undefined): Promise<void> {
+  if (!conDedo) {
+    await page.mouse.click(p.x, p.y);
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ x: p.x, y: p.y, id: 1 }],
+  });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+}
+
+test('tocar el cartel lo enfoca y el botón del HUD abre su ficha (T18)', async ({ page }, info) => {
+  const { caja } = await abrirJuego(page);
+  const conDedo = info.project.use.hasTouch;
+
+  // Caminar hasta la mesa: desde ahí el cartel de la pared del fondo queda a 2,2 m.
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  if (conDedo)
+    await arrastrarDedos(
+      page,
+      [
+        [
+          { x, y },
+          { x, y: y - 80 },
+        ],
+      ],
+      { quieto: 3000 },
+    );
+  else await arrastrarRaton(page, { x, y }, { x, y: y - 80 }, 3000);
+
+  // El centro de la pantalla apunta al cartel.
+  await tocar(page, { x: caja.x + caja.width / 2, y: caja.y + caja.height / 2 }, conDedo);
+  const boton = page.getByRole('button', { name: /Examinar.*Cartel de la pared/ });
+  await expect(boton).toBeVisible();
+
+  await boton.click();
+  await expect(page.getByText('No hay nada escrito en este objeto.')).toBeVisible();
+});
+
+test('tocar el piso no enfoca nada', async ({ page }, info) => {
+  const { caja } = await abrirJuego(page);
+  await tocar(
+    page,
+    { x: caja.x + caja.width * 0.7, y: caja.y + caja.height * 0.9 },
+    info.project.use.hasTouch,
+  );
+  await page.waitForTimeout(300);
+  await expect(page.getByRole('button', { name: /Examinar|Recoger|Usar/ })).toHaveCount(0);
+});
