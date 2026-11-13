@@ -640,7 +640,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T25** Reloj de 40 minutos activos con pausa, con tests — 40 min
 - [x] **T26** (v1.2) Una función pura por puzzle en `src/game/puzzles/` que recibe el estado y dice qué condiciones se cumplen, con tests — 50 min
 - [x] **T27** Pistas graduales por intentos o tiempo en la etapa — 35 min
-- [ ] **T28** Sellos, grabaciones y reglas de los cuatro finales, con un test por final — 50 min
+- [x] **T28** Sellos, grabaciones y reglas de los cuatro finales, con un test por final — 50 min
 - [ ] **T29** Reparto de roles A–D por número de jugadores y rotación entre salas, con tests — 40 min
 - [ ] **T30** Guardar y reanudar la partida individual tras recargar — 40 min
 
