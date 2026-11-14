@@ -521,6 +521,22 @@ Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos par
 }
 ```
 
+### Fichas de inspección (T35c)
+
+`src/content/fichas.json` trae el texto legible de cada objeto que se examina: una ficha por objeto, validada en build con `src/content/esquema-fichas.ts` (colección `fichas`). El título de la ficha es el `nombre` del objeto en `salas.json`; no se repite.
+
+| Campo | Qué es |
+| --- | --- |
+| `id` | Id del objeto en `salas.json`. Debe tener acción `examinar` o `recoger` (los papeles que se recogen también se leen). |
+| `descripcion` | Qué es el objeto, en una frase. |
+| `bloques` | Lo que se lee siempre. Cada bloque es `texto`, `nota` (algo escrito a mano), `lista` o `tabla`, los mismos de `src/signals/contenido.ts`. |
+| `por_etapa` | Opcional, solo en las salas 1 a 5: cuatro listas de bloques que se agregan después de `bloques`, una por momento de la sala (presentar, torcer, dominar y sala resuelta). Sirve para lo que cambia con el avance: la etiqueta de un producto, el temporizador de la campana, las lámparas destapadas. |
+
+- **Cómo se usa:** `fichaDeObjeto(id, etapa)` (`src/content/fichas.ts`) devuelve `{ titulo, descripcion, bloques }` o `null`. `etapa` es lo que devuelve `etapaActual()` para la sala del objeto: 0, 1, 2 o `null` si la sala ya tiene su sello. `fichasDeLugar(lugar, etapa)` devuelve todas las de un lugar, listas para el signal `fichas`. Conectar ese signal es tarea de quien lleva `src/signals/`.
+- **Qué dice una ficha:** lo que se ve o está escrito en el objeto, con los números del puzzle (precios, niveles, temporizador). Nunca pasos de cálculo, nunca el nombre del concepto y nunca lo que el jugador debe deducir (por ejemplo, dónde empezó el tanque tapado o la altura del marcador). Lo que cambia en vivo mientras se mueve la máquina (sombras, lámparas en verde) lo muestra el panel del mecanismo, no la ficha.
+- **Tamaño:** como máximo 6 bloques por ficha, textos de 280 caracteres y tablas de 4 columnas y 8 filas, para que se lea en un celular sin perderse.
+- **Tests** (`tests/unit/fichas.test.ts`): todo objeto con acción `examinar` tiene ficha en los cuatro momentos; ninguna ficha usa las palabras del cuaderno ni signos de una cuenta hecha; y los números de las fichas coinciden con los de los puzzles (si cambia un precio en el puzzle y no en la ficha, el test falla).
+
 ## 3) Protocolo del modo cooperativo
 
 Cada partida usa un canal privado de Supabase Realtime (`partida:K7MP`) y un anfitrión autoritativo: quien crea la partida decide reloj, objetos, etapas resueltas y finales; los demás envían intenciones y reciben eventos numerados. Los mensajes llevan identificadores, nunca textos, porque cada cliente ya tiene el contenido.
@@ -729,9 +745,10 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
 - [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
+- [x] **T35c** (nueva) Contenido de las fichas de inspección de todas las salas: `src/content/fichas.json` validado en build, `fichaDeObjeto()` en `src/content/fichas.ts` y un test que falla si un objeto examinable no tiene ficha — 50 min
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [x] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
-- [ ] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
+- [x] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
 - [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
 - [x] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min

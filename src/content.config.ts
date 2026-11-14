@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { esquemaPuzzle } from './content/esquema';
+import { esquemaFichaValidada } from './content/esquema-fichas';
 import { esquemaSalaValidada } from './content/esquema-salas';
 
 /**
@@ -18,4 +19,10 @@ const salas = defineCollection({
   schema: esquemaSalaValidada,
 });
 
-export const collections = { puzzles, salas };
+/** Texto legible de cada objeto que se examina (T35c). */
+const fichas = defineCollection({
+  loader: file('./src/content/fichas.json'),
+  schema: esquemaFichaValidada,
+});
+
+export const collections = { puzzles, salas, fichas };

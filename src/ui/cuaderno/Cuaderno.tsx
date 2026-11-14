@@ -1,11 +1,13 @@
 import { useEffect, useId, useState } from 'preact/hooks';
 import { fichas } from '../../signals/contenido';
 import { datosEncontrados, MAX_NOTA, MAX_NOTAS, notas } from '../../signals/cuaderno';
+import { PUZZLES } from '../../content/puzzles';
 import { cerrarPanel } from '../../signals/interfaz';
-import { modo } from '../../signals/partida';
+import { avance, modo } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import ContenidoFicha from '../inspeccion/ContenidoFicha';
 import Dialogo from '../paneles/Dialogo';
+import { descubrimientos } from './descubrimientos';
 import './cuaderno.css';
 
 /**
@@ -28,9 +30,47 @@ export default function Cuaderno() {
           El reloj está en pausa mientras tienes el cuaderno abierto.
         </p>
       )}
+      <Descubrimientos />
       <DatosEncontrados />
       <Notas />
     </Dialogo>
+  );
+}
+
+/**
+ * Lo que el cuaderno escribe solo (T38): por cada máquina, lo que pasó en las etapas ya
+ * resueltas y, con el sello, cómo se llama lo que se descubrió. La sección aparece con la
+ * primera etapa resuelta.
+ */
+function Descubrimientos() {
+  const lista = descubrimientos(avance.value, PUZZLES);
+  if (lista.length === 0) return null;
+  return (
+    <section class="cuaderno-seccion" aria-labelledby="cuaderno-descubrimientos">
+      <h3 id="cuaderno-descubrimientos" class="cuaderno-subtitulo">
+        Lo que descubriste
+      </h3>
+      {lista.map((d) => (
+        <article key={d.id} class="cuaderno-descubrimiento">
+          <h4 class="cuaderno-maquina">
+            Sala {d.sala} · {d.titulo}
+          </h4>
+          <ol class="cuaderno-etapas">
+            {d.etapas.map((texto, i) => (
+              <li key={i}>{texto}</li>
+            ))}
+          </ol>
+          {d.concepto && (
+            <>
+              <p class="cuaderno-concepto">
+                Lo que acabas de descubrir se llama: {d.concepto.nombre}
+              </p>
+              <p class="cuaderno-concepto-texto">{d.concepto.texto}</p>
+            </>
+          )}
+        </article>
+      ))}
+    </section>
   );
 }
 

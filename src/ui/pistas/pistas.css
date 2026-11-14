@@ -1,0 +1,56 @@
+/* Pistas graduales (T38): en su propio panel y al final del panel de la máquina. */
+.pistas {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #2f3843;
+  border-radius: 12px;
+}
+
+.pistas-titulo {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.pistas-lista {
+  margin: 0 0 12px;
+  padding-left: 1.25rem;
+}
+
+.pistas-pista + .pistas-pista {
+  margin-top: 6px;
+}
+
+.pistas-nota {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #b8c2cc;
+}
+
+/* Lo que el cuaderno anota al resolver una etapa, dentro del panel de la máquina. */
+.anotacion {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #252d36;
+}
+
+.anotacion-titulo {
+  margin: 0 0 4px;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #b8c2cc;
+}
+
+.anotacion p {
+  margin: 0;
+}
+
+.anotacion p + p {
+  margin-top: 8px;
+}
+
+.anotacion-concepto {
+  font-weight: 700;
+  color: #e8a33d;
+}

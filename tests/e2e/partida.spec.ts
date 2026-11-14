@@ -281,7 +281,7 @@ test('al recargar, «Continuar partida» devuelve el cuaderno, sus notas y el re
   let cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
   await cuaderno.getByLabel('Nueva nota').fill('la puerta 2 sigue cerrada');
   await cuaderno.getByRole('button', { name: 'Guardar nota' }).click();
-  await expect(cuaderno.getByRole('listitem')).toHaveCount(1);
+  await expect(cuaderno.locator('.cuaderno-nota')).toHaveCount(1);
 
   // Recargar, como cuando Safari se queda sin memoria.
   await page.reload();
@@ -295,12 +295,12 @@ test('al recargar, «Continuar partida» devuelve el cuaderno, sus notas y el re
   await expect(page.getByRole('timer')).not.toHaveAttribute('aria-label', /en pausa/);
   await page.getByRole('button', { name: 'Cuaderno', exact: true }).click();
   cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
-  await expect(cuaderno.getByRole('listitem')).toHaveText(/la puerta 2 sigue cerrada/);
+  await expect(cuaderno.locator('.cuaderno-nota')).toHaveText(/la puerta 2 sigue cerrada/);
 
   // Una nota nueva no reemplaza a la guardada (sigue la numeración).
   await cuaderno.getByLabel('Nueva nota').fill('segunda nota');
   await cuaderno.getByRole('button', { name: 'Guardar nota' }).click();
-  await expect(cuaderno.getByRole('listitem')).toHaveCount(2);
+  await expect(cuaderno.locator('.cuaderno-nota')).toHaveCount(2);
   await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
 
   // «Salir» abandona la partida: el menú ya no ofrece continuar.
@@ -341,18 +341,32 @@ test('con el almacenamiento bloqueado (pestaña privada) se juega sin errores y 
 
 // T37: el marco de los paneles de mecanismo, en la sala 1.
 
+interface PartidaDePrueba {
+  /** Dónde está el jugador. Por defecto, la cooperativa. */
+  lugar?: 'porteria' | 's1-cooperativa';
+  /** Etapas resueltas de la sala 1 (0 a 3). */
+  etapasSala1?: number;
+  /** Ajustes de la etiquetadora. */
+  ajustes?: unknown;
+  /** Pistas de la sala 1. */
+  pistas?: { ofrecidas: number; vistas: number };
+  inventario?: string[];
+}
+
 /**
- * Deja una partida guardada dentro de la cooperativa y la continúa desde el menú, para no
- * repetir en cada prueba el camino por la portería. `ajustes` son los de la etiquetadora.
+ * Deja una partida guardada (por defecto, dentro de la cooperativa) y la continúa desde el
+ * menú, para no repetir en cada prueba el camino por la portería.
  */
-async function continuarEnLaCooperativa(page: Page, ajustes?: unknown): Promise<Caja> {
+async function continuarPartida(page: Page, opciones: PartidaDePrueba = {}): Promise<Caja> {
+  const lugar = opciones.lugar ?? 's1-cooperativa';
+  const { ajustes, pistas } = opciones;
   const guardado = {
     v: 2,
     partida: {
       fase: 'jugando',
-      lugar: 's1-cooperativa',
+      lugar,
       etapas: {
-        's1-cooperativa': 0,
+        's1-cooperativa': opciones.etapasSala1 ?? 0,
         's2-laboratorio': 0,
         's3-gimnasio': 0,
         's4-biblioteca': 0,
@@ -362,11 +376,11 @@ async function continuarEnLaCooperativa(page: Page, ajustes?: unknown): Promise<
       grabaciones: [],
     },
     restanteMs: 30 * 60 * 1000,
-    pistas: {},
+    pistas: pistas ? { 's1-cooperativa': { msEnEtapa: 0, intentosEnEtapa: 0, ...pistas } } : {},
     mecanismos: ajustes === undefined ? {} : { 's1-cooperativa': ajustes },
     notas: [],
     datos: [],
-    inventario: [],
+    inventario: opciones.inventario ?? [],
   };
   await page.addInitScript((texto) => {
     localStorage.setItem('la-ultima-prueba:partida', texto);
@@ -375,7 +389,7 @@ async function continuarEnLaCooperativa(page: Page, ajustes?: unknown): Promise<
   const canvas = page.getByLabel('Escena del juego');
   await expect(canvas).toHaveAttribute('data-motor', 'pausado');
   await page.getByRole('button', { name: 'Continuar partida' }).click();
-  await expect(canvas).toHaveAttribute('data-sala', 's1-cooperativa');
+  await expect(canvas).toHaveAttribute('data-sala', lugar);
   await expect(canvas).toHaveAttribute('data-mirada', /,/);
   const caja = await canvas.boundingBox();
   if (!caja) throw new Error('sin canvas');
@@ -389,7 +403,7 @@ test('usar la etiquetadora abre el panel de la máquina, con su etapa y su botó
   page,
 }, info) => {
   const conDedo = info.project.use.hasTouch === true;
-  const caja = await continuarEnLaCooperativa(page);
+  const caja = await continuarPartida(page);
 
   const usar = page.getByRole('button', { name: /Usar.*Etiquetadora/ });
   await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
@@ -417,10 +431,8 @@ test('con los ajustes que resuelven, el panel se queda en la etapa hasta «Segui
 }, info) => {
   const conDedo = info.project.use.hasTouch === true;
   // La partida guardada trae el rodillo de −20 % puesto: es la solución de la primera etapa.
-  const caja = await continuarEnLaCooperativa(page, {
-    producto: 'jugo',
-    precio: 2000,
-    rodillos: [-20],
+  const caja = await continuarPartida(page, {
+    ajustes: { producto: 'jugo', precio: 2000, rodillos: [-20] },
   });
   await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
   await page.getByRole('button', { name: /Usar.*Etiquetadora/ }).click();
@@ -430,10 +442,75 @@ test('con los ajustes que resuelven, el panel se queda en la etapa hasta «Segui
   // La partida ya avanzó, pero el panel sigue mostrando la etapa resuelta.
   await expect(panel).toContainText('La máquina aceptó los ajustes');
   await expect(panel).toContainText('Sala 1 · Etapa 1 de 3');
+  // El cuaderno anota lo que pasó en la etapa (T38), sin nombrar todavía el concepto.
+  await expect(panel).toContainText('Tu cuaderno anotó');
+  await expect(panel).toContainText('Funciona a la primera');
+  await expect(panel).not.toContainText('El porcentaje como multiplicador');
   await expect(panel.getByRole('button', { name: 'Bajar la palanca' })).toHaveCount(0);
 
   await panel.getByRole('button', { name: 'Seguir' }).click();
   await expect(panel).toContainText('Sala 1 · Etapa 2 de 3');
   await expect(panel).toContainText('A la empanada le aplicaron la promo por error');
   await expect(panel.getByRole('button', { name: 'Bajar la palanca' })).toBeVisible();
+});
+
+// T38: pistas graduales y lo que el cuaderno escribe al resolver.
+
+test('una pista ofrecida se abre desde el HUD, y solo cuando el jugador quiere (T38)', async ({
+  page,
+}) => {
+  await continuarPartida(page, { pistas: { ofrecidas: 1, vistas: 0 } });
+
+  const nueva = page.getByRole('button', { name: 'Pista nueva' });
+  await expect(nueva).toBeVisible();
+  await nueva.click();
+
+  const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
+  await expect(panel).toContainText('Pistas (0 de 3 abiertas)');
+  await expect(panel).not.toContainText('Mira cuántos pesos quita o pone cada rodillo');
+  await panel.getByRole('button', { name: 'Ver pista' }).click();
+  await expect(panel).toContainText('Mira cuántos pesos quita o pone cada rodillo');
+  await expect(panel).toContainText('Pistas (1 de 3 abiertas)');
+  // La segunda todavía no se ha ofrecido: no hay botón para abrirla.
+  await expect(panel.getByRole('button', { name: /Ver (otra )?pista/ })).toHaveCount(0);
+  await expect(panel).toContainText('No hay otra pista por ahora');
+
+  await panel.getByRole('button', { name: 'Cerrar' }).click();
+  // El botón del HUD ya no avisa, y recibe el foco al cerrar.
+  const pistas = page.getByRole('button', { name: 'Pistas', exact: true });
+  await expect(pistas).toBeFocused();
+  await expect(nueva).toHaveCount(0);
+});
+
+test('sin pistas ofrecidas no hay botón de pistas (T38)', async ({ page }) => {
+  await continuarPartida(page);
+  await expect(page.getByRole('timer')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Pista/ })).toHaveCount(0);
+});
+
+test('el cuaderno anota cada etapa resuelta y nombra el concepto solo con el sello (T38)', async ({
+  page,
+}) => {
+  await continuarPartida(page, { etapasSala1: 1, inventario: ['porteria-cuaderno'] });
+  await page.getByRole('button', { name: 'Cuaderno', exact: true }).click();
+  const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
+  await expect(cuaderno).toContainText('Lo que descubriste');
+  await expect(cuaderno).toContainText('Sala 1 · La etiquetadora');
+  await expect(cuaderno).toContainText('Funciona a la primera');
+  await expect(cuaderno).not.toContainText('El porcentaje como multiplicador');
+});
+
+test('con el sello, el cuaderno dice cómo se llama lo que se descubrió (T38)', async ({ page }) => {
+  await continuarPartida(page, {
+    lugar: 'porteria',
+    etapasSala1: 3,
+    inventario: ['porteria-cuaderno'],
+  });
+  await expect(page.getByRole('img', { name: 'Sellos: 1 de 5' })).toBeVisible();
+  await page.getByRole('button', { name: 'Cuaderno', exact: true }).click();
+  const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
+  await expect(cuaderno).toContainText(
+    'Lo que acabas de descubrir se llama: El porcentaje como multiplicador',
+  );
+  await expect(cuaderno).toContainText('0,8 × 1,25 = 1');
 });

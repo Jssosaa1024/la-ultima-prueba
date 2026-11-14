@@ -63,6 +63,7 @@ import {
 } from './interfaz';
 import { condiciones, etapa, mecanismo, pistas, reiniciarMecanismo, resultado } from './mecanismo';
 import {
+  avance,
   DURACION_MS,
   fase,
   final,
@@ -279,6 +280,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     batch(() => {
       sala.value = p.lugar;
       asignar(sellos, sellosDe(p));
+      asignar(avance, p.etapas);
       asignar(grabaciones, p.grabaciones);
       asignar(opcionesFinal, opcionesDeFinal(p));
 
