@@ -29,6 +29,13 @@ export type Comando =
   | { t: 'elegir_final'; opcion: OpcionFinal }
   /** Confirmación del intercomunicador de la portería. */
   | { t: 'pedir_ayuda' }
+  /**
+   * Panel de mecanismo: ajustes nuevos de la máquina en la etapa actual, completos y con la
+   * forma de `estado_inicial`. El controlador los revisa con las reglas antes de aceptarlos.
+   */
+  | { t: 'ajustar'; estado: unknown }
+  /** Panel de mecanismo: accionar el objeto que confirma la etapa (palanca, polea, manija). */
+  | { t: 'accionar'; objeto: string }
   /** Abrir la siguiente pista ofrecida del puzzle de la sala actual. */
   | { t: 'ver_pista' }
   /** Solo con `/jugar?ejemplo=1`: datos de ejemplo y, si se pide, salto directo a un final. */

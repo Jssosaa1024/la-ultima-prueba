@@ -11,6 +11,13 @@ import {
   type Guardado,
 } from '../game/guardado';
 import {
+  alCambiarEstado,
+  avanzarReposo,
+  intentoAlAccionar,
+  reglaDeIntento,
+  type Reposo,
+} from '../game/intentos';
+import {
   aplicar,
   crearPartida,
   ETAPAS_POR_SALA,
@@ -18,12 +25,21 @@ import {
   GRABACIONES,
   numeroDeSala,
   opcionesDeFinal,
+  salaResuelta,
   sellos as sellosDe,
   type Accion,
   type Partida,
   type SalaId,
 } from '../game/partida';
-import { avanzarTiempo, PISTAS_INICIALES, verPista, type EstadoPistas } from '../game/pistas';
+import {
+  avanzarTiempo,
+  nuevaEtapa,
+  PISTAS_INICIALES,
+  registrarIntento,
+  verPista,
+  type EstadoPistas,
+} from '../game/pistas';
+import type { Evaluacion } from '../game/puzzles';
 import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
 import { agotado, crearReloj, pausar, reanudar, restante } from '../game/reloj';
@@ -45,7 +61,7 @@ import {
   reiniciarInterfaz,
   type ObjetoEnfocado,
 } from './interfaz';
-import { condiciones, etapa, mecanismo, pistas, reiniciarMecanismo } from './mecanismo';
+import { condiciones, etapa, mecanismo, pistas, reiniciarMecanismo, resultado } from './mecanismo';
 import {
   DURACION_MS,
   fase,
@@ -73,6 +89,14 @@ import { escuchar, type Comando } from './puente';
  *
  * Debe empezar a escuchar ANTES que el motor: el motor compara la sala de la partida justo
  * después de que este controlador la cambia (ver `engine/motor.ts`).
+ *
+ * Mecanismos (T31d): los paneles envían `ajustar` y `accionar`. Hay dos clases de etapa, según
+ * su regla `intento` del JSON:
+ * - `accionar`: la máquina responde cuando se acciona su objeto. Si los ajustes resuelven la
+ *   etapa, la partida avanza; si no, cuenta un intento para las pistas.
+ * - `reposo`: la máquina responde en vivo. Cuando los ajustes quedan quietos los segundos de
+ *   la regla, cuenta un intento si no resuelven o la partida avanza si resuelven. Así, pasar
+ *   por la solución mientras se arrastra un control no resuelve la etapa.
  *
  * Guardado (T31c): después de cada orden, al pausar y al ocultar la pestaña se guarda la
  * partida con `game/guardado.ts`. Si el almacenamiento no existe o falla (pestaña privada,
@@ -121,6 +145,12 @@ function objetoDeInventario(id: string): ObjetoInventario | null {
  */
 type MotivoPausa = 'orden' | 'oculta';
 
+interface EtapaEnCurso {
+  sala: SalaId;
+  puzzle: Puzzle;
+  etapa: number;
+}
+
 /** Con `?ejemplo=1&final=<id>`: la acción de `game/partida.ts` que lleva a ese final. */
 const ACCION_DE_FINAL: Readonly<Record<FinalId, Accion>> = {
   justo_a_tiempo: { t: 'elegir_final', opcion: 'salir' },
@@ -134,6 +164,15 @@ const ahora = (): number => performance.now();
 /** Escribe el signal solo si el contenido cambió, para no redibujar sin necesidad. */
 function asignar<T>(s: Signal<T>, valor: T): void {
   if (!iguales(s.value, valor)) s.value = valor;
+}
+
+/** El mismo mapa por sala, sin la entrada de esa sala. */
+function sinSala<T>(mapa: Partial<Record<SalaId, T>>, sala: SalaId): Partial<Record<SalaId, T>> {
+  const resto: Partial<Record<SalaId, T>> = {};
+  for (const [clave, valor] of Object.entries(mapa) as [SalaId, T][]) {
+    if (clave !== sala) resto[clave] = valor;
+  }
+  return resto;
 }
 
 /** Copia de un valor JSON (los estados de los mecanismos solo tienen números, textos y listas). */
@@ -155,25 +194,73 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   let pistasPorSala: Partial<Record<SalaId, EstadoPistas>> = {};
   /** Ajustes de cada mecanismo en su etapa actual: se conservan al salir y volver. */
   let ajustes: Partial<Record<SalaId, unknown>> = {};
+  /** En las etapas que responden en vivo: cuánto llevan quietos los ajustes de cada sala. */
+  let reposos: Partial<Record<SalaId, Reposo>> = {};
+  let contadorResultados = 0;
   /** Instante desde el que corre tiempo de etapa sin contar todavía en las pistas. */
   let marca: number | null = null;
   let contadorNotas = 0;
   let temporizador: ReturnType<typeof setTimeout> | undefined;
 
   /** La sala donde está el jugador, si todavía le falta alguna etapa. */
-  function etapaEnCurso(): { sala: SalaId; puzzle: Puzzle; etapa: number } | null {
+  function etapaEnCurso(): EtapaEnCurso | null {
     if (!partida || partida.fase !== 'jugando' || partida.lugar === 'porteria') return null;
     const n = etapaActual(partida, partida.lugar);
     const puzzle = puzzleDeSala(numeroDeSala(partida.lugar));
     return n === null || !puzzle ? null : { sala: partida.lugar, puzzle, etapa: n };
   }
 
-  /** Suma a las pistas el tiempo de reloj activo que pasó en la etapa desde la última marca. */
+  /**
+   * La máquina respondió con esos ajustes: publica el resultado y, si resuelven la etapa,
+   * avanza la partida. La etapa siguiente empieza con su estado inicial y sin intentos.
+   */
+  function responder(actual: EtapaEnCurso, estado: unknown, evaluacion: Evaluacion): void {
+    if (!partida) return;
+    if (evaluacion.resuelta) {
+      partida = aplicar(partida, { t: 'resolver_etapa', sala: actual.sala, etapa: actual.etapa });
+      pistasPorSala[actual.sala] = nuevaEtapa(pistasPorSala[actual.sala] ?? PISTAS_INICIALES);
+      ajustes = sinSala(ajustes, actual.sala);
+      reposos = sinSala(reposos, actual.sala);
+    }
+    resultado.value = {
+      n: ++contadorResultados,
+      sala: actual.sala,
+      puzzle: actual.puzzle.id,
+      etapa: actual.etapa,
+      estado: copiar(estado),
+      condiciones: evaluacion.condiciones,
+      resuelta: evaluacion.resuelta,
+      sello: evaluacion.resuelta && salaResuelta(partida, actual.sala),
+    };
+  }
+
+  /**
+   * Suma el tiempo de reloj activo que pasó en la etapa desde la última marca: a las pistas
+   * y, en las etapas que responden en vivo, al reposo de los ajustes.
+   */
   function contarTiempo(t: number): void {
     const actual = etapaEnCurso();
     if (marca !== null && actual) {
-      const antes = pistasPorSala[actual.sala] ?? PISTAS_INICIALES;
-      pistasPorSala[actual.sala] = avanzarTiempo(antes, actual.puzzle.pistas, t - marca);
+      const ms = t - marca;
+      const { sala: s, puzzle, etapa: n } = actual;
+      let e = avanzarTiempo(pistasPorSala[s] ?? PISTAS_INICIALES, puzzle.pistas, ms);
+      const quieto = reposos[s];
+      const estado = ajustes[s];
+      let resuelve: Evaluacion | null = null;
+      if (quieto?.pendiente && estado !== undefined) {
+        const r = avanzarReposo(puzzle, n, estado, quieto, ms);
+        reposos[s] = r.reposo;
+        if (r.intento) {
+          e = registrarIntento(e, puzzle.pistas);
+        } else if (!r.reposo.pendiente) {
+          // Se cumplió el reposo sin contar intento: o los ajustes resuelven la etapa, o
+          // todavía no forman un resultado (libros sin repartir).
+          const evaluacion = evaluar(puzzle, n, estado);
+          if (evaluacion?.resuelta) resuelve = evaluacion;
+        }
+      }
+      pistasPorSala[s] = e;
+      if (resuelve) responder(actual, estado, resuelve);
     }
     marca = null;
   }
@@ -222,8 +309,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
   /**
    * Un solo temporizador para lo próximo que debe pasar sin que nadie toque nada: que se
-   * ofrezca la siguiente pista o que se acabe el tiempo. Con el reloj detenido no hay nada
-   * que esperar.
+   * ofrezca la siguiente pista, que una máquina en vivo cumpla su reposo o que se acabe el
+   * tiempo. Con el reloj detenido no hay nada que esperar.
    */
   function programar(t: number): void {
     clearTimeout(temporizador);
@@ -235,6 +322,12 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       const e = pistasPorSala[actual.sala] ?? PISTAS_INICIALES;
       const siguiente = actual.puzzle.pistas[e.ofrecidas];
       if (siguiente) espera = Math.min(espera, siguiente.tras_segundos * 1000 - e.msEnEtapa);
+      // En las etapas que responden en vivo, el momento en que se cumple el reposo.
+      const regla = reglaDeIntento(actual.puzzle, actual.etapa);
+      const quieto = reposos[actual.sala];
+      if (regla?.tipo === 'reposo' && quieto?.pendiente) {
+        espera = Math.min(espera, regla.segundos * 1000 - quieto.msQuieto);
+      }
     }
     temporizador = setTimeout(alVencer, Math.max(0, Math.ceil(espera)));
   }
@@ -255,14 +348,15 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
   /** Pasa una acción por las reglas de la partida. Devuelve si se aceptó. */
   function jugar(accion: Accion): boolean {
-    const antes = partida;
-    if (!antes) return false;
-    let despues = antes;
+    let aceptada = false;
     cambiar(() => {
-      despues = aplicar(antes, accion);
+      // La partida se lee aquí adentro: al contar el tiempo pudo resolverse una etapa en vivo.
+      if (!partida) return;
+      const despues = aplicar(partida, accion);
+      aceptada = despues !== partida;
       partida = despues;
     });
-    return despues !== antes;
+    return aceptada;
   }
 
   /** Guarda la partida en curso. Con datos de ejemplo no se guarda: no es una partida real. */
@@ -315,6 +409,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       partida = g ? g.partida : crearPartida();
       pistasPorSala = g ? { ...g.pistas } : {};
       ajustes = g ? { ...g.mecanismos } : {};
+      reposos = {};
       // Las notas nuevas siguen la numeración guardada, para no repetir ids.
       contadorNotas = g ? Math.max(0, ...g.notas.map((n) => Number(n.id.slice(1)))) : 0;
       motivos.clear();
@@ -483,6 +578,36 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         return;
       case 'pedir_ayuda':
         jugar({ t: 'pedir_ayuda' });
+        return;
+      case 'ajustar':
+        cambiar(() => {
+          // Los ajustes llegan de un panel: se revisan con las reglas de la etapa actual.
+          const actual = etapaEnCurso();
+          if (!actual || evaluar(actual.puzzle, actual.etapa, comando.estado) === null) return;
+          if (iguales(ajustes[actual.sala], comando.estado)) return;
+          ajustes[actual.sala] = copiar(comando.estado);
+          // Las máquinas que responden en vivo empiezan a contar el reposo desde este cambio.
+          if (reglaDeIntento(actual.puzzle, actual.etapa)?.tipo === 'reposo') {
+            reposos[actual.sala] = alCambiarEstado();
+          }
+        });
+        return;
+      case 'accionar':
+        cambiar(() => {
+          const actual = etapaEnCurso();
+          if (!actual) return;
+          // Solo responde el objeto que confirma esta etapa (la palanca, la polea, la manija).
+          const regla = reglaDeIntento(actual.puzzle, actual.etapa);
+          if (regla?.tipo !== 'accionar' || regla.objeto !== comando.objeto) return;
+          const estado = ajustes[actual.sala];
+          const evaluacion = evaluar(actual.puzzle, actual.etapa, estado);
+          if (!evaluacion) return;
+          if (intentoAlAccionar(actual.puzzle, actual.etapa, comando.objeto, estado)) {
+            const e = pistasPorSala[actual.sala] ?? PISTAS_INICIALES;
+            pistasPorSala[actual.sala] = registrarIntento(e, actual.puzzle.pistas);
+          }
+          responder(actual, estado, evaluacion);
+        });
         return;
       case 'ver_pista': {
         const lugar = partida?.fase === 'jugando' ? partida.lugar : 'porteria';

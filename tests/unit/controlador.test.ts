@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Puzzle } from '../../src/content/esquema';
 import { PUZZLES } from '../../src/content/puzzles';
 import { nombreDeObjeto, SALAS_3D } from '../../src/content/salas';
 import {
@@ -39,6 +40,7 @@ import {
   mecanismo,
   pistas,
   reiniciarMecanismo,
+  resultado,
 } from '../../src/signals/mecanismo';
 import {
   DURACION_MS,
@@ -723,5 +725,246 @@ describe('controlador: guardar y continuar (T31c)', () => {
     }
     expect(notas.value).toHaveLength(MAX_NOTAS);
     expect(leer(almacen)?.notas).toHaveLength(MAX_NOTAS);
+  });
+});
+
+describe('controlador: órdenes de los mecanismos (T31d)', () => {
+  const puzzle = (n: number): Puzzle => {
+    const p = PUZZLES[n - 1];
+    if (!p) throw new Error('falta el puzzle ' + String(n));
+    return p;
+  };
+  const ajustar = (estado: unknown): void => enviar({ t: 'ajustar', estado });
+  const accionarMaquina = (objeto: string): void => enviar({ t: 'accionar', objeto });
+
+  /** Resuelve la etapa actual de la sala con la solución de ejemplo del JSON. */
+  function resolverEtapa(p: Puzzle, n: number): void {
+    const e = p.etapas[n];
+    if (!e) throw new Error('falta la etapa');
+    ajustar(e.solucion);
+    if (e.intento.tipo === 'accionar') accionarMaquina(e.intento.objeto);
+    else avanzar(e.intento.segundos * 1000);
+  }
+
+  it('accionar con ajustes que no resuelven muestra lo que pasó y cuenta un intento', () => {
+    jugar();
+    usar('porteria-puerta-1');
+    ajustar({ producto: 'jugo', precio: 2000, rodillos: [20] });
+    expect(mecanismo.value).toEqual({ producto: 'jugo', precio: 2000, rodillos: [20] });
+    accionarMaquina('s1-palanca');
+    expect(resultado.value).toMatchObject({
+      sala: 's1-cooperativa',
+      puzzle: 's1-etiquetadora',
+      etapa: 0,
+      estado: { producto: 'jugo', precio: 2000, rodillos: [20] },
+      condiciones: { precio: false },
+      resuelta: false,
+      sello: false,
+    });
+    // Sigue en la misma etapa, con los rodillos donde los dejó el jugador.
+    expect(etapa.value?.etapa).toBe(0);
+    expect(mecanismo.value).toEqual({ producto: 'jugo', precio: 2000, rodillos: [20] });
+    // Cada vez que se acciona cuenta, aunque los ajustes sean los mismos: a la tercera, pista.
+    const antes = resultado.value?.n ?? 0;
+    accionarMaquina('s1-palanca');
+    expect(pistas.value.ofrecidas).toBe(0);
+    accionarMaquina('s1-palanca');
+    expect(pistas.value.ofrecidas).toBe(1);
+    expect(resultado.value?.n).toBe(antes + 2);
+  });
+
+  it('accionar con la solución pasa a la etapa siguiente, con su estado inicial', () => {
+    const s1 = puzzle(1);
+    jugar();
+    usar('porteria-puerta-1');
+    resolverEtapa(s1, 0);
+    expect(resultado.value).toMatchObject({ etapa: 0, resuelta: true, sello: false });
+    expect(resultado.value?.estado).toEqual(s1.etapas[0]?.solucion);
+    expect(etapa.value).toEqual({ sala: 's1-cooperativa', puzzle: 's1-etiquetadora', etapa: 1 });
+    expect(mecanismo.value).toEqual(s1.etapas[1]?.estado_inicial);
+    expect(sellos.value).toEqual([]);
+  });
+
+  it('los intentos vuelven a cero al cambiar de etapa; las pistas ofrecidas quedan', () => {
+    const s1 = puzzle(1);
+    jugar();
+    usar('porteria-puerta-1');
+    for (let i = 0; i < 3; i++) accionarMaquina('s1-palanca');
+    expect(pistas.value.ofrecidas).toBe(1);
+    resolverEtapa(s1, 0);
+    accionarMaquina('s1-palanca');
+    accionarMaquina('s1-palanca');
+    expect(pistas.value.ofrecidas).toBe(1);
+  });
+
+  it('resolver las tres etapas da el sello y abre la puerta siguiente', () => {
+    const s1 = puzzle(1);
+    jugar();
+    usar('porteria-puerta-1');
+    for (const n of [0, 1, 2]) resolverEtapa(s1, n);
+    expect(resultado.value).toMatchObject({ etapa: 2, resuelta: true, sello: true });
+    expect(sellos.value).toEqual(['s1-cooperativa']);
+    expect(etapa.value).toBeNull();
+    expect(mecanismo.value).toBeNull();
+    usar('s1-puerta');
+    usar('porteria-puerta-2');
+    expect(sala.value).toBe('s2-laboratorio');
+  });
+
+  it('ignora ajustes que la etapa no permite y objetos que no confirman la etapa', () => {
+    const s1 = puzzle(1);
+    jugar();
+    usar('porteria-puerta-1');
+    const inicial = s1.etapas[0]?.estado_inicial;
+    ajustar({ producto: 'jugo', precio: 1, rodillos: [-20] }); // cambia el precio
+    ajustar({ producto: 'jugo', precio: 2000, rodillos: [-99] }); // rodillo que no existe
+    ajustar('<script>');
+    ajustar(null);
+    expect(mecanismo.value).toEqual(inicial);
+    ajustar(s1.etapas[0]?.solucion);
+    accionarMaquina('s1-registradora');
+    accionarMaquina('s2-palanca');
+    expect(resultado.value).toBeNull();
+    expect(etapa.value?.etapa).toBe(0);
+  });
+
+  it('fuera de una sala con etapa pendiente, las órdenes no hacen nada', () => {
+    const s1 = puzzle(1);
+    ajustar(s1.etapas[0]?.solucion);
+    accionarMaquina('s1-palanca');
+    jugar();
+    ajustar(s1.etapas[0]?.solucion);
+    accionarMaquina('s1-palanca');
+    expect(resultado.value).toBeNull();
+    expect(mecanismo.value).toBeNull();
+  });
+
+  it('los ajustes se conservan al salir de la sala y volver', () => {
+    jugar();
+    usar('porteria-puerta-1');
+    ajustar({ producto: 'jugo', precio: 2000, rodillos: [25, -50] });
+    usar('s1-puerta');
+    usar('porteria-puerta-1');
+    expect(mecanismo.value).toEqual({ producto: 'jugo', precio: 2000, rodillos: [25, -50] });
+  });
+
+  describe('máquinas que responden en vivo (sala 4)', () => {
+    const s4 = puzzle(4);
+    const reposo = 5_000;
+
+    /** Deja la partida dentro de la biblioteca, con las tres primeras salas resueltas. */
+    function entrarALaBiblioteca(): void {
+      jugar();
+      for (const n of [1, 2, 3]) {
+        usar('porteria-puerta-' + String(n));
+        for (const e of [0, 1, 2]) resolverEtapa(puzzle(n), e);
+        usar('s' + String(n) + '-puerta');
+      }
+      usar('porteria-puerta-4');
+      expect(etapa.value).toEqual({ sala: 's4-biblioteca', puzzle: 's4-carritos', etapa: 0 });
+    }
+
+    it('las condiciones cambian en vivo, pero la etapa se resuelve al quedar quieta', () => {
+      entrarALaBiblioteca();
+      ajustar({ carritos: [4, 4, 4, 4, 4] });
+      expect(condiciones.value).toEqual({ media: true });
+      expect(etapa.value?.etapa).toBe(0);
+      avanzar(reposo - 1);
+      expect(etapa.value?.etapa).toBe(0);
+      avanzar(1);
+      expect(etapa.value?.etapa).toBe(1);
+      expect(resultado.value).toMatchObject({ etapa: 0, resuelta: true, sello: false });
+      expect(mecanismo.value).toEqual(s4.etapas[1]?.estado_inicial);
+    });
+
+    it('pasar por la solución sin detenerse no resuelve la etapa', () => {
+      entrarALaBiblioteca();
+      ajustar({ carritos: [4, 4, 4, 4, 4] });
+      avanzar(reposo - 1_000);
+      ajustar({ carritos: [4, 4, 4, 4, 3] });
+      avanzar(reposo * 3);
+      expect(etapa.value?.etapa).toBe(0);
+      expect(resultado.value?.sala).not.toBe('s4-biblioteca');
+    });
+
+    it('un reparto completo que no resuelve cuenta un intento al quedar quieto, una sola vez', () => {
+      entrarALaBiblioteca();
+      resolverEtapa(s4, 0);
+      // Etapa «torcer»: media 4 y mediana 3. Con 4, 4, 4, 4, 4 la mediana es 4.
+      for (const reparto of [
+        [5, 4, 4, 4, 3],
+        [6, 4, 4, 4, 2],
+        [7, 4, 4, 4, 1],
+      ]) {
+        ajustar({ carritos: reparto });
+        expect(pistas.value.ofrecidas).toBe(0);
+        avanzar(reposo * 2); // El doble de tiempo no cuenta dos veces.
+      }
+      expect(pistas.value.ofrecidas).toBe(1);
+      expect(etapa.value?.etapa).toBe(1);
+    });
+
+    it('con libros sin repartir no cuenta intento, y en pausa el reposo no avanza', () => {
+      entrarALaBiblioteca();
+      resolverEtapa(s4, 0);
+      for (const n of [3, 2, 1]) {
+        ajustar({ carritos: [n, 0, 0, 0, 0] });
+        avanzar(reposo);
+      }
+      expect(pistas.value.ofrecidas).toBe(0);
+
+      ajustar({ carritos: [1, 2, 3, 3, 11] });
+      enviar({ t: 'pausar' });
+      avanzar(reposo * 2);
+      expect(etapa.value?.etapa).toBe(1);
+      enviar({ t: 'reanudar' });
+      avanzar(reposo);
+      expect(etapa.value?.etapa).toBe(2);
+    });
+  });
+
+  it('una partida completa: cinco sellos y la puerta de salida deja salir', () => {
+    jugar();
+    for (const n of [1, 2, 3, 4, 5]) {
+      usar('porteria-puerta-' + String(n));
+      for (const e of [0, 1, 2]) resolverEtapa(puzzle(n), e);
+      expect(resultado.value).toMatchObject({ etapa: 2, resuelta: true, sello: true });
+      usar('s' + String(n) + '-puerta');
+    }
+    expect(sellos.value).toHaveLength(5);
+    usar(OBJETO_SALIDA);
+    expect(opcionesFinal.value).toMatchObject({ salir: true, restaurar: false });
+    enviar({ t: 'elegir_final', opcion: 'restaurar' });
+    expect(fase.value).toBe('jugando');
+    enviar({ t: 'elegir_final', opcion: 'salir' });
+    expect(fase.value).toBe('final');
+    expect(final.value).toBe('justo_a_tiempo');
+  });
+
+  it('los ajustes y los intentos se guardan y vuelven al continuar', () => {
+    const datos = new Map<string, string>();
+    const almacen: Almacen = {
+      getItem: (k) => datos.get(k) ?? null,
+      setItem: (k, v) => void datos.set(k, v),
+      removeItem: (k) => void datos.delete(k),
+    };
+    detener();
+    detener = iniciarControlador({ documento, almacen });
+    jugar();
+    usar('porteria-puerta-1');
+    resolverEtapa(puzzle(1), 0);
+    ajustar({ producto: 'empanada', precio: 1600, rodillos: [20] });
+    accionarMaquina('s1-palanca');
+
+    detener();
+    reiniciarPartida();
+    reiniciarMecanismo();
+    detener = iniciarControlador({ documento, almacen });
+    enviar({ t: 'continuar' });
+    expect(etapa.value).toEqual({ sala: 's1-cooperativa', puzzle: 's1-etiquetadora', etapa: 1 });
+    expect(mecanismo.value).toEqual({ producto: 'empanada', precio: 1600, rodillos: [20] });
+    accionarMaquina('s1-palanca');
+    accionarMaquina('s1-palanca');
+    expect(pistas.value.ofrecidas).toBe(1);
   });
 });
