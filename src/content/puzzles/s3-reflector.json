@@ -33,7 +33,8 @@
         "muesca": 45,
         "postes": [{ "id": "poste-2", "altura": 2, "distancia": 2 }],
         "polea": null
-      }
+      },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     },
     {
       "id": "torcer",
@@ -63,7 +64,8 @@
           { "id": "poste-3", "altura": 3, "distancia": 6 }
         ],
         "polea": null
-      }
+      },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     },
     {
       "id": "dominar",
@@ -87,7 +89,8 @@
         "muesca": 45,
         "postes": [{ "id": "poste-2", "altura": 2, "distancia": null }],
         "polea": 8
-      }
+      },
+      "intento": { "tipo": "accionar", "objeto": "s3-polea" }
     }
   ],
   "pistas": [

@@ -15,7 +15,7 @@ import { esEstadoUrna, evaluarUrna } from './urna';
 
 export type { Condiciones, Evaluacion } from './tipos';
 export { precioImpreso } from './etiquetadora';
-export { nivelEn } from './tanques';
+export { duracionCorridaS, nivelEn } from './tanques';
 export { RAZON_SOMBRA, sombra } from './reflector';
 export { estadisticas, librosEnPila, type Estadisticas } from './carritos';
 export { parejas, probabilidadMismoColor } from './urna';

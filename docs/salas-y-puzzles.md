@@ -147,7 +147,7 @@ En la etapa 3, la única pareja de rodillos que da $3.000 es −50 % con +50 % (
 
 **Espacio:** laboratorio de 9 × 6 m en penumbra. Dos cilindros de vidrio con líquido de colores, A (verde) y B (morado), cada uno con una perilla de caudal que se ajusta de 1 en 1 cm por segundo. En la pared, un graficador de tinta dibuja en tiempo real la altura de cada tanque contra el tiempo, con su color. Sobre la incubadora, una campana suena a los segundos que indica su temporizador.
 
-**La mecánica:** ajustas las perillas, bajas la palanca y el líquido corre mientras el graficador dibuja. La incubadora se abre si los dos niveles son iguales justo cuando suena la campana. Cada corrida dura unos 10 segundos y luego los tanques se vacían solos: probar es posible, pero pensar antes ahorra tiempo.
+**La mecánica:** ajustas las perillas, bajas la palanca y el líquido corre mientras el graficador dibuja. La incubadora se abre si los dos niveles son iguales justo cuando suena la campana. Cada corrida dura hasta que suena la campana (10, 8 y 12 segundos según la etapa) y luego los tanques se vacían solos: probar es posible, pero pensar antes ahorra tiempo.
 
 | Etapa | Situación | Solución | El «ajá» |
 | --- | --- | --- | --- |
