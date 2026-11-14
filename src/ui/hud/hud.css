@@ -140,3 +140,21 @@
 .hud-accion-objeto {
   font-size: 0.875rem;
 }
+
+/* Aviso pasajero, sobre la fila de abajo: no tapa el centro de la escena ni recibe toques. */
+.hud-aviso {
+  position: absolute;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(30rem, calc(100% - 24px));
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 80%);
+  font-size: 1rem;
+  line-height: 1.35;
+  text-align: center;
+}

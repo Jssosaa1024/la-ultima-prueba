@@ -1,4 +1,5 @@
 import type { AccionObjeto } from './interfaz';
+import type { OpcionFinal } from '../game/partida';
 import type { FinalId, Modo } from './partida';
 
 /**
@@ -22,7 +23,14 @@ export type Comando =
   /** Pausar el reloj (el cuaderno lo pausa en modo individual). */
   | { t: 'pausar' }
   | { t: 'reanudar' }
-  | { t: 'elegir_final'; final: FinalId }
+  /** Frente a la puerta de salida, con los cinco sellos: salir o restaurar el archivo. */
+  | { t: 'elegir_final'; opcion: OpcionFinal }
+  /** Confirmación del intercomunicador de la portería. */
+  | { t: 'pedir_ayuda' }
+  /** Abrir la siguiente pista ofrecida del puzzle de la sala actual. */
+  | { t: 'ver_pista' }
+  /** Solo con `/jugar?ejemplo=1`: datos de ejemplo y, si se pide, salto directo a un final. */
+  | { t: 'ejemplo'; final: FinalId | null }
   /** Notas del cuaderno: texto escrito por el propio jugador, de 280 caracteres o menos. */
   | { t: 'nota'; op: 'agregar'; texto: string }
   | { t: 'nota'; op: 'borrar'; id: string };

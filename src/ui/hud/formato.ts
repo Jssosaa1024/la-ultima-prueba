@@ -1,3 +1,5 @@
+import type { Aviso } from '../../signals/interfaz';
+
 /** Formatos del HUD. Puros: se prueban sin navegador. */
 
 /** `ms` → `mm:ss`, redondeando hacia arriba para que el 00:00 solo aparezca al acabarse. */
@@ -18,4 +20,12 @@ export function relojEnPalabras(ms: number): string {
   if (min === 0) return s;
   if (seg === 0) return m;
   return `${m} y ${s}`;
+}
+
+/** Lo que el HUD (y el lector de pantalla) le dice al jugador con un aviso del controlador. */
+export function textoDeAviso(aviso: Aviso): string {
+  switch (aviso.t) {
+    case 'puerta_cerrada':
+      return `La puerta ${aviso.sala} está cerrada. Se abre cuando consigas el sello de la sala ${aviso.sala - 1}.`;
+  }
 }

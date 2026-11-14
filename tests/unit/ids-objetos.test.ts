@@ -81,7 +81,7 @@ describe('ids de objetos: código del juego contra salas.json (T19c)', () => {
    * Son de la sesión de interfaz, que los está reemplazando: cuando se borren, esta lista
    * debe quedar vacía.
    */
-  const PENDIENTES = new Set(['src/signals/ejemplo.ts', 'src/signals/provisional.ts']);
+  const PENDIENTES = new Set(['src/signals/ejemplo.ts']);
 
   const conocidos = new Set<string>([
     ...SALAS_3D.map((s) => s.id),

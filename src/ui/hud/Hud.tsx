@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'preact/hooks';
-import { abrirCuaderno, enfocado, panel, type AccionObjeto } from '../../signals/interfaz';
+import { cuadernoActivo } from '../../signals/cuaderno';
+import {
+  abrirCuaderno,
+  aviso,
+  cerrarAviso,
+  enfocado,
+  panel,
+  type AccionObjeto,
+} from '../../signals/interfaz';
 import {
   inventario,
   reloj,
@@ -9,7 +17,7 @@ import {
   totalSellos,
 } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
-import { formatoReloj, relojEnPalabras } from './formato';
+import { formatoReloj, relojEnPalabras, textoDeAviso } from './formato';
 import '../botones.css';
 import './hud.css';
 
@@ -30,13 +38,17 @@ export default function Hud() {
       <div class="hud-fila hud-arriba">
         <div class="hud-grupo">
           <BotonSalir />
-          <button type="button" class="hud-boton-redondo" onClick={abrirCuaderno}>
-            Cuaderno
-          </button>
+          {/* El botón aparece al recoger el cuaderno de la portería. */}
+          {cuadernoActivo.value && (
+            <button type="button" class="hud-boton-redondo" onClick={abrirCuaderno}>
+              Cuaderno
+            </button>
+          )}
         </div>
         <Reloj />
         <Sellos />
       </div>
+      <AvisoHud />
       <div class="hud-fila hud-abajo">
         <Inventario />
         <BotonAccion />
@@ -87,8 +99,27 @@ function Sellos() {
   );
 }
 
+/** Segundos que se ve un aviso antes de borrarse solo. */
+const DURACION_AVISO_MS = 6000;
+
+/**
+ * Lo que el mundo le muestra al jugador sin abrir un panel (una puerta que sigue cerrada).
+ * El lector de pantalla lo oye por el `Anunciador`.
+ */
+function AvisoHud() {
+  const actual = aviso.value;
+  useEffect(() => {
+    if (!actual) return;
+    const id = window.setTimeout(cerrarAviso, DURACION_AVISO_MS);
+    return () => window.clearTimeout(id);
+  }, [actual]);
+  if (!actual) return null;
+  return <p class="hud-aviso">{textoDeAviso(actual)}</p>;
+}
+
 function Inventario() {
-  const objetos = inventario.value;
+  // El cuaderno tiene su propio botón: no se repite en la lista.
+  const objetos = inventario.value.filter((o) => !o.conBoton);
   return (
     <ul class="hud-inventario" aria-label="Inventario">
       {objetos.map((o) => (

@@ -1,7 +1,7 @@
 import { batch, signal } from '@preact/signals';
 import { fichas, type Ficha } from './contenido';
 import { enfocado, type ObjetoEnfocado } from './interfaz';
-import { FINALES, grabaciones, sellos, type FinalId } from './partida';
+import { FINALES, type FinalId } from './partida';
 
 /**
  * DATOS DE EJEMPLO para ver el HUD, la inspección y el cuaderno antes de que existan el
@@ -68,27 +68,15 @@ export function finalPedido(busqueda: string): FinalId | null {
   return FINALES.find((f) => f === valor) ?? null;
 }
 
-/** Datos para que el resumen del final no salga vacío. */
-export function cargarEjemploDeFinal(): void {
-  batch(() => {
-    sellos.value = [
-      's1-cooperativa',
-      's2-laboratorio',
-      's3-gimnasio',
-      's4-biblioteca',
-      's5-rectoria',
-    ];
-    grabaciones.value = ['grab-1', 'grab-2', 'grab-3'];
-  });
-}
-
-/** Pone el primer objeto enfocado y un sello ya ganado, para ver el HUD con datos. */
+/**
+ * Pone las fichas de ejemplo y el primer objeto enfocado. Lo llama el controlador al recibir
+ * la orden `ejemplo`; los sellos y las grabaciones de ejemplo los pone él en la partida.
+ */
 export function cargarEjemplo(): void {
   siguiente = 0;
   batch(() => {
     conEjemplo.value = true;
     fichas.value = FICHAS_EJEMPLO;
-    sellos.value = ['s1-cooperativa'];
     enfocarSiguiente();
   });
 }

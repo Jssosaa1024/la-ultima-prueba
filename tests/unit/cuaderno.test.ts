@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { iniciarControlador } from '../../src/signals/controlador';
 import {
   datosEncontrados,
   limpiarNota,
@@ -6,16 +7,15 @@ import {
   notas,
   reiniciarCuaderno,
 } from '../../src/signals/cuaderno';
-import { cargarEjemplo, quitarEjemplo } from '../../src/signals/ejemplo';
+import { quitarEjemplo } from '../../src/signals/ejemplo';
 import { reiniciarInterfaz } from '../../src/signals/interfaz';
 import { reiniciarPartida } from '../../src/signals/partida';
-import { iniciarControladorProvisional } from '../../src/signals/provisional';
 import { enviar } from '../../src/signals/puente';
 
 let detener: () => void;
 
 beforeEach(() => {
-  detener = iniciarControladorProvisional();
+  detener = iniciarControlador({ documento: null });
   enviar({ t: 'iniciar', modo: 'individual' });
 });
 
@@ -64,7 +64,7 @@ describe('notas del cuaderno', () => {
 
 describe('datos encontrados', () => {
   it('examinar un objeto lo anota una sola vez', () => {
-    cargarEjemplo();
+    enviar({ t: 'ejemplo', final: null });
     enviar({ t: 'accion', objeto: 's1-factura', accion: 'examinar' });
     expect(datosEncontrados.value).toEqual(['s1-factura']);
   });

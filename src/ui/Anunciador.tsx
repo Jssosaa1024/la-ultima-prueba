@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { aviso } from '../signals/interfaz';
 import { inventario, totalSellos } from '../signals/partida';
+import { textoDeAviso } from './hud/formato';
 
 /**
  * Región `aria-live` para el lector de pantalla (T41): anuncia lo que cambia en el HUD sin
@@ -13,6 +15,7 @@ export default function Anunciador() {
 
   const sellos = totalSellos.value;
   const objetos = inventario.value;
+  const avisoActual = aviso.value;
 
   useEffect(() => {
     if (sellos > sellosAntes.current) setMensaje(`Sello obtenido. Llevas ${sellos} de 5.`);
@@ -25,6 +28,10 @@ export default function Anunciador() {
     if (ultimo) setMensaje(`Recogiste: ${ultimo.nombre}.`);
     objetosAntes.current = objetos.map((o) => o.id);
   }, [objetos]);
+
+  useEffect(() => {
+    if (avisoActual) setMensaje(textoDeAviso(avisoActual));
+  }, [avisoActual]);
 
   return (
     <div class="solo-lector" aria-live="polite" aria-atomic="true">

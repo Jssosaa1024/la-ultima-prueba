@@ -1,9 +1,4 @@
-import {
-  cargarEjemplo,
-  cargarEjemploDeFinal,
-  finalPedido,
-  pideEjemplo,
-} from '../../signals/ejemplo';
+import { finalPedido, pideEjemplo } from '../../signals/ejemplo';
 import { enviar } from '../../signals/puente';
 import '../botones.css';
 import './menus.css';
@@ -30,16 +25,10 @@ export default function MenuInicio() {
             class="boton boton-principal"
             onClick={() => {
               enviar({ t: 'iniciar', modo: 'individual' });
-              // `/jugar?ejemplo=1`: datos de ejemplo mientras no existan el motor y el contenido.
+              // `/jugar?ejemplo=1`: datos de ejemplo para revisar las pantallas sin jugar.
+              // `&final=<id>` salta directo a ese final. Los dos valores se validan al leerlos.
               const busqueda = window.location.search;
-              if (!pideEjemplo(busqueda)) return;
-              cargarEjemplo();
-              // `&final=<id>`: salta directo a ese final, para revisarlo.
-              const fin = finalPedido(busqueda);
-              if (fin) {
-                cargarEjemploDeFinal();
-                enviar({ t: 'elegir_final', final: fin });
-              }
+              if (pideEjemplo(busqueda)) enviar({ t: 'ejemplo', final: finalPedido(busqueda) });
             }}
           >
             Jugar solo

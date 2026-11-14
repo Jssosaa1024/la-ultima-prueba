@@ -1,5 +1,6 @@
 import { panel } from '../signals/interfaz';
 import { fase } from '../signals/partida';
+import EleccionFinal from './finales/EleccionFinal';
 import PantallaFinal from './finales/PantallaFinal';
 import Anunciador from './Anunciador';
 import IndicadorCarga from './carga/IndicadorCarga';
@@ -7,6 +8,7 @@ import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
+import PedirAyuda from './paneles/PedirAyuda';
 
 /**
  * Todo lo que se dibuja encima de la escena durante la partida: el HUD y, como mucho, un
@@ -25,6 +27,8 @@ export default function Partida() {
       </div>
       {abierto === 'inspeccion' && <Inspeccion />}
       {abierto === 'cuaderno' && <Cuaderno />}
+      {abierto === 'salida' && <EleccionFinal />}
+      {abierto === 'ayuda' && <PedirAyuda />}
       <IndicadorCarga />
       <Anunciador />
     </>

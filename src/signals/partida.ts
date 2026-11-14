@@ -1,11 +1,12 @@
 import { batch, computed, signal } from '@preact/signals';
+import type { OpcionesDeFinal } from '../game/partida';
 
 /**
  * Estado de la partida que ven la interfaz y el motor (T31).
  *
- * Quién escribe aquí: la lógica del juego (`game/`, T24–T30) a través de su controlador, y
- * mientras esa lógica no exista, el controlador provisional. `ui/` y `engine/` solo leen
- * estos signals y piden cambios con `enviar()` de `signals/puente.ts`.
+ * Quién escribe aquí: el controlador de la partida (`controlador.ts`, T31b), que aplica las
+ * reglas de `game/`. `ui/` y `engine/` solo leen estos signals y piden cambios con `enviar()`
+ * de `signals/puente.ts`.
  */
 
 /** Salas en el orden del recorrido. La portería no entrega sello. */
@@ -57,11 +58,24 @@ export function restanteEn(reloj: Reloj, ahora: number): number {
   return Math.max(0, restante);
 }
 
-/** Objeto que el jugador lleva consigo. `nombre` viene del contenido del bundle, no de la red. */
+/**
+ * Objeto que el jugador recogió (el motor lo quita de la escena). `nombre` viene del contenido
+ * del bundle, no de la red. Los que tienen `conBoton` (el cuaderno) no salen en la lista del
+ * inventario, porque el HUD les da un botón propio.
+ */
 export interface ObjetoInventario {
   id: string;
   nombre: string;
+  conBoton?: true;
 }
+
+/** Antes de empezar no se puede elegir final y las tres grabaciones siguen escondidas. */
+const SIN_OPCIONES: OpcionesDeFinal = {
+  salir: false,
+  restaurar: false,
+  faltanGrabaciones: GRABACIONES.length,
+  salasConGrabacion: ['s2-laboratorio', 's3-gimnasio', 's4-biblioteca'],
+};
 
 export const fase = signal<Fase>('inicio');
 export const modo = signal<Modo | null>(null);
@@ -71,6 +85,8 @@ export const sellos = signal<readonly SalaConSello[]>([]);
 export const grabaciones = signal<readonly GrabacionId[]>([]);
 export const inventario = signal<readonly ObjetoInventario[]>([]);
 export const final = signal<FinalId | null>(null);
+/** Qué se puede elegir frente a la puerta de salida (`opcionesDeFinal` de `game/partida.ts`). */
+export const opcionesFinal = signal<OpcionesDeFinal>(SIN_OPCIONES);
 
 /** Cuántos sellos lleva el jugador o el grupo (0 a 5). */
 export const totalSellos = computed(() => sellos.value.length);
@@ -86,5 +102,6 @@ export function reiniciarPartida(): void {
     grabaciones.value = [];
     inventario.value = [];
     final.value = null;
+    opcionesFinal.value = SIN_OPCIONES;
   });
 }

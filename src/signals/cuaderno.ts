@@ -16,6 +16,8 @@ export interface Nota {
 /** Ids de los objetos con datos ya inspeccionados, en el orden en que se encontraron. */
 export const datosEncontrados = signal<readonly string[]>([]);
 export const notas = signal<readonly Nota[]>([]);
+/** El jugador ya recogió el cuaderno de la portería: el HUD muestra su botón. */
+export const cuadernoActivo = signal(false);
 
 /** Limpia un texto de nota: sin espacios a los lados y con el máximo de caracteres. */
 export function limpiarNota(texto: string): string {
@@ -26,5 +28,6 @@ export function reiniciarCuaderno(): void {
   batch(() => {
     datosEncontrados.value = [];
     notas.value = [];
+    cuadernoActivo.value = false;
   });
 }

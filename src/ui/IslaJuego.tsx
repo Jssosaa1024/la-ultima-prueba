@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { tieneWebGL2 } from '../engine/compatibilidad';
 import { ajustarCanvas } from '../engine/pantalla';
+import { iniciarControlador } from '../signals/controlador';
 import { pantalla } from '../signals/pantalla';
 import { fase } from '../signals/partida';
-import { iniciarControladorProvisional } from '../signals/provisional';
 import { pruebaCarga } from '../signals/prueba-carga';
 import MenuInicio from './menus/MenuInicio';
 import NoCompatible from './NoCompatible';
@@ -52,9 +52,10 @@ function Escena() {
 
   const [pruebaGlb] = useState(esPruebaGlb);
 
-  // Hasta que exista la lógica del juego (game/), un controlador provisional atiende las
-  // órdenes del menú y del HUD.
-  useEffect(() => iniciarControladorProvisional(), []);
+  // El controlador de la partida (T31b) atiende las órdenes del menú, del HUD y del motor con
+  // las reglas de game/. Este efecto va ANTES del que monta el motor: el controlador debe
+  // escuchar el puente primero, para que el motor vea la sala ya cambiada.
+  useEffect(() => iniciarControlador(), []);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { iniciarControlador } from '../../src/signals/controlador';
 import { finalPedido, quitarEjemplo } from '../../src/signals/ejemplo';
 import { reiniciarInterfaz } from '../../src/signals/interfaz';
 import { DURACION_MS, FINALES, fase, final, reiniciarPartida } from '../../src/signals/partida';
-import { iniciarControladorProvisional } from '../../src/signals/provisional';
 import { enviar } from '../../src/signals/puente';
 import { FINALES_TEXTO } from '../../src/ui/finales/textos';
 
@@ -14,7 +14,7 @@ describe('fin del reloj', () => {
     vi.useFakeTimers();
     ahora = 0;
     vi.spyOn(performance, 'now').mockImplementation(() => ahora);
-    detener = iniciarControladorProvisional();
+    detener = iniciarControlador({ documento: null });
   });
 
   afterEach(() => {
