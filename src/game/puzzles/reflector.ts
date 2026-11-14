@@ -77,3 +77,61 @@ export function esEstadoReflector(etapa: Etapa, x: unknown): x is Estado {
     );
   });
 }
+
+// ---------- Lo que la máquina muestra (T58) ----------
+//
+// El panel y la animación 3D no dicen «correcto» ni «incorrecto»: muestran dónde cayó cada
+// sombra y hasta dónde llegó el gancho. Estas funciones lo calculan sin decimales.
+
+/** Dónde quedó algo frente a su meta: antes, justo o después. */
+export type Alcance = 'corta' | 'toca' | 'larga';
+
+export interface LecturaPoste {
+  id: string;
+  /** Metros. */
+  altura: number;
+  /** Largo de la sombra con la muesca actual, en metros (puede no ser entero). */
+  sombra: number;
+  /** Metros de la base al sensor; null si el poste no tiene sensor. */
+  distancia: number | null;
+  /** Dónde cae la punta de la sombra frente al sensor; null si no hay sensor. */
+  alcance: Alcance | null;
+}
+
+const comparar = (a: number, b: number): Alcance => (a < b ? 'corta' : a > b ? 'larga' : 'toca');
+
+/** La sombra de cada poste y dónde cae su punta frente al sensor. */
+export function lecturaPostes(estado: Estado): LecturaPoste[] {
+  const r = RAZON_SOMBRA[estado.muesca] ?? [0, 1];
+  return estado.postes.map((p) => ({
+    id: p.id,
+    altura: p.altura,
+    sombra: (p.altura * r[0]) / r[1],
+    distancia: p.distancia,
+    // Comparación exacta, con enteros: altura × num frente a distancia × den.
+    alcance: p.distancia === null ? null : comparar(p.altura * r[0], p.distancia * r[1]),
+  }));
+}
+
+/** Hasta qué metro de la cinta llega la sombra del marcador; null si la etapa no lo tiene. */
+export function sombraMarcador(etapa: Etapa, muesca: number): number | null {
+  return etapa.exito.marcador ? sombra(etapa.exito.marcador.altura, muesca) : null;
+}
+
+/** Dónde queda el gancho de la polea frente al marcador; null si la etapa no tiene polea. */
+export function lecturaPolea(etapa: Etapa, polea: number | null): Alcance | null {
+  if (!etapa.exito.marcador || polea === null) return null;
+  return comparar(polea, etapa.exito.marcador.altura);
+}
+
+/** El estado con otra muesca. No revisa los controles: eso lo hace `esEstadoReflector`. */
+export const conMuesca = (estado: Estado, muesca: number): Estado => ({ ...estado, muesca });
+
+/** El estado con un poste a otra distancia de su sensor. */
+export const conDistancia = (estado: Estado, poste: string, distancia: number): Estado => ({
+  ...estado,
+  postes: estado.postes.map((p) => (p.id === poste ? { ...p, distancia } : p)),
+});
+
+/** El estado con otra longitud de polea. */
+export const conPolea = (estado: Estado, polea: number): Estado => ({ ...estado, polea });
