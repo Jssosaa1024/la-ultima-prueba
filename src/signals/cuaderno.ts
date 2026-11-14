@@ -7,6 +7,8 @@ import { batch, signal } from '@preact/signals';
 
 /** Máximo de caracteres por nota (igual que la intención `nota` del protocolo). */
 export const MAX_NOTA = 280;
+/** Máximo de notas: es lo que acepta el guardado (`MAX_NOTAS` de `game/guardado.ts`). */
+export const MAX_NOTAS = 50;
 
 export interface Nota {
   id: string;

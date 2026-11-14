@@ -720,7 +720,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 - [x] **T31** Store de signals y puente con el motor — 40 min
 - [x] **T31b** (nueva) Controlador real de la partida individual (`src/signals/controlador.ts`): reemplaza al provisional y aplica `game/partida.ts`, `game/reloj.ts` y `game/pistas.ts`. Puertas en orden, elección de final en la puerta de salida, intercomunicador con confirmación, pausa del reloj con la pestaña oculta, linterna y cuaderno que se recogen en la portería, y signals para los paneles de mecanismo (`src/signals/mecanismo.ts`: etapa, estado, condiciones y pistas) — 60 min
-- [ ] **T31c** (nueva) Conectar `game/guardado.ts`: guardar en cada acción aceptada, al pausar y al ocultar la pestaña; «Continuar partida» en el menú; las notas siguen la numeración guardada; sin fallar en una pestaña privada — 50 min
+- [x] **T31c** (nueva) Conectar `game/guardado.ts`: guardar en cada acción aceptada, al pausar y al ocultar la pestaña; «Continuar partida» en el menú; las notas siguen la numeración guardada; sin fallar en una pestaña privada — 50 min
 - [x] **T32** Menú de inicio: jugar solo, crear partida, unirse con código — 45 min
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min

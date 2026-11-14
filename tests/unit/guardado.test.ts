@@ -40,7 +40,7 @@ const varias = (p: Partida, acciones: Accion[]): Partida => acciones.reduce(apli
 
 /** Sala 1 resuelta y la sala 2 a mitad, con el jugador adentro. */
 const enCurso = (): Guardado => ({
-  v: 1,
+  v: 2,
   partida: varias(crearPartida(), [
     { t: 'entrar', sala: 's1-cooperativa' },
     { t: 'resolver_etapa', sala: 's1-cooperativa', etapa: 0 },
@@ -64,6 +64,7 @@ const enCurso = (): Guardado => ({
   },
   notas: [{ id: 'n1', texto: 'B baja 2 cm cada segundo' }],
   datos: ['s2-hoja-ayer'],
+  inventario: ['porteria-linterna', 'porteria-cuaderno'],
 });
 
 /** Guarda, cambia un campo del JSON y vuelve a leer. */
@@ -109,14 +110,16 @@ describe('guardar y reanudar (T30)', () => {
     const almacen = memoria();
     almacen.setItem(CLAVE_GUARDADO, '{no es json');
     expect(cargar(almacen, PUZZLES)).toBeNull();
-    expect(conCambio((g) => (g['v'] = 2))).toBeNull();
+    // La versión 1 no tenía inventario: un guardado viejo no se reanuda a medias.
+    expect(conCambio((g) => (g['v'] = 1))).toBeNull();
+    expect(conCambio((g) => (g['v'] = 3))).toBeNull();
     expect(leerGuardado(null, PUZZLES)).toBeNull();
     expect(leerGuardado([], PUZZLES)).toBeNull();
   });
 
   it('rechaza campos de más (incluido __proto__)', () => {
     expect(conCambio((g) => (g['extra'] = 1))).toBeNull();
-    const texto = JSON.stringify(enCurso()).replace('"v":1', '"__proto__":{"x":1},"v":1');
+    const texto = JSON.stringify(enCurso()).replace('"v":2', '"__proto__":{"x":1},"v":2');
     expect(leerGuardado(JSON.parse(texto), PUZZLES)).toBeNull();
   });
 
@@ -194,5 +197,19 @@ describe('guardar y reanudar (T30)', () => {
     expect(conCambio((g) => (g['notas'] = [{ id: '<img>', texto: 'hola' }]))).toBeNull();
     expect(conCambio((g) => (g['datos'] = ['s2-hoja-ayer', 's2-hoja-ayer']))).toBeNull();
     expect(conCambio((g) => (g['datos'] = ['javascript:alert(1)']))).toBeNull();
+  });
+
+  it('guarda el inventario y rechaza uno con forma rara (T31c)', () => {
+    expect(conCambio(() => undefined)?.inventario).toEqual([
+      'porteria-linterna',
+      'porteria-cuaderno',
+    ]);
+    expect(conCambio((g) => delete g['inventario'])).toBeNull();
+    expect(conCambio((g) => (g['inventario'] = 'porteria-linterna'))).toBeNull();
+    expect(conCambio((g) => (g['inventario'] = ['<img src=x>']))).toBeNull();
+    expect(conCambio((g) => (g['inventario'] = ['a', 'a']))).toBeNull();
+    expect(
+      conCambio((g) => (g['inventario'] = Array.from({ length: 41 }, (_, i) => `objeto-${i}`))),
+    ).toBeNull();
   });
 });

@@ -16,6 +16,8 @@ import type { FinalId, Modo } from './partida';
 export type Comando =
   /** Empezar una partida desde el menú de inicio. */
   | { t: 'iniciar'; modo: Modo }
+  /** Seguir la partida guardada en este equipo (T31c). */
+  | { t: 'continuar' }
   /** Abandonar la partida y volver al menú. */
   | { t: 'salir' }
   /** Botón contextual sobre el objeto enfocado. */

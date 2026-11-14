@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'preact/hooks';
 import { fichas } from '../../signals/contenido';
-import { datosEncontrados, MAX_NOTA, notas } from '../../signals/cuaderno';
+import { datosEncontrados, MAX_NOTA, MAX_NOTAS, notas } from '../../signals/cuaderno';
 import { cerrarPanel } from '../../signals/interfaz';
 import { modo } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
@@ -69,10 +69,12 @@ function Notas() {
   const [texto, setTexto] = useState('');
   const lista = notas.value;
   const vacio = texto.trim() === '';
+  // El guardado acepta hasta MAX_NOTAS notas: con el cuaderno lleno hay que borrar una.
+  const lleno = lista.length >= MAX_NOTAS;
 
   const guardar = (e: Event): void => {
     e.preventDefault();
-    if (vacio) return;
+    if (vacio || lleno) return;
     enviar({ t: 'nota', op: 'agregar', texto });
     setTexto('');
   };
@@ -117,10 +119,15 @@ function Notas() {
           <span id={`${id}-cuenta`} class="cuaderno-cuenta">
             {[...texto].length} de {MAX_NOTA} caracteres
           </span>
-          <button type="submit" class="boton boton-secundario" disabled={vacio}>
+          <button type="submit" class="boton boton-secundario" disabled={vacio || lleno}>
             Guardar nota
           </button>
         </div>
+        {lleno && (
+          <p class="cuaderno-vacio" role="status">
+            El cuaderno está lleno ({MAX_NOTAS} notas). Borra una para escribir otra.
+          </p>
+        )}
       </form>
     </section>
   );

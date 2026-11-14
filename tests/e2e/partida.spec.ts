@@ -237,3 +237,75 @@ test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir 
   ).toBeVisible();
   await expect(page.getByRole('timer')).toHaveCount(0);
 });
+
+// T31c: la partida se guarda en el equipo y se puede continuar después de recargar.
+
+test('al recargar, «Continuar partida» devuelve el cuaderno, sus notas y el reloj', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await abrirJuego(page);
+  // Sin partida guardada, el menú no ofrecía continuar (ya se tocó «Jugar solo»).
+  await tocarObjeto(page, caja, CUADERNO, conDedo);
+  await page.getByRole('button', { name: /Recoger.*Cuaderno/ }).click();
+  await page.getByRole('button', { name: 'Cuaderno', exact: true }).click();
+  let cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
+  await cuaderno.getByLabel('Nueva nota').fill('la puerta 2 sigue cerrada');
+  await cuaderno.getByRole('button', { name: 'Guardar nota' }).click();
+  await expect(cuaderno.getByRole('listitem')).toHaveCount(1);
+
+  // Recargar, como cuando Safari se queda sin memoria.
+  await page.reload();
+  await expect(
+    page.getByText(/Tienes una partida guardada: te quedan (40:00|3\d:\d\d)/),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Continuar partida' }).click();
+
+  // El reloj sigue corriendo desde lo que quedaba y el cuaderno conserva la nota.
+  await expect(page.getByRole('timer')).toHaveAttribute('aria-label', /^Tiempo restante: 3\d min/);
+  await expect(page.getByRole('timer')).not.toHaveAttribute('aria-label', /en pausa/);
+  await page.getByRole('button', { name: 'Cuaderno', exact: true }).click();
+  cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
+  await expect(cuaderno.getByRole('listitem')).toHaveText(/la puerta 2 sigue cerrada/);
+
+  // Una nota nueva no reemplaza a la guardada (sigue la numeración).
+  await cuaderno.getByLabel('Nueva nota').fill('segunda nota');
+  await cuaderno.getByRole('button', { name: 'Guardar nota' }).click();
+  await expect(cuaderno.getByRole('listitem')).toHaveCount(2);
+  await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
+
+  // «Salir» abandona la partida: el menú ya no ofrece continuar.
+  page.once('dialog', (d) => void d.accept());
+  await page.getByRole('button', { name: 'Salir' }).click();
+  await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continuar partida' })).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continuar partida' })).toHaveCount(0);
+});
+
+test('con el almacenamiento bloqueado (pestaña privada) se juega sin errores y sin guardar', async ({
+  page,
+}) => {
+  const errores: string[] = [];
+  page.on('pageerror', (e) => errores.push(e.message));
+  // Safari con el almacenamiento bloqueado lanza un error con solo leer `localStorage`.
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get() {
+        throw new DOMException('The operation is insecure.', 'SecurityError');
+      },
+    });
+  });
+  await abrirJuego(page);
+  await expect(page.getByRole('timer')).toBeVisible();
+  // Ocultar la pestaña es uno de los momentos en que se guarda.
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+  await expect(page.getByRole('timer')).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continuar partida' })).toHaveCount(0);
+  expect(errores).toEqual([]);
+});

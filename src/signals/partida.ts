@@ -77,6 +77,13 @@ const SIN_OPCIONES: OpcionesDeFinal = {
   salasConGrabacion: ['s2-laboratorio', 's3-gimnasio', 's4-biblioteca'],
 };
 
+/** Lo que el menú muestra de la partida guardada en este equipo (T31c). */
+export interface PartidaGuardada {
+  restanteMs: number;
+  /** Sellos conseguidos (0 a 5). */
+  sellos: number;
+}
+
 export const fase = signal<Fase>('inicio');
 export const modo = signal<Modo | null>(null);
 export const sala = signal<SalaId>('porteria');
@@ -87,6 +94,13 @@ export const inventario = signal<readonly ObjetoInventario[]>([]);
 export const final = signal<FinalId | null>(null);
 /** Qué se puede elegir frente a la puerta de salida (`opcionesDeFinal` de `game/partida.ts`). */
 export const opcionesFinal = signal<OpcionesDeFinal>(SIN_OPCIONES);
+
+/**
+ * Hay una partida guardada que se puede continuar. No es parte de la partida en curso: la
+ * escribe el controlador al arrancar y cuando se borra el guardado, y `reiniciarPartida` no
+ * la toca.
+ */
+export const guardada = signal<PartidaGuardada | null>(null);
 
 /** Cuántos sellos lleva el jugador o el grupo (0 a 5). */
 export const totalSellos = computed(() => sellos.value.length);
