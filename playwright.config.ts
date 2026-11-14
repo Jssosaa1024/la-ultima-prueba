@@ -11,6 +11,10 @@ export default defineConfig({
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 1 : 0,
   reporter: 'list',
+  // Más que los tiempos por defecto, 30 s y 5 s (T05b): con el WebGL por software y otras
+  // sesiones probando en el mismo equipo, una pantalla que tarda 6 s en aparecer no es un error.
+  timeout: 90_000,
+  expect: { timeout: 15_000 },
   use: {
     baseURL: `http://127.0.0.1:${PUERTO}`,
     // Las trazas cuestan CPU; para depurar un fallo: `npx playwright test --trace on`.
@@ -25,7 +29,11 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${PUERTO}`,
     url: `http://127.0.0.1:${PUERTO}`,
-    reuseExistingServer: !process.env['CI'],
-    timeout: 120_000,
+    // Nunca se reutiliza un servidor que ya esté escuchando (T05b): con varias sesiones en el
+    // mismo equipo podría ser el sitio de otra carpeta. Si el puerto está ocupado, la corrida
+    // falla y lo dice; cada sesión usa su propio PUERTO_E2E.
+    reuseExistingServer: false,
+    // El build tarda más de un minuto con el equipo ocupado.
+    timeout: 240_000,
   },
 });
