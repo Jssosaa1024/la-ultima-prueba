@@ -121,6 +121,56 @@ test('con dos dedos se camina y se mira a la vez', async ({ page }, info) => {
   expect(Math.hypot(x1, z1 - z0)).toBeGreaterThan(0.3);
 });
 
+test('el joystick se dibuja donde toca el dedo y la perilla lo sigue (T15b)', async ({
+  page,
+}, info) => {
+  test.skip(!info.project.use.hasTouch, 'táctil solo en el perfil celular');
+  const { caja } = await abrirJuego(page);
+  const base = page.locator('.joystick');
+  const centro = async (selector: string): Promise<Punto> => {
+    const c = await page.locator(selector).boundingBox();
+    if (!c) throw new Error(`sin ${selector}`);
+    return { x: c.x + c.width / 2, y: c.y + c.height / 2 };
+  };
+
+  // En reposo, una guía tenue en la mitad izquierda dice dónde poner el pulgar.
+  await expect(base).toBeVisible();
+  await expect(base).not.toHaveClass(/joystick-activo/);
+  expect((await centro('.joystick')).x).toBeLessThan(caja.x + caja.width / 2);
+  // El dibujo no recibe toques: no puede estorbar a la escena ni al HUD.
+  expect(await base.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+
+  const dedo = { x: caja.x + caja.width * 0.3, y: caja.y + caja.height * 0.5 };
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ ...dedo, id: 1 }],
+  });
+  // El dedo sube 30 px: menos que el radio, así que la perilla queda justo debajo del dedo.
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchMove',
+    touchPoints: [{ x: dedo.x, y: dedo.y - 30, id: 1 }],
+  });
+  await expect(base).toHaveClass(/joystick-activo/);
+  await expect.poll(async () => (await centro('.joystick-perilla')).y).toBeCloseTo(dedo.y - 30, 0);
+  const b = await centro('.joystick');
+  expect(b.x).toBeCloseTo(dedo.x, 0);
+  expect(b.y).toBeCloseTo(dedo.y, 0);
+  expect((await centro('.joystick-perilla')).x).toBeCloseTo(dedo.x, 0);
+
+  // Si el dedo se aleja más que el radio (56 px), la perilla se queda en el borde.
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchMove',
+    touchPoints: [{ x: dedo.x, y: dedo.y - 150, id: 1 }],
+  });
+  await expect.poll(async () => (await centro('.joystick-perilla')).y).toBeCloseTo(dedo.y - 56, 0);
+
+  // Al soltar, vuelve a la guía en reposo.
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+  await expect(base).not.toHaveClass(/joystick-activo/);
+});
+
 /** Camina de frente con el joystick (o el ratón) hasta la pared del fondo de la portería. */
 async function caminarAlFondo(page: Page, caja: Caja, conDedo: boolean | undefined) {
   const x = caja.x + caja.width * 0.2;
@@ -233,8 +283,22 @@ test('en escritorio, un clic en el piso bloquea el ratón y el ratón mira (T19)
 
   // Un clic corto en el piso sí bloquea, y entonces mover el ratón gira la cámara.
   // (Esc lo suelta el propio navegador; una tecla simulada no lo hace, por eso no se prueba.)
-  await page.mouse.click(caja.x + caja.width * 0.7, caja.y + caja.height * 0.9);
-  await expect.poll(bloqueado).toBe(true);
+  // Sin el ratón bloqueado no hay mira ni aviso (T15b).
+  const aviso = page.getByText('Esc para soltar el ratón');
+  await expect(aviso).toHaveCount(0);
+  await expect(page.locator('.mira')).toHaveCount(0);
+  // Con la CPU ocupada (WebGL por software), el clic puede tardar más de lo que cuenta como
+  // toque corto y no bloquear: se repite. Un clic con el ratón ya bloqueado no hace nada aquí.
+  await expect(async () => {
+    await page.mouse.click(caja.x + caja.width * 0.7, caja.y + caja.height * 0.9);
+    await expect.poll(bloqueado, { timeout: 2000 }).toBe(true);
+  }).toPass();
+  // Con el ratón bloqueado se ven la mira, en el centro, y el aviso para soltarlo (T15b).
+  await expect(aviso).toBeVisible();
+  const mira = await page.locator('.mira').boundingBox();
+  if (!mira) throw new Error('sin mira');
+  expect(mira.x + mira.width / 2).toBeCloseTo(caja.x + caja.width / 2, 0);
+  expect(mira.y + mira.height / 2).toBeCloseTo(caja.y + caja.height / 2, 0);
   const [yaw0] = await leer(page, 'data-mirada');
   await page.mouse.move(caja.x + caja.width * 0.9, caja.y + caja.height * 0.9, { steps: 5 });
   await expect.poll(async () => (await leer(page, 'data-mirada'))[0]).not.toBe(yaw0);
@@ -250,4 +314,89 @@ test('en celular, tocar la escena nunca bloquea el puntero (T19)', async ({ page
   await cdp.detach();
   await page.waitForTimeout(300);
   expect(await canvas.evaluate((c) => document.pointerLockElement === c)).toBe(false);
+});
+
+/**
+ * Dónde se ve en pantalla un punto 3D, con la posición y la mirada que publica el motor
+ * (cámara a 1,6 m, campo de visión vertical de 70°).
+ */
+async function enPantalla(page: Page, caja: Caja, punto: [number, number, number]): Promise<Punto> {
+  const [cx, cz] = await leer(page, 'data-posicion');
+  const [yaw, pitch] = await leer(page, 'data-mirada');
+  const d = [punto[0] - cx, punto[1] - 1.6, punto[2] - cz] as const;
+  const f = [-Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch)];
+  const r = [Math.cos(yaw), 0, -Math.sin(yaw)];
+  const u = [Math.sin(yaw) * Math.sin(pitch), Math.cos(pitch), Math.cos(yaw) * Math.sin(pitch)];
+  const punto3 = (v: readonly number[]) =>
+    d[0] * (v[0] ?? 0) + d[1] * (v[1] ?? 0) + d[2] * (v[2] ?? 0);
+  const profundidad = punto3(f);
+  const t = Math.tan((35 * Math.PI) / 180);
+  const ndcX = punto3(r) / (profundidad * t * (caja.width / caja.height));
+  const ndcY = punto3(u) / (profundidad * t);
+  return { x: caja.x + ((ndcX + 1) / 2) * caja.width, y: caja.y + ((1 - ndcY) / 2) * caja.height };
+}
+
+/** Gira la cámara arrastrando en horizontal (negativo: a la izquierda). */
+async function girarCamara(page: Page, caja: Caja, dx: number, conDedo: boolean | undefined) {
+  const y = caja.y + caja.height * 0.4;
+  const desde = { x: dx > 0 ? caja.x + caja.width * 0.52 : caja.x + caja.width * 0.97, y };
+  const hasta = { x: desde.x + dx, y };
+  if (conDedo) await arrastrarDedos(page, [[desde, hasta]]);
+  else await arrastrarRaton(page, desde, hasta);
+}
+
+test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera (T20)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch;
+  const { canvas, caja } = await abrirJuego(page);
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+
+  // Girar hacia la puerta 2 (pared este) y acercarse un poco.
+  await girarCamara(page, caja, Math.min(187, caja.width * 0.46), conDedo);
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  if (conDedo)
+    await arrastrarDedos(
+      page,
+      [
+        [
+          { x, y },
+          { x, y: y - 80 },
+        ],
+      ],
+      { quieto: 600 },
+    );
+  else await arrastrarRaton(page, { x, y }, { x, y: y - 80 }, 600);
+
+  // Tocar la puerta 2 donde se ve en pantalla y usarla.
+  await tocar(page, await enPantalla(page, caja, [2.96, 1.1, 1.55]), conDedo);
+  const puerta2 = page.getByRole('button', { name: /Usar.*Puerta 2/ });
+  await expect(puerta2).toBeVisible();
+  await puerta2.click();
+  await expect(canvas).toHaveAttribute('data-sala', 's2-laboratorio');
+
+  // En el laboratorio se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
+  const [, zLab] = await leer(page, 'data-posicion');
+  expect(zLab).toBeCloseTo(1.98, 1);
+  const media = -Math.min(353, caja.width * 0.9);
+  await girarCamara(page, caja, media, conDedo);
+  await girarCamara(page, caja, -Math.PI / 0.0045 - media, conDedo);
+  await tocar(page, await enPantalla(page, caja, [0, 1.1, 2.96]), conDedo);
+  const volver = page.getByRole('button', { name: /Usar.*Puerta a la portería/ });
+  await expect(volver).toBeVisible();
+  await volver.click();
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+
+  // De vuelta en la portería: frente a la puerta 2, y el laboratorio ya no ocupa memoria.
+  // Three sube cada geometría la primera vez que se ve, así que en la GPU puede haber menos
+  // geometrías que mallas, pero nunca más: si el laboratorio no se hubiera liberado, sobrarían.
+  const [xP, zP] = await leer(page, 'data-posicion');
+  expect(xP).toBeCloseTo(1.98, 1);
+  expect(zP).toBeCloseTo(1.55, 1);
+  const mallasPorteria = Number(await canvas.getAttribute('data-mallas'));
+  expect(mallasPorteria).toBeGreaterThan(0);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute('data-geometrias')))
+    .toBeLessThanOrEqual(mallasPorteria);
 });

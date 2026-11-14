@@ -1,5 +1,5 @@
 import type { EstadoDe, EtapaDe } from '../../content/esquema';
-import { esEntero, esObjeto, evaluacion, soloClaves, type Evaluacion } from './tipos';
+import { esEntero, esObjeto, evaluacion, soloClaves, type Evaluacion } from './tipos.ts';
 
 /**
  * Sala 5 · La urna. Se sacan dos fichas sin devolver: cada pareja de fichas es un resultado

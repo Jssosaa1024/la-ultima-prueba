@@ -288,7 +288,7 @@ la-ultima-prueba/
 │  ├─ check-budget.ts            # falla el build si se excede el presupuesto (informa en lab)
 │  ├─ check-credits.ts           # v1.1: falla el build sin licencia válida
 │  ├─ check-audio.ts             # v1.1: sin .ogg y −16 LUFS ± 1 LU
-│  └─ hash-answers.ts            # reemplaza respuestas por hashes en el bundle
+│  └─ hash-answers.ts            # T23: hash del estado resuelto de cada etapa
 ├─ public/
 │  ├─ _headers                   # Cloudflare Pages: caché inmutable en /assets y /decoders
 │  ├─ manifest.webmanifest       # PWA: pantalla completa en iPhone vía «Añadir a inicio»
@@ -307,6 +307,7 @@ la-ultima-prueba/
 │  ├─ content/                   # datos validados en build (Astro content collections)
 │  │  ├─ esquema.ts               # v1.2: esquemas zod de puzzles (y luego salas, diálogos, finales)
 │  │  ├─ puzzles/                 # v1.2: s1-etiquetadora.json … s5-urna.json
+│  │  ├─ respuestas.json          # T23: hashes del estado resuelto; lo escribe hash-answers
 │  │  ├─ salas/                   # objetos por rol A–D y escondite de la grabación
 │  │  ├─ dialogos/                # líneas de La Voz con tiempos de subtítulo
 │  │  └─ finales/
@@ -315,6 +316,7 @@ la-ultima-prueba/
 │  │  ├─ reloj.ts                 # 40 min activos, pausa
 │  │  ├─ puzzles/                 # v1.2: una función pura por puzzle: estado → condiciones cumplidas
 │  │  ├─ pistas.ts                # pistas graduales por tiempo en la etapa o intentos
+│  │  ├─ intentos.ts              # T27b: qué cuenta como intento en cada etapa
 │  │  ├─ reparto.ts               # roles A–D por número de jugadores y rotación
 │  │  ├─ finales.ts
 │  │  └─ tipos.ts
@@ -385,6 +387,7 @@ Cada etapa tiene:
 | `controles` | Lo que el jugador puede cambiar en esa etapa y con qué valores |
 | `exito` | La condición de éxito; se descompone en condiciones con id |
 | `solucion` | Un estado que resuelve la etapa, con la misma forma de `estado_inicial` |
+| `intento` | Qué cuenta como «intento» en la etapa, para las pistas por intentos (T27b): `{ tipo: "accionar", objeto }` o `{ tipo: "reposo", segundos }` |
 
 ### Por mecanismo
 
@@ -398,6 +401,38 @@ Cada etapa tiene:
 
 En el reflector, la sombra usa razones idealizadas por muesca (sombra ÷ altura: 27° → 2, 37° → 4/3, 45° → 1, 53° → 3/4, 63° → 1/2) para que todo dé en metros enteros o medios. Los tanques se llenan hasta `altura_cm` y no bajan de 0.
 
+### Qué cuenta como intento (T27b)
+
+Las pistas se ofrecen por tiempo o por intentos fallidos en la etapa (`tras_intentos`). Un intento es el momento en que la máquina le muestra al jugador un resultado que no es el buscado. Cada etapa lo declara en `intento`, y `src/game/intentos.ts` lo aplica:
+
+| Sala | Etapas | Regla | Cuenta un intento cuando… |
+| --- | --- | --- | --- |
+| 1 · Etiquetadora | las tres | `accionar` `s1-palanca` | se baja la palanca y el precio impreso no es el de la pizarra (también sin rodillos) |
+| 2 · Tanques | las tres | `accionar` `s2-palanca` | se arranca una corrida que no abre la incubadora; cuenta al arrancar, no al sonar la campana |
+| 3 · Reflector | presentar y torcer | `reposo` 5 s | tras mover la muesca o un poste, todo queda quieto 5 s y algún sensor no suena |
+| 3 · Reflector | dominar | `accionar` `s3-polea` | se suelta la polea con una longitud que no es la altura del marcador |
+| 4 · Carritos | las tres | `reposo` 5 s | con la pila vacía, los libros quedan quietos 5 s y falta alguna lámpara |
+| 5 · Urna | las tres | `accionar` `s5-caja-fuerte` | se tira de la manija y la urna no cumple la placa; el simulador y «ver parejas» no cuentan |
+
+Reglas comunes:
+
+- Solo cuenta un estado válido que no resuelve la etapa. Resolver nunca es un intento.
+- **`accionar`:** cuenta cada vez que se acciona el objeto, aunque el estado sea el mismo de la vez anterior.
+- **`reposo`** (máquinas que responden en vivo y no tienen nada que accionar): el panel avisa cada cambio del mecanismo (`alCambiarEstado`) y suma el tiempo de reloj activo (`avanzarReposo`). Al cumplirse los segundos sin cambios se cuenta un intento, una sola vez; el mismo estado no vuelve a contar hasta que el jugador mueva algo. Con el reloj en pausa (cuaderno abierto) el reposo no avanza.
+- **Sala 4:** además, la pila debe estar vacía. Con libros sin repartir el jugador todavía está armando el reparto, y ninguna etapa se puede resolver así (la media 4 exige los 20 libros).
+- El contador vuelve a cero al cambiar de etapa (`nuevaEtapa` en `pistas.ts`).
+- **Cooperativo:** un intento es cada `resultado` con `resuelta: false`, es decir, cada propuesta aceptada por todos que no resuelve. Lo cuenta el anfitrión; la regla `intento` del JSON vale para el modo individual.
+
+### Sala 2: la corrida dura hasta la campana (T27b)
+
+Una corrida dura exactamente `exito.campana_s` segundos (10, 8 y 12 en las tres etapas); no existe otra duración. Para quien haga el panel (T52):
+
+1. Al bajar la palanca, el panel anima de 0 a `duracionCorridaS(etapa)` en tiempo real: 1 s de juego es 1 s de reloj. Las perillas quedan bloqueadas durante la corrida.
+2. La campana suena al final, en el segundo `campana_s`, y en ese instante se evalúa la etapa. El resultado ya se conoce al arrancar (`evaluar`), pero se muestra al sonar la campana.
+3. Los niveles quedan quietos unos 2 s para que se vea dónde quedó cada tanque. Luego los tanques se vacían y vuelven al `estado_inicial`, con la perilla donde la dejó el jugador.
+4. El eje de tiempo del graficador llega al menos hasta `campana_s`. Se recomienda un eje fijo de 0 a 15 s en las tres etapas, que es el máximo que acepta el esquema.
+5. El trazo de la corrida anterior queda dibujado, más tenue, hasta la siguiente: es lo que permite «prolongar la recta».
+
 ### Validaciones cruzadas
 
 `esquema.ts` revisa en build lo que zod no expresa por campo:
@@ -406,9 +441,20 @@ En el reflector, la sombra usa razones idealizadas por muesca (sombra ÷ altura:
 - las etapas van en orden `presentar`, `torcer`, `dominar`; las pistas en niveles 1, 2, 3 con `tras_segundos` creciente (y `tras_intentos` creciente si existe);
 - `estado_inicial` y `solucion` respetan los `controles` (rodillos de la caja y sin repetir, caudales en rango, muescas existentes, libros que alcanzan, fichas por color), y `solucion` solo cambia lo que los controles permiten cambiar;
 - `solucion` cumple todas las condiciones de éxito y `estado_inicial` no (con las funciones de `src/game/puzzles/`, T26);
-- los objetos de `pista_por_jugador` son de la sala.
+- los objetos de `pista_por_jugador` son de la sala;
+- `intento` es `accionar` con un objeto de la sala en la etiquetadora, los tanques, la urna y la etapa del reflector que tiene polea, y `reposo` (de 2 a 30 s) en los carritos y en las etapas del reflector sin polea;
+- en los tanques, `campana_s` no pasa de 15.
 
 Las funciones de `src/game/puzzles/` son puras: reciben la etapa y el estado, y devuelven qué condiciones se cumplen. Las usan el panel de cada mecanismo (por ejemplo, para encender las lámparas de la biblioteca en vivo), el modo individual y el anfitrión del cooperativo.
+
+### Hash del estado resuelto (T23)
+
+`npm run hash-answers` recorre todos los estados que se pueden armar en cada etapa (`src/game/puzzles/estados.ts`), se queda con los que la resuelven y guarda el hash de cada uno en `src/content/respuestas.json`. Ese archivo se genera; no se edita a mano.
+
+- **Hash:** los primeros 16 caracteres hexadecimales del SHA-256 de `<id>@<version>#<etapa>|<estado canónico>`. El estado canónico es el JSON del estado con las claves ordenadas; en la etiquetadora los rodillos van ordenados y en los carritos los libros por día van de menor a mayor, porque la máquina no distingue esos órdenes.
+- **Validador:** `estaResuelta(RESPUESTAS, puzzle, etapa, estado)` en `src/game/respuestas.ts` devuelve `true` o `false` comparando hashes, sin leer `exito` ni `solucion`. Devuelve `null` si el estado no es válido para la etapa o si los hashes son de otra `version` del puzzle.
+- **Cuándo correrlo:** cada vez que cambie un puzzle (y suba su `version`). Un test de unidad falla si `respuestas.json` quedó viejo, y otro comprueba, estado por estado, que el validador y las reglas de `src/game/puzzles/` dicen lo mismo.
+- **Qué no hace todavía:** los JSON de los puzzles siguen llevando `solucion` y `exito`, y entran al bundle si el juego importa `src/content/puzzles.ts`. Los paneles necesitan `exito` para las lámparas y sensores en vivo. Quitar `solucion` del bundle es un paso aparte, que este validador ya permite.
 
 Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos parejos (la media ya está verde) y la «dominar» con la solución de la anterior, para que el jugador vea qué lámparas se apagan.
 
@@ -433,7 +479,8 @@ Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos par
       "estado_inicial": { "carritos": [0, 0, 0, 0, 0] },
       "controles": { "carritos": 5, "libros": 20 },
       "exito": { "lamparas": { "media": 4 } },
-      "solucion": { "carritos": [4, 4, 4, 4, 4] }
+      "solucion": { "carritos": [4, 4, 4, 4, 4] },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     },
     {
       "id": "torcer",
@@ -442,7 +489,8 @@ Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos par
       "estado_inicial": { "carritos": [4, 4, 4, 4, 4] },
       "controles": { "carritos": 5, "libros": 20 },
       "exito": { "lamparas": { "media": 4, "mediana": 3 } },
-      "solucion": { "carritos": [1, 2, 3, 3, 11] }
+      "solucion": { "carritos": [1, 2, 3, 3, 11] },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     },
     {
       "id": "dominar",
@@ -451,7 +499,8 @@ Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos par
       "estado_inicial": { "carritos": [1, 2, 3, 3, 11] },
       "controles": { "carritos": 5, "libros": 20 },
       "exito": { "lamparas": { "media": 4, "mediana": 3, "moda": 2, "rango": 7 } },
-      "solucion": { "carritos": [2, 2, 3, 4, 9] }
+      "solucion": { "carritos": [2, 2, 3, 4, 9] },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     }
   ],
   "pistas": [
@@ -560,6 +609,24 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 - **Migración de anfitrión:** si el anfitrión falta 5 s, asume el jugador con `unido_en` más antiguo; pausa el reloj, emite `anfitrion` y `estado` desde su última copia, y reanuda a los 3 s.
 - **Versiones:** si `v` o `version_contenido` no coinciden, se rechaza la unión con el mensaje «Actualiza la página».
 
+### Reparto y rotación de encargos (T29)
+
+`src/game/reparto.ts` calcula quién tiene cada encargo. Es una función pura de la lista de jugadores, en el orden en que se unieron (`unido_en`), y del número de la sala: el anfitrión la usa para emitir `inicio` y `roles`, y cualquier cliente puede recalcularla.
+
+| Jugadores | Sala 1 | Sala 2 | Sala 3 | Sala 4 | Sala 5 |
+| --- | --- | --- | --- | --- | --- |
+| 1 (individual) | ABCD | ABCD | ABCD | ABCD | ABCD |
+| 2 | AB · CD | CD · AB | AB · CD | CD · AB | AB · CD |
+| 3 | A · BC · D | BC · D · A | D · A · BC | A · BC · D | BC · D · A |
+| 4 | A · B · C · D | B · C · D · A | C · D · A · B | D · A · B · C | A · B · C · D |
+
+Cada celda lista los encargos del jugador 1, del 2, y así en orden. La sala 1 es la tabla de `docs/diseno.md`. En cada sala siguiente, cada jugador recibe el grupo de encargos que tenía el jugador siguiente, así que D (quien acciona la máquina) pasa por todo el grupo y nadie lo repite en dos salas seguidas. Los grupos no se parten: con 3 jugadores, B y C siempre van juntos.
+
+- El reparto depende de la sala, no de cuántas veces se entró: volver a una sala anterior devuelve el mismo reparto.
+- El orden de los jugadores queda fijo al empezar la partida, aunque alguien se desconecte.
+- **Suplente de D** (`repartirConectados`): si quien tiene D está desconectado, D pasa al siguiente jugador conectado en ese orden; A, B y C no se mueven. Cuando el ausente vuelve, recupera D.
+- Con 4 jugadores y 5 salas, la sala 5 repite el reparto de la sala 1.
+
 ### Costo frente a los límites de Supabase
 
 Supabase cuenta un evento por cada mensaje enviado o entregado, así que una pose que reciben tres compañeros cuesta 4 eventos. Con la mitad del grupo moviéndose a 4 Hz, una partida de 4 gasta unos 32 eventos/s y un salón de 10 grupos, unos 320/s.
@@ -625,24 +692,27 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T13** Escala dinámica de resolución según los fps medidos — 45 min
 - [x] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [x] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min
+- [x] **T15b** (nueva) Dibujar el joystick (signal `joystick`) y la mira con el aviso «Esc para soltar el ratón» (signal `punteroBloqueado`), en `src/ui/controles/` — 40 min
 - [ ] **T16** Exportar cajas de colisión desde Blender y cargarlas — 30 min
 - [x] **T17** Colisión de cápsula contra cajas, sin atravesar paredes — 50 min
 - [x] **T18** Toque sobre objetos: raycast, resaltado y botón «Usar» — 50 min
 - [x] **T19** Teclado y ratón con bloqueo de puntero en escritorio — 30 min
 - [x] **T19b** (nueva) Salas por código: portería y 5 salas con primitivas de Three.js según `docs/salas-y-puzzles.md`, con su distribución en `src/content/salas.json` — 55 min
-- [ ] **T20** Cargador de salas: `compileAsync`, liberación de memoria y precarga de la siguiente — 55 min
+- [x] **T19c** (nueva) Ids de objetos únicos: los objetos de `src/content/salas.json` son la fuente de verdad, y un test falla si un puzzle o el código de `src/` nombra un objeto que no existe en su sala — 30 min
+- [x] **T20** Cargador de salas: `compileAsync`, liberación de memoria y precarga de la siguiente — 55 min
 
 ### Fase 3 · Lógica de juego (sin gráficos)
 
 - [x] **T21** (v1.2) Tipos y esquema de puzzle en content collections: etapas, estado inicial, controles, condición de éxito, pistas, cuaderno y pistas por rol, con validaciones cruzadas — 45 min
 - [x] **T22** (v1.2) Escribir los 5 puzzles en JSON con sus tres etapas, soluciones, pistas y pistas por rol — 50 min
-- [ ] **T23** (v1.2) Script `hash-answers`: hash del estado resuelto de cada etapa y validador que compara hashes — 45 min
+- [x] **T23** (v1.2) Script `hash-answers`: hash del estado resuelto de cada etapa y validador que compara hashes — 45 min
 - [x] **T24** Máquina de estados de la partida: portería, salas y final — 50 min
 - [x] **T25** Reloj de 40 minutos activos con pausa, con tests — 40 min
 - [x] **T26** (v1.2) Una función pura por puzzle en `src/game/puzzles/` que recibe el estado y dice qué condiciones se cumplen, con tests — 50 min
 - [x] **T27** Pistas graduales por intentos o tiempo en la etapa — 35 min
+- [x] **T27b** (nueva) Qué cuenta como «intento» en cada puzzle (`intento` por etapa y `src/game/intentos.ts`) y duración de la corrida de la sala 2 atada a la campana — 45 min
 - [x] **T28** Sellos, grabaciones y reglas de los cuatro finales, con un test por final — 50 min
-- [ ] **T29** Reparto de roles A–D por número de jugadores y rotación entre salas, con tests — 40 min
+- [x] **T29** Reparto de roles A–D por número de jugadores y rotación entre salas, con tests — 40 min
 - [x] **T30** Guardar y reanudar la partida individual tras recargar — 40 min
 
 ### Fase 4 · HUD y menús (Preact + Signals)

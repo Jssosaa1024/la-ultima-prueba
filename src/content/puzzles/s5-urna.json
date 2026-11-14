@@ -18,7 +18,8 @@
       "estado_inicial": { "azules": 0, "amarillas": 0 },
       "controles": { "max_por_color": 10 },
       "exito": { "fichas": 3, "juego": "siempre_gana" },
-      "solucion": { "azules": 3, "amarillas": 0 }
+      "solucion": { "azules": 3, "amarillas": 0 },
+      "intento": { "tipo": "accionar", "objeto": "s5-caja-fuerte" }
     },
     {
       "id": "torcer",
@@ -27,7 +28,8 @@
       "estado_inicial": { "azules": 3, "amarillas": 0 },
       "controles": { "max_por_color": 10 },
       "exito": { "fichas": 4, "juego": "justo" },
-      "solucion": { "azules": 3, "amarillas": 1 }
+      "solucion": { "azules": 3, "amarillas": 1 },
+      "intento": { "tipo": "accionar", "objeto": "s5-caja-fuerte" }
     },
     {
       "id": "dominar",
@@ -36,7 +38,8 @@
       "estado_inicial": { "azules": 3, "amarillas": 1 },
       "controles": { "max_por_color": 10 },
       "exito": { "fichas": 9, "juego": "justo" },
-      "solucion": { "azules": 6, "amarillas": 3 }
+      "solucion": { "azules": 6, "amarillas": 3 },
+      "intento": { "tipo": "accionar", "objeto": "s5-caja-fuerte" }
     }
   ],
   "pistas": [

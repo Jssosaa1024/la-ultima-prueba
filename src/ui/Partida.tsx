@@ -2,6 +2,7 @@ import { panel } from '../signals/interfaz';
 import { fase } from '../signals/partida';
 import PantallaFinal from './finales/PantallaFinal';
 import Anunciador from './Anunciador';
+import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
@@ -18,6 +19,7 @@ export default function Partida() {
     <>
       {/* Con un panel abierto, el HUD queda debajo y no se lee ni se toca. */}
       <div inert={abierto !== null} aria-hidden={abierto !== null || undefined}>
+        <Controles />
         <Hud />
       </div>
       {abierto === 'inspeccion' && <Inspeccion />}

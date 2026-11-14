@@ -18,7 +18,8 @@
       "estado_inicial": { "producto": "jugo", "precio": 2000, "rodillos": [] },
       "controles": { "rodillos": [-20, 20, 25, -50, 50], "max_rodillos": 2 },
       "exito": { "precio": 1600 },
-      "solucion": { "producto": "jugo", "precio": 2000, "rodillos": [-20] }
+      "solucion": { "producto": "jugo", "precio": 2000, "rodillos": [-20] },
+      "intento": { "tipo": "accionar", "objeto": "s1-palanca" }
     },
     {
       "id": "torcer",
@@ -27,7 +28,8 @@
       "estado_inicial": { "producto": "empanada", "precio": 1600, "rodillos": [] },
       "controles": { "rodillos": [-20, 20, 25, -50, 50], "max_rodillos": 2 },
       "exito": { "precio": 2000 },
-      "solucion": { "producto": "empanada", "precio": 1600, "rodillos": [25] }
+      "solucion": { "producto": "empanada", "precio": 1600, "rodillos": [25] },
+      "intento": { "tipo": "accionar", "objeto": "s1-palanca" }
     },
     {
       "id": "dominar",
@@ -36,7 +38,8 @@
       "estado_inicial": { "producto": "combo", "precio": 4000, "rodillos": [] },
       "controles": { "rodillos": [-20, 20, 25, -50, 50], "max_rodillos": 2 },
       "exito": { "precio": 3000 },
-      "solucion": { "producto": "combo", "precio": 4000, "rodillos": [-50, 50] }
+      "solucion": { "producto": "combo", "precio": 4000, "rodillos": [-50, 50] },
+      "intento": { "tipo": "accionar", "objeto": "s1-palanca" }
     }
   ],
   "pistas": [

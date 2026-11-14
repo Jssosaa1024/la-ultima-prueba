@@ -1,0 +1,79 @@
+/* Dibujo de los controles (T15b). La capa no recibe toques: todo pasa a la escena. */
+.controles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/*
+ * Joystick. En reposo es un anillo tenue en la mitad izquierda, donde cae el pulgar; al
+ * tocar, el motor dice dónde está el dedo y el anillo se mueve allá con `transform`.
+ */
+.joystick {
+  position: absolute;
+  left: 22%;
+  top: 66%;
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
+  box-sizing: border-box;
+  border: 2px solid rgb(255 255 255 / 55%);
+  border-radius: 50%;
+  background: rgb(0 0 0 / 25%);
+  opacity: 0.45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.joystick-activo {
+  left: 0;
+  top: 0;
+  margin: 0;
+  opacity: 1;
+  will-change: transform;
+}
+
+.joystick-perilla {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 80%);
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 35%);
+}
+
+/* Con ratón o panel táctil fino no hace falta la guía: solo se ve mientras se arrastra. */
+@media (pointer: fine) {
+  .joystick:not(.joystick-activo) {
+    display: none;
+  }
+}
+
+/* Mira en el centro de la pantalla mientras el ratón está bloqueado en la escena. */
+.mira {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #f2f2f2;
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 60%);
+}
+
+.aviso-raton {
+  position: absolute;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 70%);
+  color: #f2f2f2;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}

@@ -70,6 +70,18 @@ const pista = z.strictObject({
   texto: texto(160),
 });
 
+/**
+ * Qué cuenta como «intento» en una etapa, para las pistas por intentos (T27b).
+ * - `accionar`: la máquina solo responde al accionar un objeto (palanca, polea, manija).
+ *   Cuenta cada vez que se acciona y la etapa no queda resuelta.
+ * - `reposo`: la máquina responde en vivo (lámparas, sensores). Cuenta cuando, tras un cambio,
+ *   el estado se queda quieto esos segundos de reloj activo sin resolver la etapa.
+ */
+const intento = z.discriminatedUnion('tipo', [
+  z.strictObject({ tipo: z.literal('accionar'), objeto: idObjetoSala }),
+  z.strictObject({ tipo: z.literal('reposo'), segundos: entero().min(2).max(30) }),
+]);
+
 const pistaRol = z.strictObject({ objeto: idObjetoSala, texto: texto(160) });
 
 const comunes = {
@@ -102,6 +114,7 @@ function etapa<E extends z.ZodType, C extends z.ZodType, X extends z.ZodType>(
     controles,
     exito,
     solucion: estado,
+    intento,
   });
 }
 
@@ -145,8 +158,11 @@ const controlesTanques = z.strictObject({
   altura_cm: entero().positive(),
 });
 const exitoTanques = z.strictObject({
-  /** Segundo en que suena la campana. */
-  campana_s: entero().positive(),
+  /**
+   * Segundo en que suena la campana. La corrida dura exactamente esto: no hay otra duración
+   * (ver `duracionCorridaS`). Máximo 15 s para que probar siga siendo rápido.
+   */
+  campana_s: entero().positive().max(15),
   objetivo: z.discriminatedUnion('tipo', [
     z.strictObject({ tipo: z.literal('linea'), nivel: entero().min(0) }),
     z.strictObject({ tipo: z.literal('cruce') }),
@@ -306,6 +322,24 @@ export function problemasDelPuzzle(p: Puzzle): Problema[] {
       reportar(['pista_por_jugador', rol, 'objeto'], `El objeto debe ser de la sala ${p.sala}`);
     }
   }
+
+  p.etapas.forEach((e, i) => {
+    if (e.intento.tipo === 'accionar' && !e.intento.objeto.startsWith(`s${p.sala}-`)) {
+      reportar(['etapas', i, 'intento', 'objeto'], `El objeto debe ser de la sala ${p.sala}`);
+    }
+    // Las máquinas con palanca, polea o manija cuentan al accionarla; las que responden en
+    // vivo (carritos, y el reflector mientras no hay polea), por reposo.
+    const esperado =
+      p.mecanismo === 'carritos' || ('polea' in e.controles && e.controles.polea === null)
+        ? 'reposo'
+        : 'accionar';
+    if (e.intento.tipo !== esperado) {
+      reportar(
+        ['etapas', i, 'intento', 'tipo'],
+        `En esta etapa el intento es de tipo «${esperado}»`,
+      );
+    }
+  });
 
   const enEtapa =
     (i: number): Reportar =>

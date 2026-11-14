@@ -1,5 +1,5 @@
 import type { EstadoDe, EtapaDe } from '../../content/esquema';
-import { esEntero, esObjeto, evaluacion, soloClaves, type Evaluacion } from './tipos';
+import { esEntero, esObjeto, evaluacion, soloClaves, type Evaluacion } from './tipos.ts';
 
 /**
  * Sala 4 · Los carritos. Cada lámpara mira una cosa distinta de los libros por día: la

@@ -1,5 +1,5 @@
 import type { EstadoDe, EtapaDe } from '../../content/esquema';
-import { esEntero, esObjeto, evaluacion, iguales, soloClaves, type Evaluacion } from './tipos';
+import { esEntero, esObjeto, evaluacion, iguales, soloClaves, type Evaluacion } from './tipos.ts';
 
 /**
  * Sala 3 · El reflector. Con la misma luz, sombra ÷ altura es igual para todo lo que la
