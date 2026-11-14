@@ -18,7 +18,8 @@
       "estado_inicial": { "a": { "nivel": 0, "caudal": 0, "visible": true }, "b": null },
       "controles": { "perillas": ["a"], "caudal_min": 0, "caudal_max": 6, "altura_cm": 60 },
       "exito": { "campana_s": 10, "objetivo": { "tipo": "linea", "nivel": 30 } },
-      "solucion": { "a": { "nivel": 0, "caudal": 3, "visible": true }, "b": null }
+      "solucion": { "a": { "nivel": 0, "caudal": 3, "visible": true }, "b": null },
+      "intento": { "tipo": "accionar", "objeto": "s2-palanca" }
     },
     {
       "id": "torcer",
@@ -33,7 +34,8 @@
       "solucion": {
         "a": { "nivel": 10, "caudal": 3, "visible": true },
         "b": { "nivel": 50, "caudal": -2, "visible": true }
-      }
+      },
+      "intento": { "tipo": "accionar", "objeto": "s2-palanca" }
     },
     {
       "id": "dominar",
@@ -64,7 +66,8 @@
             { "t": 6, "nivel": 36 }
           ]
         }
-      }
+      },
+      "intento": { "tipo": "accionar", "objeto": "s2-palanca" }
     }
   ],
   "pistas": [

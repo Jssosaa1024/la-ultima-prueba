@@ -18,7 +18,8 @@
       "estado_inicial": { "carritos": [0, 0, 0, 0, 0] },
       "controles": { "carritos": 5, "libros": 20 },
       "exito": { "lamparas": { "media": 4 } },
-      "solucion": { "carritos": [4, 4, 4, 4, 4] }
+      "solucion": { "carritos": [4, 4, 4, 4, 4] },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     },
     {
       "id": "torcer",
@@ -27,7 +28,8 @@
       "estado_inicial": { "carritos": [4, 4, 4, 4, 4] },
       "controles": { "carritos": 5, "libros": 20 },
       "exito": { "lamparas": { "media": 4, "mediana": 3 } },
-      "solucion": { "carritos": [1, 2, 3, 3, 11] }
+      "solucion": { "carritos": [1, 2, 3, 3, 11] },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     },
     {
       "id": "dominar",
@@ -36,7 +38,8 @@
       "estado_inicial": { "carritos": [1, 2, 3, 3, 11] },
       "controles": { "carritos": 5, "libros": 20 },
       "exito": { "lamparas": { "media": 4, "mediana": 3, "moda": 2, "rango": 7 } },
-      "solucion": { "carritos": [2, 2, 3, 4, 9] }
+      "solucion": { "carritos": [2, 2, 3, 4, 9] },
+      "intento": { "tipo": "reposo", "segundos": 5 }
     }
   ],
   "pistas": [

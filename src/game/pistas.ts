@@ -57,7 +57,10 @@ export function avanzarTiempo(e: EstadoPistas, pistas: Pistas, ms: number): Esta
   return actualizar(e, pistas, { msEnEtapa: e.msEnEtapa + ms });
 }
 
-/** Cuenta un intento que no resolvió la etapa (la máquina mostró lo que pasó). */
+/**
+ * Cuenta un intento que no resolvió la etapa (la máquina mostró lo que pasó). Qué es un
+ * intento en cada etapa lo dice `intentos.ts` (T27b).
+ */
 export function registrarIntento(e: EstadoPistas, pistas: Pistas): EstadoPistas {
   return actualizar(e, pistas, { intentosEnEtapa: e.intentosEnEtapa + 1 });
 }

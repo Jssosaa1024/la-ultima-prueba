@@ -15,6 +15,14 @@ export function nivelEn(t: Pick<Tanque, 'nivel' | 'caudal'>, s: number, alturaCm
   return Math.min(alturaCm, Math.max(0, t.nivel + t.caudal * s));
 }
 
+/**
+ * Segundos que dura una corrida (T27b): exactamente hasta que suena la campana de la etapa.
+ * El panel anima de 0 a este valor en tiempo real (1 s de juego = 1 s de reloj), hace sonar
+ * la campana al final, deja los niveles quietos un momento y luego vacía los tanques. No hay
+ * una duración fija aparte: así la corrida nunca termina antes de la campana.
+ */
+export const duracionCorridaS = (etapa: Etapa): number => etapa.exito.campana_s;
+
 /** Condición `nivel`: al sonar la campana, A está en la línea o A y B tienen la misma altura. */
 export function evaluarTanques(etapa: Etapa, estado: Estado): Evaluacion {
   const { campana_s, objetivo } = etapa.exito;

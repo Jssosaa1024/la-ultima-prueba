@@ -43,63 +43,72 @@ const comunes = (sala: number, id: string) => ({
   },
 });
 
-const tresEtapas = <T extends object>(etapa: T) =>
+type Intento = { tipo: 'accionar'; objeto: string } | { tipo: 'reposo'; segundos: number };
+
+const tresEtapas = <T extends object>(etapa: T, intento: Intento) =>
   (['presentar', 'torcer', 'dominar'] as const).map((id) => ({
     id,
     situacion: 'Situación',
     aja: 'Ajá',
     ...structuredClone(etapa),
+    intento: { ...intento } as Intento,
   }));
 
 const tanques = () => ({
   ...comunes(2, 's2-tanques'),
   tema: 'funciones_lineales',
   mecanismo: 'tanques',
-  etapas: tresEtapas({
-    estado_inicial: {
-      a: { nivel: 10, caudal: 0, visible: true },
-      b: { nivel: 50, caudal: -2, visible: true },
+  etapas: tresEtapas(
+    {
+      estado_inicial: {
+        a: { nivel: 10, caudal: 0, visible: true },
+        b: { nivel: 50, caudal: -2, visible: true },
+      },
+      controles: { perillas: ['a'], caudal_min: 0, caudal_max: 6, altura_cm: 60 },
+      exito: { campana_s: 8, objetivo: { tipo: 'cruce' } },
+      solucion: {
+        a: { nivel: 10, caudal: 3, visible: true },
+        b: { nivel: 50, caudal: -2, visible: true },
+      },
     },
-    controles: { perillas: ['a'], caudal_min: 0, caudal_max: 6, altura_cm: 60 },
-    exito: { campana_s: 8, objetivo: { tipo: 'cruce' } },
-    solucion: {
-      a: { nivel: 10, caudal: 3, visible: true },
-      b: { nivel: 50, caudal: -2, visible: true },
-    },
-  }),
+    { tipo: 'accionar', objeto: 's2-palanca' },
+  ),
 });
 
 const reflector = () => ({
   ...comunes(3, 's3-reflector'),
   tema: 'semejanza_tangente',
   mecanismo: 'reflector',
-  etapas: tresEtapas({
-    estado_inicial: {
-      muesca: 45,
-      postes: [
-        { id: 'poste-1', altura: 1, distancia: 2 },
-        { id: 'poste-3', altura: 3, distancia: 2 },
-      ],
-      polea: null,
+  etapas: tresEtapas(
+    {
+      estado_inicial: {
+        muesca: 45,
+        postes: [
+          { id: 'poste-1', altura: 1, distancia: 2 },
+          { id: 'poste-3', altura: 3, distancia: 2 },
+        ],
+        polea: null,
+      },
+      controles: {
+        muescas: [27, 37, 45, 53, 63],
+        girar: true,
+        postes_moviles: ['poste-3'],
+        distancia_min: 1,
+        distancia_max: 10,
+        polea: null,
+      },
+      exito: { sensores: ['poste-1', 'poste-3'], marcador: null },
+      solucion: {
+        muesca: 27,
+        postes: [
+          { id: 'poste-1', altura: 1, distancia: 2 },
+          { id: 'poste-3', altura: 3, distancia: 6 },
+        ],
+        polea: null,
+      },
     },
-    controles: {
-      muescas: [27, 37, 45, 53, 63],
-      girar: true,
-      postes_moviles: ['poste-3'],
-      distancia_min: 1,
-      distancia_max: 10,
-      polea: null,
-    },
-    exito: { sensores: ['poste-1', 'poste-3'], marcador: null },
-    solucion: {
-      muesca: 27,
-      postes: [
-        { id: 'poste-1', altura: 1, distancia: 2 },
-        { id: 'poste-3', altura: 3, distancia: 6 },
-      ],
-      polea: null,
-    },
-  }),
+    { tipo: 'reposo', segundos: 5 },
+  ),
 });
 
 describe('esquema de puzzle', () => {
@@ -210,6 +219,39 @@ describe('validaciones cruzadas', () => {
     const p = reflector();
     n(p.etapas[0]).controles.girar = false;
     expect(problemas(p).join()).toMatch(/etapas\.0\.solucion: La solución solo puede cambiar/);
+  });
+
+  it('cada etapa dice qué cuenta como intento, con un objeto de la sala (T27b)', () => {
+    const sin = s4() as { etapas: { intento?: unknown }[] };
+    delete n(sin.etapas[0]).intento;
+    expect(mensajes(sin).join()).toMatch(/etapas\.0\.intento/);
+
+    const p = tanques();
+    n(p.etapas[0]).intento = { tipo: 'accionar', objeto: 's1-palanca' };
+    n(p.etapas[1]).intento = { tipo: 'reposo', segundos: 5 };
+    const lista = problemas(p).join('\n');
+    expect(lista).toMatch(/etapas\.0\.intento\.objeto: El objeto debe ser de la sala 2/);
+    expect(lista).toMatch(/etapas\.1\.intento\.tipo: .*«accionar»/);
+  });
+
+  it('las máquinas en vivo cuentan por reposo; el reflector, solo sin polea (T27b)', () => {
+    const p = s4() as { etapas: { intento: unknown }[] };
+    n(p.etapas[2]).intento = { tipo: 'accionar', objeto: 's4-carritos' };
+    expect(problemas(p).join()).toMatch(/etapas\.2\.intento\.tipo: .*«reposo»/);
+
+    const q = reflector();
+    n(q.etapas[0]).intento = { tipo: 'accionar', objeto: 's3-polea' };
+    expect(problemas(q).join()).toMatch(/etapas\.0\.intento\.tipo: .*«reposo»/);
+
+    const corto = s4() as { etapas: { intento: unknown }[] };
+    n(corto.etapas[0]).intento = { tipo: 'reposo', segundos: 1 };
+    expect(mensajes(corto).join()).toMatch(/etapas\.0\.intento/);
+  });
+
+  it('tanques: la campana suena a los 15 s como máximo (T27b)', () => {
+    const p = tanques();
+    n(p.etapas[0]).exito.campana_s = 16;
+    expect(mensajes(p).join()).toMatch(/etapas\.0\.exito\.campana_s/);
   });
 
   it('la colección de Astro usa el esquema con las reglas cruzadas', () => {
