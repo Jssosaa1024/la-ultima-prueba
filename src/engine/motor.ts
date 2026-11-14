@@ -27,6 +27,8 @@ import { crearBucle } from './loop';
 import { crearRenderer, seguirTamano } from './renderer';
 import { crearCargadorSalas } from './salas/cargador';
 import { construirSala } from './salas/construir';
+import { crearAnimacionUrna } from './salas/urna';
+import type { AnimacionUrna } from './salas/urna';
 import { puntoDeEntrada, siguienteSala } from './salas/recorrido';
 import { salaDeLaUrl } from './salas/url';
 
@@ -75,6 +77,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   });
   // Tocar un objeto lo enfoca y el HUD muestra su botón contextual (T18).
   let interaccion: Interaccion | null = null;
+  // Sala 5: fichas dentro de la urna y mano mecánica (T70). Solo existe en esa sala.
+  let urna: AnimacionUrna | null = null;
+  let fichasEscritas = -1;
   let mostrada: Lugar | null = null;
   let precarga: ReturnType<typeof setTimeout> | undefined;
   let detenido = false;
@@ -104,10 +109,13 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     clearTimeout(precarga);
     interaccion?.liberar();
     interaccion = null;
+    urna?.liberar();
+    urna = null;
     const nueva = await cargador.entrar(lugar);
     // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
     if (!nueva || detenido || mostrada !== lugar) return;
     interaccion = crearInteraccion(camara, nueva.raiz);
+    if (lugar === 's5-rectoria') urna = crearAnimacionUrna(nueva.raiz);
     // Se aparece frente a la puerta por la que se llegó (o en el inicio de la sala).
     const p = puntoDeEntrada(salaPorId(lugar), desde);
     camara.position.set(p.x, ALTURA_OJOS, p.z);
@@ -197,6 +205,15 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       // Con el puntero bloqueado, la mira del centro apunta (unas 10 veces por segundo).
       if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion?.tocar(0, 0);
       interaccion?.actualizar();
+      urna?.actualizar(dt);
+      // Fichas que se ven en la urna, para las pruebas e2e. Solo se escribe si cambian.
+      const fichas = urna ? urna.fichas.azules * 100 + urna.fichas.amarillas : -1;
+      if (fichas !== fichasEscritas) {
+        fichasEscritas = fichas;
+        if (urna)
+          canvas.dataset['urna'] = String(urna.fichas.azules) + ',' + String(urna.fichas.amarillas);
+        else delete canvas.dataset['urna'];
+      }
       publicarJoystick(entrada);
       dibujar();
     },
@@ -233,6 +250,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     dejarDeSeguirFase();
     dejarDeEscuchar();
     interaccion?.liberar();
+    urna?.liberar();
     joystick.value = null;
     cargador.liberar();
     renderer.dispose();
@@ -242,6 +260,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['sala'];
     delete canvas.dataset['geometrias'];
     delete canvas.dataset['mallas'];
+    delete canvas.dataset['urna'];
   };
 }
 

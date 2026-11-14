@@ -772,7 +772,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T67** Sala 4: lightmap y exportación — 45 min
 - [ ] **T68** Sala 4: presupuesto y prueba en celular — 40 min
 - [ ] **T69** Sala 5: blockout de la rectoría con colisiones — 55 min
-- [ ] **T70** (v1.2) Sala 5: urna, simulador de 100 extracciones y «ver parejas», en tres etapas — 50 min
+- [x] **T70** (v1.2) Sala 5: urna, simulador de 100 extracciones y «ver parejas», en tres etapas — 50 min
 - [ ] **T71** Sala 5: props, lote 1 — 55 min
 - [ ] **T72** Sala 5: props, lote 2 — 55 min
 - [ ] **T73** Sala 5: lightmap y exportación — 45 min

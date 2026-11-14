@@ -546,8 +546,12 @@ test('la urna se resuelve en tres etapas desde su panel y da el quinto sello (T7
   await expect(panel).toContainText('La caja fuerte contó 0 fichas en la urna. La placa pide 3.');
   await expect(panel).toContainText('Sala 5 · Etapa 1 de 3');
 
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(canvas).toHaveAttribute('data-urna', '0,0');
   for (let i = 0; i < 3; i++) await masAzul.click();
   await expect(panel.getByRole('img', { name: 'En la urna hay 3 fichas azules.' })).toBeVisible();
+  // En la escena 3D, detrás del panel, la urna ya tiene las mismas fichas.
+  await expect(canvas).toHaveAttribute('data-urna', '3,0');
   await panel.getByRole('button', { name: 'Simular 100 extracciones' }).click();
   await expect(panel).toContainText('De 100 veces, 100 salieron del mismo color');
   await manija.click();
@@ -578,4 +582,6 @@ test('la urna se resuelve en tres etapas desde su panel y da el quinto sello (T7
 
   await expect(panel).toHaveCount(0);
   await expect(page.getByRole('img', { name: 'Sellos: 5 de 5' })).toBeVisible();
+  // Con la sala resuelta, en la urna quedan las fichas con las que se abrió la caja.
+  await expect(canvas).toHaveAttribute('data-urna', '6,3');
 });
