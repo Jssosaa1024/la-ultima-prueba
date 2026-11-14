@@ -356,8 +356,12 @@ test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera 
   const { canvas, caja } = await abrirJuego(page);
   await expect(canvas).toHaveAttribute('data-sala', 'porteria');
 
-  // Girar hacia la puerta 2 (pared este) y acercarse un poco.
-  await girarCamara(page, caja, Math.min(187, caja.width * 0.46), conDedo);
+  // Girar hacia la puerta 1 (pared oeste), la única abierta al empezar (T31b), y acercarse
+  // un poco. En celular el giro no cabe en un solo arrastre: se hace en dos.
+  const giro = -Math.atan2(2.98, 1.4) / 0.0045;
+  const primero = Math.max(giro, -caja.width * 0.45);
+  await girarCamara(page, caja, primero, conDedo);
+  if (giro < primero) await girarCamara(page, caja, giro - primero, conDedo);
   const x = caja.x + caja.width * 0.2;
   const y = caja.y + caja.height * 0.7;
   if (conDedo)
@@ -373,31 +377,31 @@ test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera 
     );
   else await arrastrarRaton(page, { x, y }, { x, y: y - 80 }, 600);
 
-  // Tocar la puerta 2 donde se ve en pantalla y usarla.
-  await tocar(page, await enPantalla(page, caja, [2.96, 1.1, 1.55]), conDedo);
-  const puerta2 = page.getByRole('button', { name: /Usar.*Puerta 2/ });
-  await expect(puerta2).toBeVisible();
-  await puerta2.click();
-  await expect(canvas).toHaveAttribute('data-sala', 's2-laboratorio');
+  // Tocar la puerta 1 donde se ve en pantalla y usarla.
+  await tocar(page, await enPantalla(page, caja, [-2.96, 1.1, 2.8]), conDedo);
+  const puerta1 = page.getByRole('button', { name: /Usar.*Puerta 1/ });
+  await expect(puerta1).toBeVisible();
+  await puerta1.click();
+  await expect(canvas).toHaveAttribute('data-sala', 's1-cooperativa');
 
-  // En el laboratorio se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
-  const [, zLab] = await leer(page, 'data-posicion');
-  expect(zLab).toBeCloseTo(1.98, 1);
+  // En la cooperativa se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
+  const [, zSala] = await leer(page, 'data-posicion');
+  expect(zSala).toBeCloseTo(1.48, 1);
   const media = -Math.min(353, caja.width * 0.9);
   await girarCamara(page, caja, media, conDedo);
   await girarCamara(page, caja, -Math.PI / 0.0045 - media, conDedo);
-  await tocar(page, await enPantalla(page, caja, [0, 1.1, 2.96]), conDedo);
+  await tocar(page, await enPantalla(page, caja, [0, 1.1, 2.46]), conDedo);
   const volver = page.getByRole('button', { name: /Usar.*Puerta a la portería/ });
   await expect(volver).toBeVisible();
   await volver.click();
   await expect(canvas).toHaveAttribute('data-sala', 'porteria');
 
-  // De vuelta en la portería: frente a la puerta 2, y el laboratorio ya no ocupa memoria.
+  // De vuelta en la portería: frente a la puerta 1, y la cooperativa ya no ocupa memoria.
   // Three sube cada geometría la primera vez que se ve, así que en la GPU puede haber menos
-  // geometrías que mallas, pero nunca más: si el laboratorio no se hubiera liberado, sobrarían.
+  // geometrías que mallas, pero nunca más: si la cooperativa no se hubiera liberado, sobrarían.
   const [xP, zP] = await leer(page, 'data-posicion');
-  expect(xP).toBeCloseTo(1.98, 1);
-  expect(zP).toBeCloseTo(1.55, 1);
+  expect(xP).toBeCloseTo(-1.98, 1);
+  expect(zP).toBeCloseTo(2.8, 1);
   const mallasPorteria = Number(await canvas.getAttribute('data-mallas'));
   expect(mallasPorteria).toBeGreaterThan(0);
   await expect

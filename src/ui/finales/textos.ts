@@ -55,3 +55,24 @@ export const POSCREDITOS = {
   escena: 'En la sala de profesores, la fotocopiadora se enciende sola e imprime una hoja:',
   hoja: 'Pregunta 6: justifique dejar los documentos para última hora.',
 };
+
+/** Une nombres con comas y una «y» final: «El laboratorio, El gimnasio y La biblioteca». */
+function enLista(nombres: readonly string[]): string {
+  if (nombres.length <= 1) return nombres[0] ?? '';
+  return `${nombres.slice(0, -1).join(', ')} y ${nombres[nombres.length - 1]}`;
+}
+
+/** Lo que muestra la puerta de salida cuando el mural no está completo. */
+export function textoSellosFaltantes(faltan: number): string {
+  return faltan === 1 ? 'En el mural falta 1 sello.' : `En el mural faltan ${faltan} sellos.`;
+}
+
+/**
+ * Lo que acompaña a «Restaurar archivo» mientras está desactivado: cuántas grabaciones
+ * faltan y en qué salas queda alguna, sin decir dónde mirar.
+ */
+export function textoGrabacionesFaltantes(faltan: number, salas: readonly string[]): string {
+  const cuantas = faltan === 1 ? 'Falta 1 grabación' : `Faltan ${faltan} grabaciones`;
+  const donde = faltan === 1 ? 'Sigue escondida en' : 'Siguen escondidas en';
+  return `${cuantas} para restaurar el archivo. ${donde}: ${enLista(salas)}.`;
+}

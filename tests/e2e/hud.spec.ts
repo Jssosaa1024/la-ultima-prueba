@@ -11,7 +11,9 @@ test('el HUD muestra reloj, sellos e inventario al empezar', async ({ page }) =>
   await expect(reloj).toHaveAttribute('aria-label', /^Tiempo restante: (40|3\d) minutos/);
   await expect(reloj).toHaveText(/^(40:00|3\d:\d\d)$/);
   await expect(page.getByRole('img', { name: 'Sellos: 0 de 5' })).toBeVisible();
-  await expect(page.getByRole('list', { name: 'Inventario' })).toContainText('Linterna');
+  // El inventario empieza vacío y el cuaderno no tiene botón hasta que se recoge (T31b).
+  await expect(page.getByRole('list', { name: 'Inventario' }).getByRole('listitem')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Cuaderno' })).toHaveCount(0);
   // Sin objeto enfocado no hay botón contextual.
   await expect(page.getByRole('button', { name: /^(Usar|Recoger|Examinar)/ })).toHaveCount(0);
 });
