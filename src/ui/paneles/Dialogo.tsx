@@ -10,6 +10,8 @@ interface Props {
   alCerrar: () => void;
   /** Texto del botón de cerrar. */
   cerrar?: string;
+  /** El botón de cerrar deja de ser el principal (lo es alguno de `acciones`). */
+  cerrarSecundario?: boolean;
   /** Botones extra junto a «Cerrar». */
   acciones?: ComponentChildren;
   /**
@@ -60,6 +62,7 @@ export default function Dialogo({
   antetitulo,
   alCerrar,
   cerrar = 'Cerrar',
+  cerrarSecundario = false,
   acciones,
   retorno,
   children,
@@ -126,7 +129,11 @@ export default function Dialogo({
         <div class="dialogo-cuerpo">{children}</div>
         <footer class="dialogo-pie">
           {acciones}
-          <button type="button" class="boton boton-principal" onClick={alCerrar}>
+          <button
+            type="button"
+            class={`boton ${cerrarSecundario ? 'boton-secundario' : 'boton-principal'}`}
+            onClick={alCerrar}
+          >
             {cerrar}
           </button>
         </footer>

@@ -497,11 +497,12 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     if (esCuaderno) cuadernoActivo.value = true;
   }
 
-  function usar(objeto: string): void {
+  /** Usa un objeto. Devuelve si el objeto debe seguir enfocado después. */
+  function usar(objeto: string): boolean {
     const destino = destinoDePuerta(objeto);
     if (destino === 'porteria') {
       jugar({ t: 'volver_porteria' });
-      return;
+      return false;
     }
     if (destino) {
       // Las salas se abren en orden (`salaAbierta`): una puerta cerrada no deja entrar.
@@ -509,12 +510,18 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       if (!jugar({ t: 'entrar', sala: destino }) && estabaEnPorteria) {
         avisar({ t: 'puerta_cerrada', sala: numeroDeSala(destino) });
       }
-      return;
+      return false;
     }
-    if (partida?.lugar !== 'porteria') return;
+    if (partida?.lugar !== 'porteria') {
+      // En una sala, cualquier otro objeto que se usa es parte de su máquina: abre el panel
+      // del mecanismo (el objeto 3D solo anima). El objeto sigue enfocado para volver a él.
+      abrirPanel('mecanismo');
+      return true;
+    }
     // La puerta de salida muestra qué se puede elegir; el intercomunicador pide confirmar.
     if (objeto === OBJETO_SALIDA) abrirPanel('salida');
     if (objeto === OBJETO_INTERCOMUNICADOR) abrirPanel('ayuda');
+    return false;
   }
 
   function atenderAccion(objeto: string, accion: ObjetoEnfocado['accion']): void {
@@ -534,8 +541,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       } else if (accion === 'recoger') {
         recoger(actual);
         enfocado.value = null;
-      } else {
-        usar(objeto);
+      } else if (!usar(objeto)) {
         enfocado.value = null;
       }
       enfocarSiguiente();

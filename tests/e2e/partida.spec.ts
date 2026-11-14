@@ -140,10 +140,40 @@ async function enPantalla(page: Page, caja: Caja, punto: Punto3): Promise<Punto>
   return { x: caja.x + ((ndcX + 1) / 2) * caja.width, y: caja.y + ((1 - ndcY) / 2) * caja.height };
 }
 
-/** Mira hacia el objeto y lo toca donde se ve. */
-async function tocarObjeto(page: Page, caja: Caja, punto: Punto3, conDedo: boolean) {
+/**
+ * Mira hacia el objeto y lo toca donde se ve. Con `boton`, espera a que aparezca ese botón
+ * contextual. En celular, si no aparece, toca otra vez: con el equipo cargado un toque puede
+ * tardar más de los 350 ms que lo distinguen de un arrastre. En escritorio no se repite,
+ * porque un clic fallido bloquearía el ratón.
+ */
+async function tocarObjeto(
+  page: Page,
+  caja: Caja,
+  punto: Punto3,
+  conDedo: boolean,
+  boton?: RegExp,
+): Promise<void> {
   await mirarHacia(page, caja, punto, conDedo);
-  await tocar(page, await enPantalla(page, caja, punto), conDedo);
+  await tocarHasta(page, () => enPantalla(page, caja, punto), conDedo, boton);
+}
+
+/** Toca en un punto de la pantalla y, con `boton`, repite en celular hasta que aparezca. */
+async function tocarHasta(
+  page: Page,
+  donde: () => Promise<Punto>,
+  conDedo: boolean,
+  boton?: RegExp,
+): Promise<void> {
+  for (let intento = 0; ; intento++) {
+    await tocar(page, await donde(), conDedo);
+    if (!boton) return;
+    const aparecio = await page
+      .getByRole('button', { name: boton })
+      .waitFor({ timeout: 2500 })
+      .then(() => true)
+      .catch(() => false);
+    if (aparecio || !conDedo || intento >= 3) return;
+  }
 }
 
 // Centros de los objetos de la portería (src/content/salas.json), a la altura donde se tocan.
@@ -165,14 +195,14 @@ test('el cuaderno se activa al recogerlo y la linterna entra una sola vez', asyn
   await expect(cuaderno).toHaveCount(0);
 
   // El cuaderno está en la silla, a la izquierda de la entrada.
-  await tocarObjeto(page, caja, CUADERNO, conDedo);
+  await tocarObjeto(page, caja, CUADERNO, conDedo, /Recoger.*Cuaderno/);
   await page.getByRole('button', { name: /Recoger.*Cuaderno/ }).click();
   await expect(cuaderno).toBeVisible();
   await expect(inventario).toHaveCount(0);
   await expect(page.locator('[aria-live="polite"]')).toHaveText('Recogiste: Cuaderno.');
 
   // La linterna está en el escritorio, a la derecha.
-  await tocarObjeto(page, caja, LINTERNA, conDedo);
+  await tocarObjeto(page, caja, LINTERNA, conDedo, /Recoger.*Linterna/);
   await page.getByRole('button', { name: /Recoger.*Linterna/ }).click();
   await expect(inventario).toHaveText(['Linterna']);
 
@@ -195,7 +225,7 @@ test('la puerta 2 sigue cerrada hasta tener el sello de la sala 1', async ({ pag
 
   await mirarHacia(page, caja, PUERTA_2, conDedo);
   await caminar(page, caja, 600, conDedo);
-  await tocarObjeto(page, caja, PUERTA_2, conDedo);
+  await tocarObjeto(page, caja, PUERTA_2, conDedo, /Usar.*Puerta 2/);
   await page.getByRole('button', { name: /Usar.*Puerta 2/ }).click();
 
   await expect(page.locator('.hud-aviso')).toContainText('La puerta 2 está cerrada');
@@ -210,7 +240,8 @@ test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir 
 
   // Hasta la pared del fondo: a 2 m/s, 6,5 s alcanzan para los 10 m del pasillo.
   await caminar(page, caja, 6500, conDedo);
-  await tocar(page, { x: caja.x + caja.width / 2, y: caja.y + caja.height / 2 }, conDedo);
+  const centro = { x: caja.x + caja.width / 2, y: caja.y + caja.height / 2 };
+  await tocarHasta(page, () => Promise.resolve(centro), conDedo, /Usar.*Puerta de salida/);
   await page.getByRole('button', { name: /Usar.*Puerta de salida/ }).click();
 
   const salida = page.getByRole('dialog', { name: 'Puerta de salida' });
@@ -231,7 +262,7 @@ test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir 
   // El intercomunicador está en la pared izquierda, cerca del fondo.
   await mirarHacia(page, caja, INTERCOMUNICADOR, conDedo);
   await caminar(page, caja, 500, conDedo);
-  await tocarObjeto(page, caja, INTERCOMUNICADOR, conDedo);
+  await tocarObjeto(page, caja, INTERCOMUNICADOR, conDedo, /Usar.*Intercomunicador/);
   await page.getByRole('button', { name: /Usar.*Intercomunicador/ }).click();
 
   const ayuda = page.getByRole('dialog', { name: 'Intercomunicador de emergencia' });
@@ -240,7 +271,7 @@ test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir 
   await ayuda.getByRole('button', { name: 'Seguir intentando' }).click();
   await expect(page.getByRole('timer')).toBeVisible();
 
-  await tocarObjeto(page, caja, INTERCOMUNICADOR, conDedo);
+  await tocarObjeto(page, caja, INTERCOMUNICADOR, conDedo, /Usar.*Intercomunicador/);
   await page.getByRole('button', { name: /Usar.*Intercomunicador/ }).click();
   await ayuda.getByRole('button', { name: 'Pedir ayuda' }).click();
   await expect(
@@ -257,7 +288,7 @@ test('al recargar, «Continuar partida» devuelve el cuaderno, sus notas y el re
   const conDedo = info.project.use.hasTouch === true;
   const caja = await abrirJuego(page);
   // Sin partida guardada, el menú no ofrecía continuar (ya se tocó «Jugar solo»).
-  await tocarObjeto(page, caja, CUADERNO, conDedo);
+  await tocarObjeto(page, caja, CUADERNO, conDedo, /Recoger.*Cuaderno/);
   await page.getByRole('button', { name: /Recoger.*Cuaderno/ }).click();
   await page.getByRole('button', { name: 'Cuaderno', exact: true }).click();
   let cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
@@ -319,4 +350,103 @@ test('con el almacenamiento bloqueado (pestaña privada) se juega sin errores y 
   await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Continuar partida' })).toHaveCount(0);
   expect(errores).toEqual([]);
+});
+
+// T37: el marco de los paneles de mecanismo, en la sala 1.
+
+/**
+ * Deja una partida guardada dentro de la cooperativa y la continúa desde el menú, para no
+ * repetir en cada prueba el camino por la portería. `ajustes` son los de la etiquetadora.
+ */
+async function continuarEnLaCooperativa(page: Page, ajustes?: unknown): Promise<Caja> {
+  const guardado = {
+    v: 2,
+    partida: {
+      fase: 'jugando',
+      lugar: 's1-cooperativa',
+      etapas: {
+        's1-cooperativa': 0,
+        's2-laboratorio': 0,
+        's3-gimnasio': 0,
+        's4-biblioteca': 0,
+        's5-rectoria': 0,
+      },
+      final: null,
+      grabaciones: [],
+    },
+    restanteMs: 30 * 60 * 1000,
+    pistas: {},
+    mecanismos: ajustes === undefined ? {} : { 's1-cooperativa': ajustes },
+    notas: [],
+    datos: [],
+    inventario: [],
+  };
+  await page.addInitScript((texto) => {
+    localStorage.setItem('la-ultima-prueba:partida', texto);
+  }, JSON.stringify(guardado));
+  await page.goto('/jugar');
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(canvas).toHaveAttribute('data-motor', 'pausado');
+  await page.getByRole('button', { name: 'Continuar partida' }).click();
+  await expect(canvas).toHaveAttribute('data-sala', 's1-cooperativa');
+  await expect(canvas).toHaveAttribute('data-mirada', /,/);
+  const caja = await canvas.boundingBox();
+  if (!caja) throw new Error('sin canvas');
+  return caja;
+}
+
+/** La etiquetadora, sobre el mostrador de la cooperativa. */
+const ETIQUETADORA: Punto3 = [0.55, 1.15, -0.6];
+
+test('usar la etiquetadora abre el panel de la máquina, con su etapa y su botón (T37)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await continuarEnLaCooperativa(page);
+
+  const usar = page.getByRole('button', { name: /Usar.*Etiquetadora/ });
+  await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
+  await usar.click();
+
+  const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
+  await expect(panel).toContainText('Sala 1 · Etapa 1 de 3');
+  await expect(panel).toContainText('La etiqueta del jugo dice $2.000');
+  // El HUD queda inerte detrás del panel.
+  await expect(page.getByRole('timer')).toHaveCount(0);
+
+  // Sin rodillos, bajar la palanca no resuelve: la máquina muestra lo que pasó y sigue ahí.
+  await panel.getByRole('button', { name: 'Bajar la palanca' }).click();
+  await expect(panel.locator('.respuesta')).toBeVisible();
+  await expect(panel).toContainText('Sala 1 · Etapa 1 de 3');
+
+  // Al cerrar, el foco vuelve al botón del objeto, que sigue enfocado.
+  await panel.getByRole('button', { name: 'Cerrar' }).click();
+  await expect(panel).toHaveCount(0);
+  await expect(usar).toBeFocused();
+});
+
+test('con los ajustes que resuelven, el panel se queda en la etapa hasta «Seguir» (T37)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  // La partida guardada trae el rodillo de −20 % puesto: es la solución de la primera etapa.
+  const caja = await continuarEnLaCooperativa(page, {
+    producto: 'jugo',
+    precio: 2000,
+    rodillos: [-20],
+  });
+  await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
+  await page.getByRole('button', { name: /Usar.*Etiquetadora/ }).click();
+
+  const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
+  await panel.getByRole('button', { name: 'Bajar la palanca' }).click();
+  // La partida ya avanzó, pero el panel sigue mostrando la etapa resuelta.
+  await expect(panel).toContainText('La máquina aceptó los ajustes');
+  await expect(panel).toContainText('Sala 1 · Etapa 1 de 3');
+  await expect(panel.getByRole('button', { name: 'Bajar la palanca' })).toHaveCount(0);
+
+  await panel.getByRole('button', { name: 'Seguir' }).click();
+  await expect(panel).toContainText('Sala 1 · Etapa 2 de 3');
+  await expect(panel).toContainText('A la empanada le aplicaron la promo por error');
+  await expect(panel.getByRole('button', { name: 'Bajar la palanca' })).toBeVisible();
 });

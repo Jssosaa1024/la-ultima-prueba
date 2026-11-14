@@ -968,3 +968,28 @@ describe('controlador: órdenes de los mecanismos (T31d)', () => {
     expect(pistas.value.ofrecidas).toBe(1);
   });
 });
+
+describe('controlador: abrir el panel de la máquina (T37)', () => {
+  it('usar un objeto de la máquina abre su panel y lo deja enfocado', () => {
+    jugar();
+    usar('porteria-puerta-1');
+    usar('s1-etiquetadora');
+    expect(panel.value).toBe('mecanismo');
+    expect(enfocado.value?.id).toBe('s1-etiquetadora');
+  });
+
+  it('en la portería, usar un objeto que no es puerta ni tiene papel fijo no abre nada', () => {
+    jugar();
+    accionar('porteria-casillero', 'usar');
+    expect(panel.value).toBeNull();
+    expect(enfocado.value).toBeNull();
+  });
+
+  it('las puertas de las salas siguen llevando a la portería, sin abrir el panel', () => {
+    jugar();
+    usar('porteria-puerta-1');
+    usar('s1-puerta');
+    expect(panel.value).toBeNull();
+    expect(sala.value).toBe('porteria');
+  });
+});
