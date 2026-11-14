@@ -78,28 +78,65 @@ export const tieneRol = (reparto: Reparto, jugador: string, rol: Rol): boolean =
   reparto[rol] === jugador;
 
 /**
- * Reparto con suplente para D. Si quien tiene D está desconectado, D pasa al siguiente jugador
- * conectado en el orden de la partida, para que el grupo pueda seguir accionando la máquina.
- * A, B y C no se mueven: los objetos del ausente quedan reservados y luego en el piso
- * (especificación, «Desconexión»). Cuando el ausente vuelve, recupera D: basta llamar de nuevo
- * con la lista de conectados al día. Devuelve null si `repartir` lo haría o si no hay nadie
- * conectado.
+ * Tiempo que el grupo espera a quien tiene D si se desconecta, antes de pasarle D a otro.
+ * Es el mismo plazo en que sus objetos quedan reservados (especificación, «Desconexión»).
  */
-export function repartirConectados(
+export const ESPERA_RECONEXION_MS = 60_000;
+
+/**
+ * Milisegundos que lleva desconectado cada jugador ausente, por id. Los conectados no
+ * aparecen. Lo arma el anfitrión con lo que ve en Presence.
+ */
+export type Ausencias = Readonly<Record<string, number>>;
+
+export interface RepartoConAusencias {
+  reparto: Reparto;
+  /**
+   * Jugador con D al que el grupo está esperando, o null. Mientras se espera, D sigue siendo
+   * suyo y nadie puede accionar la máquina.
+   */
+  esperandoA: string | null;
+  /** Milisegundos que faltan para que D pase a un suplente (0 si no se espera a nadie). */
+  faltanMs: number;
+}
+
+/**
+ * Reparto cuando hay jugadores desconectados. Solo cambia D, que es el encargo sin el cual
+ * el grupo no puede accionar la máquina:
+ *
+ * 1. Si quien tiene D se desconecta, el grupo lo espera hasta `ESPERA_RECONEXION_MS`.
+ * 2. Si no vuelve en ese tiempo, D pasa al siguiente jugador conectado en el orden de la
+ *    partida.
+ * 3. Cuando vuelve, recupera D: basta llamar de nuevo sin él en `ausencias`.
+ *
+ * A, B y C no se mueven: los objetos del ausente quedan reservados y luego en el piso.
+ * Devuelve null si `repartir` lo haría o si no queda nadie conectado.
+ */
+export function repartirConAusencias(
   jugadores: readonly string[],
   sala: number,
-  conectados: readonly string[],
-): Reparto | null {
+  ausencias: Ausencias,
+): RepartoConAusencias | null {
   const base = repartir(jugadores, sala);
   if (!base) return null;
-  const presentes = jugadores.filter((j) => conectados.includes(j));
-  if (presentes.length === 0) return null;
-  if (presentes.includes(base.D)) return base;
+  const ausente = (j: string): boolean => Object.hasOwn(ausencias, j);
+  if (jugadores.every(ausente)) return null;
+  if (!ausente(base.D)) return { reparto: base, esperandoA: null, faltanMs: 0 };
+
+  // Un tiempo que no sea un número válido se toma como «se acaba de desconectar».
+  const dato = ausencias[base.D];
+  const lleva = typeof dato === 'number' && Number.isFinite(dato) && dato > 0 ? dato : 0;
+  if (lleva < ESPERA_RECONEXION_MS) {
+    return { reparto: base, esperandoA: base.D, faltanMs: ESPERA_RECONEXION_MS - lleva };
+  }
+
   const n = jugadores.length;
   const desde = jugadores.indexOf(base.D);
   for (let paso = 1; paso < n; paso++) {
     const suplente = jugadores[(desde + paso) % n];
-    if (suplente !== undefined && presentes.includes(suplente)) return { ...base, D: suplente };
+    if (suplente !== undefined && !ausente(suplente)) {
+      return { reparto: { ...base, D: suplente }, esperandoA: null, faltanMs: 0 };
+    }
   }
   return null;
 }

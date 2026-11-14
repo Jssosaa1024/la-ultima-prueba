@@ -2,7 +2,7 @@
 
 Esta sesión es dueña de `src/game/`, `src/content/` y `docs/`. En esta ola hizo tres tareas, las tres fusionadas en `main`: T27b ([#35](https://github.com/Jssosaa1024/la-ultima-prueba/pull/35)), T23 ([#36](https://github.com/Jssosaa1024/la-ultima-prueba/pull/36)) y T29 ([#38](https://github.com/Jssosaa1024/la-ultima-prueba/pull/38)).
 
-Resumen honesto: **todo sigue siendo lógica y datos sin pantalla, y nada de esto está conectado al juego todavía.** Ningún archivo de `src/engine/`, `src/ui/` ni `src/signals/` llama a las funciones nuevas. No toqué esas tres carpetas. **No abrí el juego en un celular ni lo recorrí a mano en un navegador:** de las vistas previas solo comprobé que el build de Cloudflare pasó y que `/jugar/` responde.
+Resumen honesto: **todo sigue siendo lógica y datos sin pantalla, y nada de esto está conectado al juego todavía.** Ningún archivo de `src/engine/`, `src/ui/` ni `src/signals/` llama a las funciones nuevas. No toqué esas tres carpetas. **Las pruebas e2e que reporté en los tres PR no probaron mi build** (ver «Corrección» en la sección 2). **No abrí el juego en un celular ni lo recorrí a mano en un navegador:** de las vistas previas solo comprobé que el build de Cloudflare pasó y que `/jugar/` responde.
 
 ## 1. Qué hice
 
@@ -56,7 +56,7 @@ Las pistas se ofrecen por tiempo o por intentos fallidos, pero «intento» no es
 
 - La sala 1 sigue la tabla del diseño. En cada sala siguiente, cada jugador recibe el grupo de encargos que tenía el jugador de al lado. Así todos accionan la máquina (D) en alguna sala y nadie lo hace dos salas seguidas.
 - El reparto depende de la sala, no de cuántas veces se entró: volver a una sala da el mismo reparto.
-- Si quien tiene D se desconecta, D pasa al siguiente jugador conectado, y lo recupera al volver (`repartirConectados`). La especificación solo decía «se reasigna».
+- Si quien tiene D se desconecta, D pasa al siguiente jugador conectado, y lo recupera al volver. La especificación solo decía «se reasigna». (Después de este reporte se agregó una espera de 60 s antes del suplente: ver 3.6.)
 
 En el mismo PR arreglé una prueba de T23 que yo había dejado frágil (ver «Errores míos»).
 
@@ -75,9 +75,23 @@ En el mismo PR arreglé una prueba de T23 que yo había dejado frágil (ver «Er
 
 - **Una prueba de T23 quedó frágil en `main` desde que se fusionó #36 hasta que se fusionó #38** (unos 10 minutos). Recorría los 160.000 estados calculando un hash por cada uno y, con el equipo ocupado por las otras sesiones, pasaba de los 5 s que da Vitest y fallaba. Lo vi al correr `npm run verify` para T29 y lo corregí en ese PR (un hash por forma canónica y 60 s de margen). Si alguna sesión vio fallar `hash-answers.test.ts` en ese rato, fue esto.
 - **En T27b corrí `npm run verify` con un error de tipos** que mis propios cambios introdujeron; lo encontró la verificación y lo corregí antes del commit.
+- **Las e2e de los tres PR corrieron contra el sitio de otra sesión** y no lo noté: atribuí los fallos a la carga del equipo sin revisar qué servidor respondía. Fusioné tres PR con esa verificación equivocada. Detalle en «Corrección», más abajo.
 - **Subí las ramas de T27b y T23 antes de terminar las e2e.** Desde T29 hago un solo push por PR, cuando todo está en verde, como pidió Alex.
 
-### Pruebas e2e: fallos intermitentes
+### Corrección: las e2e de los tres PR no probaron mi build
+
+**Lo que dice el apartado siguiente sobre las e2e de #35, #36 y #38 no vale como verificación.** Lo descubrí después de escribir este reporte, al preparar el cambio de la espera de reconexión (ver 3.6):
+
+- En el puerto 4522, el que se me asignó, había un servidor `astro preview` de la carpeta `la-ultima-prueba-c` (sesión C), encendido desde las 7:30 a. m. La sesión C tenía además otro servidor en el 4523.
+- Playwright reutiliza un servidor que ya esté escuchando (`reuseExistingServer`), así que mis corridas usaron mis pruebas contra **el sitio construido por la sesión C**, no contra el mío.
+- Eso explica los fallos «intermitentes»: el sitio de la otra carpeta cambiaba mientras la sesión C trabajaba. En la última corrida fallaron 21 pruebas porque ese sitio no tenía todavía T20b.
+- No apagué ese servidor porque no es mío.
+
+**Verificación real, hecha después contra mi propio build** (`PUERTO_E2E=4532 npx playwright test --workers=1`, sobre `main` con T27b, T23, T29 y T20b, más el cambio de la espera de reconexión): 84 pasan, 6 se saltan a propósito y 4 fallan por tiempo de espera (`hud.spec.ts` e `inspeccion.spec.ts`). Repetidos solos esos dos archivos, pasan 12 de 12. Sigue habiendo fallos por tiempo con el equipo cargado, pero ya no cambian de una corrida a otra por culpa del servidor.
+
+**Para Alex:** hay que darle a cada sesión un puerto que nadie más use, o cambiar `reuseExistingServer` a `false` en `playwright.config.ts` para que una corrida falle en vez de usar el servidor de otra carpeta. Ese archivo es compartido y no lo toqué.
+
+### Pruebas e2e: fallos intermitentes (ver la corrección de arriba)
 
 Corrí `PUERTO_E2E=4522 npx playwright test --workers=1` en los tres PR. Ninguna corrida completa salió del todo en verde:
 
@@ -125,6 +139,13 @@ Sigue siendo la del reporte `docs/reportes/sesion-B.md`, sección 2.5. Ahora hay
   3. Camina, entra a una sala y abre el cuaderno.
 - **Qué se espera:** lo mismo que antes de esta ola. Mis cambios no tocan pantallas. No lo probé en un celular.
 
+### 3.6 Decisiones de Alex después de este reporte (14 de noviembre de 2026)
+
+- **3.1, regla de intentos de las salas 3 y 4:** aprobada como está (5 segundos quieto; pistas tras 3, 6 y 9 intentos).
+- **3.3, rotación de encargos:** aprobada como está. Con 3 jugadores, B y C van siempre juntos.
+- **3.3, desconexión de quien tiene D:** el grupo espera primero un tiempo corto («2 minutos o menos») y solo después D pasa a un suplente. Quedó en 60 segundos, el mismo plazo en que la especificación reserva los objetos del ausente. La función `repartirConectados` se reemplazó por `repartirConAusencias`.
+- **3.2, corrida de la sala 2:** sigue sin decidir.
+
 ## 4. Para las sesiones A y C
 
 Cómo usar lo nuevo desde un panel o desde el controlador:
@@ -133,5 +154,5 @@ Cómo usar lo nuevo desde un panel o desde el controlador:
 2. **Intentos por reposo (sala 4 y dos etapas de la sala 3):** guarda un `Reposo` por etapa (empieza en `REPOSO_INICIAL`). En cada cambio del mecanismo, reemplázalo por `alCambiarEstado()`. Con cada avance del reloj activo, llama a `avanzarReposo(puzzle, etapa, estado, reposo, ms)`: guarda el `reposo` que devuelve y, si `intento` es verdadero, registra el intento.
 3. **Sala 2:** la animación de la corrida dura `duracionCorridaS(etapa)` segundos, en tiempo real.
 4. **¿Resuelta?:** `evaluar(puzzle, etapa, estado)` sigue siendo la forma normal y da las condiciones en vivo. `estaResuelta(RESPUESTAS, puzzle, etapa, estado)` da solo sí o no, con hashes.
-5. **Roles:** `repartir(jugadores, numeroDeSala)` devuelve `{ A, B, C, D }` con el id del jugador de cada encargo. En individual, pásale una lista con un solo id.
+5. **Roles:** `repartir(jugadores, numeroDeSala)` devuelve `{ A, B, C, D }` con el id del jugador de cada encargo. En individual, pásale una lista con un solo id. Con jugadores desconectados, usa `repartirConAusencias(jugadores, numeroDeSala, ausencias)`, que además dice a quién se está esperando y cuánto falta.
 6. **Si cambias un puzzle:** sube su `version` y corre `npm run hash-answers`; si no, falla `tests/unit/hash-answers.test.ts`.
