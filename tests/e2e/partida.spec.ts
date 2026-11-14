@@ -144,7 +144,11 @@ async function tocarObjeto(
   await tocarHasta(page, () => enPantalla(page, caja, punto), conDedo, boton);
 }
 
-/** Toca en un punto de la pantalla y, con `boton`, repite en celular hasta que aparezca. */
+/**
+ * Toca en un punto de la pantalla y, con `boton`, repite hasta que aparezca ese botón. En
+ * escritorio, un clic que no dio en el objeto bloquea el ratón (T19): se suelta, como con
+ * Esc, antes de repetir.
+ */
 async function tocarHasta(
   page: Page,
   donde: () => Promise<Punto>,
@@ -159,8 +163,30 @@ async function tocarHasta(
       .waitFor({ timeout: 2500 })
       .then(() => true)
       .catch(() => false);
-    if (aparecio || !conDedo || intento >= 3) return;
+    if (aparecio || intento >= 3) return;
+    if (!conDedo) await page.evaluate(() => document.exitPointerLock());
   }
+}
+
+/**
+ * Camina hacia un punto hasta quedar a `distancia` metros o menos (el alcance de la mano es
+ * de 3 m). Avanza de a poco y mira dónde quedó, en vez de caminar un tiempo fijo: con el
+ * equipo cargado, el mismo tiempo no lleva siempre al mismo sitio.
+ */
+async function acercarse(
+  page: Page,
+  caja: Caja,
+  punto: Punto3,
+  distancia: number,
+  conDedo: boolean,
+): Promise<void> {
+  for (let paso = 0; paso < 15; paso++) {
+    const [x, z] = await leer(page, 'data-posicion');
+    if (Math.hypot(punto[0] - x, punto[2] - z) <= distancia) return;
+    await mirarHacia(page, caja, punto, conDedo);
+    await caminar(page, caja, 250, conDedo);
+  }
+  throw new Error('no se pudo llegar cerca del punto');
 }
 
 // Centros de los objetos de la portería (src/content/salas.json), a la altura donde se tocan.
@@ -210,8 +236,7 @@ test('la puerta 2 sigue cerrada hasta tener el sello de la sala 1', async ({ pag
   const conDedo = info.project.use.hasTouch === true;
   const caja = await abrirJuego(page);
 
-  await mirarHacia(page, caja, PUERTA_2, conDedo);
-  await caminar(page, caja, 600, conDedo);
+  await acercarse(page, caja, PUERTA_2, 2.4, conDedo);
   await tocarObjeto(page, caja, PUERTA_2, conDedo, /Usar.*Puerta 2/);
   await page.getByRole('button', { name: /Usar.*Puerta 2/ }).click();
 
@@ -247,8 +272,7 @@ test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir 
   await expect(examinar).toBeFocused();
 
   // El intercomunicador está en la pared izquierda, cerca del fondo.
-  await mirarHacia(page, caja, INTERCOMUNICADOR, conDedo);
-  await caminar(page, caja, 500, conDedo);
+  await acercarse(page, caja, INTERCOMUNICADOR, 2.4, conDedo);
   await tocarObjeto(page, caja, INTERCOMUNICADOR, conDedo, /Usar.*Intercomunicador/);
   await page.getByRole('button', { name: /Usar.*Intercomunicador/ }).click();
 
