@@ -674,6 +674,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T13** Escala dinámica de resolución según los fps medidos — 45 min
 - [x] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [x] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min
+- [x] **T15b** (nueva) Dibujar el joystick (signal `joystick`) y la mira con el aviso «Esc para soltar el ratón» (signal `punteroBloqueado`), en `src/ui/controles/` — 40 min
 - [ ] **T16** Exportar cajas de colisión desde Blender y cargarlas — 30 min
 - [x] **T17** Colisión de cápsula contra cajas, sin atravesar paredes — 50 min
 - [x] **T18** Toque sobre objetos: raycast, resaltado y botón «Usar» — 50 min
