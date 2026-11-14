@@ -38,6 +38,15 @@
   margin: 0 0 1.5rem;
 }
 
+/* Aviso de partida guardada, encima de los botones. */
+.menu-guardada {
+  margin: 0 0 1rem;
+  padding: 10px 14px;
+  border-left: 4px solid #e8a33d;
+  border-radius: 4px;
+  background: rgb(232 163 61 / 12%);
+}
+
 .menu-acciones {
   display: flex;
   flex-direction: column;

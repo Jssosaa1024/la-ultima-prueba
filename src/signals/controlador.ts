@@ -1,7 +1,15 @@
 import { batch, type Signal } from '@preact/signals';
-import { puzzleDeSala } from '../content/puzzles';
+import { PUZZLES, puzzleDeSala } from '../content/puzzles';
 import type { Puzzle } from '../content/esquema';
-import { destinoDePuerta } from '../content/salas';
+import { destinoDePuerta, nombreDeObjeto } from '../content/salas';
+import {
+  borrarGuardado,
+  cargar,
+  guardar,
+  VERSION_GUARDADO,
+  type Almacen,
+  type Guardado,
+} from '../game/guardado';
 import {
   aplicar,
   crearPartida,
@@ -23,10 +31,11 @@ import {
   cuadernoActivo,
   datosEncontrados,
   limpiarNota,
+  MAX_NOTAS,
   notas,
   reiniciarCuaderno,
 } from './cuaderno';
-import { cargarEjemplo, enfocarSiguiente, quitarEjemplo } from './ejemplo';
+import { cargarEjemplo, conEjemplo, enfocarSiguiente, quitarEjemplo } from './ejemplo';
 import {
   abrirInspeccion,
   abrirPanel,
@@ -42,6 +51,7 @@ import {
   fase,
   final,
   grabaciones,
+  guardada,
   inventario,
   modo,
   opcionesFinal,
@@ -50,6 +60,7 @@ import {
   sala,
   sellos,
   type FinalId,
+  type ObjetoInventario,
 } from './partida';
 import { escuchar, type Comando } from './puente';
 
@@ -62,6 +73,10 @@ import { escuchar, type Comando } from './puente';
  *
  * Debe empezar a escuchar ANTES que el motor: el motor compara la sala de la partida justo
  * después de que este controlador la cambia (ver `engine/motor.ts`).
+ *
+ * Guardado (T31c): después de cada orden, al pausar y al ocultar la pestaña se guarda la
+ * partida con `game/guardado.ts`. Si el almacenamiento no existe o falla (pestaña privada,
+ * cuota llena), se juega igual, sin guardar.
  */
 
 /** Objetos de la portería con un papel fijo en la partida (ids de `content/salas.json`). */
@@ -79,6 +94,24 @@ export interface DocumentoVisible {
 export interface OpcionesControlador {
   /** Por defecto, el documento del navegador. `null`: no se mira la visibilidad. */
   documento?: DocumentoVisible | null;
+  /** Por defecto, `localStorage`. `null`: no se guarda la partida. */
+  almacen?: Almacen | null;
+}
+
+/** `localStorage`, o `null` si no existe o el navegador no deja usarlo (pestaña privada). */
+function almacenDelNavegador(): Almacen | null {
+  try {
+    return typeof localStorage === 'undefined' ? null : localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** El objeto recogido con ese id, como va en el inventario; `null` si ya no existe. */
+function objetoDeInventario(id: string): ObjetoInventario | null {
+  const nombre = nombreDeObjeto(id);
+  if (!nombre) return null;
+  return id === OBJETO_CUADERNO ? { id, nombre, conBoton: true } : { id, nombre };
 }
 
 /**
@@ -114,6 +147,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       : typeof document === 'undefined'
         ? null
         : document;
+  const almacen = opciones.almacen !== undefined ? opciones.almacen : almacenDelNavegador();
 
   let partida: Partida | null = null;
   const motivos = new Set<MotivoPausa>();
@@ -180,6 +214,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         cerrarPanel();
         final.value = p.final;
         fase.value = 'final';
+        // Un final borra el guardado (lo hace `guardar`): ya no hay nada que continuar.
+        guardada.value = null;
       }
     });
   }
@@ -229,10 +265,33 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     return despues !== antes;
   }
 
+  /** Guarda la partida en curso. Con datos de ejemplo no se guarda: no es una partida real. */
+  function guardarPartida(): void {
+    if (!almacen || !partida || conEjemplo.value) return;
+    guardar(almacen, {
+      v: VERSION_GUARDADO,
+      partida,
+      restanteMs: restante(reloj.value, ahora()),
+      pistas: pistasPorSala,
+      mecanismos: ajustes,
+      notas: notas.value.map((n) => ({ id: n.id, texto: n.texto })),
+      datos: [...datosEncontrados.value],
+      inventario: inventario.value.map((o) => o.id),
+    });
+  }
+
+  /** Le dice al menú si hay una partida guardada que se pueda continuar. */
+  function mirarGuardado(): Guardado | null {
+    const g = almacen ? cargar(almacen, PUZZLES) : null;
+    guardada.value = g ? { restanteMs: g.restanteMs, sellos: sellosDe(g.partida).length } : null;
+    return g;
+  }
+
   function alVencer(): void {
     cambiar((t) => {
       if (partida && agotado(reloj.value, t)) partida = aplicar(partida, { t: 'tiempo_agotado' });
     });
+    guardarPartida();
   }
 
   function alCambiarVisibilidad(): void {
@@ -242,14 +301,22 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       if (documento?.hidden) motivos.add('oculta');
       else motivos.delete('oculta');
     });
+    // Al ocultarse la pestaña puede que no haya otra oportunidad de guardar.
+    guardarPartida();
   }
 
-  function empezar(): void {
+  /**
+   * Empieza una partida individual: nueva (inventario vacío: la linterna y el cuaderno se
+   * recogen en la portería) o, con `g`, la que estaba guardada. El tiempo con la pestaña
+   * cerrada no cuenta: el reloj sigue desde lo que quedaba.
+   */
+  function empezar(g: Guardado | null): void {
     cambiar((t) => {
-      partida = crearPartida();
-      pistasPorSala = {};
-      ajustes = {};
-      contadorNotas = 0;
+      partida = g ? g.partida : crearPartida();
+      pistasPorSala = g ? { ...g.pistas } : {};
+      ajustes = g ? { ...g.mecanismos } : {};
+      // Las notas nuevas siguen la numeración guardada, para no repetir ids.
+      contadorNotas = g ? Math.max(0, ...g.notas.map((n) => Number(n.id.slice(1)))) : 0;
       motivos.clear();
       if (documento?.hidden) motivos.add('oculta');
       batch(() => {
@@ -259,9 +326,17 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         reiniciarMecanismo();
         modo.value = 'individual';
         fase.value = 'jugando';
-        // El inventario empieza vacío: la linterna y el cuaderno se recogen en la portería.
-        reloj.value = crearReloj(DURACION_MS, t);
+        reloj.value = crearReloj(g ? g.restanteMs : DURACION_MS, t);
+        if (g) {
+          notas.value = g.notas;
+          datosEncontrados.value = g.datos;
+          // Un objeto que ya no existe en el contenido no vuelve al inventario.
+          inventario.value = g.inventario.flatMap((id) => objetoDeInventario(id) ?? []);
+          cuadernoActivo.value = g.inventario.includes(OBJETO_CUADERNO);
+        }
       });
+      // Si se guardó justo al acabarse el tiempo, no queda nada que jugar.
+      if (g && g.restanteMs <= 0) partida = aplicar(partida, { t: 'tiempo_agotado' });
     });
   }
 
@@ -271,6 +346,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     partida = null;
     marca = null;
     motivos.delete('orden');
+    // Salir es abandonar la partida («Se pierde lo que llevas»): también se borra lo guardado.
+    if (almacen) borrarGuardado(almacen);
+    guardada.value = null;
     batch(() => {
       quitarEjemplo();
       reiniciarInterfaz();
@@ -284,6 +362,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   function cargarDatosDeEjemplo(finalPedido: FinalId | null): void {
     const base = partida;
     if (!base || base.fase !== 'jugando') return;
+    // Los datos de ejemplo no son una partida: no dejan nada guardado que continuar.
+    if (almacen) borrarGuardado(almacen);
+    guardada.value = null;
     cambiar(() => {
       let p: Partida = { ...base, etapas: { ...base.etapas, 's1-cooperativa': ETAPAS_POR_SALA } };
       if (finalPedido) {
@@ -364,11 +445,24 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   }
 
   function atender(comando: Comando): void {
+    despachar(comando);
+    // Se guarda después de cada orden (T31c). `salir` ya borró el guardado y dejó sin partida.
+    guardarPartida();
+  }
+
+  function despachar(comando: Comando): void {
     switch (comando.t) {
       case 'iniciar':
         // El cooperativo aún no existe: solo se atiende el modo individual.
-        if (comando.modo === 'individual') empezar();
+        if (comando.modo === 'individual') empezar(null);
         return;
+      case 'continuar': {
+        // Solo desde el menú, y solo si lo guardado sigue siendo válido.
+        if (partida) return;
+        const g = mirarGuardado();
+        if (g) empezar(g);
+        return;
+      }
       case 'salir':
         salir();
         return;
@@ -404,7 +498,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         if (!partida || partida.fase !== 'jugando') return;
         if (comando.op === 'agregar') {
           const texto = limpiarNota(comando.texto);
-          if (texto) notas.value = [...notas.value, { id: `n${++contadorNotas}`, texto }];
+          // Más notas de las que acepta el guardado harían que no se pudiera reanudar.
+          if (!texto || notas.value.length >= MAX_NOTAS) return;
+          notas.value = [...notas.value, { id: `n${++contadorNotas}`, texto }];
         } else {
           notas.value = notas.value.filter((n) => n.id !== comando.id);
         }
@@ -414,6 +510,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
   const dejarDeEscuchar = escuchar(atender);
   documento?.addEventListener('visibilitychange', alCambiarVisibilidad);
+  mirarGuardado();
   return () => {
     dejarDeEscuchar();
     documento?.removeEventListener('visibilitychange', alCambiarVisibilidad);

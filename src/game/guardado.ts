@@ -28,10 +28,12 @@ import { DURACION_MS } from './reloj';
  */
 
 export const CLAVE_GUARDADO = 'la-ultima-prueba:partida';
-export const VERSION_GUARDADO = 1;
+/** Versión 2 (T31c): se agrega `inventario`. */
+export const VERSION_GUARDADO = 2;
 export const MAX_NOTAS = 50;
 export const MAX_NOTA = 280;
 export const MAX_DATOS = 100;
+export const MAX_INVENTARIO = 40;
 
 export interface NotaGuardada {
   id: string;
@@ -50,6 +52,8 @@ export interface Guardado {
   /** Cuaderno: notas del jugador e ids de los objetos con datos encontrados. */
   notas: NotaGuardada[];
   datos: string[];
+  /** Ids de los objetos recogidos (linterna, cuaderno, hojas…), en el orden en que se recogieron. */
+  inventario: string[];
 }
 
 /** Lo mínimo de `localStorage` que se usa. */
@@ -60,6 +64,7 @@ export interface Almacen {
 }
 
 const ID_NOTA = /^n[0-9]{1,6}$/;
+/** Forma de un id de objeto (datos encontrados e inventario). */
 const ID_DATO = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** Guarda la partida. Solo mientras se juega: un final borra el guardado. */
@@ -99,7 +104,18 @@ export function borrarGuardado(almacen: Almacen): void {
 /** Revisa un guardado que llega de fuera y devuelve una copia limpia, o null si no sirve. */
 export function leerGuardado(x: unknown, puzzles: readonly Puzzle[]): Guardado | null {
   if (!esObjeto(x)) return null;
-  if (!soloClaves(x, ['v', 'partida', 'restanteMs', 'pistas', 'mecanismos', 'notas', 'datos'])) {
+  if (
+    !soloClaves(x, [
+      'v',
+      'partida',
+      'restanteMs',
+      'pistas',
+      'mecanismos',
+      'notas',
+      'datos',
+      'inventario',
+    ])
+  ) {
     return null;
   }
   if (x['v'] !== VERSION_GUARDADO) return null;
@@ -113,8 +129,9 @@ export function leerGuardado(x: unknown, puzzles: readonly Puzzle[]): Guardado |
 
   const pistas = leerPistas(x['pistas']);
   const notas = leerNotas(x['notas']);
-  const datos = leerDatos(x['datos']);
-  if (!pistas || !notas || !datos) return null;
+  const datos = leerIds(x['datos'], MAX_DATOS);
+  const inventario = leerIds(x['inventario'], MAX_INVENTARIO);
+  if (!pistas || !notas || !datos || !inventario) return null;
 
   return {
     v: VERSION_GUARDADO,
@@ -124,6 +141,7 @@ export function leerGuardado(x: unknown, puzzles: readonly Puzzle[]): Guardado |
     mecanismos: leerMecanismos(x['mecanismos'], partida, puzzles),
     notas,
     datos,
+    inventario,
   };
 }
 
@@ -220,8 +238,9 @@ function leerNotas(x: unknown): NotaGuardada[] | null {
   return new Set(notas.map((n) => n.id)).size === notas.length ? notas : null;
 }
 
-function leerDatos(x: unknown): string[] | null {
-  if (!Array.isArray(x) || x.length > MAX_DATOS) return null;
+/** Lista de ids de objeto sin repetir (datos encontrados o inventario). */
+function leerIds(x: unknown, maximo: number): string[] | null {
+  if (!Array.isArray(x) || x.length > maximo) return null;
   if (!x.every((d) => typeof d === 'string' && d.length <= 60 && ID_DATO.test(d))) return null;
   return new Set(x).size === x.length ? (x as string[]) : null;
 }
