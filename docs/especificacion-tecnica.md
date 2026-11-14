@@ -761,7 +761,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 6 · Recorte vertical: portería y sala 1
 
 - [ ] **T44** Blockout de portería y sala 1 con cajas de colisión — 55 min
-- [ ] **T45** (v1.2) Sala 1: etiquetadora con rodillos y palanca, pizarra de precios y registradora, en tres etapas — 50 min
+- [x] **T45** (v1.2) Sala 1: etiquetadora con rodillos y palanca, pizarra de precios y registradora, en tres etapas — 50 min
 - [ ] **T46** Props de la sala 1, lote 1: caja, registradora, menú — 55 min
 - [ ] **T47** Props de la sala 1, lote 2: estanterías y ambientación — 55 min
 - [ ] **T48** Hornear el lightmap de la sala 1 y exportar — 45 min

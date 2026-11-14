@@ -1,0 +1,81 @@
+/* Panel de la etiquetadora (T45). Va dentro del marco de mecanismos. */
+
+/* La etiqueta del producto y el precio de la pizarra, lado a lado. */
+.etiquetas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
+}
+
+.etiqueta {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f4efe3;
+  color: #1d1d1d;
+}
+
+.etiqueta dt {
+  font-size: 0.8125rem;
+  color: #4a4336;
+}
+
+.etiqueta dd {
+  margin: 2px 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La pizarra es oscura, con tiza. */
+.etiqueta-pizarra {
+  background: #1e3d32;
+  color: #f2f2f2;
+}
+
+.etiqueta-pizarra dt {
+  color: #c9d6cf;
+}
+
+/* Las dos ranuras de la máquina. */
+.ranuras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ranura {
+  flex: 1 1 8rem;
+  padding: 8px 12px;
+  border: 2px solid #e8a33d;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ranura-vacia {
+  border-style: dashed;
+  border-color: #6b7785;
+  color: #b8c2cc;
+  font-weight: 400;
+}
+
+.ranura-nombre {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #b8c2cc;
+}
+
+/* La etiqueta recién impresa. */
+.etiqueta-impresa {
+  margin: 0 0 6px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
