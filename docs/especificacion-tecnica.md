@@ -609,6 +609,24 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 - **Migración de anfitrión:** si el anfitrión falta 5 s, asume el jugador con `unido_en` más antiguo; pausa el reloj, emite `anfitrion` y `estado` desde su última copia, y reanuda a los 3 s.
 - **Versiones:** si `v` o `version_contenido` no coinciden, se rechaza la unión con el mensaje «Actualiza la página».
 
+### Reparto y rotación de encargos (T29)
+
+`src/game/reparto.ts` calcula quién tiene cada encargo. Es una función pura de la lista de jugadores, en el orden en que se unieron (`unido_en`), y del número de la sala: el anfitrión la usa para emitir `inicio` y `roles`, y cualquier cliente puede recalcularla.
+
+| Jugadores | Sala 1 | Sala 2 | Sala 3 | Sala 4 | Sala 5 |
+| --- | --- | --- | --- | --- | --- |
+| 1 (individual) | ABCD | ABCD | ABCD | ABCD | ABCD |
+| 2 | AB · CD | CD · AB | AB · CD | CD · AB | AB · CD |
+| 3 | A · BC · D | BC · D · A | D · A · BC | A · BC · D | BC · D · A |
+| 4 | A · B · C · D | B · C · D · A | C · D · A · B | D · A · B · C | A · B · C · D |
+
+Cada celda lista los encargos del jugador 1, del 2, y así en orden. La sala 1 es la tabla de `docs/diseno.md`. En cada sala siguiente, cada jugador recibe el grupo de encargos que tenía el jugador siguiente, así que D (quien acciona la máquina) pasa por todo el grupo y nadie lo repite en dos salas seguidas. Los grupos no se parten: con 3 jugadores, B y C siempre van juntos.
+
+- El reparto depende de la sala, no de cuántas veces se entró: volver a una sala anterior devuelve el mismo reparto.
+- El orden de los jugadores queda fijo al empezar la partida, aunque alguien se desconecte.
+- **Suplente de D** (`repartirConectados`): si quien tiene D está desconectado, D pasa al siguiente jugador conectado en ese orden; A, B y C no se mueven. Cuando el ausente vuelve, recupera D.
+- Con 4 jugadores y 5 salas, la sala 5 repite el reparto de la sala 1.
+
 ### Costo frente a los límites de Supabase
 
 Supabase cuenta un evento por cada mensaje enviado o entregado, así que una pose que reciben tres compañeros cuesta 4 eventos. Con la mitad del grupo moviéndose a 4 Hz, una partida de 4 gasta unos 32 eventos/s y un salón de 10 grupos, unos 320/s.
@@ -693,7 +711,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T27** Pistas graduales por intentos o tiempo en la etapa — 35 min
 - [x] **T27b** (nueva) Qué cuenta como «intento» en cada puzzle (`intento` por etapa y `src/game/intentos.ts`) y duración de la corrida de la sala 2 atada a la campana — 45 min
 - [x] **T28** Sellos, grabaciones y reglas de los cuatro finales, con un test por final — 50 min
-- [ ] **T29** Reparto de roles A–D por número de jugadores y rotación entre salas, con tests — 40 min
+- [x] **T29** Reparto de roles A–D por número de jugadores y rotación entre salas, con tests — 40 min
 - [x] **T30** Guardar y reanudar la partida individual tras recargar — 40 min
 
 ### Fase 4 · HUD y menús (Preact + Signals)
