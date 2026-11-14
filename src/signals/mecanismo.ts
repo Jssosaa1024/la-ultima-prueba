@@ -6,7 +6,8 @@ import type { SalaConSello } from './partida';
  *
  * Lo escribe el controlador de la partida (`controlador.ts`) con las reglas de `game/`. Los
  * paneles solo leen: los textos y los controles de cada etapa salen de `content/puzzles.ts`
- * con el id del puzzle y el número de etapa.
+ * con el id del puzzle y el número de etapa. Para cambiar algo, el panel envía por el puente
+ * `ajustar` (ajustes nuevos, completos) o `accionar` (la palanca, la polea o la manija).
  */
 
 export interface EtapaActual {
@@ -37,11 +38,37 @@ export const condiciones = signal<Readonly<Record<string, boolean>>>({});
 
 export const pistas = signal<PistasDeSala>({ ofrecidas: 0, vistas: 0 });
 
+/**
+ * Lo último que respondió una máquina (T31d): al accionarla (palanca, polea, manija) o, en las
+ * máquinas que responden en vivo, al quedar resuelta. El panel lo usa para mostrar lo que pasó
+ * con esos ajustes; la máquina nunca dice «incorrecto».
+ *
+ * Cuando `resuelta` es verdadero la partida ya avanzó: `etapa` y `mecanismo` son de la etapa
+ * siguiente (o `null` si la sala quedó resuelta), y este resultado sigue siendo el de antes.
+ */
+export interface ResultadoMecanismo {
+  /** Sube con cada resultado, para animar aunque sea igual al anterior. */
+  n: number;
+  sala: SalaConSello;
+  puzzle: string;
+  /** Etapa en la que se dio el resultado (0 a 2). */
+  etapa: number;
+  /** Ajustes con los que respondió la máquina. */
+  estado: unknown;
+  condiciones: Readonly<Record<string, boolean>>;
+  resuelta: boolean;
+  /** Con esta etapa se resolvió la sala: hay sello nuevo. */
+  sello: boolean;
+}
+
+export const resultado = signal<ResultadoMecanismo | null>(null);
+
 export function reiniciarMecanismo(): void {
   batch(() => {
     etapa.value = null;
     mecanismo.value = null;
     condiciones.value = {};
     pistas.value = { ofrecidas: 0, vistas: 0 };
+    resultado.value = null;
   });
 }
