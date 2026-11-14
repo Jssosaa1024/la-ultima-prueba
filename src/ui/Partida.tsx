@@ -8,6 +8,7 @@ import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
+import PanelMecanismo from './mecanismos/PanelMecanismo';
 import PedirAyuda from './paneles/PedirAyuda';
 
 /**
@@ -29,6 +30,7 @@ export default function Partida() {
       {abierto === 'cuaderno' && <Cuaderno />}
       {abierto === 'salida' && <EleccionFinal />}
       {abierto === 'ayuda' && <PedirAyuda />}
+      {abierto === 'mecanismo' && <PanelMecanismo />}
       <IndicadorCarga />
       <Anunciador />
     </>

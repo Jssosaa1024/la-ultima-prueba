@@ -12,9 +12,10 @@ import { fase } from './partida';
 
 /**
  * Panel 2D abierto encima de la escena. Solo uno a la vez. `salida` es la elección de final
- * frente a la puerta de salida y `ayuda`, la confirmación del intercomunicador.
+ * frente a la puerta de salida; `ayuda`, la confirmación del intercomunicador; y `mecanismo`,
+ * la máquina de la sala actual.
  */
-export type Panel = 'cuaderno' | 'inspeccion' | 'pausa' | 'salida' | 'ayuda';
+export type Panel = 'cuaderno' | 'inspeccion' | 'pausa' | 'salida' | 'ayuda' | 'mecanismo';
 
 /** Lo que pasa al tocar el botón contextual sobre el objeto enfocado. */
 export type AccionObjeto = 'usar' | 'recoger' | 'examinar';
@@ -47,6 +48,12 @@ export const enfocado = signal<ObjetoEnfocado | null>(null);
 /** Id del objeto que se ve en la vista de inspección 2D. */
 export const inspeccionando = signal<string | null>(null);
 export const carga = signal<Carga>({ estado: 'inactiva', progreso: 0 });
+/**
+ * Número (`n`) del último resultado resuelto de una máquina al que el jugador ya le dio
+ * «Seguir» en su panel. Mientras el signal `resultado` tenga uno más nuevo, el panel sigue
+ * mostrando la etapa resuelta. Lo escribe el panel de mecanismo.
+ */
+export const resultadoVisto = signal(0);
 /** Último aviso sin leer. Lo escribe el controlador y lo borra el HUD al rato de mostrarlo. */
 export const aviso = signal<Aviso | null>(null);
 
@@ -69,8 +76,8 @@ export function abrirCuaderno(): void {
   });
 }
 
-/** Abre un panel que no necesita más datos (la puerta de salida o el intercomunicador). */
-export function abrirPanel(cual: 'salida' | 'ayuda'): void {
+/** Abre un panel que no necesita más datos (la puerta de salida, la máquina de la sala…). */
+export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo'): void {
   batch(() => {
     inspeccionando.value = null;
     panel.value = cual;

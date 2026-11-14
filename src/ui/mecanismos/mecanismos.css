@@ -1,0 +1,150 @@
+/* Marco común de los paneles de mecanismo (T37). Va dentro de un Dialogo. */
+
+.mecanismo-situacion {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-left: 4px solid #e8a33d;
+  border-radius: 4px;
+  background: rgb(232 163 61 / 12%);
+}
+
+.mecanismo-nota {
+  margin: 12px 0 0;
+  font-size: 0.9375rem;
+  color: #b8c2cc;
+}
+
+.mecanismo-resuelta {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #24402f;
+  color: #f2f2f2;
+  font-weight: 600;
+}
+
+/* Un control: su nombre arriba y los botones debajo. */
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.control-etiqueta {
+  font-size: 0.9375rem;
+  color: #b8c2cc;
+}
+
+/* Pasos: menos, valor, más. */
+.pasos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pasos-boton,
+.opcion {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid #6b7785;
+  border-radius: 8px;
+  background: transparent;
+  color: #f2f2f2;
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pasos-valor {
+  min-width: 4.5rem;
+  text-align: center;
+  font-size: 1.375rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pasos-boton:disabled,
+.opcion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Opciones: una fila de botones que se doblan en pantallas angostas. */
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opcion-puesta {
+  border-color: #e8a33d;
+  background: #e8a33d;
+  color: #111418;
+}
+
+.pasos-boton:focus-visible,
+.opcion:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #111418;
+}
+
+/* Lo que hizo la máquina: una hoja clara, como la ficha de inspección. */
+.respuesta {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f4efe3;
+  color: #1d1d1d;
+}
+
+.respuesta-titulo {
+  margin: 0 0 4px;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4a4336;
+}
+
+.respuesta > :last-child {
+  margin-bottom: 0;
+}
+
+/* Lámparas y sensores. */
+.indicadores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.indicador {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 2px solid #6b7785;
+  border-radius: 999px;
+  color: #b8c2cc;
+}
+
+.indicador-luz {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #8a96a3;
+  border-radius: 50%;
+}
+
+.indicador-encendido {
+  border-color: #e8a33d;
+  color: #f2f2f2;
+  font-weight: 700;
+}
+
+.indicador-encendido .indicador-luz {
+  border-color: #e8a33d;
+  background: #e8a33d;
+}
