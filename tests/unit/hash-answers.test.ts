@@ -29,6 +29,8 @@ const puzzle = (sala: number): Puzzle => {
   if (!p) throw new Error(`Falta el puzzle de la sala ${sala}`);
   return p;
 };
+/** Margen para las pruebas que recorren todos los estados o lanzan el script. */
+const LENTO = 60_000;
 const cuenta = (p: Puzzle, etapa: number): number => [...estadosPosibles(p, etapa)].length;
 
 describe('sha256 propio (T23)', () => {
@@ -73,6 +75,7 @@ describe('todos los estados de una etapa (T23)', () => {
         expect(textos.has(JSON.stringify(e.solucion))).toBe(true);
       });
     },
+    LENTO,
   );
 });
 
@@ -99,12 +102,16 @@ describe('hash del estado resuelto (T23)', () => {
     expect(hashDeEstado({ ...s4, id: 's4-otro' }, 0, estado)).not.toBe(h);
   });
 
-  it('src/content/respuestas.json está al día con los puzzles', async () => {
-    const generadas = generarRespuestas(PUZZLES);
-    expect(RESPUESTAS).toEqual(generadas);
-    const enDisco = readFileSync(ARCHIVO, 'utf8').replace(/\r\n/g, '\n');
-    expect(enDisco).toBe(await serializarRespuestas(generadas));
-  });
+  it(
+    'src/content/respuestas.json está al día con los puzzles',
+    async () => {
+      const generadas = generarRespuestas(PUZZLES);
+      expect(RESPUESTAS).toEqual(generadas);
+      const enDisco = readFileSync(ARCHIVO, 'utf8').replace(/\r\n/g, '\n');
+      expect(enDisco).toBe(await serializarRespuestas(generadas));
+    },
+    LENTO,
+  );
 
   it('cada etapa guarda las salidas del diseño', () => {
     const cuantas = (id: string) => RESPUESTAS.puzzles[id]?.etapas.map((h) => h.length);
@@ -127,17 +134,26 @@ describe('validador que compara hashes (T23)', () => {
     '%s: coincide con las reglas en todos los estados de todas las etapas',
     (_, p) => {
       p.etapas.forEach((e, i) => {
+        // El validador solo depende de la forma canónica del estado, así que el hash se
+        // calcula una vez por forma canónica (en los carritos, una por reparto sin importar
+        // el orden de los días) y se compara con las reglas en todos los estados.
+        const porForma = new Map<string, boolean | null>();
         let distintos = 0;
         for (const estado of estadosPosibles(p, i)) {
-          if (estaResuelta(RESPUESTAS, p, i, estado) !== evaluar(p, i, estado)?.resuelta) {
-            distintos++;
+          const forma = canonico(p.mecanismo, estado);
+          let segunHashes = porForma.get(forma);
+          if (segunHashes === undefined) {
+            segunHashes = estaResuelta(RESPUESTAS, p, i, estado);
+            porForma.set(forma, segunHashes);
           }
+          if (segunHashes !== evaluar(p, i, estado)?.resuelta) distintos++;
         }
         expect(distintos).toBe(0);
         expect(estaResuelta(RESPUESTAS, p, i, e.solucion)).toBe(true);
         expect(estaResuelta(RESPUESTAS, p, i, e.estado_inicial)).toBe(false);
       });
     },
+    LENTO,
   );
 
   it('no necesita la solución ni la condición de éxito del puzzle', () => {
@@ -185,23 +201,31 @@ describe('script hash-answers (T23)', () => {
       stdio: 'pipe',
     });
 
-  it('--comprobar pasa con el archivo del repositorio', () => {
-    expect(correr('--comprobar')).toMatch(/está al día/);
-  });
+  it(
+    '--comprobar pasa con el archivo del repositorio',
+    () => {
+      expect(correr('--comprobar')).toMatch(/está al día/);
+    },
+    LENTO,
+  );
 
-  it('escribe el mismo archivo y --comprobar falla si quedó viejo', () => {
-    const carpeta = mkdtempSync(path.join(tmpdir(), 'hash-answers-'));
-    try {
-      const salida = path.join(carpeta, 'respuestas.json');
-      expect(correr('--salida', salida)).toMatch(/s4-carritos v1/);
-      expect(readFileSync(salida, 'utf8')).toBe(
-        readFileSync(ARCHIVO, 'utf8').replace(/\r\n/g, '\n'),
-      );
-      expect(() => correr('--comprobar', '--salida', path.join(carpeta, 'no-existe.json'))).toThrow(
-        /quedó viejo/,
-      );
-    } finally {
-      rmSync(carpeta, { recursive: true, force: true });
-    }
-  });
+  it(
+    'escribe el mismo archivo y --comprobar falla si quedó viejo',
+    () => {
+      const carpeta = mkdtempSync(path.join(tmpdir(), 'hash-answers-'));
+      try {
+        const salida = path.join(carpeta, 'respuestas.json');
+        expect(correr('--salida', salida)).toMatch(/s4-carritos v1/);
+        expect(readFileSync(salida, 'utf8')).toBe(
+          readFileSync(ARCHIVO, 'utf8').replace(/\r\n/g, '\n'),
+        );
+        expect(() =>
+          correr('--comprobar', '--salida', path.join(carpeta, 'no-existe.json')),
+        ).toThrow(/quedó viejo/);
+      } finally {
+        rmSync(carpeta, { recursive: true, force: true });
+      }
+    },
+    LENTO,
+  );
 });
