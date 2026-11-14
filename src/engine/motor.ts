@@ -15,7 +15,7 @@ import { conectarTactil } from '../input/tactil';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
-import { sala, sellos } from '../signals/partida';
+import { fase, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { crearInteraccion } from './interaccion/interaccion';
 import type { Interaccion } from './interaccion/interaccion';
@@ -78,6 +78,24 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   let mostrada: Lugar | null = null;
   let precarga: ReturnType<typeof setTimeout> | undefined;
   let detenido = false;
+  const depuracion = { mirada: '', posicion: '' };
+
+  /** Dibuja un cuadro. Lo llama el bucle y, con el bucle en pausa, quien cambie la escena. */
+  const dibujar = (): void => {
+    escribirDepuracion(canvas, depuracion, orientacion, camara.position);
+    const geometrias = String(renderer.info.memory.geometries);
+    if (canvas.dataset['geometrias'] !== geometrias) canvas.dataset['geometrias'] = geometrias;
+    seguirTamano(renderer, camara);
+    renderer.info.reset();
+    renderer.render(escena, camara);
+  };
+  /**
+   * Detrás del menú y de los finales el bucle no corre (T20b). Si la escena cambia mientras
+   * tanto (terminó de cargar una sala), se dibuja un solo cuadro para que no quede la anterior.
+   */
+  const dibujarSiEnPausa = (): void => {
+    if (!detenido && estadoMotor.value === 'pausado' && !document.hidden) dibujar();
+  };
 
   const cambiarA = async (lugar: Lugar): Promise<void> => {
     if (mostrada === lugar) return;
@@ -98,6 +116,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     canvas.dataset['sala'] = lugar;
     // Mallas de la sala: las geometrías en la GPU no deben pasar de aquí (más las de la portería).
     canvas.dataset['mallas'] = String(nueva.mallas);
+    dibujarSiEnPausa();
     // Con calma, se arma en la CPU la siguiente sala sin sello.
     precarga = setTimeout(() => {
       const siguiente = siguienteSala(lugar, sellos.value);
@@ -149,7 +168,6 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       punteroBloqueado.value = bloqueado;
     },
   });
-  const depuracion = { mirada: '', posicion: '' };
   let cuadro = 0;
 
   const bucle = crearBucle({
@@ -180,19 +198,28 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion?.tocar(0, 0);
       interaccion?.actualizar();
       publicarJoystick(entrada);
-      escribirDepuracion(canvas, depuracion, orientacion, camara.position);
-      const geometrias = String(renderer.info.memory.geometries);
-      if (canvas.dataset['geometrias'] !== geometrias) canvas.dataset['geometrias'] = geometrias;
-
-      seguirTamano(renderer, camara);
-      renderer.info.reset();
-      renderer.render(escena, camara);
+      dibujar();
     },
     alCambiarEstado: (estado) => {
       estadoMotor.value = estado;
       // Atributo para las pruebas e2e y para depurar desde el navegador.
       canvas.dataset['motor'] = estado;
     },
+    // Hasta que empiece la partida no hay nada que animar.
+    permitido: fase.peek() === 'jugando',
+  });
+
+  // El motor solo dibuja durante la partida (T20b). Detrás del menú y de las pantallas de
+  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor.
+  const dejarDeSeguirFase = effect(() => {
+    const jugando = fase.value === 'jugando';
+    if (!jugando) {
+      // Lo que hacía el bucle en cada cuadro sin controles: soltar dedos, teclas y ratón.
+      soltarTodo(entrada);
+      if (document.pointerLockElement === canvas) document.exitPointerLock();
+      joystick.value = null;
+    }
+    bucle.permitir(jugando);
   });
 
   return () => {
@@ -203,6 +230,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     detenido = true;
     clearTimeout(precarga);
     dejarDeSeguirSala();
+    dejarDeSeguirFase();
     dejarDeEscuchar();
     interaccion?.liberar();
     joystick.value = null;

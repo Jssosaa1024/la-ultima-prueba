@@ -85,6 +85,63 @@ describe('bucle de juego', () => {
     expect(bucle.estado).toBe('activo');
   });
 
+  it('sin permiso no corre aunque la pestaña se vea, y con permiso arranca sin saltar el tiempo (T20b)', () => {
+    const doc = documentoFalso();
+    const reloj = programadorFalso();
+    const estados: EstadoBucle[] = [];
+    const pasos: number[] = [];
+    const bucle = crearBucle({
+      programar: reloj.programar,
+      alCuadro: (dt) => pasos.push(dt),
+      alCambiarEstado: (e) => estados.push(e),
+      documento: doc,
+      permitido: false,
+    });
+    // En el menú: no se programa ningún cuadro.
+    expect(bucle.estado).toBe('pausado');
+    expect(reloj.corriendo).toBe(false);
+
+    // Empieza la partida.
+    bucle.permitir(true);
+    expect(reloj.corriendo).toBe(true);
+    reloj.tic(5000);
+    reloj.tic(5016);
+
+    // Pantalla de final: se detiene; volver a jugar no arrastra el tiempo que pasó.
+    bucle.permitir(false);
+    expect(reloj.corriendo).toBe(false);
+    bucle.permitir(true);
+    reloj.tic(90_000);
+    reloj.tic(90_016);
+    expect(pasos).toEqual([0, 0.016, 0, 0.016]);
+    expect(estados).toEqual(['pausado', 'activo', 'pausado', 'activo']);
+  });
+
+  it('con la pestaña oculta el permiso no lo arranca; hacen falta las dos cosas (T20b)', () => {
+    const doc = documentoFalso(true);
+    const reloj = programadorFalso();
+    const estados: EstadoBucle[] = [];
+    const bucle = crearBucle({
+      programar: reloj.programar,
+      alCuadro: () => {},
+      alCambiarEstado: (e) => estados.push(e),
+      documento: doc,
+      permitido: false,
+    });
+    bucle.permitir(true);
+    expect(reloj.corriendo).toBe(false);
+    doc.cambiar(false);
+    expect(reloj.corriendo).toBe(true);
+    // Volver a la pestaña sin permiso (en el menú) no arranca nada.
+    bucle.permitir(false);
+    doc.cambiar(true);
+    doc.cambiar(false);
+    expect(reloj.corriendo).toBe(false);
+    // Repetir el mismo permiso no avisa dos veces.
+    bucle.permitir(false);
+    expect(estados).toEqual(['pausado', 'activo', 'pausado']);
+  });
+
   it('detener quita el oyente y no vuelve a arrancar', () => {
     const doc = documentoFalso();
     const reloj = programadorFalso();
@@ -95,6 +152,9 @@ describe('bucle de juego', () => {
     expect(doc.oyentes).toBe(0);
     doc.cambiar(true);
     doc.cambiar(false);
+    expect(reloj.corriendo).toBe(false);
+    bucle.permitir(true);
+    expect(bucle.estado).toBe('detenido');
     expect(reloj.corriendo).toBe(false);
   });
 });

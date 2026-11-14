@@ -50,10 +50,14 @@ async function arrastrarRaton(page: Page, a: Punto, b: Punto, quieto = 0): Promi
 async function abrirJuego(page: Page) {
   await page.goto('/jugar');
   const canvas = page.getByLabel('Escena del juego');
-  await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  // Detrás del menú el motor está listo, pero no dibuja (T20b).
+  await expect(canvas).toHaveAttribute('data-motor', 'pausado');
   // El menú de inicio (T32) tapa la escena hasta que se toca «Jugar solo». Un solo clic:
   // después del primero el menú desaparece.
   await page.getByRole('button', { name: 'Jugar solo' }).click();
+  await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  // La sala ya se dibujó al menos una vez: hay mirada y posición que leer.
+  await expect(canvas).toHaveAttribute('data-mirada', /,/);
   const caja = await canvas.boundingBox();
   if (!caja) throw new Error('sin canvas');
   return { canvas, caja };

@@ -30,11 +30,17 @@ test('/jugar muestra el canvas a pantalla completa, sin scroll y sin errores', a
   expect(errores).toEqual([]);
 });
 
-test('/jugar arranca el motor 3D y lo pausa al ocultar la pestaña', async ({ page }) => {
+test('/jugar arranca el motor 3D, que solo dibuja en la partida y con la pestaña a la vista', async ({
+  page,
+}) => {
   const errores: string[] = [];
   page.on('pageerror', (e) => errores.push(e.message));
   await page.goto('/jugar');
   const canvas = page.getByLabel('Escena del juego');
+  // Detrás del menú no dibuja (T20b); la portería se arma y queda lista.
+  await expect(canvas).toHaveAttribute('data-motor', 'pausado');
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+  await page.getByRole('button', { name: 'Jugar solo' }).click();
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
 
   const cambiarVisibilidad = (oculta: boolean) =>
@@ -52,6 +58,15 @@ test('/jugar arranca el motor 3D y lo pausa al ocultar la pestaña', async ({ pa
   await cambiarVisibilidad(false);
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
 
+  // Al salir al menú vuelve a detenerse, y volver a la pestaña no lo arranca.
+  page.once('dialog', (d) => void d.accept());
+  await page.getByRole('button', { name: 'Salir' }).click();
+  await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-motor', 'pausado');
+  await cambiarVisibilidad(true);
+  await cambiarVisibilidad(false);
+  await expect(canvas).toHaveAttribute('data-motor', 'pausado');
+
   // El canvas tiene contexto WebGL2 y el búfer respeta el DPR máximo de 1,25.
   const info = await canvas.evaluate((c: HTMLCanvasElement) => ({
     webgl2: c.getContext('webgl2') !== null,
@@ -60,6 +75,52 @@ test('/jugar arranca el motor 3D y lo pausa al ocultar la pestaña', async ({ pa
   expect(info.webgl2).toBe(true);
   expect(info.relacion).toBeLessThanOrEqual(1.26);
   expect(errores).toEqual([]);
+});
+
+test('mientras una sala se prepara se ve «Cargando sala…», y se quita al terminar (T20b)', async ({
+  page,
+}) => {
+  // Las salas por código cargan en milisegundos. Para ver el aviso se frena la compilación de
+  // shaders: Three espera a `COMPLETION_STATUS_KHR` (extensión KHR_parallel_shader_compile).
+  await page.addInitScript(() => {
+    const ventana = window as unknown as { cargaLenta: boolean };
+    ventana.cargaLenta = true;
+    const COMPLETION_STATUS_KHR = 0x91b1;
+    const gl = WebGL2RenderingContext.prototype;
+    const extension = gl.getExtension as (this: WebGL2RenderingContext, nombre: string) => unknown;
+    gl.getExtension = function (this: WebGL2RenderingContext, nombre: string): unknown {
+      if (nombre === 'KHR_parallel_shader_compile') return { COMPLETION_STATUS_KHR };
+      return extension.call(this, nombre);
+    } as typeof gl.getExtension;
+    const parametro = gl.getProgramParameter;
+    gl.getProgramParameter = function (
+      this: WebGL2RenderingContext,
+      programa: WebGLProgram,
+      nombre: number,
+    ): unknown {
+      if (nombre === COMPLETION_STATUS_KHR) return !ventana.cargaLenta;
+      return parametro.call(this, programa, nombre);
+    };
+  });
+  await page.goto('/jugar');
+  const canvas = page.getByLabel('Escena del juego');
+  const aviso = page.getByRole('status').filter({ hasText: 'Cargando sala' });
+
+  // En el menú no hay aviso, aunque la portería todavía se esté preparando.
+  await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+  await expect(aviso).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Jugar solo' }).click();
+  await expect(aviso).toBeVisible();
+  await expect(canvas).not.toHaveAttribute('data-sala', 'porteria');
+  // El aviso no recibe toques.
+  expect(await aviso.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+
+  await page.evaluate(() => {
+    (window as unknown as { cargaLenta: boolean }).cargaLenta = false;
+  });
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+  await expect(aviso).toHaveCount(0);
 });
 
 test('/jugar?prueba=glb carga el GLB de prueba con meshopt y KTX2 desde el propio sitio', async ({
