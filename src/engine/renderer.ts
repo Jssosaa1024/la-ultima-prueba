@@ -29,11 +29,14 @@ export function seguirTamano(renderer: WebGLRenderer, camara: PerspectiveCamera)
   const canvas = renderer.domElement;
   const ancho = Math.max(1, canvas.width);
   const alto = Math.max(1, canvas.height);
+  const aspecto = ancho / alto;
   const tamano = renderer.getDrawingBufferSize(TAMANO);
-  if (tamano.x === ancho && tamano.y === alto) return;
+  // También se compara el aspecto: el canvas ya tiene su tamaño cuando se crea el renderer,
+  // así que en el primer cuadro el búfer coincide pero la cámara aún no sabe la proporción.
+  if (tamano.x === ancho && tamano.y === alto && camara.aspect === aspecto) return;
   // updateStyle = false: el CSS del canvas (100 % de la pantalla) lo maneja la interfaz.
   renderer.setSize(ancho, alto, false);
-  camara.aspect = ancho / alto;
+  camara.aspect = aspecto;
   camara.updateProjectionMatrix();
 }
 
