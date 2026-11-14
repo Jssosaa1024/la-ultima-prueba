@@ -121,6 +121,56 @@ test('con dos dedos se camina y se mira a la vez', async ({ page }, info) => {
   expect(Math.hypot(x1, z1 - z0)).toBeGreaterThan(0.3);
 });
 
+test('el joystick se dibuja donde toca el dedo y la perilla lo sigue (T15b)', async ({
+  page,
+}, info) => {
+  test.skip(!info.project.use.hasTouch, 'táctil solo en el perfil celular');
+  const { caja } = await abrirJuego(page);
+  const base = page.locator('.joystick');
+  const centro = async (selector: string): Promise<Punto> => {
+    const c = await page.locator(selector).boundingBox();
+    if (!c) throw new Error(`sin ${selector}`);
+    return { x: c.x + c.width / 2, y: c.y + c.height / 2 };
+  };
+
+  // En reposo, una guía tenue en la mitad izquierda dice dónde poner el pulgar.
+  await expect(base).toBeVisible();
+  await expect(base).not.toHaveClass(/joystick-activo/);
+  expect((await centro('.joystick')).x).toBeLessThan(caja.x + caja.width / 2);
+  // El dibujo no recibe toques: no puede estorbar a la escena ni al HUD.
+  expect(await base.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+
+  const dedo = { x: caja.x + caja.width * 0.3, y: caja.y + caja.height * 0.5 };
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ ...dedo, id: 1 }],
+  });
+  // El dedo sube 30 px: menos que el radio, así que la perilla queda justo debajo del dedo.
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchMove',
+    touchPoints: [{ x: dedo.x, y: dedo.y - 30, id: 1 }],
+  });
+  await expect(base).toHaveClass(/joystick-activo/);
+  await expect.poll(async () => (await centro('.joystick-perilla')).y).toBeCloseTo(dedo.y - 30, 0);
+  const b = await centro('.joystick');
+  expect(b.x).toBeCloseTo(dedo.x, 0);
+  expect(b.y).toBeCloseTo(dedo.y, 0);
+  expect((await centro('.joystick-perilla')).x).toBeCloseTo(dedo.x, 0);
+
+  // Si el dedo se aleja más que el radio (56 px), la perilla se queda en el borde.
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchMove',
+    touchPoints: [{ x: dedo.x, y: dedo.y - 150, id: 1 }],
+  });
+  await expect.poll(async () => (await centro('.joystick-perilla')).y).toBeCloseTo(dedo.y - 56, 0);
+
+  // Al soltar, vuelve a la guía en reposo.
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+  await expect(base).not.toHaveClass(/joystick-activo/);
+});
+
 /** Camina de frente con el joystick (o el ratón) hasta la pared del fondo de la portería. */
 async function caminarAlFondo(page: Page, caja: Caja, conDedo: boolean | undefined) {
   const x = caja.x + caja.width * 0.2;
@@ -233,8 +283,22 @@ test('en escritorio, un clic en el piso bloquea el ratón y el ratón mira (T19)
 
   // Un clic corto en el piso sí bloquea, y entonces mover el ratón gira la cámara.
   // (Esc lo suelta el propio navegador; una tecla simulada no lo hace, por eso no se prueba.)
-  await page.mouse.click(caja.x + caja.width * 0.7, caja.y + caja.height * 0.9);
-  await expect.poll(bloqueado).toBe(true);
+  // Sin el ratón bloqueado no hay mira ni aviso (T15b).
+  const aviso = page.getByText('Esc para soltar el ratón');
+  await expect(aviso).toHaveCount(0);
+  await expect(page.locator('.mira')).toHaveCount(0);
+  // Con la CPU ocupada (WebGL por software), el clic puede tardar más de lo que cuenta como
+  // toque corto y no bloquear: se repite. Un clic con el ratón ya bloqueado no hace nada aquí.
+  await expect(async () => {
+    await page.mouse.click(caja.x + caja.width * 0.7, caja.y + caja.height * 0.9);
+    await expect.poll(bloqueado, { timeout: 2000 }).toBe(true);
+  }).toPass();
+  // Con el ratón bloqueado se ven la mira, en el centro, y el aviso para soltarlo (T15b).
+  await expect(aviso).toBeVisible();
+  const mira = await page.locator('.mira').boundingBox();
+  if (!mira) throw new Error('sin mira');
+  expect(mira.x + mira.width / 2).toBeCloseTo(caja.x + caja.width / 2, 0);
+  expect(mira.y + mira.height / 2).toBeCloseTo(caja.y + caja.height / 2, 0);
   const [yaw0] = await leer(page, 'data-mirada');
   await page.mouse.move(caja.x + caja.width * 0.9, caja.y + caja.height * 0.9, { steps: 5 });
   await expect.poll(async () => (await leer(page, 'data-mirada'))[0]).not.toBe(yaw0);
