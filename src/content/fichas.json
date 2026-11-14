@@ -1,0 +1,565 @@
+[
+  {
+    "id": "porteria-reloj",
+    "descripcion": "Un reloj redondo de pared, encima de la puerta de salida.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Ya es casi medianoche. Es la hora del colegio; el reloj de arriba de tu pantalla cuenta el tiempo que te queda."
+      },
+      {
+        "tipo": "nota",
+        "texto": "Etiqueta de mantenimiento pegada al borde: «Servidor del colegio: migración automática a las 00:40»."
+      }
+    ]
+  },
+  {
+    "id": "porteria-mural",
+    "descripcion": "Un mural pintado junto a la puerta de salida, con cinco huecos.",
+    "bloques": [
+      {
+        "tipo": "tabla",
+        "titulo": "Huecos del mural",
+        "columnas": ["Hueco", "Silueta", "Sala"],
+        "filas": [
+          ["1", "Moneda", "La cooperativa"],
+          ["2", "Gota", "El laboratorio"],
+          ["3", "Balón", "El gimnasio"],
+          ["4", "Libro", "La biblioteca"],
+          ["5", "Llave", "La rectoría"]
+        ]
+      },
+      {
+        "tipo": "texto",
+        "texto": "Cada sala guarda un sello con la forma de su hueco. Con los cinco se abre la puerta de salida."
+      }
+    ]
+  },
+  {
+    "id": "porteria-casillero",
+    "descripcion": "Un casillero metálico con puerta de vidrio.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Detrás del vidrio está tu memoria USB, con el proyecto de la feria de ciencias de mañana."
+      },
+      {
+        "tipo": "texto",
+        "texto": "La cerradura no tiene ojo para llave: tiene cinco ranuras, con las mismas siluetas del mural."
+      },
+      {
+        "tipo": "nota",
+        "texto": "Papel pegado en el vidrio: «Objetos perdidos. Se entregan con autorización. Don Efraín, celador»."
+      }
+    ]
+  },
+  {
+    "id": "s1-productos",
+    "descripcion": "Tres productos del estante, cada uno con su etiqueta de precio.",
+    "bloques": [],
+    "por_etapa": [
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Etiquetas de los productos",
+          "columnas": ["Producto", "Etiqueta"],
+          "filas": [
+            ["Jugo", "$2.000"],
+            ["Empanada", "$1.600"],
+            ["Combo", "$4.000"]
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "Las etiquetas se cambian en la etiquetadora del mostrador. La del jugo está medio despegada."
+        }
+      ],
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Etiquetas de los productos",
+          "columnas": ["Producto", "Etiqueta"],
+          "filas": [
+            ["Jugo", "$1.600"],
+            ["Empanada", "$1.600"],
+            ["Combo", "$4.000"]
+          ]
+        },
+        {
+          "tipo": "nota",
+          "texto": "Sobre la etiqueta de la empanada hay un adhesivo de «PROMO» que no le tocaba."
+        }
+      ],
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Etiquetas de los productos",
+          "columnas": ["Producto", "Etiqueta"],
+          "filas": [
+            ["Jugo", "$1.600"],
+            ["Empanada", "$2.000"],
+            ["Combo", "$4.000"]
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "Solo falta la etiqueta del combo."
+        }
+      ],
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Etiquetas de los productos",
+          "columnas": ["Producto", "Etiqueta"],
+          "filas": [
+            ["Jugo", "$1.600"],
+            ["Empanada", "$2.000"],
+            ["Combo", "$3.000"]
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "Las tres etiquetas dicen lo mismo que la pizarra."
+        }
+      ]
+    ]
+  },
+  {
+    "id": "s1-pizarra",
+    "descripcion": "La pizarra del menú, escrita con tiza. Tiene los precios correctos de hoy.",
+    "bloques": [
+      {
+        "tipo": "tabla",
+        "titulo": "Precios de hoy",
+        "columnas": ["Producto", "Precio"],
+        "filas": [
+          ["Jugo", "$1.600"],
+          ["Empanada", "$2.000"],
+          ["Combo", "$3.000"]
+        ]
+      },
+      {
+        "tipo": "nota",
+        "texto": "En una esquina, con tiza de otro color: «Promo de la semana: solo el jugo»."
+      }
+    ]
+  },
+  {
+    "id": "s1-caja-rodillos",
+    "descripcion": "Una caja de lata con los rodillos de la etiquetadora.",
+    "bloques": [
+      {
+        "tipo": "lista",
+        "items": [
+          "Rodillo −20 %",
+          "Rodillo +20 %",
+          "Rodillo +25 %",
+          "Rodillo −50 %",
+          "Rodillo +50 %"
+        ]
+      },
+      {
+        "tipo": "texto",
+        "texto": "La etiquetadora tiene dos ranuras: recibe uno o dos rodillos a la vez."
+      },
+      {
+        "tipo": "nota",
+        "texto": "La caja tiene un sexto espacio, vacío. En la tapa, a lápiz: «Se perdió el de −25 %»."
+      }
+    ]
+  },
+  {
+    "id": "s1-corcho",
+    "descripcion": "Un tablero de corcho con los papeles de la cooperativa.",
+    "bloques": [
+      {
+        "tipo": "tabla",
+        "titulo": "Turnos de la cooperativa",
+        "columnas": ["Día", "Docente"],
+        "filas": [
+          ["Lunes", "Profe Julián"],
+          ["Martes", "Profe Inés"],
+          ["Miércoles", "Profe Marta (tachado)"],
+          ["Jueves", "Profe Julián"],
+          ["Viernes", "Profe Inés"]
+        ]
+      },
+      {
+        "tipo": "nota",
+        "texto": "Junto al nombre tachado: «Profe Marta, incapacidad desde octubre»."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Aviso con chinche: «Feria de ciencias: jueves, 7:00 a. m. La cooperativa abre desde las 6:30»."
+      }
+    ]
+  },
+  {
+    "id": "s2-tanque-a",
+    "descripcion": "Un cilindro de vidrio con líquido verde y una regla pintada de 0 a 60 cm.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Su caudal se ajusta con la perilla verde. Al terminar cada corrida vuelve solo al nivel en que empezó."
+      }
+    ],
+    "por_etapa": [
+      [
+        { "tipo": "texto", "texto": "Ahora está vacío: el líquido va en 0 cm." },
+        { "tipo": "texto", "texto": "Tiene una línea roja pintada a los 30 cm." }
+      ],
+      [{ "tipo": "texto", "texto": "Ahora el líquido va en 10 cm." }],
+      [{ "tipo": "texto", "texto": "Ahora está vacío: el líquido va en 0 cm." }],
+      [{ "tipo": "texto", "texto": "Está vacío. La incubadora ya se abrió." }]
+    ]
+  },
+  {
+    "id": "s2-tanque-b",
+    "descripcion": "Un cilindro de vidrio con líquido morado y una regla pintada de 0 a 60 cm.",
+    "bloques": [],
+    "por_etapa": [
+      [{ "tipo": "texto", "texto": "Está vacío y tiene un letrero colgado: «Hoy no se usa»." }],
+      [
+        { "tipo": "texto", "texto": "Ahora el líquido va en 50 cm." },
+        {
+          "tipo": "texto",
+          "texto": "Por debajo tiene un desagüe: en cada corrida se vacía, no se llena."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "Está envuelto en cinta de enmascarar de arriba abajo: no se ve en cuánto va el líquido."
+        },
+        { "tipo": "texto", "texto": "Por debajo, el desagüe sigue ahí." }
+      ],
+      [{ "tipo": "texto", "texto": "Está vacío. La incubadora ya se abrió." }]
+    ]
+  },
+  {
+    "id": "s2-perilla-morada",
+    "descripcion": "La perilla del tanque B. Tiene un candado pequeño.",
+    "bloques": [],
+    "por_etapa": [
+      [{ "tipo": "texto", "texto": "Está en 0 y no gira: el tanque B no se usa por ahora." }],
+      [
+        {
+          "tipo": "texto",
+          "texto": "Está trabada con el candado en «vaciar: 2 cm por segundo». No gira."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "Sigue con candado. La misma cinta que envuelve el tanque le tapa los números."
+        }
+      ],
+      [{ "tipo": "texto", "texto": "Sigue con candado." }]
+    ]
+  },
+  {
+    "id": "s2-graficador",
+    "descripcion": "Un graficador de tinta en la pared: dibuja la altura de cada tanque mientras pasa el tiempo.",
+    "bloques": [
+      {
+        "tipo": "lista",
+        "items": [
+          "Hacia la derecha: el tiempo, de 0 a 15 segundos.",
+          "Hacia arriba: la altura del líquido, de 0 a 60 cm.",
+          "Tinta verde para el tanque A y morada para el tanque B."
+        ]
+      },
+      {
+        "tipo": "texto",
+        "texto": "Solo dibuja mientras el líquido corre. Para verlo trabajar, baja la palanca de los tanques."
+      }
+    ],
+    "por_etapa": [
+      [{ "tipo": "texto", "texto": "En el papel hay una raya roja de lado a lado, a los 30 cm." }],
+      [],
+      [
+        { "tipo": "nota", "texto": "Al rollo le falta un pedazo: alguien arrancó la hoja de ayer." }
+      ],
+      []
+    ]
+  },
+  {
+    "id": "s2-campana",
+    "descripcion": "Una campana sobre la incubadora, con un temporizador de números grandes.",
+    "bloques": [],
+    "por_etapa": [
+      [
+        { "tipo": "texto", "texto": "El temporizador marca 10 segundos." },
+        {
+          "tipo": "nota",
+          "texto": "Letrero de la incubadora: «Abro si el tanque A está en la línea roja cuando suene la campana»."
+        }
+      ],
+      [
+        { "tipo": "texto", "texto": "El temporizador marca 8 segundos." },
+        {
+          "tipo": "nota",
+          "texto": "Letrero de la incubadora: «Abro si los dos tanques están a la misma altura cuando suene la campana»."
+        }
+      ],
+      [
+        { "tipo": "texto", "texto": "El temporizador marca 12 segundos." },
+        {
+          "tipo": "nota",
+          "texto": "Letrero de la incubadora: «Abro si los dos tanques están a la misma altura cuando suene la campana»."
+        }
+      ],
+      [{ "tipo": "texto", "texto": "El temporizador está apagado. La incubadora ya se abrió." }]
+    ]
+  },
+  {
+    "id": "s2-taza",
+    "descripcion": "Una taza de loza olvidada en el mesón, junto al computador del termostato.",
+    "bloques": [
+      { "tipo": "texto", "texto": "Tiene dos iniciales pintadas a mano: «T. R.»." },
+      { "tipo": "texto", "texto": "Le queda un fondo de tinto frío. No es de hoy." }
+    ]
+  },
+  {
+    "id": "s2-hoja-ayer",
+    "descripcion": "Una hoja arrancada del graficador, con la fecha de ayer.",
+    "bloques": [
+      {
+        "tipo": "tabla",
+        "titulo": "Marcas moradas (tanque B)",
+        "columnas": ["Tiempo", "Altura"],
+        "filas": [
+          ["2 s", "44 cm"],
+          ["6 s", "36 cm"]
+        ]
+      },
+      {
+        "tipo": "texto",
+        "texto": "La hoja está rasgada: de la línea morada solo quedaron esas dos marcas."
+      },
+      { "tipo": "nota", "texto": "A lápiz, en el margen: «Tanque B: hoy se deja igual que ayer»." }
+    ]
+  },
+  {
+    "id": "s3-sensores",
+    "descripcion": "Sensores de luz en el piso de la cancha. Suenan cuando la punta de una sombra los toca.",
+    "bloques": [],
+    "por_etapa": [
+      [
+        {
+          "tipo": "texto",
+          "texto": "Hay un sensor encendido: está a 2 m de la base del poste de 2 m."
+        }
+      ],
+      [
+        {
+          "tipo": "lista",
+          "items": [
+            "Sensor 1: a 2 m de la base del poste de 1 m.",
+            "Sensor 2: en el riel del poste de 3 m. El poste se desliza; el sensor no."
+          ]
+        },
+        { "tipo": "texto", "texto": "Los dos reciben la misma luz del reflector." }
+      ],
+      [{ "tipo": "texto", "texto": "Ahora están apagados." }],
+      [{ "tipo": "texto", "texto": "Están apagados." }]
+    ]
+  },
+  {
+    "id": "s3-cinta-metrica",
+    "descripcion": "Una cinta amarilla pintada en el piso, con una marca cada metro.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Empieza en 0 justo debajo del marcador, que cuelga muy arriba en la pared."
+      },
+      {
+        "tipo": "texto",
+        "texto": "La sombra del marcador cae sobre la cinta. Dónde termina depende de cómo esté inclinado el reflector."
+      }
+    ]
+  },
+  {
+    "id": "s3-planilla",
+    "descripcion": "Una planilla en una tabla de apoyo, olvidada en la banca.",
+    "bloques": [
+      {
+        "tipo": "tabla",
+        "titulo": "Torneo de voleibol de profes",
+        "columnas": ["Equipo", "Sets ganados"],
+        "filas": [
+          ["Tiza y Tablero", "2"],
+          ["Los del Recreo", "1"]
+        ]
+      },
+      {
+        "tipo": "nota",
+        "texto": "En observaciones: «Pidieron música para la final. Yo no sé ni prender el parlante»."
+      },
+      { "tipo": "texto", "texto": "Firma del árbitro: profe Julián." }
+    ]
+  },
+  {
+    "id": "s4-lamparas",
+    "descripcion": "El «resumen semanal» de la bibliotecaria: cuatro lámparas, cada una con un rótulo y un número.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Una lámpara destapada se pone verde cuando los libros de los carritos coinciden con su número, y se apaga cuando dejan de coincidir."
+      }
+    ],
+    "por_etapa": [
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Resumen semanal",
+          "columnas": ["Rótulo", "Número", "Lámpara"],
+          "filas": [
+            ["MEDIA", "4", "Destapada"],
+            ["MEDIANA", "3", "Tapada"],
+            ["MODA", "2", "Tapada"],
+            ["RANGO", "7", "Tapada"]
+          ]
+        }
+      ],
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Resumen semanal",
+          "columnas": ["Rótulo", "Número", "Lámpara"],
+          "filas": [
+            ["MEDIA", "4", "Destapada"],
+            ["MEDIANA", "3", "Destapada"],
+            ["MODA", "2", "Tapada"],
+            ["RANGO", "7", "Tapada"]
+          ]
+        }
+      ],
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Resumen semanal",
+          "columnas": ["Rótulo", "Número", "Lámpara"],
+          "filas": [
+            ["MEDIA", "4", "Destapada"],
+            ["MEDIANA", "3", "Destapada"],
+            ["MODA", "2", "Destapada"],
+            ["RANGO", "7", "Destapada"]
+          ]
+        }
+      ],
+      [
+        {
+          "tipo": "tabla",
+          "titulo": "Resumen semanal",
+          "columnas": ["Rótulo", "Número", "Lámpara"],
+          "filas": [
+            ["MEDIA", "4", "Verde"],
+            ["MEDIANA", "3", "Verde"],
+            ["MODA", "2", "Verde"],
+            ["RANGO", "7", "Verde"]
+          ]
+        }
+      ]
+    ]
+  },
+  {
+    "id": "s4-mostrador",
+    "descripcion": "El mostrador de préstamos de la bibliotecaria.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Desde aquí se ven de frente las cuatro lámparas del resumen semanal."
+      },
+      {
+        "tipo": "nota",
+        "texto": "Nota pegada con cinta: «Se rompió la ficha de la semana. Hay que volver a poner los 20 libros en los carritos, de lunes a viernes, como estaban»."
+      }
+    ]
+  },
+  {
+    "id": "s4-caja-devoluciones",
+    "descripcion": "Una caja de cartón con libros devueltos y algunos papeles.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Encima hay una ficha de préstamo con letra redonda y cuidada, firmada «Inés»."
+      },
+      { "tipo": "nota", "texto": "«Devolver a T. R.: cuaderno de grabaciones, estante M»." },
+      {
+        "tipo": "texto",
+        "texto": "Debajo hay un borrador escrito con otra letra, apretada e inclinada: «Silencio, por favor. Y horden, sobre todo horden»."
+      },
+      {
+        "tipo": "nota",
+        "texto": "Las dos haches están tachadas con esfero rojo, con la misma letra redonda de la ficha."
+      }
+    ]
+  },
+  {
+    "id": "s4-ficha-rota",
+    "descripcion": "Un pedazo de la ficha de la semana. El resto no aparece.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Se alcanzan a leer los rótulos de las columnas, de lunes a viernes. Los números se perdieron con el otro pedazo."
+      },
+      { "tipo": "nota", "texto": "En el borde, una palabra subrayada dos veces: «moda»." }
+    ]
+  },
+  {
+    "id": "s5-computador",
+    "descripcion": "El computador del rector, encendido.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "En la pantalla hay un aviso: «Migración automática programada para las 00:40. Se borrará la carpeta ULTIMA_PRUEBA»."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Debajo corre una cuenta regresiva. Va igual que el reloj de arriba de tu pantalla."
+      }
+    ],
+    "por_etapa": [
+      [
+        {
+          "tipo": "texto",
+          "texto": "Hay dos botones en gris, «Salir» y «Restaurar archivo», y una línea: «Disponibles con la caja fuerte abierta»."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "Hay dos botones en gris, «Salir» y «Restaurar archivo», y una línea: «Disponibles con la caja fuerte abierta»."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "Hay dos botones en gris, «Salir» y «Restaurar archivo», y una línea: «Disponibles con la caja fuerte abierta»."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "Los botones ya responden: «Salir» y «Restaurar archivo (requiere 3 grabaciones)». Se elige en la portería, frente a la puerta de salida."
+        }
+      ]
+    ]
+  },
+  {
+    "id": "s5-carta",
+    "descripcion": "Una carta en papel del colegio, sobre el escritorio del rector. Tiene fecha de hace un año.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "«Señor rector: después de 34 años en la Institución Educativa Los Almendros, le presento mi retiro por jubilación»."
+      },
+      {
+        "tipo": "texto",
+        "texto": "«Le pido un último favor: no desconecte los parlantes. Dejé ahí algo para los que vienen»."
+      },
+      { "tipo": "nota", "texto": "Firma: «Tobías Rincón, docente de matemáticas»." }
+    ]
+  }
+]
