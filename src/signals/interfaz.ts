@@ -61,11 +61,13 @@ export function cerrarPanel(): void {
   });
 }
 
-/** Vuelve la interfaz al estado inicial (al salir al menú). */
+/**
+ * Vuelve la interfaz al estado inicial (al salir al menú). No toca `carga`: es del motor, que
+ * puede estar preparando una sala justo cuando empieza la partida (T20b).
+ */
 export function reiniciarInterfaz(): void {
   batch(() => {
     cerrarPanel();
     enfocado.value = null;
-    carga.value = { estado: 'inactiva', progreso: 0 };
   });
 }

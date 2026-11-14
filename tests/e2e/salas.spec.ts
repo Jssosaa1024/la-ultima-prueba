@@ -20,10 +20,12 @@ for (const lugar of LUGARES) {
     page.on('pageerror', (e) => errores.push(e.message));
     await page.goto(`/jugar?sala=${lugar}`);
     const canvas = page.getByLabel('Escena del juego');
-    await expect(canvas).toHaveAttribute('data-motor', 'activo');
+    // Detrás del menú la sala se arma, pero el motor no dibuja en cada cuadro (T20b).
+    await expect(canvas).toHaveAttribute('data-motor', 'pausado');
     await expect(canvas).toHaveAttribute('data-sala', lugar);
     // Al empezar la partida se sigue viendo la sala elegida.
     await page.getByRole('button', { name: 'Jugar solo' }).click();
+    await expect(canvas).toHaveAttribute('data-motor', 'activo');
     await expect(canvas).toHaveAttribute('data-sala', lugar);
     expect(errores).toEqual([]);
   });

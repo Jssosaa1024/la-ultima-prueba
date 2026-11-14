@@ -2,6 +2,7 @@ import { panel } from '../signals/interfaz';
 import { fase } from '../signals/partida';
 import PantallaFinal from './finales/PantallaFinal';
 import Anunciador from './Anunciador';
+import IndicadorCarga from './carga/IndicadorCarga';
 import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
 import Hud from './hud/Hud';
@@ -24,6 +25,7 @@ export default function Partida() {
       </div>
       {abierto === 'inspeccion' && <Inspeccion />}
       {abierto === 'cuaderno' && <Cuaderno />}
+      <IndicadorCarga />
       <Anunciador />
     </>
   );

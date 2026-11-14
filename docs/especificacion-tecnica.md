@@ -682,6 +682,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T19b** (nueva) Salas por código: portería y 5 salas con primitivas de Three.js según `docs/salas-y-puzzles.md`, con su distribución en `src/content/salas.json` — 55 min
 - [x] **T19c** (nueva) Ids de objetos únicos: los objetos de `src/content/salas.json` son la fuente de verdad, y un test falla si un puzzle o el código de `src/` nombra un objeto que no existe en su sala — 30 min
 - [x] **T20** Cargador de salas: `compileAsync`, liberación de memoria y precarga de la siguiente — 55 min
+- [x] **T20b** (nueva) El motor no dibuja mientras `fase` no sea `jugando` (menú y finales) y la interfaz muestra «Cargando sala…» mientras el signal `carga` está activo — 45 min
 
 ### Fase 3 · Lógica de juego (sin gráficos)
 
