@@ -434,12 +434,15 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         if (!datosEncontrados.value.includes(objeto)) {
           datosEncontrados.value = [...datosEncontrados.value, objeto];
         }
+        // El objeto sigue enfocado: al cerrar la ficha, su botón «Examinar» vuelve a estar
+        // ahí (y el foco vuelve a él), por si el jugador quiere leerla otra vez.
       } else if (accion === 'recoger') {
         recoger(actual);
+        enfocado.value = null;
       } else {
         usar(objeto);
+        enfocado.value = null;
       }
-      enfocado.value = null;
       enfocarSiguiente();
     });
   }

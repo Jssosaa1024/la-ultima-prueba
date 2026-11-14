@@ -726,6 +726,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
+- [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [ ] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
 - [ ] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min

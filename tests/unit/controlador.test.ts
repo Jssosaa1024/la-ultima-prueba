@@ -256,11 +256,19 @@ describe('controlador: objetos de la portería', () => {
     expect(inventario.value).toEqual([]);
   });
 
-  it('examinar abre la inspección y suelta el objeto', () => {
+  it('examinar abre la inspección y deja el objeto enfocado, para volver a su botón al cerrar', () => {
     jugar();
     accionar('porteria-mural', 'examinar');
     expect(panel.value).toBe('inspeccion');
     expect(inspeccionando.value).toBe('porteria-mural');
+    expect(enfocado.value?.id).toBe('porteria-mural');
+  });
+
+  it('recoger y usar sí sueltan el objeto', () => {
+    jugar();
+    accionar('porteria-linterna', 'recoger');
+    expect(enfocado.value).toBeNull();
+    usar('porteria-puerta-2');
     expect(enfocado.value).toBeNull();
   });
 

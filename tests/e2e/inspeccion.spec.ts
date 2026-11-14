@@ -22,6 +22,8 @@ test('«Examinar» abre la ficha con los datos en texto y tabla', async ({ page 
   await dialogo.getByRole('button', { name: 'Cerrar' }).click();
   await expect(dialogo).toHaveCount(0);
   await expect(page.getByRole('timer')).toBeVisible();
+  // El foco vuelve al botón contextual, no al principio de la página.
+  await expect(page.getByRole('button', { name: /^Examinar/ })).toBeFocused();
 });
 
 test('Escape cierra la ficha', async ({ page }) => {
@@ -29,6 +31,7 @@ test('Escape cierra la ficha', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Examinar/ })).toBeFocused();
 });
 
 test('la ficha no hace scroll de la página en celular', async ({ page }) => {
