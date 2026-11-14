@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+// Toque corto con duración fija, para que no dependa de la carga del equipo (T05b).
+import { tocar } from './toque';
 
 // T31b: el controlador real de la partida, visto desde la portería. Se toca cada objeto donde
 // se ve en pantalla, como haría un jugador: dedo en el perfil celular y ratón en escritorio.
@@ -41,21 +43,6 @@ async function arrastrar(page: Page, a: Punto, b: Punto, conDedo: boolean, quiet
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: punto(i / 10) });
   }
   if (quieto > 0) await page.waitForTimeout(quieto);
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await cdp.detach();
-}
-
-/** Toque corto en (x, y): dedo en celular, clic en escritorio. */
-async function tocar(page: Page, p: Punto, conDedo: boolean): Promise<void> {
-  if (!conDedo) {
-    await page.mouse.click(p.x, p.y);
-    return;
-  }
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('Input.dispatchTouchEvent', {
-    type: 'touchStart',
-    touchPoints: [{ x: p.x, y: p.y, id: 1 }],
-  });
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await cdp.detach();
 }
