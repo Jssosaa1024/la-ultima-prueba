@@ -288,7 +288,7 @@ la-ultima-prueba/
 │  ├─ check-budget.ts            # falla el build si se excede el presupuesto (informa en lab)
 │  ├─ check-credits.ts           # v1.1: falla el build sin licencia válida
 │  ├─ check-audio.ts             # v1.1: sin .ogg y −16 LUFS ± 1 LU
-│  └─ hash-answers.ts            # reemplaza respuestas por hashes en el bundle
+│  └─ hash-answers.ts            # T23: hash del estado resuelto de cada etapa
 ├─ public/
 │  ├─ _headers                   # Cloudflare Pages: caché inmutable en /assets y /decoders
 │  ├─ manifest.webmanifest       # PWA: pantalla completa en iPhone vía «Añadir a inicio»
@@ -307,6 +307,7 @@ la-ultima-prueba/
 │  ├─ content/                   # datos validados en build (Astro content collections)
 │  │  ├─ esquema.ts               # v1.2: esquemas zod de puzzles (y luego salas, diálogos, finales)
 │  │  ├─ puzzles/                 # v1.2: s1-etiquetadora.json … s5-urna.json
+│  │  ├─ respuestas.json          # T23: hashes del estado resuelto; lo escribe hash-answers
 │  │  ├─ salas/                   # objetos por rol A–D y escondite de la grabación
 │  │  ├─ dialogos/                # líneas de La Voz con tiempos de subtítulo
 │  │  └─ finales/
@@ -445,6 +446,15 @@ Una corrida dura exactamente `exito.campana_s` segundos (10, 8 y 12 en las tres 
 - en los tanques, `campana_s` no pasa de 15.
 
 Las funciones de `src/game/puzzles/` son puras: reciben la etapa y el estado, y devuelven qué condiciones se cumplen. Las usan el panel de cada mecanismo (por ejemplo, para encender las lámparas de la biblioteca en vivo), el modo individual y el anfitrión del cooperativo.
+
+### Hash del estado resuelto (T23)
+
+`npm run hash-answers` recorre todos los estados que se pueden armar en cada etapa (`src/game/puzzles/estados.ts`), se queda con los que la resuelven y guarda el hash de cada uno en `src/content/respuestas.json`. Ese archivo se genera; no se edita a mano.
+
+- **Hash:** los primeros 16 caracteres hexadecimales del SHA-256 de `<id>@<version>#<etapa>|<estado canónico>`. El estado canónico es el JSON del estado con las claves ordenadas; en la etiquetadora los rodillos van ordenados y en los carritos los libros por día van de menor a mayor, porque la máquina no distingue esos órdenes.
+- **Validador:** `estaResuelta(RESPUESTAS, puzzle, etapa, estado)` en `src/game/respuestas.ts` devuelve `true` o `false` comparando hashes, sin leer `exito` ni `solucion`. Devuelve `null` si el estado no es válido para la etapa o si los hashes son de otra `version` del puzzle.
+- **Cuándo correrlo:** cada vez que cambie un puzzle (y suba su `version`). Un test de unidad falla si `respuestas.json` quedó viejo, y otro comprueba, estado por estado, que el validador y las reglas de `src/game/puzzles/` dicen lo mismo.
+- **Qué no hace todavía:** los JSON de los puzzles siguen llevando `solucion` y `exito`, y entran al bundle si el juego importa `src/content/puzzles.ts`. Los paneles necesitan `exito` para las lámparas y sensores en vivo. Quitar `solucion` del bundle es un paso aparte, que este validador ya permite.
 
 Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos parejos (la media ya está verde) y la «dominar» con la solución de la anterior, para que el jugador vea qué lámparas se apagan.
 
@@ -676,7 +686,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 - [x] **T21** (v1.2) Tipos y esquema de puzzle en content collections: etapas, estado inicial, controles, condición de éxito, pistas, cuaderno y pistas por rol, con validaciones cruzadas — 45 min
 - [x] **T22** (v1.2) Escribir los 5 puzzles en JSON con sus tres etapas, soluciones, pistas y pistas por rol — 50 min
-- [ ] **T23** (v1.2) Script `hash-answers`: hash del estado resuelto de cada etapa y validador que compara hashes — 45 min
+- [x] **T23** (v1.2) Script `hash-answers`: hash del estado resuelto de cada etapa y validador que compara hashes — 45 min
 - [x] **T24** Máquina de estados de la partida: portería, salas y final — 50 min
 - [x] **T25** Reloj de 40 minutos activos con pausa, con tests — 40 min
 - [x] **T26** (v1.2) Una función pura por puzzle en `src/game/puzzles/` que recibe el estado y dice qué condiciones se cumplen, con tests — 50 min

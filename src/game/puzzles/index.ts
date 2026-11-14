@@ -1,10 +1,10 @@
 import type { Puzzle } from '../../content/esquema';
-import { esEstadoCarritos, evaluarCarritos } from './carritos';
-import { esEstadoEtiquetadora, evaluarEtiquetadora } from './etiquetadora';
-import { esEstadoReflector, evaluarReflector } from './reflector';
-import { esEstadoTanques, evaluarTanques } from './tanques';
-import type { Evaluacion } from './tipos';
-import { esEstadoUrna, evaluarUrna } from './urna';
+import { esEstadoCarritos, evaluarCarritos } from './carritos.ts';
+import { esEstadoEtiquetadora, evaluarEtiquetadora } from './etiquetadora.ts';
+import { esEstadoReflector, evaluarReflector } from './reflector.ts';
+import { esEstadoTanques, evaluarTanques } from './tanques.ts';
+import type { Evaluacion } from './tipos.ts';
+import { esEstadoUrna, evaluarUrna } from './urna.ts';
 
 /**
  * Reglas de los cinco puzzles (T26): una función pura por puzzle que recibe la etapa y el
@@ -13,12 +13,12 @@ import { esEstadoUrna, evaluarUrna } from './urna';
  * anfitrión del cooperativo.
  */
 
-export type { Condiciones, Evaluacion } from './tipos';
-export { precioImpreso } from './etiquetadora';
-export { duracionCorridaS, nivelEn } from './tanques';
-export { RAZON_SOMBRA, sombra } from './reflector';
-export { estadisticas, librosEnPila, type Estadisticas } from './carritos';
-export { parejas, probabilidadMismoColor } from './urna';
+export type { Condiciones, Evaluacion } from './tipos.ts';
+export { precioImpreso } from './etiquetadora.ts';
+export { duracionCorridaS, nivelEn } from './tanques.ts';
+export { RAZON_SOMBRA, sombra } from './reflector.ts';
+export { estadisticas, librosEnPila, type Estadisticas } from './carritos.ts';
+export { parejas, probabilidadMismoColor } from './urna.ts';
 export {
   evaluarCarritos,
   evaluarEtiquetadora,
@@ -57,6 +57,35 @@ export function evaluar(puzzle: Puzzle, etapa: number, estado: unknown): Evaluac
     case 'urna': {
       const e = puzzle.etapas[etapa];
       return e && esEstadoUrna(e, estado) ? evaluarUrna(e, estado) : null;
+    }
+  }
+}
+
+/**
+ * Verdadero si el estado tiene la forma que permiten los controles de la etapa. No mira la
+ * condición de éxito ni la solución: lo usa el validador por hashes (T23).
+ */
+export function esEstadoDeEtapa(puzzle: Puzzle, etapa: number, estado: unknown): boolean {
+  switch (puzzle.mecanismo) {
+    case 'etiquetadora': {
+      const e = puzzle.etapas[etapa];
+      return e !== undefined && esEstadoEtiquetadora(e, estado);
+    }
+    case 'tanques': {
+      const e = puzzle.etapas[etapa];
+      return e !== undefined && esEstadoTanques(e, estado);
+    }
+    case 'reflector': {
+      const e = puzzle.etapas[etapa];
+      return e !== undefined && esEstadoReflector(e, estado);
+    }
+    case 'carritos': {
+      const e = puzzle.etapas[etapa];
+      return e !== undefined && esEstadoCarritos(e, estado);
+    }
+    case 'urna': {
+      const e = puzzle.etapas[etapa];
+      return e !== undefined && esEstadoUrna(e, estado);
     }
   }
 }

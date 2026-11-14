@@ -1,5 +1,5 @@
 import type { EstadoDe, EtapaDe } from '../../content/esquema';
-import { esEntero, esObjeto, evaluacion, iguales, soloClaves, type Evaluacion } from './tipos';
+import { esEntero, esObjeto, evaluacion, iguales, soloClaves, type Evaluacion } from './tipos.ts';
 
 /**
  * Sala 2 · Los tanques. Cada tanque sube o baja a ritmo constante: altura = inicio +

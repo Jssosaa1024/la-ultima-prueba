@@ -1,5 +1,5 @@
 import type { EstadoDe, EtapaDe } from '../../content/esquema';
-import { esEntero, esObjeto, evaluacion, soloClaves, type Evaluacion } from './tipos';
+import { esEntero, esObjeto, evaluacion, soloClaves, type Evaluacion } from './tipos.ts';
 
 /**
  * Sala 1 · La etiquetadora. Cada rodillo de p % multiplica el precio por (1 + p/100); dos
