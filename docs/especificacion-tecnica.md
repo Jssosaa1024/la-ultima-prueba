@@ -605,7 +605,7 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 - **Reloj:** el anfitrión guarda el tiempo restante; cada cliente descuenta con su reloj local desde que recibe `reloj` o `estado`, y cada `estado` corrige la deriva. La pausa exige que todos voten a favor.
 - **Avance en grupo:** todo el grupo está siempre en la misma sala. Para pasar a la siguiente, o volver a una anterior a buscar grabaciones, se vota `sala` por unanimidad; el anfitrión emite `roles` de la nueva sala y todos los clientes la cargan.
 - **Confirmar una etapa:** una propuesta solo se acciona cuando todos los conectados aceptan; un rechazo o una propuesta nueva la anula. Elegir final y usar el intercomunicador siguen la misma unanimidad, para que nadie termine la partida por los demás.
-- **Desconexión:** al salir de Presence, los objetos del jugador quedan reservados 60 s y luego quedan en el piso de la sala; si tenía el rol D, se reasigna. Al volver con el mismo `jugador` (guardado en el navegador), recupera rol y objetos.
+- **Desconexión:** al salir de Presence, los objetos del jugador quedan reservados 60 s y luego quedan en el piso de la sala; si tenía el rol D, el grupo lo espera esos mismos 60 s y, si no vuelve, D pasa al siguiente jugador conectado (ver «Reparto y rotación de encargos»). Al volver con el mismo `jugador` (guardado en el navegador), recupera rol y objetos.
 - **Migración de anfitrión:** si el anfitrión falta 5 s, asume el jugador con `unido_en` más antiguo; pausa el reloj, emite `anfitrion` y `estado` desde su última copia, y reanuda a los 3 s.
 - **Versiones:** si `v` o `version_contenido` no coinciden, se rechaza la unión con el mensaje «Actualiza la página».
 
@@ -624,7 +624,8 @@ Cada celda lista los encargos del jugador 1, del 2, y así en orden. La sala 1 e
 
 - El reparto depende de la sala, no de cuántas veces se entró: volver a una sala anterior devuelve el mismo reparto.
 - El orden de los jugadores queda fijo al empezar la partida, aunque alguien se desconecte.
-- **Suplente de D** (`repartirConectados`): si quien tiene D está desconectado, D pasa al siguiente jugador conectado en ese orden; A, B y C no se mueven. Cuando el ausente vuelve, recupera D.
+- **Si quien tiene D se desconecta** (`repartirConAusencias`): el grupo lo espera hasta 60 s (`ESPERA_RECONEXION_MS`). En ese tiempo D sigue siendo suyo y nadie puede accionar la máquina; la interfaz debe decir a quién se espera y cuánto falta (`esperandoA`, `faltanMs`). Si no vuelve, D pasa al siguiente jugador conectado en ese orden; A, B y C no se mueven. Cuando el ausente vuelve, recupera D.
+- Durante la espera el reloj de la partida sigue corriendo, salvo que el grupo vote una pausa.
 - Con 4 jugadores y 5 salas, la sala 5 repite el reparto de la sala 1.
 
 ### Costo frente a los límites de Supabase

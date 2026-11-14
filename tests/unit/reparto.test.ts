@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { ROLES as ROLES_DEL_ESQUEMA } from '../../src/content/esquema';
 import {
+  ESPERA_RECONEXION_MS,
   gruposDeEncargos,
   repartir,
-  repartirConectados,
+  repartirConAusencias,
   ROLES,
   rolesDe,
   tieneRol,
@@ -104,35 +105,84 @@ describe('rotación entre salas (T29)', () => {
   });
 });
 
-describe('suplente de D cuando su dueño se desconecta (T29)', () => {
-  it('con todos conectados es el reparto normal', () => {
+describe('D se desconecta: el grupo espera y luego hay suplente (T29)', () => {
+  const MUCHO = ESPERA_RECONEXION_MS;
+  const POCO = ESPERA_RECONEXION_MS - 1;
+
+  it('la espera es corta: 2 minutos o menos', () => {
+    expect(ESPERA_RECONEXION_MS).toBe(60_000);
+    expect(ESPERA_RECONEXION_MS).toBeLessThanOrEqual(120_000);
+  });
+
+  it('con todos conectados es el reparto normal y no se espera a nadie', () => {
     for (const sala of SALAS) {
-      expect(repartirConectados(J, sala, J)).toEqual(repartir(J, sala));
+      expect(repartirConAusencias(J, sala, {})).toEqual({
+        reparto: repartir(J, sala),
+        esperandoA: null,
+        faltanMs: 0,
+      });
     }
   });
 
-  it('D pasa al siguiente jugador conectado; A, B y C no se mueven', () => {
-    // Sala 1 con 4: D es j4. Si falta, sigue j1.
-    expect(repartirConectados(J, 1, ['j1', 'j2', 'j3'])).toEqual({ ...de(4, 1), D: 'j1' });
-    // Sala 2 con 4: D es j3. Si faltan j3 y j4, sigue j1.
-    expect(repartirConectados(J, 2, ['j1', 'j2'])).toEqual({ ...de(4, 2), D: 'j1' });
-    // Con 2 jugadores, el que queda acciona.
-    expect(repartirConectados(['j1', 'j2'], 1, ['j1'])?.D).toBe('j1');
+  it('mientras dura la espera, D sigue siendo del ausente y el grupo lo espera', () => {
+    // Sala 1 con 4: D es j4.
+    expect(repartirConAusencias(J, 1, { j4: 0 })).toEqual({
+      reparto: de(4, 1),
+      esperandoA: 'j4',
+      faltanMs: ESPERA_RECONEXION_MS,
+    });
+    expect(repartirConAusencias(J, 1, { j4: 45_000 })).toMatchObject({
+      esperandoA: 'j4',
+      faltanMs: 15_000,
+    });
+    expect(repartirConAusencias(J, 1, { j4: POCO })).toMatchObject({
+      reparto: { D: 'j4' },
+      esperandoA: 'j4',
+      faltanMs: 1,
+    });
   });
 
-  it('si falta otro jugador, D se queda donde estaba', () => {
-    expect(repartirConectados(J, 1, ['j2', 'j3', 'j4'])).toEqual(de(4, 1));
+  it('cumplida la espera, D pasa al siguiente jugador conectado; A, B y C no se mueven', () => {
+    expect(repartirConAusencias(J, 1, { j4: MUCHO })).toEqual({
+      reparto: { ...de(4, 1), D: 'j1' },
+      esperandoA: null,
+      faltanMs: 0,
+    });
+    // Sala 2 con 4: D es j3. Si j4 tampoco está, sigue j1, sin importar cuánto lleva j4 fuera.
+    expect(repartirConAusencias(J, 2, { j3: MUCHO, j4: 5 })?.reparto).toEqual({
+      ...de(4, 2),
+      D: 'j1',
+    });
+    // Con 2 jugadores, el que queda acciona.
+    expect(repartirConAusencias(['j1', 'j2'], 1, { j2: MUCHO })?.reparto.D).toBe('j1');
+  });
+
+  it('si falta otro jugador, D se queda donde estaba y no se espera a nadie', () => {
+    expect(repartirConAusencias(J, 1, { j1: MUCHO, j2: 10 })).toEqual({
+      reparto: de(4, 1),
+      esperandoA: null,
+      faltanMs: 0,
+    });
   });
 
   it('al volver, el dueño recupera D', () => {
-    expect(repartirConectados(J, 1, ['j1', 'j2', 'j3'])?.D).toBe('j1');
-    expect(repartirConectados(J, 1, [...J])?.D).toBe('j4');
+    expect(repartirConAusencias(J, 1, { j4: MUCHO })?.reparto.D).toBe('j1');
+    expect(repartirConAusencias(J, 1, {})?.reparto.D).toBe('j4');
   });
 
-  it('ignora conectados que no son de la partida y no reparte sin nadie conectado', () => {
-    expect(repartirConectados(J, 1, ['intruso', 'j2'])?.D).toBe('j2');
-    expect(repartirConectados(J, 1, [])).toBeNull();
-    expect(repartirConectados(J, 1, ['intruso'])).toBeNull();
-    expect(repartirConectados([], 1, [])).toBeNull();
+  it('un tiempo inválido cuenta como recién desconectado', () => {
+    for (const raro of [Number.NaN, -5, Number.POSITIVE_INFINITY, 'x' as unknown as number]) {
+      expect(repartirConAusencias(J, 1, { j4: raro })).toMatchObject({
+        esperandoA: 'j4',
+        faltanMs: ESPERA_RECONEXION_MS,
+      });
+    }
+  });
+
+  it('ignora ausentes que no son de la partida y no reparte sin nadie conectado', () => {
+    expect(repartirConAusencias(J, 1, { intruso: MUCHO })?.reparto).toEqual(de(4, 1));
+    expect(repartirConAusencias(J, 1, { j1: 1, j2: 1, j3: 1, j4: 1 })).toBeNull();
+    expect(repartirConAusencias(['j1'], 1, { j1: MUCHO })).toBeNull();
+    expect(repartirConAusencias([], 1, {})).toBeNull();
   });
 });
