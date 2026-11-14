@@ -1,0 +1,78 @@
+/* Panel de la urna (T70). */
+
+/* La urna: un recuadro con las fichas que hay adentro. */
+.urna {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  min-height: 64px;
+  padding: 12px;
+  border: 2px solid #6b7785;
+  border-radius: 12px 12px 24px 24px;
+  background: rgb(255 255 255 / 6%);
+}
+
+.urna-vacia {
+  align-self: center;
+  color: #b8c2cc;
+}
+
+/* Azules redondas y amarillas cuadradas: se distinguen también por la forma. */
+.ficha {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 2px solid #111418;
+}
+
+.ficha-azul {
+  border-radius: 50%;
+  background: #5aa9e6;
+}
+
+.ficha-amarilla {
+  border-radius: 3px;
+  background: #f1c40f;
+}
+
+.urna-herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+/* «Ver parejas»: cada pareja es una forma de sacar dos fichas. */
+.parejas {
+  margin: 12px 0 0;
+}
+
+.parejas-grupo + .parejas-grupo {
+  margin-top: 10px;
+}
+
+.parejas-titulo {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.parejas-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pareja {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: #252d36;
+}
+
+.pareja .ficha {
+  width: 14px;
+  height: 14px;
+}

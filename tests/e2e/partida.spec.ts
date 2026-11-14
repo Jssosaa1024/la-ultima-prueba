@@ -343,9 +343,11 @@ test('con el almacenamiento bloqueado (pestaña privada) se juega sin errores y 
 
 interface PartidaDePrueba {
   /** Dónde está el jugador. Por defecto, la cooperativa. */
-  lugar?: 'porteria' | 's1-cooperativa';
+  lugar?: 'porteria' | 's1-cooperativa' | 's5-rectoria';
   /** Etapas resueltas de la sala 1 (0 a 3). */
   etapasSala1?: number;
+  /** Cuántas salas, desde la primera, ya tienen sello (0 a 4). */
+  salasConSello?: number;
   /** Ajustes de la etiquetadora. */
   ajustes?: unknown;
   /** Pistas de la sala 1. */
@@ -360,16 +362,18 @@ interface PartidaDePrueba {
 async function continuarPartida(page: Page, opciones: PartidaDePrueba = {}): Promise<Caja> {
   const lugar = opciones.lugar ?? 's1-cooperativa';
   const { ajustes, pistas } = opciones;
+  const conSello = opciones.salasConSello ?? 0;
+  const etapasDe = (n: number): number => (n <= conSello ? 3 : 0);
   const guardado = {
     v: 2,
     partida: {
       fase: 'jugando',
       lugar,
       etapas: {
-        's1-cooperativa': opciones.etapasSala1 ?? 0,
-        's2-laboratorio': 0,
-        's3-gimnasio': 0,
-        's4-biblioteca': 0,
+        's1-cooperativa': conSello >= 1 ? 3 : (opciones.etapasSala1 ?? 0),
+        's2-laboratorio': etapasDe(2),
+        's3-gimnasio': etapasDe(3),
+        's4-biblioteca': etapasDe(4),
         's5-rectoria': 0,
       },
       final: null,
@@ -513,4 +517,65 @@ test('con el sello, el cuaderno dice cómo se llama lo que se descubrió (T38)',
     'Lo que acabas de descubrir se llama: El porcentaje como multiplicador',
   );
   await expect(cuaderno).toContainText('0,8 × 1,25 = 1');
+});
+
+// T70: la urna de la sala 5, de punta a punta desde su panel.
+
+/** La urna, sobre la mesa de la rectoría. */
+const URNA: Punto3 = [-0.6, 0.98, -0.5];
+
+test('la urna se resuelve en tres etapas desde su panel y da el quinto sello (T70)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await continuarPartida(page, { lugar: 's5-rectoria', salasConSello: 4 });
+  await expect(page.getByRole('img', { name: 'Sellos: 4 de 5' })).toBeVisible();
+
+  await tocarObjeto(page, caja, URNA, conDedo, /Usar.*Urna/);
+  await page.getByRole('button', { name: /Usar.*Urna/ }).click();
+  const panel = page.getByRole('dialog', { name: 'El juego justo de La Voz' });
+  const masAzul = panel.getByRole('button', { name: 'Más: Fichas azules (redondas)' });
+  const masAmarilla = panel.getByRole('button', { name: 'Más: Fichas amarillas (cuadradas)' });
+  const manija = panel.getByRole('button', { name: 'Tirar de la manija' });
+
+  // Etapa 1: con 3 fichas, que el jugador gane siempre.
+  await expect(panel).toContainText('Sala 5 · Etapa 1 de 3');
+  await expect(panel).toContainText('Con 3 fichas, que ganes siempre');
+  // Con la urna vacía, la caja cuenta lo que hay y no se abre: no hay mensaje de error.
+  await manija.click();
+  await expect(panel).toContainText('La caja fuerte contó 0 fichas en la urna. La placa pide 3.');
+  await expect(panel).toContainText('Sala 5 · Etapa 1 de 3');
+
+  for (let i = 0; i < 3; i++) await masAzul.click();
+  await expect(panel.getByRole('img', { name: 'En la urna hay 3 fichas azules.' })).toBeVisible();
+  await panel.getByRole('button', { name: 'Simular 100 extracciones' }).click();
+  await expect(panel).toContainText('De 100 veces, 100 salieron del mismo color');
+  await manija.click();
+  await expect(panel).toContainText('la caja fuerte se abrió');
+  await panel.getByRole('button', { name: 'Seguir' }).click();
+
+  // Etapa 2: con 4 fichas, un juego justo. 3 y 1 dan 3 parejas iguales y 3 distintas.
+  await expect(panel).toContainText('Sala 5 · Etapa 2 de 3');
+  await expect(panel).toContainText('Con 4 fichas, un juego justo');
+  await masAmarilla.click();
+  await panel.getByRole('button', { name: 'Ver parejas' }).click();
+  await expect(panel).toContainText('Del mismo color (ganas tú): 3');
+  await expect(panel).toContainText('De distinto color (gana La Voz): 3');
+  await manija.click();
+  await panel.getByRole('button', { name: 'Seguir' }).click();
+
+  // Etapa 3: con 9 fichas, un juego justo. 6 y 3 dan 18 y 18.
+  await expect(panel).toContainText('Sala 5 · Etapa 3 de 3');
+  for (let i = 0; i < 3; i++) await masAzul.click();
+  for (let i = 0; i < 2; i++) await masAmarilla.click();
+  await expect(
+    panel.getByRole('img', { name: 'En la urna hay 6 fichas azules y 3 fichas amarillas.' }),
+  ).toBeVisible();
+  await manija.click();
+  await expect(panel).toContainText('Conseguiste el último sello');
+  await expect(panel).toContainText('Lo que acabas de descubrir se llama');
+  await panel.getByRole('button', { name: 'Volver a la sala' }).click();
+
+  await expect(panel).toHaveCount(0);
+  await expect(page.getByRole('img', { name: 'Sellos: 5 de 5' })).toBeVisible();
 });
