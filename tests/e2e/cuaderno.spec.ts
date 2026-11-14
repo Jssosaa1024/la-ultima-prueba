@@ -15,6 +15,8 @@ test('abrir el cuaderno pausa el reloj y cerrarlo lo reanuda', async ({ page }) 
   await expect(cuaderno).toContainText('Todavía no hay datos');
 
   await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
+  // El foco vuelve al botón que abrió el cuaderno.
+  await expect(page.getByRole('button', { name: 'Cuaderno' })).toBeFocused();
   await expect(page.getByRole('timer')).not.toHaveAttribute('aria-label', /en pausa/);
   await expect(page.getByRole('timer')).toHaveAttribute('aria-label', /^Tiempo restante/);
 });

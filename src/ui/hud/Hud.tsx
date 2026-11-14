@@ -34,13 +34,21 @@ const VERBO: Record<AccionObjeto, string> = {
 export default function Hud() {
   return (
     <div class="hud-partida">
-      <h1 class="solo-lector">Partida en curso</h1>
+      {/* También recibe el foco al cerrar un panel si no hay un botón mejor (ver Dialogo). */}
+      <h1 class="solo-lector" tabIndex={-1} data-foco-retorno="hud">
+        Partida en curso
+      </h1>
       <div class="hud-fila hud-arriba">
         <div class="hud-grupo">
           <BotonSalir />
           {/* El botón aparece al recoger el cuaderno de la portería. */}
           {cuadernoActivo.value && (
-            <button type="button" class="hud-boton-redondo" onClick={abrirCuaderno}>
+            <button
+              type="button"
+              class="hud-boton-redondo"
+              data-foco-retorno="cuaderno"
+              onClick={abrirCuaderno}
+            >
               Cuaderno
             </button>
           )}
@@ -139,6 +147,7 @@ function BotonAccion() {
     <button
       type="button"
       class="hud-accion"
+      data-foco-retorno="accion"
       onClick={() => enviar({ t: 'accion', objeto: objeto.id, accion: objeto.accion })}
     >
       <span class="hud-accion-verbo">{VERBO[objeto.accion]}</span>

@@ -151,6 +151,8 @@ const CUADERNO: Punto3 = [-2.3, 0.47, 3.55];
 const LINTERNA: Punto3 = [2, 0.87, 3.4];
 const PUERTA_2: Punto3 = [2.96, 1.1, 1.55];
 const INTERCOMUNICADOR: Punto3 = [-2.96, 1.5, -3.9];
+/** Cara del casillero de objetos perdidos que se ve desde el fondo del pasillo. */
+const CASILLERO: Punto3 = [1.5, 1, -4.7];
 
 test('el cuaderno se activa al recogerlo y la linterna entra una sola vez', async ({
   page,
@@ -216,6 +218,15 @@ test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir 
   await expect(salida.getByRole('button', { name: 'Salir' })).toHaveCount(0);
   await salida.getByRole('button', { name: 'Volver' }).click();
   await expect(salida).toHaveCount(0);
+  // «Usar» soltó la puerta, así que no hay botón al que volver: el foco queda en el HUD.
+  await expect(page.getByRole('heading', { level: 1, name: 'Partida en curso' })).toBeFocused();
+
+  // Al cerrar la ficha de un objeto real, el foco vuelve a su botón «Examinar».
+  await tocarObjeto(page, caja, CASILLERO, conDedo);
+  const examinar = page.getByRole('button', { name: /Examinar.*Casillero/ });
+  await examinar.click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Cerrar' }).click();
+  await expect(examinar).toBeFocused();
 
   // El intercomunicador está en la pared izquierda, cerca del fondo.
   await mirarHacia(page, caja, INTERCOMUNICADOR, conDedo);

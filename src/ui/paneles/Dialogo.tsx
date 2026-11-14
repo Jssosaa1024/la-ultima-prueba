@@ -12,11 +12,44 @@ interface Props {
   cerrar?: string;
   /** Botones extra junto a «Cerrar». */
   acciones?: ComponentChildren;
+  /**
+   * A qué elemento vuelve el foco al cerrar: el valor de su atributo `data-foco-retorno`
+   * (por ejemplo, `cuaderno` para el botón que abre el cuaderno).
+   */
+  retorno?: string;
   children: ComponentChildren;
 }
 
 const ENFOCABLES =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/**
+ * A dónde vuelve el foco al cerrar un panel. El elemento que lo tenía antes de abrir casi
+ * nunca sirve: el botón contextual desaparece mientras hay un panel abierto y el resto del
+ * HUD queda inerte, así que al abrir el foco ya estaba en `body`. Por eso se busca, en orden:
+ * 1. el elemento que tenía el foco, si sigue en la página y no es `body`;
+ * 2. el que pide el panel con `retorno` (el botón «Cuaderno»);
+ * 3. el botón contextual del HUD (`accion`): al cerrar una ficha, el «Examinar» del objeto;
+ * 4. el encabezado del HUD (`hud`), para que el lector de pantalla siga en la partida y no
+ *    vuelva al principio de la página.
+ */
+function destinoDelFoco(anterior: HTMLElement | null, retorno?: string): HTMLElement | null {
+  if (
+    anterior &&
+    anterior !== document.body &&
+    anterior.isConnected &&
+    !anterior.closest('[inert]')
+  ) {
+    return anterior;
+  }
+  // `retorno` lo escribe el propio código; aun así solo se aceptan letras y guiones.
+  const claves = [retorno, 'accion', 'hud'].filter((c): c is string => !!c && /^[a-z-]+$/.test(c));
+  for (const clave of claves) {
+    const destino = document.querySelector<HTMLElement>(`[data-foco-retorno="${clave}"]`);
+    if (destino && !destino.closest('[inert]')) return destino;
+  }
+  return null;
+}
 
 /**
  * Panel 2D modal sobre la escena: inspección, cuaderno y finales lo usan.
@@ -28,6 +61,7 @@ export default function Dialogo({
   alCerrar,
   cerrar = 'Cerrar',
   acciones,
+  retorno,
   children,
 }: Props) {
   const id = useId();
@@ -37,8 +71,15 @@ export default function Dialogo({
     const anterior = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     ref.current?.focus();
     return () => {
-      // Devuelve el foco a donde estaba, si ese elemento sigue en la página.
-      if (anterior?.isConnected) anterior.focus();
+      // Al cerrar, el foco vuelve a un lugar útil. Se espera a que la interfaz termine de
+      // redibujarse: en este instante el HUD todavía está inerte y el botón contextual, que
+      // desaparece mientras hay un panel abierto, aún no ha vuelto.
+      window.setTimeout(() => {
+        // Si otra pantalla ya tomó el foco (otro panel, el final), no se le quita.
+        const activo = document.activeElement;
+        if (activo && activo !== document.body) return;
+        destinoDelFoco(anterior, retorno)?.focus();
+      }, 0);
     };
   }, []);
 

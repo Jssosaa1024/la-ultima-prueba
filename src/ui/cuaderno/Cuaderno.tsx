@@ -22,7 +22,7 @@ export default function Cuaderno() {
   }, [individual]);
 
   return (
-    <Dialogo antetitulo="Cuaderno" titulo="Tu cuaderno" alCerrar={cerrarPanel}>
+    <Dialogo antetitulo="Cuaderno" titulo="Tu cuaderno" retorno="cuaderno" alCerrar={cerrarPanel}>
       {individual && (
         <p class="cuaderno-pausa" role="status">
           El reloj está en pausa mientras tienes el cuaderno abierto.
