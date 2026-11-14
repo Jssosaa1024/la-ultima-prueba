@@ -20,6 +20,7 @@
     "optimize-models": "node scripts/optimize-models.ts",
     "build-manifest": "node scripts/build-manifest.ts",
     "check-budget": "node scripts/check-budget.ts",
+    "hash-answers": "node scripts/hash-answers.ts",
     "modelo-prueba": "node scripts/modelo-prueba.ts"
   },
   "dependencies": {
