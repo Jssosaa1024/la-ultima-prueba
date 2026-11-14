@@ -158,3 +158,9 @@
   line-height: 1.35;
   text-align: center;
 }
+/* Botón del HUD con algo nuevo que ver (una pista sin abrir). */
+.hud-boton-aviso {
+  background: #e8a33d;
+  color: #111418;
+  font-weight: 700;
+}

@@ -730,7 +730,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [x] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
-- [ ] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
+- [x] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
 - [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
 - [x] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min

@@ -2,12 +2,14 @@ import { useEffect, useState } from 'preact/hooks';
 import { cuadernoActivo } from '../../signals/cuaderno';
 import {
   abrirCuaderno,
+  abrirPanel,
   aviso,
   cerrarAviso,
   enfocado,
   panel,
   type AccionObjeto,
 } from '../../signals/interfaz';
+import { pistas } from '../../signals/mecanismo';
 import {
   inventario,
   reloj,
@@ -52,6 +54,7 @@ export default function Hud() {
               Cuaderno
             </button>
           )}
+          <BotonPistas />
         </div>
         <Reloj />
         <Sellos />
@@ -62,6 +65,26 @@ export default function Hud() {
         <BotonAccion />
       </div>
     </div>
+  );
+}
+
+/**
+ * Botón de pistas (T38): aparece en una sala cuando su máquina ya ofreció alguna pista, y
+ * avisa si hay una sin abrir. Abrirla es decisión del jugador.
+ */
+function BotonPistas() {
+  const { ofrecidas, vistas } = pistas.value;
+  if (ofrecidas === 0) return null;
+  const nueva = vistas < ofrecidas;
+  return (
+    <button
+      type="button"
+      class={`hud-boton-redondo${nueva ? ' hud-boton-aviso' : ''}`}
+      data-foco-retorno="pistas"
+      onClick={() => abrirPanel('pistas')}
+    >
+      {nueva ? 'Pista nueva' : 'Pistas'}
+    </button>
   );
 }
 

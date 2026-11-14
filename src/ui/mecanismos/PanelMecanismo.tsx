@@ -1,13 +1,15 @@
 import type { ComponentType } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import type { Mecanismo } from '../../content/esquema';
+import type { Mecanismo, Puzzle } from '../../content/esquema';
 import { PUZZLES, puzzleDeSala } from '../../content/puzzles';
 import { esEstadoValido } from '../../game/puzzles';
 import { cerrarPanel, resultadoVisto } from '../../signals/interfaz';
 import { condiciones, etapa, mecanismo, resultado } from '../../signals/mecanismo';
 import { sala, SALAS_CON_SELLO } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
+import { anotacionDeEtapa } from '../cuaderno/descubrimientos';
 import Dialogo from '../paneles/Dialogo';
+import { SeccionPistas } from '../pistas/Pistas';
 import type { PropsPanel } from './marco/tipos';
 import { vistaDelPanel } from './marco/vista';
 import { PANELES } from './paneles';
@@ -108,10 +110,37 @@ export default function PanelMecanismo() {
         <p class="mecanismo-nota">{textoReposo(regla.segundos)}</p>
       )}
       {resuelta && !ocupado && (
-        <p class="mecanismo-resuelta" role="status">
-          {textoResuelta(vista.sello, puzzle.sala, PUZZLES.length)}
-        </p>
+        <>
+          <p class="mecanismo-resuelta" role="status">
+            {textoResuelta(vista.sello, puzzle.sala, PUZZLES.length)}
+          </p>
+          <Anotacion puzzle={puzzle} etapa={vista.numero} sello={vista.sello} />
+        </>
       )}
+      {!resuelta && <SeccionPistas />}
     </Dialogo>
+  );
+}
+
+/**
+ * Lo que el cuaderno anota al resolver una etapa (T38): lo que pasó y, solo con el sello, el
+ * nombre de lo descubierto. El concepto nunca se nombra antes de resolver.
+ */
+function Anotacion({ puzzle, etapa, sello }: { puzzle: Puzzle; etapa: number; sello: boolean }) {
+  const anotacion = anotacionDeEtapa(puzzle, etapa, sello);
+  if (!anotacion) return null;
+  return (
+    <div class="anotacion">
+      <p class="anotacion-titulo">Tu cuaderno anotó</p>
+      <p>{anotacion.paso}</p>
+      {anotacion.concepto && (
+        <>
+          <p class="anotacion-concepto">
+            Lo que acabas de descubrir se llama: {anotacion.concepto.nombre}
+          </p>
+          <p>{anotacion.concepto.texto}</p>
+        </>
+      )}
+    </div>
   );
 }

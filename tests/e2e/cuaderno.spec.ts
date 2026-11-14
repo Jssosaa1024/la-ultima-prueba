@@ -42,9 +42,9 @@ test('se pueden escribir y borrar notas', async ({ page }) => {
   await cuaderno.getByLabel('Nueva nota').fill('4 × $5.000 = $20.000');
   await expect(cuaderno).toContainText('20 de 280 caracteres');
   await guardar.click();
-  await expect(cuaderno.getByRole('listitem')).toHaveText(/4 × \$5\.000 = \$20\.000/);
+  await expect(cuaderno.locator('.cuaderno-nota')).toHaveText(/4 × \$5\.000 = \$20\.000/);
   await expect(cuaderno.getByLabel('Nueva nota')).toHaveValue('');
 
   await cuaderno.getByRole('button', { name: 'Borrar nota: 4 × $5.000 = $20.000' }).click();
-  await expect(cuaderno.getByRole('listitem')).toHaveCount(0);
+  await expect(cuaderno.locator('.cuaderno-nota')).toHaveCount(0);
 });

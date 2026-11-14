@@ -10,6 +10,7 @@ import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
 import PanelMecanismo from './mecanismos/PanelMecanismo';
 import PedirAyuda from './paneles/PedirAyuda';
+import PanelPistas from './pistas/Pistas';
 
 /**
  * Todo lo que se dibuja encima de la escena durante la partida: el HUD y, como mucho, un
@@ -31,6 +32,7 @@ export default function Partida() {
       {abierto === 'salida' && <EleccionFinal />}
       {abierto === 'ayuda' && <PedirAyuda />}
       {abierto === 'mecanismo' && <PanelMecanismo />}
+      {abierto === 'pistas' && <PanelPistas />}
       <IndicadorCarga />
       <Anunciador />
     </>

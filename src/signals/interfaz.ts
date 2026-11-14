@@ -12,10 +12,11 @@ import { fase } from './partida';
 
 /**
  * Panel 2D abierto encima de la escena. Solo uno a la vez. `salida` es la elección de final
- * frente a la puerta de salida; `ayuda`, la confirmación del intercomunicador; y `mecanismo`,
- * la máquina de la sala actual.
+ * frente a la puerta de salida; `ayuda`, la confirmación del intercomunicador; `mecanismo`,
+ * la máquina de la sala actual; y `pistas`, las pistas de esa máquina.
  */
-export type Panel = 'cuaderno' | 'inspeccion' | 'pausa' | 'salida' | 'ayuda' | 'mecanismo';
+export type Panel =
+  'cuaderno' | 'inspeccion' | 'pausa' | 'salida' | 'ayuda' | 'mecanismo' | 'pistas';
 
 /** Lo que pasa al tocar el botón contextual sobre el objeto enfocado. */
 export type AccionObjeto = 'usar' | 'recoger' | 'examinar';
@@ -77,7 +78,7 @@ export function abrirCuaderno(): void {
 }
 
 /** Abre un panel que no necesita más datos (la puerta de salida, la máquina de la sala…). */
-export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo'): void {
+export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas'): void {
   batch(() => {
     inspeccionando.value = null;
     panel.value = cual;
