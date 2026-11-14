@@ -1,14 +1,15 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { CylinderGeometry, Group, InstancedMesh, Mesh, MeshLambertMaterial } from 'three';
 import type { Object3D } from 'three';
+import { animacionDeSala } from '../../src/engine/mecanismos';
 import {
   alturaDeLaMano,
-  crearAnimacionUrna,
+  animarUrna,
   DURACION_MANO,
   fichasDe,
   posicionDeFicha,
   sacarPareja,
-} from '../../src/engine/salas/urna';
+} from '../../src/engine/mecanismos/urna';
 import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
 import {
   etapa,
@@ -80,12 +81,14 @@ describe('fichas en la urna', () => {
 
   it('muestra las fichas de los ajustes y sigue cada cambio', () => {
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz);
-    if (!animacion) throw new Error('sin animación');
+    const animacion = animarUrna(raiz);
     expect(animacion.fichas).toEqual({ azules: 0, amarillas: 0 });
+    expect(animacion.estado).toBe('0,0');
 
     enLaUrna(3, 1);
     expect(animacion.fichas).toEqual({ azules: 3, amarillas: 1 });
+    // Lo que el motor escribe en `data-maquina` para las pruebas e2e.
+    expect(animacion.estado).toBe('3,1');
     expect(instancias(raiz, 'fichas-azules').count).toBe(3);
     expect(instancias(raiz, 'fichas-amarillas').count).toBe(1);
 
@@ -97,7 +100,7 @@ describe('fichas en la urna', () => {
 
   it('no muestra los ajustes de la máquina de otra sala', () => {
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz);
+    const animacion = animarUrna(raiz);
     etapa.value = { sala: 's4-biblioteca', puzzle: 's4-carritos', etapa: 0 };
     mecanismo.value = { azules: 4, amarillas: 4 };
     expect(animacion?.fichas).toEqual({ azules: 0, amarillas: 0 });
@@ -106,7 +109,7 @@ describe('fichas en la urna', () => {
 
   it('con la sala resuelta, quedan las fichas con las que se abrió la caja', () => {
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz);
+    const animacion = animarUrna(raiz);
     enLaUrna(6, 3, 2);
     tirarDeLaManija(5, 6, 3, true);
     etapa.value = null;
@@ -117,14 +120,28 @@ describe('fichas en la urna', () => {
 
   it('la urna queda translúcida, para ver las fichas', () => {
     const { raiz, urna } = sala();
-    crearAnimacionUrna(raiz)?.liberar();
+    animarUrna(raiz)?.liberar();
     const material = urna.material as MeshLambertMaterial;
     expect(material.transparent).toBe(true);
     expect(material.opacity).toBeLessThan(1);
   });
 
-  it('sin el objeto de la urna no hay animación', () => {
-    expect(crearAnimacionUrna(new Group())).toBeNull();
+  it('sin el objeto de la urna no agrega ni anima nada', () => {
+    const raiz = new Group();
+    const animacion = animarUrna(raiz);
+    enLaUrna(3, 1);
+    animacion.actualizar(1);
+    expect(raiz.children).toHaveLength(0);
+    expect(animacion.fichas).toEqual({ azules: 0, amarillas: 0 });
+    animacion.liberar();
+  });
+
+  it('el motor la crea para la rectoría, y no para una sala sin animación', () => {
+    const { raiz } = sala();
+    const animacion = animacionDeSala('s5-rectoria', raiz);
+    expect(animacion?.estado).toBe('0,0');
+    animacion?.liberar();
+    expect(animacionDeSala('porteria', new Group())).toBeNull();
   });
 });
 
@@ -147,8 +164,7 @@ describe('mano mecánica', () => {
 
   it('juega cuando se tira de la manija, pero espera a que se cierre el panel', () => {
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz, () => 0.1);
-    if (!animacion) throw new Error('sin animación');
+    const animacion = animarUrna(raiz, () => 0.1);
     enLaUrna(3, 1);
     panel.value = 'mecanismo';
     tirarDeLaManija(1, 3, 1);
@@ -175,14 +191,14 @@ describe('mano mecánica', () => {
   it('un resultado anterior a entrar a la sala no se vuelve a animar', () => {
     tirarDeLaManija(7, 3, 0);
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz);
+    const animacion = animarUrna(raiz);
     expect(animacion?.manoActiva).toBe(false);
     animacion?.liberar();
   });
 
   it('el resultado de la máquina de otra sala no mueve la mano', () => {
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz);
+    const animacion = animarUrna(raiz);
     resultado.value = {
       n: 3,
       sala: 's1-cooperativa',
@@ -199,7 +215,7 @@ describe('mano mecánica', () => {
 
   it('al liberar se quita de la sala y deja de seguir los signals', () => {
     const { raiz } = sala();
-    const animacion = crearAnimacionUrna(raiz);
+    const animacion = animarUrna(raiz);
     animacion?.liberar();
     expect(raiz.getObjectByName('urna-animacion')).toBeUndefined();
     enLaUrna(5, 5);

@@ -10,7 +10,8 @@
  *   espera a que se cierre: detrás del panel no se vería.
  * - **Urna.** El cilindro de `salas.json` se vuelve translúcido para que se vean las fichas.
  *
- * Todo cuelga de la raíz de la sala, así que se libera con ella al salir.
+ * Todo cuelga de la raíz de la sala, así que se libera con ella al salir. El motor la crea con
+ * `animacionDeSala()` (`./index.ts`), igual que las de las otras salas.
  */
 import { effect } from '@preact/signals';
 import {
@@ -25,6 +26,7 @@ import {
 import type { Material, Object3D } from 'three';
 import { panel } from '../../signals/interfaz';
 import { etapa, mecanismo, resultado } from '../../signals/mecanismo';
+import type { AnimacionSala } from './tipos';
 
 const SALA = 's5-rectoria';
 const OBJETO_URNA = 's5-urna';
@@ -101,26 +103,25 @@ export function sacarPareja(
   return [primera, segunda];
 }
 
-export interface AnimacionUrna {
-  /** Avanza la mano mecánica. `dt` en segundos. */
-  actualizar(dt: number): void;
+/** `estado` (el `data-maquina` del canvas) son las fichas que se ven: «3,1» es 3 azules y 1 amarilla. */
+export interface AnimacionUrna extends AnimacionSala {
   /** Fichas que se ven ahora dentro de la urna. */
   readonly fichas: FichasEnUrna;
   /** La mano está en movimiento o mostrando una pareja. */
   readonly manoActiva: boolean;
-  liberar(): void;
 }
 
+const SIN_FICHAS: FichasEnUrna = { azules: 0, amarillas: 0 };
+
 /**
- * Agrega las fichas y la mano a la sala de la urna. Devuelve `null` si la sala no tiene el
- * objeto `s5-urna` (por ejemplo, si cambia de id en `salas.json`).
+ * Agrega las fichas y la mano a la sala de la urna. Si la sala no tiene el objeto `s5-urna`
+ * (por ejemplo, si cambia de id en `salas.json`), no agrega ni anima nada.
  */
-export function crearAnimacionUrna(
-  raiz: Object3D,
-  azar: () => number = Math.random,
-): AnimacionUrna | null {
+export function animarUrna(raiz: Object3D, azar: () => number = Math.random): AnimacionUrna {
   const urna = raiz.getObjectByName(OBJETO_URNA);
-  if (!urna) return null;
+  if (!urna) {
+    return { actualizar() {}, liberar() {}, estado: '', fichas: SIN_FICHAS, manoActiva: false };
+  }
 
   // La urna se ve por dentro. No escribe profundidad, para no tapar las fichas.
   urna.traverse((o) => {
@@ -178,11 +179,14 @@ export function crearAnimacionUrna(
   grupo.add(azules, amarillas, mano);
   raiz.add(grupo);
 
-  let visibles: FichasEnUrna = { azules: 0, amarillas: 0 };
+  let visibles: FichasEnUrna = SIN_FICHAS;
+  // El texto se arma solo cuando cambian las fichas: el motor lo lee en cada cuadro.
+  let estado = '0,0';
   const matriz = new Matrix4();
   const poner = (fichas: FichasEnUrna): void => {
     if (fichas.azules === visibles.azules && fichas.amarillas === visibles.amarillas) return;
     visibles = fichas;
+    estado = `${fichas.azules},${fichas.amarillas}`;
     // Primero las azules y encima, en el mismo orden, las amarillas.
     for (let i = 0; i < fichas.azules; i++) {
       const p = posicionDeFicha(i);
@@ -249,6 +253,9 @@ export function crearAnimacionUrna(
         // Si se tiró otra vez de la manija mientras la mano jugaba, juega de nuevo.
         if (panel.peek() === null) empezarSiHayPendiente();
       }
+    },
+    get estado() {
+      return estado;
     },
     get fichas() {
       return visibles;
