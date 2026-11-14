@@ -69,6 +69,14 @@ export interface ObjetoInventario {
   conBoton?: true;
 }
 
+const SIN_AVANCE: Readonly<Record<SalaConSello, number>> = {
+  's1-cooperativa': 0,
+  's2-laboratorio': 0,
+  's3-gimnasio': 0,
+  's4-biblioteca': 0,
+  's5-rectoria': 0,
+};
+
 /** Antes de empezar no se puede elegir final y las tres grabaciones siguen escondidas. */
 const SIN_OPCIONES: OpcionesDeFinal = {
   salir: false,
@@ -89,6 +97,8 @@ export const modo = signal<Modo | null>(null);
 export const sala = signal<SalaId>('porteria');
 export const reloj = signal<Reloj>({ restanteMs: DURACION_MS, pausado: true, desde: 0 });
 export const sellos = signal<readonly SalaConSello[]>([]);
+/** Etapas resueltas en cada sala (0 a 3). Con 3 la sala tiene sello. */
+export const avance = signal<Readonly<Record<SalaConSello, number>>>(SIN_AVANCE);
 export const grabaciones = signal<readonly GrabacionId[]>([]);
 export const inventario = signal<readonly ObjetoInventario[]>([]);
 export const final = signal<FinalId | null>(null);
@@ -113,6 +123,7 @@ export function reiniciarPartida(): void {
     sala.value = 'porteria';
     reloj.value = { restanteMs: DURACION_MS, pausado: true, desde: 0 };
     sellos.value = [];
+    avance.value = SIN_AVANCE;
     grabaciones.value = [];
     inventario.value = [];
     final.value = null;

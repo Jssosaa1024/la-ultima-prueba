@@ -117,3 +117,37 @@
   font-size: 0.875rem;
   color: #b8c2cc;
 }
+/* Lo que el cuaderno escribe solo al resolver cada etapa (T38). */
+.cuaderno-descubrimiento {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #252d36;
+}
+
+.cuaderno-descubrimiento + .cuaderno-descubrimiento {
+  margin-top: 8px;
+}
+
+.cuaderno-maquina {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.cuaderno-etapas {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.cuaderno-etapas > li + li {
+  margin-top: 4px;
+}
+
+.cuaderno-concepto {
+  margin: 10px 0 4px;
+  font-weight: 700;
+  color: #e8a33d;
+}
+
+.cuaderno-concepto-texto {
+  margin: 0;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { aviso } from '../signals/interfaz';
-import { inventario, totalSellos } from '../signals/partida';
+import { pistas } from '../signals/mecanismo';
+import { inventario, sala, totalSellos } from '../signals/partida';
 import { textoDeAviso } from './hud/formato';
 
 /**
@@ -16,6 +17,9 @@ export default function Anunciador() {
   const sellos = totalSellos.value;
   const objetos = inventario.value;
   const avisoActual = aviso.value;
+  const pistasOfrecidas = pistas.value.ofrecidas;
+  const lugar = sala.value;
+  const pistasAntes = useRef({ lugar, ofrecidas: pistasOfrecidas });
 
   useEffect(() => {
     if (sellos > sellosAntes.current) setMensaje(`Sello obtenido. Llevas ${sellos} de 5.`);
@@ -32,6 +36,15 @@ export default function Anunciador() {
   useEffect(() => {
     if (avisoActual) setMensaje(textoDeAviso(avisoActual));
   }, [avisoActual]);
+
+  useEffect(() => {
+    // Solo se anuncia la pista que llega estando en la sala, no las que ya había al entrar.
+    const antes = pistasAntes.current;
+    if (antes.lugar === lugar && pistasOfrecidas > antes.ofrecidas) {
+      setMensaje('Hay una pista nueva.');
+    }
+    pistasAntes.current = { lugar, ofrecidas: pistasOfrecidas };
+  }, [lugar, pistasOfrecidas]);
 
   return (
     <div class="solo-lector" aria-live="polite" aria-atomic="true">
