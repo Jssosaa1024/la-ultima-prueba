@@ -119,6 +119,48 @@ async function arrastrar(page: Page, a: Punto, b: Punto, conDedo: boolean): Prom
   await cdp.detach();
 }
 
+/**
+ * Camina de frente con el joystick (mitad izquierda) hasta que se cumpla `llego`. No camina un
+ * tiempo fijo (T05b): con el equipo ocupado se avanza menos de lo que dice el reloj. Como la
+ * prueba puede tardar en soltar, `llego` debe seguir siendo cierto si el jugador sigue de largo.
+ */
+export async function caminarHasta(
+  page: Page,
+  caja: Caja,
+  conDedo: boolean,
+  llego: (x: number, z: number) => boolean,
+): Promise<void> {
+  const a = { x: caja.x + caja.width * 0.2, y: caja.y + caja.height * 0.7 };
+  const b = { x: a.x, y: a.y - 80 };
+  const esperar = (): Promise<void> =>
+    expect
+      .poll(async () => llego(...(await leer(page, 'data-posicion'))), { timeout: 45_000 })
+      .toBe(true);
+  if (!conDedo) {
+    await page.mouse.move(a.x, a.y);
+    await page.mouse.down();
+    await page.mouse.move(b.x, b.y, { steps: 5 });
+    try {
+      await esperar();
+    } finally {
+      await page.mouse.up();
+    }
+    return;
+  }
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ ...a, id: 1 }],
+  });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ ...b, id: 1 }] });
+  try {
+    await esperar();
+  } finally {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await cdp.detach();
+  }
+}
+
 /** Diferencia entre dos ángulos, entre −π y π. */
 const diferencia = (a: number, b: number): number => Math.atan2(Math.sin(a - b), Math.cos(a - b));
 
