@@ -1,4 +1,5 @@
 import { batch, type Signal } from '@preact/signals';
+import { esObjetoSuelto, grabacionDeObjeto } from '../content/grabaciones';
 import { PUZZLES, puzzleDeSala } from '../content/puzzles';
 import type { Puzzle } from '../content/esquema';
 import { destinoDePuerta, nombreDeObjeto } from '../content/salas';
@@ -515,6 +516,16 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       return false;
     }
     if (partida?.lugar !== 'porteria') {
+      // Los escondites de las grabaciones no son parte de la máquina (T75): al usarlos se
+      // recoge la grabación (la regla solo la acepta en su sala y una vez) y se muestra.
+      const escondida = grabacionDeObjeto(objeto);
+      if (escondida) {
+        jugar({ t: 'recoger_grabacion', grabacion: escondida.id });
+        abrirPanel('grabacion');
+        return true;
+      }
+      // Los balones que sí rebotan tampoco: el motor los anima y no pasa nada más.
+      if (esObjetoSuelto(objeto)) return true;
       // En una sala, cualquier otro objeto que se usa es parte de su máquina: abre el panel
       // del mecanismo (el objeto 3D solo anima). El objeto sigue enfocado para volver a él.
       abrirPanel('mecanismo');

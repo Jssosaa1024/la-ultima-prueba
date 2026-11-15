@@ -2,7 +2,7 @@
  * Salas por código: arma una sala de `src/content/salas.json` con primitivas de Three.js.
  *
  * - Piso, techo y cuatro paredes con el tamaño de la sala; las paredes son sólidas.
- * - Cada objeto es una caja, un cilindro, un plano (una caja muy delgada, para que se vea
+ * - Cada objeto es una caja, un cilindro, una esfera, un plano (una caja muy delgada, para que se vea
  *   y se pueda tocar por los dos lados) o un grupo de piezas.
  * - Las cajas de colisión salen de los objetos sólidos (T17) ANTES de unir la geometría.
  * - Todo lo fijo que no se toca se une en UNA sola malla con colores por vértice: una
@@ -20,6 +20,7 @@ import {
   Mesh,
   MeshLambertMaterial,
   PlaneGeometry,
+  SphereGeometry,
 } from 'three';
 import type { Object3D } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -33,6 +34,8 @@ const GROSOR_PARED = 0.2;
 /** Grosor de un plano (cartel, puerta, pizarra). */
 const GROSOR_PLANO = 0.03;
 const LADOS_CILINDRO = 16;
+/** Gajos de una esfera (y la mitad de anillos): unos 140 triángulos, que alcanzan para un balón. */
+const LADOS_ESFERA = 12;
 const GRADOS = Math.PI / 180;
 
 export interface SalaConstruida {
@@ -47,8 +50,15 @@ export interface SalaConstruida {
 }
 
 /** Geometría con la base en y = 0, centrada en x y z. */
-function geometria(forma: 'caja' | 'cilindro' | 'plano', tam: readonly number[]): BufferGeometry {
+function geometria(
+  forma: 'caja' | 'cilindro' | 'esfera' | 'plano',
+  tam: readonly number[],
+): BufferGeometry {
   const [ancho = 1, alto = 1, fondo = 1] = tam;
+  // Una esfera mide lo mismo en todas direcciones: su diámetro es el ancho.
+  if (forma === 'esfera') {
+    return new SphereGeometry(ancho / 2, LADOS_ESFERA, LADOS_ESFERA / 2).translate(0, ancho / 2, 0);
+  }
   const g =
     forma === 'cilindro'
       ? new CylinderGeometry(ancho / 2, ancho / 2, alto, LADOS_CILINDRO)

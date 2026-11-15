@@ -1,18 +1,46 @@
 import type { Object3D } from 'three';
 import type { Lugar } from '../../content/esquema-salas';
+import { animarBalones } from './balones';
 import { animarEtiquetadora } from './etiquetadora';
+import { animarFlechas } from './flechas';
 import { animarTanques } from './tanques';
 import type { AnimacionSala } from './tipos';
 
 export type { AnimacionSala } from './tipos';
 
-/** La animación de la máquina de cada sala. Las salas que aún no tienen, no animan nada. */
+/**
+ * Junta la animación de la máquina de una sala con otra cosa que también se anima en ella.
+ * `estado` sigue siendo el de la máquina; el de lo demás queda en `detalle`.
+ */
+export function conDetalle(maquina: AnimacionSala, extra: AnimacionSala): AnimacionSala {
+  return {
+    actualizar(dt) {
+      maquina.actualizar(dt);
+      extra.actualizar(dt);
+    },
+    get estado() {
+      return maquina.estado;
+    },
+    get detalle() {
+      return extra.estado;
+    },
+    liberar() {
+      maquina.liberar();
+      extra.liberar();
+    },
+  };
+}
+
+/** Lo que se anima en cada sala. Las salas que aún no tienen nada, no animan. */
 const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   's1-cooperativa': animarEtiquetadora,
-  's2-laboratorio': animarTanques,
+  // Los tanques y, con la linterna, las flechas hacia la grabación 1 (T75).
+  's2-laboratorio': (raiz) => conDetalle(animarTanques(raiz), animarFlechas(raiz)),
+  // Por ahora solo los balones del carro (T75); el reflector llega con T58.
+  's3-gimnasio': animarBalones,
 };
 
-/** Prepara la animación de la máquina de `lugar` sobre su sala ya construida, si la tiene. */
+/** Prepara las animaciones de `lugar` sobre su sala ya construida, si las tiene. */
 export function animacionDeSala(lugar: Lugar, raiz: Object3D): AnimacionSala | null {
   return ANIMACIONES[lugar]?.(raiz) ?? null;
 }

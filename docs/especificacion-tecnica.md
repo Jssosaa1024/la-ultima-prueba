@@ -794,7 +794,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T72** Sala 5: props, lote 2 — 55 min
 - [ ] **T73** Sala 5: lightmap y exportación — 45 min
 - [ ] **T74** Sala 5: presupuesto y prueba en celular — 40 min
-- [ ] **T75** Esconder las tres grabaciones en las salas 2, 3 y 4 con su audio (escondites de `docs/salas-y-puzzles.md`) — 45 min
+- [x] **T75** Esconder las tres grabaciones en las salas 2, 3 y 4 (escondites de `docs/salas-y-puzzles.md`): se recogen con `recoger_grabacion` y su texto queda en el cuaderno. El audio queda para la Ola 3 — 45 min
 - [ ] **T76** Volver a salas anteriores: recarga desde caché y estado conservado — 45 min
 - [ ] **T77** Elección de final en la portería y prueba individual de punta a punta — 40 min
 

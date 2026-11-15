@@ -1,0 +1,33 @@
+/* Grabaciones (T75): el panel al recoger una y su sección en el cuaderno. */
+
+/* Lo que dice la grabación: se ve como una cita. */
+.grabacion-texto {
+  margin: 10px 0;
+  padding: 10px 14px;
+  border-left: 4px solid #b388ff;
+  border-radius: 4px;
+  background: rgb(179 136 255 / 12%);
+  font-size: 1.0625rem;
+  font-style: italic;
+}
+
+.grabacion-avance {
+  margin-bottom: 0;
+  color: #b8c2cc;
+}
+
+.grabacion-nota + .grabacion-nota {
+  margin-top: 14px;
+}
+
+.grabacion-titulo {
+  margin: 0;
+  font-size: 1rem;
+  color: #e8a33d;
+}
+
+.grabacion-lugar {
+  margin: 2px 0 0;
+  font-size: 0.9375rem;
+  color: #b8c2cc;
+}

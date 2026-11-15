@@ -5,6 +5,7 @@ import { PUZZLES } from '../../content/puzzles';
 import { cerrarPanel } from '../../signals/interfaz';
 import { avance, modo } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
+import GrabacionesCuaderno from '../grabaciones/GrabacionesCuaderno';
 import ContenidoFicha from '../inspeccion/ContenidoFicha';
 import Dialogo from '../paneles/Dialogo';
 import { descubrimientos } from './descubrimientos';
@@ -32,6 +33,7 @@ export default function Cuaderno() {
       )}
       <Descubrimientos />
       <DatosEncontrados />
+      <GrabacionesCuaderno />
       <Notas />
     </Dialogo>
   );

@@ -111,6 +111,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     animacion?.liberar();
     animacion = null;
     delete canvas.dataset['maquina'];
+    delete canvas.dataset['detalle'];
     const nueva = await cargador.entrar(lugar);
     // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
     if (!nueva || detenido || mostrada !== lugar) return;
@@ -212,6 +213,10 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         if (canvas.dataset['maquina'] !== animacion.estado) {
           canvas.dataset['maquina'] = animacion.estado;
         }
+        const detalle = animacion.detalle;
+        if (detalle !== undefined && canvas.dataset['detalle'] !== detalle) {
+          canvas.dataset['detalle'] = detalle;
+        }
       }
       publicarJoystick(entrada);
       dibujar();
@@ -260,6 +265,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['geometrias'];
     delete canvas.dataset['mallas'];
     delete canvas.dataset['maquina'];
+    delete canvas.dataset['detalle'];
   };
 }
 

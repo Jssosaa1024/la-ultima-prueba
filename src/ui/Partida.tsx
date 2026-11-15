@@ -6,6 +6,7 @@ import Anunciador from './Anunciador';
 import IndicadorCarga from './carga/IndicadorCarga';
 import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
+import PanelGrabacion from './grabaciones/PanelGrabacion';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
 import PanelMecanismo from './mecanismos/PanelMecanismo';
@@ -33,6 +34,7 @@ export default function Partida() {
       {abierto === 'ayuda' && <PedirAyuda />}
       {abierto === 'mecanismo' && <PanelMecanismo />}
       {abierto === 'pistas' && <PanelPistas />}
+      {abierto === 'grabacion' && <PanelGrabacion />}
       <IndicadorCarga />
       <Anunciador />
     </>
