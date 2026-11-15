@@ -4,7 +4,14 @@ import { ClienteCoop } from '../../src/net/cliente';
 import { RedEnMemoria } from '../../src/net/memoria';
 import { directo, VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
 import { iniciarControladorCoop } from '../../src/signals/controlador-coop';
-import { coop, misRoles, propuestaCoop, senales, votosCoop } from '../../src/signals/coop';
+import {
+  coop,
+  misRoles,
+  objetosFuera,
+  propuestaCoop,
+  senales,
+  votosCoop,
+} from '../../src/signals/coop';
 import { datosEncontrados, notas } from '../../src/signals/cuaderno';
 import { aviso, enfocado, panel, type AccionObjeto } from '../../src/signals/interfaz';
 import { etapa, mecanismo, pistas, pistasVistas, resultado } from '../../src/signals/mecanismo';
@@ -104,6 +111,20 @@ describe('partida cooperativa en este navegador', () => {
     expect(otro.foto?.revelados).toContain('porteria-reloj');
 
     await tocar('porteria-linterna', 'Linterna', 'recoger');
+    expect(inventario.value.map((o) => o.id)).toEqual(['porteria-linterna']);
+  });
+
+  it('lo que lleva otro no se ve en la escena; si me lo pasa, va a mi inventario (T84c)', async () => {
+    expect(objetosFuera.value).toEqual([]);
+    await otro.enviar({ t: 'recoger', p: { objeto: 'porteria-linterna' } });
+    await asentar();
+    expect(objetosFuera.value).toEqual(['porteria-linterna']);
+    expect(inventario.value).toEqual([]);
+
+    const yo = coop.value.jugadores.find((j) => j.yo)?.jugador ?? '';
+    await otro.enviar({ t: 'pasar', p: { objeto: 'porteria-linterna', a: yo } });
+    await asentar();
+    expect(objetosFuera.value).toEqual(['porteria-linterna']);
     expect(inventario.value.map((o) => o.id)).toEqual(['porteria-linterna']);
   });
 

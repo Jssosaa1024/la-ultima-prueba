@@ -6,7 +6,7 @@ import { puzzleDeSala } from '../content/puzzles';
 import { destinoDePuerta, nombreDeObjeto, SALAS_3D } from '../content/salas';
 import { resumenDeAprendizaje } from '../game/aprendizaje';
 import type { Directo, Evento, Foto, Intencion } from '../game/coop/mensajes';
-import { esRecogible, puzzlePorId, REQUIERE_HERRAMIENTA } from '../game/coop/mundo';
+import { esRecogible, lugarInicial, puzzlePorId, REQUIERE_HERRAMIENTA } from '../game/coop/mundo';
 import { repartoDeFoto } from '../game/coop/replica';
 import {
   aplicar,
@@ -29,6 +29,7 @@ import {
   esperaD,
   miPosicion,
   misRoles,
+  objetosFuera,
   propuestaCoop,
   reparto,
   rolesDe,
@@ -271,6 +272,13 @@ export class JuegoCoop {
         f.objetos
           .filter((o) => o.portador === this.yo && o.objeto !== OBJETO_CUADERNO)
           .flatMap((o) => objetoDeInventario(o.objeto) ?? []),
+      );
+      // T84c: lo que alguien lleva, o quedó en otro lugar, no se ve donde lo puso la sala.
+      asignar(
+        objetosFuera,
+        f.objetos
+          .filter((o) => o.portador !== null || o.sala !== lugarInicial(o.objeto))
+          .map((o) => o.objeto),
       );
       asignar(datosEncontrados, f.revelados);
       // El reloj solo se corrige con lo que lo trae (y al empezar). Copiarlo en cada

@@ -5,11 +5,14 @@
  * («Usar», «Recoger», «Examinar»). La orden vuelve por el puente y la atiende la lógica del
  * juego; aquí solo se reacciona a lo que cambie en los signals:
  * - si `enfocado` se vacía o cambia, se quita el resaltado;
- * - si un objeto entra al `inventario`, desaparece de la escena.
+ * - si un objeto entra al `inventario`, desaparece de la escena;
+ * - en grupo (T84c), lo que lleva otro jugador también desaparece, y vuelve a su sitio cuando
+ *   queda sin portador en el lugar donde lo pone la sala (`objetosFuera`).
  */
 import { effect } from '@preact/signals';
 import { Color, Raycaster, Vector2, Vector3 } from 'three';
 import type { Camera, Material, Mesh, Object3D } from 'three';
+import { objetosFuera } from '../../signals/coop';
 import { enfocado } from '../../signals/interfaz';
 import type { AccionObjeto, ObjetoEnfocado } from '../../signals/interfaz';
 import { inventario } from '../../signals/partida';
@@ -58,6 +61,12 @@ export function interactivoDe(o: Object3D | null): Object3D | null {
 
 const datosDe = (o: Object3D): DatosInteractivo => o.userData['interactivo'] as DatosInteractivo;
 
+/**
+ * Marca de los objetos que oculta la interacción por estar llevados. Va en el objeto y no en
+ * la interacción, porque una sala guardada en caché vuelve con otra interacción.
+ */
+const OCULTO = 'ocultoPorLlevado';
+
 /** `true` si el objeto y todos sus padres están visibles. */
 function esVisible(o: Object3D): boolean {
   for (let actual: Object3D | null = o; actual; actual = actual.parent) {
@@ -93,8 +102,13 @@ export interface Interaccion {
 
 /**
  * @param raiz  la sala: se buscan objetos interactivos dentro y lo sólido tapa la vista.
+ * @param alOcultar  recibe los ids ocultos de la sala cada vez que cambian (para las e2e).
  */
-export function crearInteraccion(camara: Camera, raiz: Object3D): Interaccion {
+export function crearInteraccion(
+  camara: Camera,
+  raiz: Object3D,
+  alOcultar?: (ids: readonly string[]) => void,
+): Interaccion {
   const rayo = new Raycaster();
   rayo.far = ALCANCE;
   const punto = new Vector2();
@@ -128,17 +142,32 @@ export function crearInteraccion(camara: Camera, raiz: Object3D): Interaccion {
   };
 
   // Si la lógica del juego vacía o cambia `enfocado` (por ejemplo, tras «Recoger»), se apaga
-  // el resaltado. Si un objeto entra al inventario, desaparece de la sala.
+  // el resaltado. Lo que entra al inventario o lleva otro jugador desaparece de la sala.
   const dejarDeVigilar = effect(() => {
     const e = enfocado.value;
     if (actual && e?.id !== datosDe(actual.objeto).id) quitarResaltado();
   });
   const dejarDeVigilarInventario = effect(() => {
-    const ids = new Set(inventario.value.map((o) => o.id));
+    const ids = new Set(objetosFuera.value);
+    for (const o of inventario.value) ids.add(o.id);
+    const ocultos: string[] = [];
     raiz.traverse((o) => {
       const datos = o.userData['interactivo'] as DatosInteractivo | undefined;
-      if (datos && ids.has(datos.id)) o.visible = false;
+      if (!datos) return;
+      if (ids.has(datos.id)) {
+        // Solo se marca lo que estaba a la vista: lo que otro módulo ocultó no es nuestro.
+        if (o.visible) {
+          o.visible = false;
+          o.userData[OCULTO] = true;
+        }
+        if (o.userData[OCULTO]) ocultos.push(datos.id);
+      } else if (o.userData[OCULTO]) {
+        // Lo soltaron en su sitio: vuelve a verse.
+        o.visible = true;
+        o.userData[OCULTO] = false;
+      }
     });
+    alOcultar?.(ocultos);
   });
 
   return {
