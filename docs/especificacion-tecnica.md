@@ -730,8 +730,8 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T11j** (v1.1) Script `check-audio`: sin `.ogg` en `public/` y −16 LUFS ± 1 LU — 35 min
 - [ ] **T11k** (v1.1) Bandera `PUBLIC_LAB`, `build:lab` con originales y `noindex`, y exclusión total en producción — 45 min
 - [ ] **T11l** (v1.1) Modo `?lab=1`: alternar original y optimizado con la misma cámara, alambre y tabla de diferencias — 55 min
-- [ ] **T11m** (v1.1) Módulo `debug/metricas.ts`: tiempo de cuadro, `renderer.info`, memoria estimada, `transferSize` y carga — 55 min
-- [ ] **T11n** (v1.1) Panel `?debug=1` y 3 toques: colores contra el presupuesto y exportación JSON — 50 min
+- [x] **T11m** (v1.1) Módulo `debug/metricas.ts`: tiempo de cuadro, `renderer.info`, memoria estimada, `transferSize` y carga — 55 min. El motor carga el medidor (`src/debug/medidor.ts`) solo con el panel abierto; con el panel cerrado no hay nada por cuadro
+- [x] **T11n** (v1.1) Panel `?debug=1` y 3 toques: colores contra el presupuesto y exportación JSON — 50 min. Los toques sobre un botón no cuentan (en la esquina está «Salir»): en la partida se toca justo debajo de él. El JSON agrega `metricas.pixel_ratio_usado`
 - [ ] **T11o** (v1.1) Motor de estrés: marca en `localStorage`, calentamiento, medición de 5 s y criterio de parada — 55 min
 - [ ] **T11p** (v1.1) Ejes de estrés: triángulos y draw calls — 45 min
 - [ ] **T11q** (v1.1) Ejes de estrés: texturas y píxeles — 45 min
