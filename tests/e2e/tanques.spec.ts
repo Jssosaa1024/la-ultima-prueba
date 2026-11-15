@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { caminarHasta, continuarEn, tocarObjeto, type Punto3 } from './escena';
+import { caminarHasta, continuarEn, mirarHacia, tocarObjeto, type Punto3 } from './escena';
 
 // T52: los tanques de la sala 2, de punta a punta. Las corridas duran lo que tarda la campana
 // de cada etapa (10, 8 y 12 segundos), en tiempo real.
@@ -20,12 +20,18 @@ interface Opciones {
 
 async function abrirTanques(page: Page, conDedo: boolean, opciones: Opciones = {}) {
   const caja = await continuarEn(page, { sala: 's2-laboratorio', ...opciones });
-  // Desde la puerta, el tablero queda a más de 3 m: hay que acercarse. Más adelante sigue
-  // al alcance, así que no importa si la prueba tarda en soltar el joystick.
+  // Desde la puerta, el tablero queda a más de 3 m: hay que acercarse. Se camina hacia él, así
+  // que si la prueba tarda en soltar el joystick, el propio tablero detiene al jugador.
+  await mirarHacia(page, caja, TABLERO, conDedo);
   await caminarHasta(page, caja, conDedo, (_x, z) => z < 0.9);
-  await tocarObjeto(page, caja, TABLERO, conDedo, /Usar.*Tablero de los tanques/);
-  await page.getByRole('button', { name: /Usar.*Tablero de los tanques/ }).click();
+  const usar = page.getByRole('button', { name: /Usar.*Tablero de los tanques/ });
   const panel = page.getByRole('dialog', { name: 'Los tanques y el graficador' });
+  // Con el equipo ocupado, el botón puede cambiar entre que aparece y el toque: se repite.
+  for (let intento = 0; intento < 3 && !(await panel.isVisible()); intento++) {
+    await tocarObjeto(page, caja, TABLERO, conDedo, /Usar.*Tablero de los tanques/);
+    await usar.click({ timeout: 5000 }).catch(() => undefined);
+    await panel.waitFor({ timeout: 10_000 }).catch(() => undefined);
+  }
   await expect(panel).toBeVisible();
   return panel;
 }
