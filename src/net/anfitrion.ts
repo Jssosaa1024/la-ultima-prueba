@@ -5,6 +5,7 @@ import {
   alTick,
   crearSesion,
   fotoEn,
+  reanudarReloj,
   type Paso,
   type Sesion,
 } from '../game/coop/sesion';
@@ -72,6 +73,11 @@ export class Anfitrion {
     this.aplicar(alTick(this.s, this.ahora()));
     // T88: la foto periódica corrige a quien perdió eventos sin notarlo (por ejemplo, el último).
     if (this.ahora() - this.ultimaFoto >= FOTO_CADA_MS) this.emitirFoto();
+  }
+
+  /** T90: reanuda el reloj tras la migración (si corría antes). */
+  reanudarReloj(): void {
+    this.aplicar(reanudarReloj(this.s, this.ahora()));
   }
 
   /** Difunde la foto completa (`estado`). */

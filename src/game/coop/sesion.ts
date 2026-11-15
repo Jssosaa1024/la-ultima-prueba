@@ -357,7 +357,42 @@ export function alTick(s0: Sesion, ahora: number): Paso {
     return terminar(s, aplicar(s.partida, { t: 'tiempo_agotado' }), ahora);
   }
   s = actualizarRoles(s, ahora, eventos);
+  s = soltarReservas(s, ahora, eventos);
   return { s, eventos };
+}
+
+/**
+ * T89: lo que lleva un jugador desconectado queda reservado 60 s; luego queda en el piso del
+ * lugar del grupo, donde cualquiera lo puede recoger.
+ */
+function soltarReservas(s: Sesion, ahora: number, eventos: Evento[]): Sesion {
+  const vencidos = Object.entries(s.ausentesDesde)
+    .filter(([, desde]) => ahora - desde >= ESPERA_RECONEXION_MS)
+    .map(([j]) => j);
+  if (vencidos.length === 0) return s;
+  let cambio = false;
+  const objetos = s.objetos.map((o) => {
+    if (o.portador === null || !vencidos.includes(o.portador)) return o;
+    cambio = true;
+    const suelto = { objeto: o.objeto, portador: null, sala: s.partida.lugar };
+    eventos.push({ t: 'objeto', p: suelto });
+    return suelto;
+  });
+  return cambio ? { ...s, objetos } : s;
+}
+
+/**
+ * T90: el nuevo anfitrión arranca con el reloj en pausa y lo reanuda a los 3 s, si corría
+ * antes de la migración.
+ */
+export function reanudarReloj(s: Sesion, ahora: number): Paso {
+  if (s.fase !== 'jugando' || !s.reloj.pausado) return quieto(s);
+  const reloj = reanudar(s.reloj, ahora);
+  if (reloj === s.reloj) return quieto(s);
+  return {
+    s: { ...s, reloj, activoVisto: transcurrido(reloj, ahora) },
+    eventos: [{ t: 'reloj', p: { restante_ms: entero(restante(reloj, ahora)), pausado: false } }],
+  };
 }
 
 function terminar(s: Sesion, partida: Partida, ahora: number): Paso {
