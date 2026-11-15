@@ -12,8 +12,12 @@ import { VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
  * memoria, con retraso. Los jugadores juegan la sala 1 completa.
  */
 
-const S1 = PUZZLES[0];
-if (!S1) throw new Error('falta el puzzle de la sala 1');
+function puzzleSala1() {
+  const p = PUZZLES[0];
+  if (!p) throw new Error('falta el puzzle de la sala 1');
+  return p;
+}
+const S1 = puzzleSala1();
 
 const identidad = (jugador: string, unido_en: number, version = VERSION_CONTENIDO): Identidad => ({
   jugador,
