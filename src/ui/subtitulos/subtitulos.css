@@ -1,0 +1,30 @@
+/*
+ * Subtítulos de La Voz (T34): abajo y al centro, encima de la escena, sin recibir toques.
+ * Quedan por encima de la fila de abajo del HUD (inventario y botón «Usar»).
+ */
+.subtitulos {
+  position: absolute;
+  left: 50%;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(36rem, calc(100% - 32px));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.subtitulo {
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 78%);
+  color: #f2f2f2;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.subtitulo-quien {
+  font-weight: 700;
+  color: #e8a33d;
+}

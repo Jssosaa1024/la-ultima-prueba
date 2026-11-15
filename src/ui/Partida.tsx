@@ -14,6 +14,7 @@ import Inspeccion from './inspeccion/Inspeccion';
 import PanelMecanismo from './mecanismos/PanelMecanismo';
 import PedirAyuda from './paneles/PedirAyuda';
 import PanelPistas from './pistas/Pistas';
+import Subtitulos from './subtitulos/Subtitulos';
 import GirarTelefono from './orientacion/GirarTelefono';
 
 /**
@@ -46,6 +47,8 @@ export default function Partida() {
         {abierto === 'ajustes' && (
           <PanelAjustes alCerrar={cerrarPanel} pausarReloj={modo.value === 'individual'} />
         )}
+        {/* La Voz (T34): sin paneles abiertos; lo pedido mientras tanto espera su turno. */}
+        {abierto === null && <Subtitulos />}
         <IndicadorCarga />
         <Anunciador />
       </div>

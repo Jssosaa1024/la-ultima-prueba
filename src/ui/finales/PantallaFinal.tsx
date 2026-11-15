@@ -1,5 +1,6 @@
 import type { RefObject } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { GUION } from '../../content/guion';
 import { textoResumen } from '../../content/resumenes';
 import {
   aprendizaje,
@@ -100,6 +101,7 @@ function Resumen({
 }) {
   const id = final.value ?? 'tiempo_cumplido';
   const texto = FINALES_TEXTO[id];
+  const voz = GUION.find((l) => l.final === id);
   // Al terminar, el controlador deja el reloj en pausa: `restanteMs` es lo que sobró.
   const usado = DURACION_MS - reloj.value.restanteMs;
 
@@ -112,6 +114,12 @@ function Resumen({
       {texto.parrafos.map((p) => (
         <p key={p}>{p}</p>
       ))}
+      {/* Lo que dice La Voz en este final (T34), como subtítulo. */}
+      {voz && (
+        <p class="final-voz">
+          <span class="final-voz-quien">La Voz:</span> {voz.texto}
+        </p>
+      )}
       <dl class="final-resumen">
         <div>
           <dt>Sellos</dt>
