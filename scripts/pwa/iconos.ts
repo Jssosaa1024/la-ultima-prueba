@@ -48,7 +48,7 @@ export function pixeles(lado: number): Uint8Array {
       const a = dentro / (MUESTRAS * MUESTRAS);
       const k = (py * lado + px) * 3;
       for (let c = 0; c < 3; c++) {
-        rgb[k + c] = Math.round(FONDO[c]! * (1 - a) + AMBAR[c]! * a);
+        rgb[k + c] = Math.round((FONDO[c] ?? 0) * (1 - a) + (AMBAR[c] ?? 0) * a);
       }
     }
   }
@@ -69,7 +69,7 @@ const TABLA_CRC = (() => {
 
 function crc32(datos: Uint8Array): number {
   let c = 0xffffffff;
-  for (const b of datos) c = TABLA_CRC[(c ^ b) & 0xff]! ^ (c >>> 8);
+  for (const b of datos) c = (TABLA_CRC[(c ^ b) & 0xff] ?? 0) ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 }
 
