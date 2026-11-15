@@ -1,0 +1,325 @@
+---
+import Base from '../layouts/Base.astro';
+import { PUZZLES } from '../content/puzzles';
+import { NOMBRE_PROCESO } from '../content/procesos';
+import { salaPorId } from '../content/salas';
+import { SALAS } from '../game/partida';
+
+/**
+ * Guía para docentes (T99): qué es el juego, para quién, cuánto dura, qué matemática trabaja
+ * cada sala, cómo usarlo en clase y qué datos guarda. La parte de las salas sale de los
+ * puzzles (`src/content/puzzles/`), así que no se desactualiza si cambia el contenido.
+ */
+
+/** Minutos objetivo de reloj activo por sala (`docs/salas-y-puzzles.md`, «Tiempos objetivo»). */
+const MINUTOS = [5, 6, 6, 6, 7];
+const DIFICULTAD = ['', 'básica', 'media', 'alta'];
+
+const salas = SALAS.map((id, i) => {
+  const puzzle = PUZZLES.find((p) => p.sala === i + 1);
+  if (!puzzle) throw new Error(`Falta el puzzle de la sala ${i + 1}`);
+  return {
+    numero: i + 1,
+    nombre: salaPorId(id).nombre,
+    maquina: puzzle.titulo,
+    concepto: puzzle.cuaderno.concepto,
+    descubre: puzzle.concepto,
+    intuicion: puzzle.intuicion,
+    proceso: NOMBRE_PROCESO[puzzle.proceso],
+    grado: puzzle.grado,
+    dificultad: DIFICULTAD[puzzle.dificultad] ?? '',
+    minutos: MINUTOS[i],
+  };
+});
+---
+
+<Base title="Guía para docentes · La Última Prueba">
+  <main class="guia">
+    <header>
+      <p class="antetitulo">La Última Prueba</p>
+      <h1>Guía para docentes</h1>
+      <p class="entrada">
+        Un escape room en 3D para el navegador, con cinco salas en las que la matemática es la regla
+        del mundo, no un enunciado.
+      </p>
+      <nav class="acciones" aria-label="Enlaces">
+        <a class="boton principal" href="/jugar">
+          Probar el juego
+        </a>
+        <a class="boton" href="/">
+          Volver a la portada
+        </a>
+      </nav>
+    </header>
+
+    <section aria-labelledby="que-es">
+      <h2 id="que-es">Qué es</h2>
+      <p>
+        Es miércoles a las 23:59 y la feria de ciencias empieza mañana. Quien juega es estudiante de
+        grado 10: vuelve al colegio por la memoria USB con su proyecto y la puerta se cierra. Una
+        voz por los parlantes le propone salir con cinco sellos, uno por sala.
+      </p>
+      <p>
+        Cada sala es una máquina con una regla matemática que se descubre manipulándola: una
+        etiquetadora de precios, unos tanques con un graficador, un reflector que proyecta sombras,
+        unos carritos de libros y una urna con fichas. Nadie pregunta «¿cuánto es…?» y no hay
+        opciones para escoger. La máquina nunca dice «incorrecto»: muestra lo que pasó, y eso es la
+        pista.
+      </p>
+      <p>
+        Cada máquina tiene tres etapas: un caso fácil para aprender cómo funciona, un caso donde la
+        intuición común falla y un caso que pide combinar lo aprendido. El concepto se nombra
+        después, en el cuaderno del jugador, cuando ya lo vivió.
+      </p>
+    </section>
+
+    <section aria-labelledby="para-quien">
+      <h2 id="para-quien">Para quién es</h2>
+      <ul>
+        <li>
+          Estudiantes de grado 9 en adelante, con foco en grado 10. Un estudiante de grado 9 puede
+          resolver las salas experimentando; uno de grado 10 reconoce el concepto que ve en clase.
+        </li>
+        <li>Las cuentas son cortas, de una o dos operaciones: lo difícil es ver qué hacer.</li>
+        <li>
+          Se juega en el celular (Android con Chrome actualizado o iPhone con Safari), en
+          horizontal. También funciona en un computador con teclado y ratón.
+        </li>
+        <li>
+          Hoy se juega de a uno. El modo cooperativo, de 2 a 4 estudiantes en el mismo salón, está
+          en construcción.
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="cuanto-dura">
+      <h2 id="cuanto-dura">Cuánto dura</h2>
+      <p>
+        La partida tiene un reloj de <strong>40 minutos</strong>. Un jugador promedio termina las
+        cinco salas en unos 32; el resto alcanza para buscar tres grabaciones opcionales que cierran
+        la historia. Mientras el estudiante consulta su cuaderno, el reloj se detiene.
+      </p>
+      <p>
+        Si el reloj se acaba o el estudiante pide ayuda por el intercomunicador, la partida termina
+        igual con un final amable: ningún final castiga.
+      </p>
+    </section>
+
+    <section aria-labelledby="salas">
+      <h2 id="salas">Qué matemática trabaja cada sala</h2>
+      <p>
+        El proceso es uno de los procesos generales de los Estándares Básicos de Competencias en
+        Matemáticas del MEN. El grado es en el que se suele estudiar el concepto.
+      </p>
+      <ol class="salas">
+        {salas.map((s) => (
+          <li class="sala">
+            <h3>
+              Sala {s.numero} · {s.nombre}: {s.maquina}
+            </h3>
+            <p class="concepto">{s.concepto}</p>
+            <dl>
+              <div>
+                <dt>Proceso</dt>
+                <dd>{s.proceso}</dd>
+              </div>
+              <div>
+                <dt>Grado</dt>
+                <dd>{s.grado}°</dd>
+              </div>
+              <div>
+                <dt>Dificultad</dt>
+                <dd>{s.dificultad}</dd>
+              </div>
+              <div>
+                <dt>Tiempo</dt>
+                <dd>unos {s.minutos} min</dd>
+              </div>
+            </dl>
+            <p>
+              <strong>Lo que se descubre:</strong> {s.descubre}
+            </p>
+            <p>
+              <strong>La intuición que se pone a prueba:</strong> «{s.intuicion}»
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section aria-labelledby="en-clase">
+      <h2 id="en-clase">Cómo usarlo en clase</h2>
+      <h3>Antes</h3>
+      <ul>
+        <li>
+          No hace falta explicar los temas: el juego está hecho para que el concepto llegue después
+          de experimentarlo. Sirve para abrir un tema o para repasarlo.
+        </li>
+        <li>
+          Pruébelo usted primero en un celular como el de sus estudiantes. Pida que lleguen con la
+          batería cargada y, si se puede, con el navegador actualizado.
+        </li>
+      </ul>
+      <h3>Durante</h3>
+      <ul>
+        <li>Reserve una hora de clase: 40 minutos de juego y unos 15 para conversar.</li>
+        <li>
+          Si un estudiante se atasca, invítelo a mirar lo que hizo la máquina, no a hacer cuentas.
+          El juego ofrece pistas graduales que invitan a observar algo; nunca dan la respuesta.
+        </li>
+        <li>
+          El cuaderno del juego guarda los datos encontrados, las notas del estudiante y lo que
+          descubrió en cada sala.
+        </li>
+      </ul>
+      <h3>Después</h3>
+      <ul>
+        <li>
+          Lleve a la discusión la intuición de cada sala: ¿alguien la creía? ¿Qué le hizo cambiar de
+          idea? Por ejemplo: si un precio baja 20 % y luego sube 20 %, ¿vuelve a ser el mismo?
+        </li>
+        <li>
+          Pida que expliquen con sus palabras la regla de una máquina antes de nombrarla con el
+          vocabulario de la clase.
+        </li>
+        <li>Pida que comparen entre compañeros qué salas resolvieron y cómo.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="datos">
+      <h2 id="datos">Qué datos guarda</h2>
+      <p>
+        <strong>Ningún dato personal.</strong> El juego no pide nombre, correo ni teléfono.
+      </p>
+      <ul>
+        <li>
+          La partida en curso se guarda solo en el navegador del mismo celular, para poder seguir si
+          la página se recarga. No sale del equipo y se borra al terminar la partida.
+        </li>
+        <li>No usa cookies ni publicidad, ni comparte información con terceros.</li>
+        <li>
+          Cuando llegue el modo cooperativo, cada estudiante entrará sin cuenta, con un alias
+          elegido de una lista y sin chat libre ni voz.
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      <a class="boton principal" href="/jugar">
+        Probar el juego
+      </a>
+      <a class="boton" href="/">
+        Volver a la portada
+      </a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  .guia {
+    box-sizing: border-box;
+    width: min(100%, 46rem);
+    padding: max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+      max(2.5rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+    line-height: 1.55;
+  }
+  h1 {
+    margin: 0.25rem 0 0.5rem;
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    line-height: 1.15;
+  }
+  h2 {
+    margin: 2.25rem 0 0.75rem;
+    font-size: 1.35rem;
+    color: #f2c36b;
+  }
+  h3 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 1.05rem;
+  }
+  .antetitulo {
+    margin: 0;
+    color: #b9bfc8;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .entrada {
+    font-size: 1.1rem;
+    color: #d9dde3;
+  }
+  ul {
+    padding-left: 1.25rem;
+  }
+  li + li {
+    margin-top: 0.4rem;
+  }
+  .salas {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .sala {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    border-radius: 0.75rem;
+    background: #1b2027;
+    border: 1px solid #2c333d;
+  }
+  .sala h3 {
+    margin-top: 0;
+  }
+  .concepto {
+    margin: 0 0 0.75rem;
+    font-weight: 600;
+    color: #f2c36b;
+  }
+  dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0 0 0.75rem;
+  }
+  dt {
+    font-size: 0.8rem;
+    color: #b9bfc8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  dd {
+    margin: 0;
+  }
+  .sala p:last-child {
+    margin-bottom: 0;
+  }
+  .acciones,
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  footer {
+    margin-top: 2.5rem;
+  }
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e8a33d;
+    color: #f2f2f2;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .boton.principal {
+    background: #e8a33d;
+    color: #111418;
+  }
+  .boton:focus-visible {
+    outline: 3px solid #f2f2f2;
+    outline-offset: 2px;
+  }
+</style>
