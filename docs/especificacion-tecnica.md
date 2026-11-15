@@ -861,7 +861,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
 - [x] **T90** Migración de anfitrión — 55 min
 - [x] **T91** Señalar y frases rápidas — 40 min. Botón «Frases» en la barra del grupo: «Señalar» el objeto enfocado y seis frases de la lista (`FRASES`); viaja `senal` con el id de la frase y el centro del objeto en cm, una por segundo como máximo. Los demás ven «Búho: ¡Aquí!» unos segundos (también por lector de pantalla). Las señales quedan en el signal `senales` para que el motor dibuje el punto (sesión A); sin objeto enfocado se usa `miPosicion`, que debe escribir el motor, y mientras no lo haga la señal va sin punto (0, 0, 0). E2e `coop-sala1.spec.ts`: dos pestañas juegan la sala 1 completa Parte 3D (sesión A): cada señal con punto se ve 5 s como un aro y una flecha del color de quien señaló, en un solo `InstancedMesh` (`src/engine/coop/marcadores.ts`); e2e `coop-senal.spec.ts`
-- [ ] **T92** Prueba de carga con partidas simuladas para medir eventos por segundo — 50 min
+- [x] **T92** Prueba de carga con partidas simuladas para medir eventos por segundo — 50 min. `npm run prueba-carga` (`--hz 2` para el respaldo): con `self: true` cada mensaje cuesta 1 + 4 eventos, y 2 partidas de 4 a 4 Hz llegan a picos de 140 eventos/s, sobre los 100/s del plan Free (ver `docs/reportes/ola-4-sesion-A.md`)
 - [ ] **T93** Prueba con cuatro celulares reales en datos móviles — 45 min
 
 ### Fase 9 · Rendimiento y lanzamiento
