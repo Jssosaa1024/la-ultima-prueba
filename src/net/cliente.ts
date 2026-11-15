@@ -73,6 +73,9 @@ export class ClienteCoop {
       this.t.escuchar('evt', (m) => this.alEvento(m)),
       this.t.presencia((p) => (this.presentes = p)),
     );
+    // Supabase se vuelve a unir solo tras una caída: se hace lo mismo que al reconectar.
+    const quitarReconexion = this.t.alReconectar?.(() => this.alVolver());
+    if (quitarReconexion) this.quitar.push(quitarReconexion);
     await this.t.unirse(codigo, this.identidad);
   }
 
@@ -82,14 +85,18 @@ export class ClienteCoop {
    */
   async reconectar(): Promise<void> {
     if (!this.codigo) return;
-    if (this.anfitrion) {
-      // T90: mientras estuvo fuera, otro pudo asumir. Espera un momento antes de retomar.
-      this.anfitrion.detener();
-      this.anfitrionEnPausa = this.anfitrion;
-      this.anfitrion = null;
-      this.esperandoReclamo = this.ahora();
-    }
+    this.alVolver();
     await this.t.unirse(this.codigo, this.identidad);
+  }
+
+  /** Al volver tras una caída. */
+  private alVolver(): void {
+    if (!this.anfitrion) return;
+    // T90: mientras estuvo fuera, otro pudo asumir. Espera un momento antes de retomar.
+    this.anfitrion.detener();
+    this.anfitrionEnPausa = this.anfitrion;
+    this.anfitrion = null;
+    this.esperandoReclamo = this.ahora();
   }
 
   async salir(): Promise<void> {

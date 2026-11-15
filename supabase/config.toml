@@ -1,0 +1,13 @@
+# Configuración mínima del proyecto de Supabase (T78), para la CLI de Supabase.
+# El juego solo usa Auth anónima y Realtime (Broadcast + Presence); nada más del servidor.
+# Los pasos en el panel están en docs/supabase.md.
+
+project_id = "la-ultima-prueba"
+
+[realtime]
+enabled = true
+
+[auth]
+enabled = true
+# Sesión anónima: sin correo, sin nombre, sin contraseña.
+enable_anonymous_sign_ins = true
