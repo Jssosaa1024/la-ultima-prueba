@@ -612,7 +612,6 @@ T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p
 | `proponer` | `{ puzzle, etapa, estado }` | El emisor tiene el rol D en esa sala |
 | `confirmar` | `{ propuesta, acepta }` | La propuesta sigue abierta; un voto por jugador |
 | `pedir_pista` | `{ puzzle }` | El siguiente nivel ya está habilitado por intentos o tiempo |
-| `nota` | `{ op: agregar \| editar \| borrar, id, texto }` | Texto de 280 caracteres o menos |
 | `votar` | `{ asunto: pausa \| reanudar \| sala \| final \| ayuda, opcion \| null, acepta }` | Siempre; se resuelve por unanimidad. `opcion` es un lugar en `sala` y `salir \| restaurar` en `final`; `acepta: false` retira el voto |
 | `pedir_estado` | `{ desde_n }` | Siempre; responde con `estado` |
 
@@ -620,7 +619,7 @@ T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p
 
 | `t` | `p` | Cuándo |
 | --- | --- | --- |
-| `estado` | Foto completa: fase, reloj, sellos, grabaciones, portadores, roles, propuesta abierta, pistas, cuaderno | Al unirse alguien, tras un hueco de secuencia, cada 15 s y al cambiar de anfitrión |
+| `estado` | Foto completa: fase, reloj, sellos, grabaciones, portadores, roles, propuesta abierta, pistas, datos encontrados (`revelados`), votos abiertos y ausentes | Al unirse alguien, tras un hueco de secuencia, cada 15 s y al cambiar de anfitrión |
 | `inicio` | `{ orden, restante_ms }` | Al empezar; con `orden` cada cliente recalcula el reparto (T29) |
 | `roles` | `{ sala, A, B, C, D }` | Al entrar el grupo a una sala; rotan según la tabla del diseño |
 | `objeto` | `{ objeto, portador \| null, sala }` | Tras recoger, pasar o soltar |
@@ -629,7 +628,6 @@ T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p
 | `confirmacion` | `{ propuesta, jugador, acepta }` | Tras cada `confirmar` |
 | `resultado` | `{ puzzle, etapa, condiciones, resuelta, sello? }` | Cuando todos los conectados aceptaron |
 | `pista` | `{ puzzle, nivel }` | Tras `pedir_pista` aceptada |
-| `nota` | `{ op, id, texto, autor }` | Tras cada `nota` |
 | `voto` | `{ asunto, votos, resuelto }` | Tras cada `votar` |
 | `reloj` | `{ restante_ms, pausado }` | Solo al pausar o reanudar; no hay ticks |
 | `grabacion` | `{ fragmento, por }` | Al encontrar un fragmento |
@@ -643,6 +641,8 @@ T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p
 | --- | --- | --- |
 | `pose` | `{ s: sala, x, y, z: cm enteros, yaw: centésimas de grado }` | 4 Hz solo en movimiento, más una al detenerse; los demás interpolan con 150 ms de retraso |
 | `senal` | `{ s, x, y, z, frase \| null }` | Máximo 1 por segundo; `frase` es el id de una frase rápida predefinida |
+
+**Las notas del cuaderno no viajan por la red** (decisión de la ola 4): no hay intención ni evento `nota`, porque sería chat libre entre menores. Cada jugador escribe sus notas solo en su cuaderno. Lo que sí se comparte es lo que encuentra el grupo: los datos (`revelado`, que llega al cuaderno de todos), las pistas abiertas (`pista`), los resultados de la máquina y las grabaciones.
 
 ### Reglas de consistencia
 
@@ -843,7 +843,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T83** Avatares de bajo polígono con color y alias — 45 min
 - [ ] **T84** Anfitrión: recoger, pasar y usar objetos — 55 min
 - [ ] **T85** Flujo de propuesta, confirmación y resultado — 55 min
-- [ ] **T86** Pistas por rol y cuaderno compartido — 50 min
+- [ ] **T86** Pistas por rol y cuaderno compartido (datos encontrados y pistas; las notas son de cada jugador y no viajan) — 50 min
 - [ ] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min
 - [ ] **T88** Secuencia, foto periódica y resincronización — 50 min
 - [ ] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
