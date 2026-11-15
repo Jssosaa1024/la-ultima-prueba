@@ -163,15 +163,31 @@ async function tocarHasta(
       .waitFor({ timeout: 2500 })
       .then(() => true)
       .catch(() => false);
-    if (aparecio || intento >= 3) return;
+    if (aparecio) return;
+    if (intento >= 3) {
+      // Con lo que se necesita para entender el fallo: dónde estaba, hacia dónde miraba y
+      // dónde tocó.
+      const canvas = page.getByLabel('Escena del juego');
+      const punto = await donde();
+      throw new Error(
+        `No apareció el botón ${String(boton)} tras ${intento + 1} toques en ` +
+          `(${Math.round(punto.x)}, ${Math.round(punto.y)}). Posición ` +
+          `${String(await canvas.getAttribute('data-posicion'))}, mirada ` +
+          `${String(await canvas.getAttribute('data-mirada'))}.`,
+      );
+    }
     if (!conDedo) await page.evaluate(() => document.exitPointerLock());
   }
 }
 
+/** Cuánto se empuja el joystick al acercarse, en px: poco, para caminar despacio. */
+const EMPUJE_LENTO = 22;
+
 /**
  * Camina hacia un punto hasta quedar a `distancia` metros o menos (el alcance de la mano es
- * de 3 m). Avanza de a poco y mira dónde quedó, en vez de caminar un tiempo fijo: con el
- * equipo cargado, el mismo tiempo no lleva siempre al mismo sitio.
+ * de 3 m). Mantiene el joystick empujado mientras lee la posición y lo suelta al llegar: con
+ * el equipo cargado, caminar un tiempo fijo no lleva siempre al mismo sitio. Va despacio para
+ * que lo que tarde en soltar no lo deje pegado a la pared.
  */
 async function acercarse(
   page: Page,
@@ -180,13 +196,43 @@ async function acercarse(
   distancia: number,
   conDedo: boolean,
 ): Promise<void> {
-  for (let paso = 0; paso < 15; paso++) {
+  const lejos = async (): Promise<boolean> => {
     const [x, z] = await leer(page, 'data-posicion');
-    if (Math.hypot(punto[0] - x, punto[2] - z) <= distancia) return;
-    await mirarHacia(page, caja, punto, conDedo);
-    await caminar(page, caja, 250, conDedo);
+    return Math.hypot(punto[0] - x, punto[2] - z) > distancia;
+  };
+  if (!(await lejos())) return;
+  await mirarHacia(page, caja, punto, conDedo);
+
+  const x = caja.x + caja.width * 0.2;
+  const y = caja.y + caja.height * 0.7;
+  const cdp = conDedo ? await page.context().newCDPSession(page) : null;
+  if (cdp) {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x, y, id: 1 }],
+    });
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x, y: y - EMPUJE_LENTO, id: 1 }],
+    });
+  } else {
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y - EMPUJE_LENTO, { steps: 3 });
   }
-  throw new Error('no se pudo llegar cerca del punto');
+  try {
+    // Como mucho unos 20 s: a este paso son más de 10 m, el largo de la portería.
+    const limite = Date.now() + 20_000;
+    while ((await lejos()) && Date.now() < limite) await page.waitForTimeout(40);
+  } finally {
+    if (cdp) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await cdp.detach();
+    } else {
+      await page.mouse.up();
+    }
+  }
+  if (await lejos()) throw new Error('no se pudo llegar cerca del punto');
 }
 
 // Centros de los objetos de la portería (src/content/salas.json), a la altura donde se tocan.
