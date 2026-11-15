@@ -691,6 +691,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T01** Crear el repositorio con Astro, TypeScript estricto, Preact, Signals, ESLint y Prettier — 40 min
 - [ ] **T02** Conectar Cloudflare Pages con vistas previas por rama y `_headers` de caché — 30 min
 - [ ] **T03** Página `/jugar` con isla `client:only`, canvas a pantalla completa, viewport y safe-area — 45 min
+- [x] **T03b** (nueva) La portada `/` deja de ser la demo de T01: título, la historia en una frase, botón grande «Jugar» que lleva a `/jugar` y enlace a `/docentes`. Pensada para celular en horizontal: todo cabe sin desplazarse. Se borran `src/ui/Contador.tsx` y `src/signals/demo.ts` — 30 min
 - [ ] **T04** Detectar WebGL2 y mostrar la pantalla de equipo no compatible — 20 min
 - [ ] **T05** Configurar Vitest y Playwright con perfiles de celular y una prueba de humo — 45 min
 - [x] **T05b** (nueva) Pruebas e2e confiables con varias sesiones en el mismo equipo: Playwright nunca reutiliza un servidor que ya esté escuchando (`reuseExistingServer: false`, cada sesión con su `PUERTO_E2E`), espera 4 minutos al servidor y da más tiempo a cada prueba (90 s) y a cada espera (15 s). Las pruebas no dependen del reloj: el toque simulado dura siempre 50 ms (`tests/e2e/toque.ts`) y se camina hasta llegar, no un tiempo fijo — 30 min

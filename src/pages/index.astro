@@ -1,31 +1,102 @@
 ---
 import Base from '../layouts/Base.astro';
-import Contador from '../ui/Contador';
+
+/**
+ * Portada (T03b): título, la historia en una frase, el botón «Jugar» y el enlace a la guía
+ * para docentes. Pensada primero para un celular en horizontal: todo cabe sin desplazarse.
+ */
 ---
 
 <Base title="La Última Prueba">
-  <main>
-    <h1>La Última Prueba</h1>
-    <p>Base del proyecto (T01): Astro + Preact + Signals.</p>
-    <Contador client:load />
-    <p>
+  <main class="portada">
+    <div class="texto">
+      <p class="hora" aria-hidden="true">
+        23:59
+      </p>
+      <h1>La Última Prueba</h1>
+      <p class="historia">
+        La puerta del colegio se cerró con tu proyecto de la feria de ciencias adentro: cinco salas,
+        cinco máquinas y 40 minutos para salir antes de que algo se borre.
+      </p>
+    </div>
+    <nav class="acciones" aria-label="Empezar">
       <a class="jugar" href="/jugar">
         Jugar
       </a>
-    </p>
+      <a class="docentes" href="/docentes">
+        Guía para docentes
+      </a>
+    </nav>
   </main>
 </Base>
 
 <style>
-  .jugar {
-    display: inline-flex;
+  .portada {
+    box-sizing: border-box;
+    width: min(100%, 60rem);
+    min-height: 100dvh;
+    display: grid;
+    align-content: center;
+    gap: 1.5rem;
+    padding: max(1.25rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right))
+      max(1.25rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+  }
+  /* Celular en horizontal (y pantallas anchas): el texto a la izquierda, los botones a la derecha. */
+  @media (orientation: landscape) {
+    .portada {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: center;
+      gap: 2rem;
+    }
+  }
+  .hora {
+    margin: 0;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: clamp(1rem, 4vmin, 1.4rem);
+    letter-spacing: 0.15em;
+    color: #e8a33d;
+  }
+  h1 {
+    margin: 0.25rem 0 0.75rem;
+    font-size: clamp(2rem, 9vmin, 3.75rem);
+    line-height: 1.05;
+  }
+  .historia {
+    margin: 0;
+    max-width: 34rem;
+    font-size: clamp(1rem, 3.6vmin, 1.25rem);
+    line-height: 1.45;
+    color: #d9dde3;
+  }
+  .acciones {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: stretch;
+  }
+  .jugar,
+  .docentes {
+    display: flex;
     align-items: center;
-    min-height: 48px;
-    padding: 0 1.5rem;
-    border-radius: 0.5rem;
+    justify-content: center;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .jugar {
+    min-height: 64px;
+    font-size: 1.5rem;
     background: #e8a33d;
     color: #111418;
-    font-weight: 600;
-    text-decoration: none;
+  }
+  .docentes {
+    min-height: 48px;
+    font-size: 1rem;
+    border: 1px solid #4a525e;
+    color: #f2f2f2;
+  }
+  .jugar:focus-visible,
+  .docentes:focus-visible {
+    outline: 3px solid #f2f2f2;
+    outline-offset: 3px;
   }
 </style>
