@@ -28,6 +28,7 @@ import {
   salaResuelta,
   SALAS,
   sellos as sellosDe,
+  tieneCincoSellos,
   type Accion,
   type Partida,
   type SalaId,
@@ -46,6 +47,7 @@ import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
 import { agotado, crearReloj, pausar, reanudar, restante } from '../game/reloj';
 import { fichas, type Ficha } from './contenido';
+import { decir, reiniciarVoz } from './voz';
 import {
   cuadernoActivo,
   datosEncontrados,
@@ -118,6 +120,12 @@ import { escuchar, type Comando } from './puente';
 /** Objetos de la portería con un papel fijo en la partida (ids de `content/salas.json`). */
 export const OBJETO_SALIDA = 'porteria-salida';
 export const OBJETO_INTERCOMUNICADOR = 'porteria-intercomunicador';
+/** El reloj de la portería: al examinarlo, La Voz recuerda la hora (`voz-intro-3`). */
+export const OBJETO_RELOJ = 'porteria-reloj';
+/** Reloj activo sin tocar nada en una sala antes de que La Voz diga `voz-espera` (T34). */
+export const ESPERA_VOZ_MS = 90_000;
+/** Intento fallido de una etapa con el que La Voz dice `voz-fallo` (T34). */
+export const INTENTO_VOZ_FALLO = 3;
 export const OBJETO_CUADERNO = 'porteria-cuaderno';
 
 /** Lo mínimo del documento que se usa: saber si la pestaña está oculta y cuándo cambia. */
@@ -141,6 +149,25 @@ function almacenDelNavegador(): Almacen | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Las líneas de La Voz que no deben repetirse al continuar una partida guardada: la
+ * presentación y, de cada sala con avance, su entrada y su sello. El guardado no las anota;
+ * se deducen del avance.
+ */
+function lineasYaDichas(g: Guardado | null): Set<string> {
+  const dichas = new Set<string>();
+  if (!g) return dichas;
+  for (const id of ['voz-intro-1', 'voz-intro-2', 'voz-intro-3']) dichas.add(id);
+  const p = g.partida;
+  for (const s of SALAS) {
+    const n = numeroDeSala(s);
+    if (p.etapas[s] > 0 || p.lugar === s) dichas.add(`voz-s${n}-entrar`);
+    if (salaResuelta(p, s)) dichas.add(`voz-s${n}-sello`);
+  }
+  if (tieneCincoSellos(p)) dichas.add('voz-final');
+  return dichas;
 }
 
 /** El objeto recogido con ese id, como va en el inventario; `null` si ya no existe. */
@@ -210,6 +237,26 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   let marca: number | null = null;
   let contadorNotas = 0;
   let temporizador: ReturnType<typeof setTimeout> | undefined;
+  /** Líneas de La Voz que suenan una sola vez por partida y ya se pidieron (T34). */
+  let dichas = new Set<string>();
+  /** Reloj activo en una etapa sin que el jugador toque nada, para `voz-espera`. */
+  let msSinTocar = 0;
+  /** Etapas (`sala:etapa`) en las que ya sonó `voz-espera`: una vez por etapa. */
+  let esperas = new Set<string>();
+
+  /** Pide una línea de La Voz que suena una sola vez por partida. */
+  function decirUnaVez(id: string): void {
+    if (dichas.has(id)) return;
+    dichas.add(id);
+    decir(id);
+  }
+
+  /** Cuenta un intento fallido; al tercero de la etapa, La Voz anima a seguir probando. */
+  function contarIntento(e: EstadoPistas, puzzle: Puzzle): EstadoPistas {
+    const despues = registrarIntento(e, puzzle.pistas);
+    if (despues.intentosEnEtapa === INTENTO_VOZ_FALLO) decir('voz-fallo');
+    return despues;
+  }
 
   /** La sala donde está el jugador, si todavía le falta alguna etapa. */
   function etapaEnCurso(): EtapaEnCurso | null {
@@ -231,7 +278,10 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       ajustes = sinSala(ajustes, actual.sala);
       reposos = sinSala(reposos, actual.sala);
       // Con el sello, la máquina se queda como estaba al resolverse.
-      if (salaResuelta(partida, actual.sala)) finales[actual.sala] = copiar(estado);
+      if (salaResuelta(partida, actual.sala)) {
+        finales[actual.sala] = copiar(estado);
+        decirUnaVez(`voz-s${numeroDeSala(actual.sala)}-sello`);
+      }
     }
     resultado.value = {
       n: ++contadorResultados,
@@ -254,6 +304,12 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     if (marca !== null && actual) {
       const ms = t - marca;
       const { sala: s, puzzle, etapa: n } = actual;
+      // Mucho rato sin tocar nada en la sala: La Voz sugiere el cuaderno, una vez por etapa.
+      msSinTocar += ms;
+      if (msSinTocar >= ESPERA_VOZ_MS && !esperas.has(`${s}:${n}`)) {
+        esperas.add(`${s}:${n}`);
+        decir('voz-espera');
+      }
       let e = avanzarTiempo(pistasPorSala[s] ?? PISTAS_INICIALES, puzzle.pistas, ms);
       const quieto = reposos[s];
       const estado = ajustes[s];
@@ -262,7 +318,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         const r = avanzarReposo(puzzle, n, estado, quieto, ms);
         reposos[s] = r.reposo;
         if (r.intento) {
-          e = registrarIntento(e, puzzle.pistas);
+          e = contarIntento(e, puzzle);
         } else if (!r.reposo.pendiente) {
           // Se cumplió el reposo sin contar intento: o los ajustes resuelven la etapa, o
           // todavía no forman un resultado (libros sin repartir).
@@ -369,6 +425,10 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       const e = pistasPorSala[actual.sala] ?? PISTAS_INICIALES;
       const siguiente = actual.puzzle.pistas[e.ofrecidas];
       if (siguiente) espera = Math.min(espera, siguiente.tras_segundos * 1000 - e.msEnEtapa);
+      // El momento en que La Voz diría `voz-espera`, si aún no lo dijo en esta etapa.
+      if (!esperas.has(`${actual.sala}:${actual.etapa}`)) {
+        espera = Math.min(espera, ESPERA_VOZ_MS - msSinTocar);
+      }
       // En las etapas que responden en vivo, el momento en que se cumple el reposo.
       const regla = reglaDeIntento(actual.puzzle, actual.etapa);
       const quieto = reposos[actual.sala];
@@ -458,6 +518,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       ajustes = g ? { ...g.mecanismos } : {};
       reposos = {};
       finales = {};
+      msSinTocar = 0;
+      esperas = new Set();
+      dichas = lineasYaDichas(g);
       // Las notas nuevas siguen la numeración guardada, para no repetir ids.
       contadorNotas = g ? Math.max(0, ...g.notas.map((n) => Number(n.id.slice(1)))) : 0;
       motivos.clear();
@@ -468,6 +531,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         reiniciarPartida();
         reiniciarCuaderno();
         reiniciarMecanismo();
+        reiniciarVoz();
         modo.value = 'individual';
         fase.value = 'jugando';
         reloj.value = crearReloj(g ? g.restanteMs : DURACION_MS, t);
@@ -479,6 +543,11 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
           cuadernoActivo.value = g.inventario.includes(OBJETO_CUADERNO);
         }
       });
+      // Una partida nueva empieza con la puerta que se cierra y La Voz presentándose.
+      if (!g) {
+        decirUnaVez('voz-intro-1');
+        decirUnaVez('voz-intro-2');
+      }
       // Si se guardó justo al acabarse el tiempo, no queda nada que jugar.
       if (g && g.restanteMs <= 0) partida = aplicar(partida, { t: 'tiempo_agotado' });
     });
@@ -500,6 +569,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       reiniciarPartida();
       reiniciarCuaderno();
       reiniciarMecanismo();
+      reiniciarVoz();
     });
   }
 
@@ -529,12 +599,16 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     const destino = destinoDePuerta(objeto);
     if (destino === 'porteria') {
       jugar({ t: 'volver_porteria' });
+      // Con los cinco sellos, al volver a la portería La Voz plantea la elección.
+      if (partida && tieneCincoSellos(partida)) decirUnaVez('voz-final');
       return false;
     }
     if (destino) {
       // Las salas se abren en orden (`salaAbierta`): una puerta cerrada no deja entrar.
       const estabaEnPorteria = partida?.lugar === 'porteria';
-      if (!jugar({ t: 'entrar', sala: destino }) && estabaEnPorteria) {
+      if (jugar({ t: 'entrar', sala: destino })) {
+        decirUnaVez(`voz-s${numeroDeSala(destino)}-entrar`);
+      } else if (estabaEnPorteria) {
         avisar({ t: 'puerta_cerrada', sala: numeroDeSala(destino) });
       }
       return false;
@@ -569,6 +643,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     batch(() => {
       if (accion === 'examinar') {
         abrirInspeccion(objeto);
+        if (objeto === OBJETO_RELOJ) decirUnaVez('voz-intro-3');
         // Lo que se inspecciona queda anotado en «Datos encontrados» del cuaderno.
         anotarDato(objeto);
         // El objeto sigue enfocado: al cerrar la ficha, su botón «Examinar» vuelve a estar
@@ -584,6 +659,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
   function atender(comando: Comando): void {
     despachar(comando);
+    // El jugador hizo algo: la espera de `voz-espera` vuelve a empezar.
+    if (['accion', 'ajustar', 'accionar', 'ver_pista', 'nota'].includes(comando.t)) msSinTocar = 0;
     // Se guarda después de cada orden (T31c). `salir` ya borró el guardado y dejó sin partida.
     guardarPartida();
   }
@@ -644,7 +721,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
           if (!evaluacion) return;
           if (intentoAlAccionar(actual.puzzle, actual.etapa, comando.objeto, estado)) {
             const e = pistasPorSala[actual.sala] ?? PISTAS_INICIALES;
-            pistasPorSala[actual.sala] = registrarIntento(e, actual.puzzle.pistas);
+            pistasPorSala[actual.sala] = contarIntento(e, actual.puzzle);
           }
           responder(actual, estado, evaluacion);
         });

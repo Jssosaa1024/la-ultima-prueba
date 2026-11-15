@@ -259,7 +259,8 @@ test('el cuaderno se activa al recogerlo y la linterna entra una sola vez', asyn
   await page.getByRole('button', { name: /Recoger.*Cuaderno/ }).click();
   await expect(cuaderno).toBeVisible();
   await expect(inventario).toHaveCount(0);
-  await expect(page.locator('[aria-live="polite"]')).toHaveText('Recogiste: Cuaderno.');
+  // El anunciador del HUD (los subtítulos de La Voz, T34, son otra región `aria-live`).
+  await expect(page.locator('.solo-lector[aria-live="polite"]')).toHaveText('Recogiste: Cuaderno.');
 
   // La linterna está en el escritorio, a la derecha.
   await tocarObjeto(page, caja, LINTERNA, conDedo, /Recoger.*Linterna/);

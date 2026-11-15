@@ -54,6 +54,8 @@ test('con los cinco sellos, «Salir» lleva al final «Justo a tiempo»', async 
   await expect(page.getByRole('timer')).toHaveCount(0);
   // Resumen de aprendizaje (punto 15 del hito 1): las cinco salas, cómo terminó cada una y
   // cómo funcionaba su máquina. La partida de prueba no abrió pistas.
+  // La línea de La Voz de este final (T34).
+  await expect(page.locator('.final-voz')).toContainText('La Voz: Ahí está tu memoria.');
   const resumen = page.getByRole('region', { name: 'Lo que aprendiste esta noche' });
   await expect(resumen).toContainText('Resolviste 5 de 5 salas, todas sin pistas.');
   await expect(resumen.getByRole('listitem')).toHaveCount(5);
