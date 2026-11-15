@@ -3,6 +3,9 @@
   position: absolute;
   inset: 0;
   display: grid;
+  /* Una sola celda del tamaño del fondo: así `max-height: 100%` del panel se cumple y, en un
+     celular en horizontal, el pie con los botones queda siempre a la vista (T41b). */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   place-items: center;
   padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right))
     calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
@@ -65,4 +68,39 @@
   gap: 8px;
   padding: 12px 20px 16px;
   border-top: 1px solid #2f3843;
+}
+
+/* Celular en horizontal (T41b): poca altura. El panel aprovecha el ancho y el encabezado y el
+   pie se compactan para dejar más espacio al cuerpo, que es lo que se desplaza. */
+@media (max-height: 500px) {
+  .dialogo-fondo {
+    padding: calc(4px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right))
+      calc(4px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  }
+
+  .dialogo {
+    max-width: 52rem;
+    border-radius: 12px;
+  }
+
+  .dialogo-cabecera {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 12px;
+    padding: 8px 16px 4px;
+  }
+
+  .dialogo-titulo {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+
+  .dialogo-cuerpo {
+    padding: 4px 16px 8px;
+  }
+
+  .dialogo-pie {
+    padding: 6px 16px 8px;
+  }
 }

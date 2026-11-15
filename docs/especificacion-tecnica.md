@@ -779,6 +779,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
 - [x] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min
+- [x] **T41b** (nueva) En celular el juego se juega solo en horizontal. En vertical, un aviso a pantalla completa pide girar el teléfono (signal `girarTelefono`, escrito por `engine/pantalla.ts`), el reloj se pausa y el motor no dibuja. En Android se intenta `screen.orientation.lock('landscape')` (con el botón «Pantalla completa», porque Chrome solo lo permite así); en iPhone basta el aviso. Los paneles caben en poca altura: el pie con los botones queda siempre a la vista y lo que se desplaza es el cuerpo. El perfil celular de las e2e pasa a horizontal (Pixel 5 landscape, 802 × 293) — 45 min
 
 ### Fase 5 · Audio
 
