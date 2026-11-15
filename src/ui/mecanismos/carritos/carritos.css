@@ -14,13 +14,13 @@
 }
 
 .carritos-lamparas .indicador,
-.lampara-tapada {
+.carritos-tapada {
   padding: 4px 10px;
   font-size: 0.9375rem;
 }
 
 /* Una lámpara que todavía no cuenta en esta etapa: tapada con un paño. */
-.lampara-tapada {
+.carritos-tapada {
   display: inline-flex;
   align-items: center;
   border: 2px dashed #4a5563;
@@ -36,7 +36,7 @@
 }
 
 /* Un lugar con libros: la pila o un carrito. Botones grandes, para el pulgar. */
-.lugar {
+.carritos-lugar {
   box-sizing: border-box;
   border: 2px solid #6b7785;
   border-radius: 10px;
@@ -47,36 +47,36 @@
   touch-action: manipulation;
 }
 
-.lugar:disabled {
+.carritos-lugar:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 /* De aquí salen los libros: borde y fondo, y además la palabra «sale». */
-.lugar-origen {
+.carritos-origen {
   border-color: #e8a33d;
   background: rgb(232 163 61 / 18%);
 }
 
-.lugar:focus-visible {
+.carritos-lugar:focus-visible {
   outline: 3px solid #ffffff;
   outline-offset: 3px;
   box-shadow: 0 0 0 6px #111418;
 }
 
-.lugar-cuenta {
+.carritos-cuenta {
   font-size: 1.25rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.lugar-marca {
+.carritos-marca {
   font-size: 0.75rem;
   font-weight: 700;
   color: #e8a33d;
 }
 
-.pila {
+.carritos-pila {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -85,11 +85,11 @@
   padding: 6px 12px;
 }
 
-.pila-nombre {
+.carritos-pila-nombre {
   font-weight: 600;
 }
 
-.pila-libros {
+.carritos-pila-libros {
   display: flex;
   flex: 1 1 auto;
   align-items: flex-end;
@@ -99,7 +99,7 @@
   overflow: hidden;
 }
 
-.libro-de-pie {
+.carritos-libro-de-pie {
   flex: 0 1 6px;
   min-width: 2px;
   height: 100%;
@@ -113,7 +113,7 @@
   margin: 8px 0 0;
 }
 
-.carrito {
+.carritos-carrito {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -123,13 +123,13 @@
   padding: 6px 2px 4px;
 }
 
-.carrito-dia {
+.carritos-dia {
   font-size: 0.875rem;
   font-weight: 600;
 }
 
 /* Los libros se apilan desde abajo: caben los 20 en un solo carrito. */
-.carrito-libros {
+.carritos-monton {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column-reverse;
@@ -139,7 +139,7 @@
   border-bottom: 3px solid #6b7785;
 }
 
-.libro {
+.carritos-libro {
   flex: 0 0 3px;
   border-radius: 1px;
   background: #d98a5f;

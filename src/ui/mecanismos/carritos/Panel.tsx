@@ -89,7 +89,7 @@ export default function PanelCarritos({
           }
           const despues = todas[id];
           return (
-            <span key={id} class="lampara-tapada">
+            <span key={id} class="carritos-tapada">
               {rotulo}
               {despues !== undefined && ` ${numero(despues)}`} · tapada
             </span>
@@ -107,25 +107,25 @@ export default function PanelCarritos({
 
       <button
         type="button"
-        class={`lugar pila${sale === 'pila' ? ' lugar-origen' : ''}`}
+        class={`carritos-lugar carritos-pila${sale === 'pila' ? ' carritos-origen' : ''}`}
         aria-pressed={sale === 'pila'}
         aria-label={etiquetaLugar('pila', pila, sale)}
         disabled={inactivo(pila)}
         onClick={() => tocar('pila')}
       >
-        <span class="pila-nombre" aria-hidden="true">
+        <span class="carritos-pila-nombre" aria-hidden="true">
           Pila
         </span>
-        <span class="pila-libros" aria-hidden="true">
+        <span class="carritos-pila-libros" aria-hidden="true">
           {Array.from({ length: pila }, (_, k) => (
-            <span key={k} class="libro-de-pie" />
+            <span key={k} class="carritos-libro-de-pie" />
           ))}
         </span>
-        <span class="lugar-cuenta" aria-hidden="true">
+        <span class="carritos-cuenta" aria-hidden="true">
           {pila}
         </span>
         {sale === 'pila' && (
-          <span class="lugar-marca" aria-hidden="true">
+          <span class="carritos-marca" aria-hidden="true">
             sale de aquí
           </span>
         )}
@@ -139,24 +139,24 @@ export default function PanelCarritos({
           <button
             key={i}
             type="button"
-            class={`lugar carrito${sale === i ? ' lugar-origen' : ''}`}
+            class={`carritos-lugar carritos-carrito${sale === i ? ' carritos-origen' : ''}`}
             aria-pressed={sale === i}
             aria-label={etiquetaLugar(i, cantidad, sale)}
             disabled={inactivo(cantidad)}
             onClick={() => tocar(i)}
           >
-            <span class="carrito-dia" aria-hidden="true">
+            <span class="carritos-dia" aria-hidden="true">
               {diaCorto(i)}
             </span>
-            <span class="carrito-libros" aria-hidden="true">
+            <span class="carritos-monton" aria-hidden="true">
               {Array.from({ length: cantidad }, (_, k) => (
-                <span key={k} class="libro" />
+                <span key={k} class="carritos-libro" />
               ))}
             </span>
-            <span class="lugar-cuenta" aria-hidden="true">
+            <span class="carritos-cuenta" aria-hidden="true">
               {cantidad}
             </span>
-            <span class="lugar-marca" aria-hidden="true">
+            <span class="carritos-marca" aria-hidden="true">
               {sale === i ? 'sale' : ' '}
             </span>
           </button>
