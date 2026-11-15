@@ -17,10 +17,12 @@ import { ajustes } from '../signals/ajustes';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado, panel } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
-import { escalaResolucion, girarTelefono } from '../signals/pantalla';
+import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
 import { fase, modo, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { audioDesbloqueado } from '../signals/audio';
+import { depuracionAbierta, marcarInicioSala, marcarPrimerCuadro } from '../debug/metricas';
+import type { MedidorMotor } from '../debug/medidor';
 import { iniciarAudio } from './audio/audio';
 import type { Companeros } from './coop/companeros';
 import { crearInteraccion } from './interaccion/interaccion';
@@ -99,6 +101,10 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const escala = crearEscalaDinamica(escalaResolucion.peek());
   canvas.dataset['escala'] = String(escala.valor);
   const depuracion = { mirada: '', posicion: '' };
+  // Panel ?debug=1 (T11m): el medidor existe solo con el panel abierto.
+  let medidor: MedidorMotor | null = null;
+  // Tiempo de carga de la sala: de `sala:inicio` al primer cuadro con la sala en la escena.
+  let medirPrimerCuadro = false;
 
   /** Dibuja un cuadro. Lo llama el bucle y, con el bucle en pausa, quien cambie la escena. */
   const dibujar = (): void => {
@@ -108,6 +114,10 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     seguirTamano(renderer, camara);
     renderer.info.reset();
     renderer.render(escena, camara);
+    if (medirPrimerCuadro) {
+      medirPrimerCuadro = false;
+      marcarPrimerCuadro();
+    }
   };
   /**
    * Detrás del menú y de los finales el bucle no corre (T20b). Si la escena cambia mientras
@@ -130,6 +140,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['detalle'];
     // Compilar y armar la sala da tirones que no dicen nada del rendimiento al jugar.
     escala.reiniciar();
+    marcarInicioSala(lugar);
     const nueva = await cargador.entrar(lugar);
     // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
     if (!nueva || detenido || mostrada !== lugar) return;
@@ -144,6 +155,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     // Mallas de la sala, con las que agregan sus animaciones: las geometrías en la GPU no deben
     // pasar de aquí (más las de la portería).
     canvas.dataset['mallas'] = String(contarMallas(nueva.raiz));
+    medirPrimerCuadro = true;
     dibujarSiEnPausa();
     // Con calma, se arma en la CPU la siguiente sala sin sello.
     precarga = setTimeout(() => {
@@ -279,6 +291,11 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       publicarJoystick(entrada);
       dibujar();
       medirRendimiento(dt);
+      if (medidor) {
+        // Con un panel del juego abierto se dibuja a 10 cuadros por segundo: no cuenta.
+        if (panel.peek() === null) medidor.cuadro(performance.now());
+        else medidor.reiniciar();
+      }
     },
     alCambiarEstado: (estado) => {
       estadoMotor.value = estado;
@@ -318,11 +335,36 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     });
   });
 
+  // El medidor del panel ?debug=1 se carga aparte (import dinámico) y solo mientras se ve.
+  let pedidoMedidor = 0;
+  const dejarDeSeguirDepuracion = effect(() => {
+    const abierta = depuracionAbierta.value;
+    const este = ++pedidoMedidor;
+    medidor?.liberar();
+    medidor = null;
+    if (!abierta) return;
+    void import('../debug/medidor').then(({ crearMedidor }) => {
+      if (detenido || este !== pedidoMedidor) return;
+      medidor = crearMedidor({
+        renderer,
+        escena,
+        sala: () => mostrada,
+        pixeles: () => {
+          const p = pantalla.peek();
+          return { equipo: p.dprEquipo, usado: p.dprUsado };
+        },
+      });
+    });
+  });
+
   return () => {
     bucle.detener();
     dejarDeSeguirModo();
     companeros?.liberar();
     companeros = null;
+    dejarDeSeguirDepuracion();
+    medidor?.liberar();
+    medidor = null;
     detenerAudio();
     dejarDeSeguirAudio();
     desconectarTactil();
