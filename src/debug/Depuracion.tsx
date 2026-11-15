@@ -15,8 +15,11 @@ export default function Depuracion() {
   useEffect(() => {
     if (pideDepuracion(window.location.search)) depuracionAbierta.value = true;
     const detector = crearDetectorToques();
-    // En captura: el toque sigue llegando al juego (un botón del HUD en la esquina funciona igual).
+    // En captura: el toque sigue llegando al juego. Los toques sobre un botón no cuentan: en la
+    // esquina está «Salir», que pide confirmación.
     const alTocar = (e: PointerEvent): void => {
+      if (e.target instanceof Element && e.target.closest('button, a, input, textarea, select'))
+        return;
       if (detector.tocar(e.clientX, e.clientY, e.timeStamp)) depuracionAbierta.value = true;
     };
     window.addEventListener('pointerdown', alTocar, { capture: true, passive: true });

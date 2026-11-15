@@ -3,8 +3,11 @@
  * seguidos en la esquina superior izquierda. Lógica pura, con pruebas de unidad.
  */
 
-/** Tamaño de la esquina, en píxeles CSS desde el borde superior izquierdo. */
-export const LADO_ESQUINA = 64;
+/**
+ * Tamaño de la esquina, en píxeles CSS desde el borde superior izquierdo. Durante la partida
+ * el botón «Salir» ocupa parte de ella (de 8 a 56 px): se toca justo debajo de él.
+ */
+export const LADO_ESQUINA = 80;
 /** Los 3 toques deben caber en este tiempo. */
 export const VENTANA_TOQUES_MS = 1000;
 export const TOQUES_PARA_ABRIR = 3;
