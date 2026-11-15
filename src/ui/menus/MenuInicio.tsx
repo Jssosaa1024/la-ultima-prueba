@@ -4,6 +4,7 @@ import { guardada } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import PanelAjustes from '../ajustes/Ajustes';
 import { formatoReloj } from '../hud/formato';
+import { navegadorActual, sugerirInstalar, TEXTO_INSTALAR } from './instalar';
 import '../botones.css';
 import './menus.css';
 
@@ -14,6 +15,7 @@ import './menus.css';
 export default function MenuInicio() {
   const pendiente = guardada.value;
   const [conAjustes, setConAjustes] = useState(false);
+  const [instalar] = useState(() => sugerirInstalar(navegadorActual()));
   const zurdo = ajustes.value.zurdo;
   return (
     <>
@@ -68,6 +70,8 @@ export default function MenuInicio() {
               ? 'Mueve con el joystick de la derecha, mira arrastrando a la izquierda y toca los objetos para examinarlos.'
               : 'Mueve con el joystick de la izquierda, mira arrastrando a la derecha y toca los objetos para examinarlos.'}
           </p>
+          {/* T95: en iPhone, la única forma de quitar las barras de Safari. */}
+          {instalar && <p class="menu-nota menu-instalar">{TEXTO_INSTALAR}</p>}
         </div>
       </main>
       {conAjustes && <PanelAjustes alCerrar={() => setConAjustes(false)} />}
