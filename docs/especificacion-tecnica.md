@@ -823,7 +823,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T74** Sala 5: presupuesto y prueba en celular — 40 min
 - [x] **T75** Esconder las tres grabaciones en las salas 2, 3 y 4 (escondites de `docs/salas-y-puzzles.md`): se recogen con `recoger_grabacion` y su texto queda en el cuaderno. El audio queda para la Ola 3 — 45 min
 - [x] **T76** Volver a salas anteriores: recarga desde caché y estado conservado. Al volver a una sala con sello, la máquina se ve como quedó (signal `maquinaResuelta`), el sello y el avance no cambian y ya no se ofrecen pistas nuevas — 45 min
-- [ ] **T77** Elección de final en la portería y prueba individual de punta a punta — 40 min
+- [x] **T77** Elección de final en la portería y prueba individual de punta a punta. La elección ya existía (T31b, T40 y T76) y no necesitó cambios en `src/`; se agregan las e2e que juegan la partida completa desde el menú, sin partida guardada (`tests/e2e/partida-completa.spec.ts` y `tests/e2e/recorrido.ts`): las cinco máquinas con el campo `solucion` de sus JSON hasta «Justo a tiempo», lo mismo con las tres grabaciones hasta «El legado», «Pedir ayuda» a mitad de partida y «Tiempo cumplido» a los 40 minutos — 40 min
 
 ### Fase 8 · Cooperativo
 
