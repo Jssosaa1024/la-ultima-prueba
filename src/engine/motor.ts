@@ -13,6 +13,7 @@ import type { Entrada } from '../input/entrada';
 import { RADIO_JOYSTICK } from '../input/joystick';
 import { conectarEscritorio } from '../input/escritorio';
 import { conectarTactil } from '../input/tactil';
+import { ajustes } from '../signals/ajustes';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado, panel } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
@@ -167,6 +168,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const activos = (): boolean => controlesActivos.value;
   const desconectarTactil = conectarTactil(canvas, entrada, {
     activos,
+    // Ajustes del jugador (T39): se leen sin suscribirse, en cada toque.
+    zurdo: () => ajustes.peek().zurdo,
     alTocar: (x, y) => {
       const ancho = Math.max(1, canvas.clientWidth);
       const alto = Math.max(1, canvas.clientHeight);
@@ -199,7 +202,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       } else {
         const { dx, dy } = consumirMirada(entrada);
         if (dx !== 0 || dy !== 0) {
-          orientacion = girar(orientacion, dx, dy);
+          // Sensibilidad elegida en los ajustes (T39), para el dedo y el ratón.
+          const s = ajustes.peek().sensibilidad;
+          orientacion = girar(orientacion, dx * s, dy * s);
           aplicarACamara(camara, orientacion);
         }
         const pedido = movimiento(entrada);
