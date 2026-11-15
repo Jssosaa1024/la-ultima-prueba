@@ -5,7 +5,7 @@ import { z } from 'astro/zod';
  *
  * `src/content/salas.json` describe la portería y las cinco salas de
  * `docs/salas-y-puzzles.md`: medidas, colores, dónde aparece el jugador y cada objeto como
- * una primitiva de Three.js (caja, cilindro, plano o grupo de piezas). El motor las arma por
+ * una primitiva de Three.js (caja, cilindro, esfera, plano o grupo de piezas). El motor las arma por
  * código; no hay modelos que descargar.
  *
  * Este archivo lo usa `src/content.config.ts` para validar el JSON en cada build. El motor
@@ -15,6 +15,7 @@ import { z } from 'astro/zod';
  * - El fondo de la sala es −Z (pared norte) y la entrada desde la portería, +Z (pared sur).
  * - `pos` es el centro del objeto en x y z, y la altura de su BASE en y.
  * - `tam` es [ancho (x), alto (y), fondo (z)]. En un cilindro, [diámetro, alto, —].
+ *   En una esfera, [diámetro, diámetro, —].
  *   En un plano (cartel, puerta, pizarra), [ancho, alto, —]: mira hacia +Z sin girar.
  * - `giro` es en grados alrededor del eje vertical: 90 mira hacia +X, −90 hacia −X, 180 hacia −Z.
  */
@@ -29,7 +30,7 @@ export const LUGARES = [
 ] as const;
 export type Lugar = (typeof LUGARES)[number];
 
-export const FORMAS = ['caja', 'cilindro', 'plano', 'grupo'] as const;
+export const FORMAS = ['caja', 'cilindro', 'esfera', 'plano', 'grupo'] as const;
 export const ACCIONES = ['usar', 'recoger', 'examinar'] as const;
 
 const color = z.string().regex(/^#[0-9a-f]{6}$/, 'Color en hexadecimal, por ejemplo #8a5a2b');
@@ -41,7 +42,7 @@ const tam3 = z.tuple([positivo, positivo, z.number().finite().min(0)]);
 const idObjeto = z.string().regex(/^(porteria|s[1-5])-[a-z0-9]+(-[a-z0-9]+)*$/);
 
 const pieza = z.strictObject({
-  forma: z.enum(['caja', 'cilindro', 'plano']),
+  forma: z.enum(['caja', 'cilindro', 'esfera', 'plano']),
   tam: tam3,
   /** Relativa a la posición del objeto. */
   pos: vec3,
@@ -96,7 +97,8 @@ export function medioTamano(o: Pick<ObjetoSala, 'forma' | 'tam' | 'giro'>): {
   z: number;
 } {
   const [ancho, , fondoBruto] = o.tam;
-  const fondo = o.forma === 'cilindro' ? ancho : o.forma === 'plano' ? 0.03 : fondoBruto;
+  const redondo = o.forma === 'cilindro' || o.forma === 'esfera';
+  const fondo = redondo ? ancho : o.forma === 'plano' ? 0.03 : fondoBruto;
   const g = ((o.giro ?? 0) * Math.PI) / 180;
   const c = Math.abs(Math.cos(g));
   const s = Math.abs(Math.sin(g));

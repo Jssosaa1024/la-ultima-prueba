@@ -437,8 +437,8 @@ test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera 
   await expect(canvas).toHaveAttribute('data-sala', 's1-cooperativa');
 
   // En la cooperativa se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
-  const [, zSala] = await leer(page, 'data-posicion');
-  expect(zSala).toBeCloseTo(1.48, 1);
+  // La posición se publica con el cuadro siguiente al cambio de sala: se espera a que llegue.
+  await expect.poll(async () => (await leer(page, 'data-posicion'))[1]).toBeCloseTo(1.48, 1);
   const media = -Math.min(353, caja.width * 0.9);
   await girarCamara(page, caja, media, conDedo);
   await girarCamara(page, caja, -Math.PI / 0.0045 - media, conDedo);
@@ -450,9 +450,8 @@ test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera 
   // De vuelta en la portería: frente a la puerta 1, y la cooperativa ya no ocupa memoria.
   // Three sube cada geometría la primera vez que se ve, así que en la GPU puede haber menos
   // geometrías que mallas, pero nunca más: si la cooperativa no se hubiera liberado, sobrarían.
-  const [xP, zP] = await leer(page, 'data-posicion');
-  expect(xP).toBeCloseTo(-1.98, 1);
-  expect(zP).toBeCloseTo(2.8, 1);
+  await expect.poll(async () => (await leer(page, 'data-posicion'))[0]).toBeCloseTo(-1.98, 1);
+  expect((await leer(page, 'data-posicion'))[1]).toBeCloseTo(2.8, 1);
   const mallasPorteria = Number(await canvas.getAttribute('data-mallas'));
   expect(mallasPorteria).toBeGreaterThan(0);
   await expect

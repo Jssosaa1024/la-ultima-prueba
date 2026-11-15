@@ -3,9 +3,9 @@ import { signal } from '@preact/signals';
 /**
  * Contenido legible de los objetos con datos (T35): lo que se ve en la vista de inspección 2D.
  *
- * Lo llenará el cargador de contenido (`src/content/salas/`, T21–T22) al entrar a cada sala.
- * Mientras tanto, `signals/ejemplo.ts` pone fichas de ejemplo. El texto viene siempre del
- * bundle, nunca de la red, y se muestra con JSX normal (escapado).
+ * Lo llena el controlador de la partida con `src/content/fichas.ts` (T35c): las fichas de
+ * todas las salas, cada una según la etapa de su sala. El texto viene siempre del bundle,
+ * nunca de la red, y se muestra con JSX normal (escapado).
  */
 
 /** Un bloque de la ficha. Cada tipo se dibuja con HTML semántico (párrafo, tabla, lista). */

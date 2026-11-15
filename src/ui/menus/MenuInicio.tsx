@@ -1,4 +1,3 @@
-import { finalPedido, pideEjemplo } from '../../signals/ejemplo';
 import { guardada } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import { formatoReloj } from '../hud/formato';
@@ -42,13 +41,7 @@ export default function MenuInicio() {
           <button
             type="button"
             class={`boton ${pendiente ? 'boton-secundario' : 'boton-principal'}`}
-            onClick={() => {
-              enviar({ t: 'iniciar', modo: 'individual' });
-              // `/jugar?ejemplo=1`: datos de ejemplo para revisar las pantallas sin jugar.
-              // `&final=<id>` salta directo a ese final. Los dos valores se validan al leerlos.
-              const busqueda = window.location.search;
-              if (pideEjemplo(busqueda)) enviar({ t: 'ejemplo', final: finalPedido(busqueda) });
-            }}
+            onClick={() => enviar({ t: 'iniciar', modo: 'individual' })}
           >
             Jugar solo
           </button>

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { continuarEn, tocarObjeto } from './escena';
 
-// T33: HUD con reloj, sellos, inventario y botón contextual (con datos de ejemplo).
+// T33: HUD con reloj, sellos, inventario y botón contextual.
 
 test('el HUD muestra reloj, sellos e inventario al empezar', async ({ page }) => {
   await page.goto('/jugar');
@@ -18,15 +19,16 @@ test('el HUD muestra reloj, sellos e inventario al empezar', async ({ page }) =>
   await expect(page.getByRole('button', { name: /^(Usar|Recoger|Examinar)/ })).toHaveCount(0);
 });
 
-test('con ?ejemplo=1 aparece el botón contextual y recoger llena el inventario', async ({
+test('al tocar un objeto aparece el botón contextual, con su nombre y de 44 px o más', async ({
   page,
-}) => {
-  await page.goto('/jugar?ejemplo=1');
-  await page.getByRole('button', { name: 'Jugar solo' }).click();
-  await expect(page.getByRole('img', { name: 'Sellos: 1 de 5' })).toBeVisible();
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  // Empieza dentro de la sala 1, con la etiquetadora al alcance de la mano.
+  const caja = await continuarEn(page, { sala: 's1-cooperativa' });
+  await tocarObjeto(page, caja, [0.55, 1.15, -0.6], conDedo, /^Usar/);
 
-  const accion = page.getByRole('button', { name: /^Examinar/ });
-  await expect(accion).toContainText('Factura de la caja');
+  const accion = page.getByRole('button', { name: /^Usar/ });
+  await expect(accion).toContainText('Etiquetadora');
   await expect
     .poll(async () => (await accion.boundingBox())?.height ?? 0)
     .toBeGreaterThanOrEqual(44);

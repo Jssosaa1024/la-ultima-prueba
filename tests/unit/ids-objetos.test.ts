@@ -76,13 +76,6 @@ describe('ids de objetos: puzzles contra salas.json (T19c)', () => {
 });
 
 describe('ids de objetos: código del juego contra salas.json (T19c)', () => {
-  /**
-   * Archivos que todavía usan ids del diseño viejo (`s1-factura`, `s1-menu`, `s1-tarjeta`).
-   * Son de la sesión de interfaz, que los está reemplazando: cuando se borren, esta lista
-   * debe quedar vacía.
-   */
-  const PENDIENTES = new Set(['src/signals/ejemplo.ts']);
-
   const conocidos = new Set<string>([
     ...SALAS_3D.map((s) => s.id),
     ...SALAS_3D.flatMap((s) => s.objetos.map((o) => o.id)),
@@ -102,7 +95,6 @@ describe('ids de objetos: código del juego contra salas.json (T19c)', () => {
     const literal = /(['"`])((?:s[1-5]|porteria)-[a-z0-9]+(?:-[a-z0-9]+)*)\1/g;
     const desconocidos: string[] = [];
     for (const archivo of archivosDeCodigo('src')) {
-      if (PENDIENTES.has(archivo)) continue;
       const texto = readFileSync(join(raiz, archivo), 'utf8');
       for (const m of texto.matchAll(literal)) {
         const id = m[2];

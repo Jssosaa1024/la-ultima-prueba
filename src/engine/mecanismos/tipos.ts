@@ -10,6 +10,11 @@ export interface AnimacionSala {
   actualizar(dt: number): void;
   /** En qué va la máquina, en una palabra. Para las pruebas e2e (`data-maquina` del canvas). */
   readonly estado: string;
+  /**
+   * Lo demás que se anima en la sala y no es su máquina (las flechas del laboratorio), en una
+   * palabra. Para las pruebas e2e (`data-detalle` del canvas).
+   */
+  readonly detalle?: string;
   /** Deja de escuchar los signals. Las mallas se liberan con la sala. */
   liberar(): void;
 }

@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { iniciarControlador } from '../../src/signals/controlador';
-import { finalPedido, quitarEjemplo } from '../../src/signals/ejemplo';
 import { reiniciarInterfaz } from '../../src/signals/interfaz';
 import { DURACION_MS, FINALES, fase, final, reiniciarPartida } from '../../src/signals/partida';
 import { enviar } from '../../src/signals/puente';
@@ -21,7 +20,6 @@ describe('fin del reloj', () => {
     detener();
     vi.useRealTimers();
     vi.restoreAllMocks();
-    quitarEjemplo();
     reiniciarPartida();
     reiniciarInterfaz();
   });
@@ -57,15 +55,6 @@ describe('fin del reloj', () => {
     avanzar(DURACION_MS * 2);
     expect(fase.value).toBe('inicio');
     expect(final.value).toBeNull();
-  });
-});
-
-describe('finalPedido', () => {
-  it('acepta solo ids de la lista de finales', () => {
-    expect(finalPedido('?ejemplo=1&final=el_legado')).toBe('el_legado');
-    expect(finalPedido('?final=<script>')).toBeNull();
-    expect(finalPedido('?final=')).toBeNull();
-    expect(finalPedido('')).toBeNull();
   });
 });
 
