@@ -1,4 +1,4 @@
-import { devices, expect, test } from '@playwright/test';
+import { devices, expect, test, type BrowserContext, type Page } from '@playwright/test';
 
 // T95: manifiesto e iconos de la app instalada, y la sugerencia de instalar en iPhone.
 
@@ -47,12 +47,24 @@ test.describe('service worker', () => {
   test.use({ serviceWorkers: 'allow' });
 
   /** Espera a que el service worker controle la página y termine de guardar el núcleo. */
-  async function listo(page: import('@playwright/test').Page): Promise<string[]> {
-    await page.waitForFunction(async () => {
-      const r = await navigator.serviceWorker.getRegistration();
-      return r?.active?.state === 'activated' && navigator.serviceWorker.controller !== null;
-    });
+  async function listo(page: Page): Promise<string[]> {
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const r = await navigator.serviceWorker.getRegistration();
+          return r?.active?.state === 'activated' && navigator.serviceWorker.controller !== null;
+        }),
+      )
+      .toBe(true);
     return page.evaluate(() => caches.keys());
+  }
+
+  /**
+   * Sin red: toda petición que salga a la red (también las del service worker) falla. Así la
+   * página solo puede salir de la caché del service worker.
+   */
+  async function sinRed(context: BrowserContext): Promise<void> {
+    await context.route('**/*', (route) => route.abort('internetdisconnected'));
   }
 
   test('guarda el núcleo y el juego abre sin conexión', async ({ page, context }) => {
@@ -60,12 +72,11 @@ test.describe('service worker', () => {
     const cachesGuardadas = await listo(page);
     expect(cachesGuardadas.some((n) => n.startsWith('nucleo-'))).toBe(true);
 
-    await context.setOffline(true);
+    await sinRed(context);
     await page.reload();
     await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
     await page.goto('/');
     await expect(page.getByRole('link', { name: 'Jugar' })).toBeVisible();
-    await context.setOffline(false);
   });
 
   test('una versión nueva reemplaza la caché vieja y la partida guardada sigue', async ({
@@ -90,10 +101,14 @@ test.describe('service worker', () => {
       await r?.update();
     });
     // La versión nueva espera mientras la pestaña con la partida siga abierta.
-    await page.waitForFunction(async () => {
-      const r = await navigator.serviceWorker.getRegistration();
-      return r?.waiting !== null && r?.waiting !== undefined;
-    });
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const r = await navigator.serviceWorker.getRegistration();
+          return r?.waiting?.state ?? null;
+        }),
+      )
+      .toBe('installed');
     expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(antes));
 
     // Al cerrar la pestaña y volver, entra la versión nueva y la vieja se borra.
