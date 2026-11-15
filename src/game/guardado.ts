@@ -7,6 +7,7 @@ import {
   SALAS,
   etapaActual,
   salaAbierta,
+  salaResuelta,
   type GrabacionId,
   type Lugar,
   type Partida,
@@ -49,6 +50,11 @@ export interface Guardado {
   pistas: Partial<Record<SalaId, EstadoPistas>>;
   /** Ajustes de cada mecanismo en su etapa actual («los mecanismos conservan sus ajustes»). */
   mecanismos: Partial<Record<SalaId, unknown>>;
+  /**
+   * Cómo quedó la máquina de cada sala resuelta: los ajustes con que el jugador la resolvió
+   * (decisión 11 del hito 1). Los guardados de antes no lo traen: se lee como vacío.
+   */
+  resueltas: Partial<Record<SalaId, unknown>>;
   /** Cuaderno: notas del jugador e ids de los objetos con datos encontrados. */
   notas: NotaGuardada[];
   datos: string[];
@@ -101,23 +107,25 @@ export function borrarGuardado(almacen: Almacen): void {
   }
 }
 
+/** Las claves de un guardado; ninguna más. */
+const CLAVES = [
+  'v',
+  'partida',
+  'restanteMs',
+  'pistas',
+  'mecanismos',
+  'resueltas',
+  'notas',
+  'datos',
+  'inventario',
+] as const;
+
 /** Revisa un guardado que llega de fuera y devuelve una copia limpia, o null si no sirve. */
 export function leerGuardado(x: unknown, puzzles: readonly Puzzle[]): Guardado | null {
   if (!esObjeto(x)) return null;
-  if (
-    !soloClaves(x, [
-      'v',
-      'partida',
-      'restanteMs',
-      'pistas',
-      'mecanismos',
-      'notas',
-      'datos',
-      'inventario',
-    ])
-  ) {
-    return null;
-  }
+  // `resueltas` llegó después (decisión 11 del hito 1): un guardado de antes no lo trae.
+  const claves = Object.hasOwn(x, 'resueltas') ? CLAVES : CLAVES.filter((c) => c !== 'resueltas');
+  if (!soloClaves(x, claves)) return null;
   if (x['v'] !== VERSION_GUARDADO) return null;
 
   const partida = leerPartida(x['partida']);
@@ -139,6 +147,7 @@ export function leerGuardado(x: unknown, puzzles: readonly Puzzle[]): Guardado |
     restanteMs,
     pistas,
     mecanismos: leerMecanismos(x['mecanismos'], partida, puzzles),
+    resueltas: leerResueltas(x['resueltas'], partida, puzzles),
     notas,
     datos,
     inventario,
@@ -223,6 +232,26 @@ function leerMecanismos(
     mecanismos[sala] = JSON.parse(JSON.stringify(x[sala]));
   }
   return mecanismos;
+}
+
+/**
+ * Los ajustes finales de las salas resueltas se conservan solo si la sala sigue resuelta y
+ * son válidos para su última etapa. Si no, la sala muestra la solución de ejemplo.
+ */
+function leerResueltas(
+  x: unknown,
+  partida: Partida,
+  puzzles: readonly Puzzle[],
+): Partial<Record<SalaId, unknown>> {
+  const resueltas: Partial<Record<SalaId, unknown>> = {};
+  if (!esObjeto(x)) return resueltas;
+  for (const sala of SALAS) {
+    if (!Object.hasOwn(x, sala) || !salaResuelta(partida, sala)) continue;
+    const puzzle = puzzles.find((p) => p.sala === numeroDeSala(sala));
+    if (!puzzle || !esEstadoValido(puzzle, ETAPAS_POR_SALA - 1, x[sala])) continue;
+    resueltas[sala] = JSON.parse(JSON.stringify(x[sala]));
+  }
+  return resueltas;
 }
 
 function leerNotas(x: unknown): NotaGuardada[] | null {

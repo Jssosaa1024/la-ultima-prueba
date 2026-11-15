@@ -621,6 +621,7 @@ describe('controlador: guardar y continuar (T31c)', () => {
       { id: 'n2', texto: 'B baja 2 cm cada segundo' },
       { id: 'n7', texto: '−20 % y +25 % se anulan' },
     ],
+    resueltas: {},
     datos: ['s2-graficador'],
     inventario: ['porteria-linterna', OBJETO_CUADERNO, 'objeto-que-ya-no-existe'],
   });
@@ -1154,7 +1155,7 @@ describe('controlador: volver a una sala ya resuelta (T76)', () => {
     expect(pistas.value).toEqual({ ofrecidas: 1, vistas: 1 });
   });
 
-  it('al continuar una partida guardada dentro de una sala resuelta, la máquina queda con la solución', () => {
+  it('al continuar una partida guardada dentro de una sala resuelta, la máquina queda como la dejó el jugador', () => {
     const datos = new Map<string, string>();
     const almacen: Almacen = {
       getItem: (k) => datos.get(k) ?? null,
@@ -1170,7 +1171,8 @@ describe('controlador: volver a una sala ya resuelta (T76)', () => {
     resolverEtapa(s1, 1);
     resolverEtapa(s1, 2, { producto: 'combo', precio: 4000, rodillos: [50, -50] });
 
-    // Recargar: se pierde con qué ajustes exactos se resolvió, no el sello ni el lugar.
+    // Recargar: el guardado conserva el sello, el lugar y los ajustes con que se resolvió
+    // (decisión 11 del hito 1).
     detener();
     reiniciarPartida();
     reiniciarMecanismo();
@@ -1179,7 +1181,11 @@ describe('controlador: volver a una sala ya resuelta (T76)', () => {
     expect(sala.value).toBe('s1-cooperativa');
     expect(sellos.value).toEqual(['s1-cooperativa']);
     expect(etapa.value).toBeNull();
-    expect(maquinaResuelta.value).toEqual(s1.etapas[2]?.solucion);
+    expect(maquinaResuelta.value).toEqual({
+      producto: 'combo',
+      precio: 4000,
+      rodillos: [50, -50],
+    });
   });
 
   it('se puede volver por las grabaciones después de los sellos y llegar a «El legado»', () => {
