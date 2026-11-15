@@ -599,6 +599,8 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 
 `v` versión del protocolo · `t` tipo · `de` emisor · `cid` id de la intención, para descartar duplicados · `n` número de secuencia (solo en eventos del anfitrión) · `p` contenido. Máximo 1 KB por mensaje; el `estado` completo, máximo 8 KB.
 
+T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p`, en `src/game/coop/mensajes.ts`. Todo mensaje que llega se revisa entero y se descarta si algo sobra, falta o no está en una lista conocida: `cid` es `<de>-<número>` (nadie firma por otro), las intenciones llevan `n: null` y los eventos `cid: null`, los ids de objetos, puzzles, lugares, grabaciones y finales salen del contenido, y el `estado` de `proponer` debe tener la forma exacta de los controles de la etapa. El alias y el color de Presence también son ids de una lista. El transporte es una interfaz propia (`src/net/transporte.ts`) con dos implementaciones de prueba: la red en memoria para Vitest (varios clientes, retraso y pérdida) y BroadcastChannel entre pestañas para las e2e, que solo se usa sin variables de Supabase o con `?red=pestanas`.
+
 ### Intenciones: jugador → anfitrión (`int`)
 
 | `t` | `p` | El anfitrión acepta si… |
@@ -606,12 +608,12 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 | `listo` | `{ listo }` | La partida no ha empezado |
 | `recoger` | `{ objeto }` | El objeto está libre y en la sala del jugador |
 | `pasar` | `{ objeto, a }` | El emisor lo tiene y el destino está en la misma sala |
-| `usar` | `{ herramienta, objetivo }` | El emisor tiene la herramienta; entonces emite `revelado` |
+| `usar` | `{ herramienta \| null, objetivo }` | El emisor tiene la herramienta (o no hace falta) y el objetivo está en su sala; emite `revelado` o `grabacion` |
 | `proponer` | `{ puzzle, etapa, estado }` | El emisor tiene el rol D en esa sala |
 | `confirmar` | `{ propuesta, acepta }` | La propuesta sigue abierta; un voto por jugador |
 | `pedir_pista` | `{ puzzle }` | El siguiente nivel ya está habilitado por intentos o tiempo |
 | `nota` | `{ op: agregar \| editar \| borrar, id, texto }` | Texto de 280 caracteres o menos |
-| `votar` | `{ asunto: pausa \| reanudar \| sala \| final \| ayuda, opcion? }` | Siempre; se resuelve por unanimidad |
+| `votar` | `{ asunto: pausa \| reanudar \| sala \| final \| ayuda, opcion \| null, acepta }` | Siempre; se resuelve por unanimidad. `opcion` es un lugar en `sala` y `salir \| restaurar` en `final`; `acepta: false` retira el voto |
 | `pedir_estado` | `{ desde_n }` | Siempre; responde con `estado` |
 
 ### Eventos: anfitrión → todos (`evt`)
@@ -619,7 +621,7 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 | `t` | `p` | Cuándo |
 | --- | --- | --- |
 | `estado` | Foto completa: fase, reloj, sellos, grabaciones, portadores, roles, propuesta abierta, pistas, cuaderno | Al unirse alguien, tras un hueco de secuencia, cada 15 s y al cambiar de anfitrión |
-| `inicio` | `{ roles }` | Al empezar |
+| `inicio` | `{ orden, restante_ms }` | Al empezar; con `orden` cada cliente recalcula el reparto (T29) |
 | `roles` | `{ sala, A, B, C, D }` | Al entrar el grupo a una sala; rotan según la tabla del diseño |
 | `objeto` | `{ objeto, portador \| null, sala }` | Tras recoger, pasar o soltar |
 | `revelado` | `{ objeto, por }` | Tras usar una herramienta sobre un objeto con datos |
@@ -633,13 +635,14 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 | `grabacion` | `{ fragmento, por }` | Al encontrar un fragmento |
 | `final` | `{ final }` | Al resolverse el voto de final, la ayuda o el tiempo |
 | `anfitrion` | `{ jugador }` | Al migrar el anfitrión |
+| `rechazo` | `{ a, motivo: llena \| version \| empezada }` | Al intentar unirse un quinto jugador, con otra versión o a una partida empezada por alguien que no estaba |
 
 ### Directos: jugador → todos, sin autoridad (`dir`)
 
 | `t` | `p` | Frecuencia |
 | --- | --- | --- |
 | `pose` | `{ s: sala, x, y, z: cm enteros, yaw: centésimas de grado }` | 4 Hz solo en movimiento, más una al detenerse; los demás interpolan con 150 ms de retraso |
-| `senal` | `{ s, x, y, z, frase? }` | Máximo 1 por segundo; frases rápidas predefinidas |
+| `senal` | `{ s, x, y, z, frase \| null }` | Máximo 1 por segundo; `frase` es el id de una frase rápida predefinida |
 
 ### Reglas de consistencia
 
@@ -834,7 +837,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 - [ ] **T78** Proyecto Supabase: sesión anónima y canal privado con políticas RLS — 45 min
 - [ ] **T79** Módulo `net`: conexión, canal y Presence — 50 min
-- [ ] **T80** Sobre de mensajes y validación de versión, tipo y tamaño — 40 min
+- [x] **T80** Sobre de mensajes y validación de versión, tipo y tamaño — 40 min
 - [ ] **T81** Sala de espera: código, lista de jugadores, «listo» e iniciar — 50 min
 - [ ] **T82** Poses a 4 Hz e interpolación de los demás jugadores — 55 min
 - [ ] **T83** Avatares de bajo polígono con color y alias — 45 min
