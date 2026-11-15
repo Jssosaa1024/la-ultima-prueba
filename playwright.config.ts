@@ -19,6 +19,9 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${PUERTO}`,
     // Las trazas cuestan CPU; para depurar un fallo: `npx playwright test --trace on`.
     trace: 'off',
+    // T94: sin service worker en las pruebas, salvo las suyas (pwa.spec.ts), para que no
+    // descargue el núcleo en cada prueba ni se cruce con `page.route`.
+    serviceWorkers: 'block',
   },
   projects: [
     // Celular de gama media-baja con pantalla pequeña (el juego es celular primero), en

@@ -18,3 +18,7 @@
 # Decodificadores meshopt y basis (.js + .wasm)
 /decoders/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Service worker (T94): el navegador siempre pregunta si cambió.
+/sw.js
+  Cache-Control: no-cache
