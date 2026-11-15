@@ -1,0 +1,19 @@
+---
+/**
+ * Etiquetas de la app instalada (T95). Van en el <head> de todas las páginas.
+ *
+ * - Android (Chrome): el manifiesto pide pantalla completa y horizontal.
+ * - iPhone (Safari): no tiene pantalla completa ni lee la orientación del manifiesto. Con el
+ *   juego agregado a la pantalla de inicio se abre sin las barras del navegador
+ *   (`apple-mobile-web-app-capable`) y la barra de estado queda transparente encima del juego
+ *   (el HUD ya se aleja de esa zona con env(safe-area-inset-*)).
+ */
+---
+
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="/iconos/icono-192.png" />
+<link rel="apple-touch-icon" href="/iconos/icono-180.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Última Prueba" />
