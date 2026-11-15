@@ -12,6 +12,7 @@ import { BoxGeometry, CylinderGeometry, Mesh, MeshLambertMaterial } from 'three'
 import type { Object3D } from 'three';
 import { resultado } from '../../signals/mecanismo';
 import { sellos } from '../../signals/partida';
+import { idaYVuelta, mezclar, suave } from './curvas';
 import type { AnimacionSala } from './tipos';
 
 const SALA = 's1-cooperativa';
@@ -30,18 +31,10 @@ const ETIQUETA_FUERA = 0.24;
 const CAJON_CERRADO = 0.04;
 const CAJON_ABIERTO = 0.26;
 
-/** De 0 a 1, suave al empezar y al terminar. */
-const suave = (x: number): number => {
-  const t = Math.min(1, Math.max(0, x));
-  return t * t * (3 - 2 * t);
-};
-
 /** Cuánto ha bajado la palanca (0 arriba, 1 abajo) a los `t` segundos de la impresión. */
 export function palancaEn(t: number): number {
-  if (t <= 0 || t >= DURACION_IMPRESION_S) return 0;
-  const mitad = DURACION_IMPRESION_S * 0.4;
   // Baja rápido en el primer 40 % y sube despacio en el resto.
-  return t < mitad ? suave(t / mitad) : 1 - suave((t - mitad) / (DURACION_IMPRESION_S - mitad));
+  return idaYVuelta(t, DURACION_IMPRESION_S);
 }
 
 /** Cuánto ha salido la etiqueta (0 adentro, 1 afuera): empieza cuando la palanca llega abajo. */
@@ -49,8 +42,6 @@ export function etiquetaEn(t: number): number {
   const inicio = DURACION_IMPRESION_S * 0.4;
   return suave((t - inicio) / (DURACION_IMPRESION_S - inicio));
 }
-
-const mezclar = (a: number, b: number, f: number): number => a + (b - a) * f;
 
 /**
  * @param raiz  la sala ya construida: se buscan la palanca, la etiquetadora y la registradora
