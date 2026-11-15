@@ -1,0 +1,32 @@
+[
+  {
+    "id": "s1-cooperativa",
+    "tema": "Porcentajes",
+    "maquina": "La etiquetadora",
+    "resumen": "Cada rodillo multiplicaba el precio: −20 % es × 0,8 y +25 % es × 1,25. Por eso bajar 20 % y luego subir 20 % no te devolvía al precio de antes."
+  },
+  {
+    "id": "s2-laboratorio",
+    "tema": "Funciones lineales",
+    "maquina": "Los tanques y el graficador",
+    "resumen": "Cada tanque cambiaba los mismos centímetros cada segundo, así que el graficador dibujaba una recta. Donde las dos rectas se cruzaban, los tanques tenían la misma altura."
+  },
+  {
+    "id": "s3-gimnasio",
+    "tema": "Semejanza y tangente",
+    "maquina": "El reflector y las sombras",
+    "resumen": "Con el reflector en un mismo ángulo, cada sombra era la misma cantidad de veces la altura de su poste. Por eso un poste conocido y una sombra bastaban para medir el marcador sin subir."
+  },
+  {
+    "id": "s4-biblioteca",
+    "tema": "Medidas estadísticas",
+    "maquina": "Los carritos de préstamo",
+    "resumen": "Cada lámpara miraba algo distinto de los libros: la media, el reparto parejo; la mediana, el carrito del medio; la moda, el número que más se repetía, y el rango, la distancia entre el mayor y el menor."
+  },
+  {
+    "id": "s5-rectoria",
+    "tema": "Probabilidad",
+    "maquina": "La urna de La Voz",
+    "resumen": "Al sacar dos fichas sin devolver la primera, lo que quedaba en la urna cambiaba. Contar las parejas mostraba cuándo el juego era justo: con 3 azules y 1 amarilla hay 3 parejas iguales y 3 distintas."
+  }
+]
