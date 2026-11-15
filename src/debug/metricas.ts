@@ -65,12 +65,12 @@ const redondear1 = (x: number): number => Math.round(x * 10) / 10;
 export interface VentanaCuadros {
   /** Cuenta un cuadro que tardó `ms` y que terminó en el instante `ahoraMs`. */
   registrar(ms: number, ahoraMs: number): void;
-  /** Mediana, p95 y 1 % más lento de los cuadros de los últimos `VENTANA_MS`. */
+  /** Mediana, p95 y 1 % más lento de los cuadros de la ventana (5 s por defecto). */
   estadisticas(ahoraMs: number): EstadisticasCuadro;
   vaciar(): void;
 }
 
-export function crearVentanaCuadros(capacidad = 1024): VentanaCuadros {
+export function crearVentanaCuadros(capacidad = 1024, ventanaMs = VENTANA_MS): VentanaCuadros {
   const duraciones = new Float64Array(capacidad);
   const instantes = new Float64Array(capacidad);
   const ordenados = new Float64Array(capacidad);
@@ -88,7 +88,7 @@ export function crearVentanaCuadros(capacidad = 1024): VentanaCuadros {
       let n = 0;
       for (let k = 0; k < cantidad; k++) {
         const i = (siguiente - 1 - k + capacidad) % capacidad;
-        if (ahoraMs - (instantes[i] ?? 0) > VENTANA_MS) break;
+        if (ahoraMs - (instantes[i] ?? 0) > ventanaMs) break;
         ordenados[n++] = duraciones[i] ?? 0;
       }
       const vista = ordenados.subarray(0, n);
@@ -218,6 +218,12 @@ export const metricas = signal<Metricas>(METRICAS_VACIAS);
  * la esquina superior izquierda); el motor solo mide mientras es `true`.
  */
 export const depuracionAbierta = signal(false);
+
+/**
+ * Si corre la prueba de estrés (T11o). Mientras tanto la escala dinámica de resolución (T13)
+ * no actúa: cambiaría los píxeles y falsearía la medida.
+ */
+export const estresActivo = signal(false);
 
 // --- Tiempo de carga de cada sala: `performance.measure` entre dos marcas -------------------
 

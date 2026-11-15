@@ -26,3 +26,9 @@ export const girarTelefono = signal(false);
  * motor según los fps medidos; `engine/pantalla.ts` la aplica al tamaño del búfer del canvas.
  */
 export const escalaResolucion = signal(1);
+
+/**
+ * Pixel ratio fijo para la prueba de estrés del panel `?debug=1` (T11p y T11q): si no es
+ * `null`, manda sobre el DPR limitado y la escala dinámica. Lo escribe `src/debug/`.
+ */
+export const pixelRatioForzado = signal<number | null>(null);
