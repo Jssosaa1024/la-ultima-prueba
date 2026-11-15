@@ -709,6 +709,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T04** Detectar WebGL2 y mostrar la pantalla de equipo no compatible — 20 min
 - [ ] **T05** Configurar Vitest y Playwright con perfiles de celular y una prueba de humo — 45 min
 - [x] **T05b** (nueva) Pruebas e2e confiables con varias sesiones en el mismo equipo: Playwright nunca reutiliza un servidor que ya esté escuchando (`reuseExistingServer: false`, cada sesión con su `PUERTO_E2E`), espera 4 minutos al servidor y da más tiempo a cada prueba (90 s) y a cada espera (15 s). Las pruebas no dependen del reloj: el toque simulado dura siempre 50 ms (`tests/e2e/toque.ts`) y se camina hasta llegar, no un tiempo fijo — 30 min
+- [x] **T05c** (nueva, ola 5b) Dos e2e inestables con el equipo ocupado. `caminarHasta` (`tests/e2e/escena.ts`) lee la posición cada 50 ms (antes, con la espera creciente de `expect.poll`, cada segundo, y el jugador se pasaba hasta 2 m) y termina también cuando algo sólido detiene al jugador 3 s; falla con un mensaje claro si no arranca o camina 45 s sin llegar. Después de caminar y antes de tocar se espera a que la cámara quede quieta (`esperarQuieto`). `tocarObjeto` vuelve a apuntar y toca hasta 4 veces, también en escritorio (suelta antes el ratón bloqueado). Los tanques se abren caminando hacia el tablero y repitiendo el toque a «Usar» si el panel no aparece — 40 min
 
 ### Fase 1 · Pipeline de modelos, presupuesto y laboratorio de assets (v1.1: T11a–T11z)
 
