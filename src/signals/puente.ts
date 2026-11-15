@@ -1,4 +1,5 @@
 import type { AccionObjeto } from './interfaz';
+import type { Asunto, OpcionVoto } from '../game/coop/mensajes';
 import type { OpcionFinal } from '../game/partida';
 import type { Alias, Color } from '../net/protocolo';
 import type { Modo } from './partida';
@@ -27,6 +28,15 @@ export type Comando =
   | { t: 'unirse'; codigo: string; alias: Alias; color: Color }
   /** Sala de espera (T81): marcarse listo. El anfitrión inicia marcándose listo él también. */
   | { t: 'listo'; listo: boolean }
+  /**
+   * Cooperativo (T85): quien tiene D propone los ajustes de su panel al grupo. En las máquinas
+   * con palanca, `accionar` hace lo mismo.
+   */
+  | { t: 'proponer' }
+  /** Cooperativo (T85): aceptar o rechazar la propuesta abierta. */
+  | { t: 'confirmar'; acepta: boolean }
+  /** Cooperativo (T87): votar (o retirar el voto) por pausar, reanudar, ir a otra sala, el final o la ayuda. */
+  | { t: 'votar'; asunto: Asunto; opcion: OpcionVoto | null; acepta: boolean }
   /** Botón contextual sobre el objeto enfocado. */
   | { t: 'accion'; objeto: string; accion: AccionObjeto }
   /** Pausar el reloj (el cuaderno lo pausa en modo individual). */

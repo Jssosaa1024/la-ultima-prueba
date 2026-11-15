@@ -12,9 +12,14 @@ import {
   type Identidad,
   type Transporte,
 } from '../net';
+import { fichas } from './contenido';
 import { coop, jugadoresDeFoto, reiniciarCoop, soloEntrePestanas, type ErrorCoop } from './coop';
+import { reiniciarCuaderno } from './cuaderno';
 import { reiniciarInterfaz } from './interfaz';
-import { fase, modo, reiniciarPartida, reloj, sala } from './partida';
+import { JuegoCoop } from './juego-coop';
+import { reiniciarMecanismo } from './mecanismo';
+import { fase, modo, reiniciarPartida } from './partida';
+import { reiniciarVoz } from './voz';
 import { escuchar, type Comando } from './puente';
 
 /**
@@ -62,6 +67,8 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
     opciones.crearTransporte ?? (() => crearTransporte(elegirRed(entornoDelBuild(), busqueda)));
 
   let cliente: ClienteCoop | null = null;
+  /** La partida en este navegador, desde que empieza (T84b). */
+  let juego: JuegoCoop | null = null;
   /** Alias y color de cada jugador visto en Presence, para quien se desconecta. */
   const conocidos = new Map<string, Identidad>();
   const quitar: (() => void)[] = [];
@@ -79,6 +86,7 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
     for (const q of quitar.splice(0)) q();
     const viejo = cliente;
     cliente = null;
+    juego = null;
     conocidos.clear();
     if (viejo) void viejo.salir().catch(() => undefined);
   }
@@ -114,21 +122,20 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
         soyAnfitrion: foto.anfitrion === c.yo,
       };
       if (estado === 'jugando') {
-        const empieza = fase.peek() === 'inicio';
-        if (empieza) {
+        if (fase.peek() === 'inicio') {
+          // Empieza la partida: todo en cero, como en el modo individual.
           reiniciarInterfaz();
+          reiniciarPartida();
+          reiniciarCuaderno();
+          reiniciarMecanismo();
+          reiniciarVoz();
+          fichas.value = {};
           modo.value = 'cooperativo';
           fase.value = 'jugando';
+          juego = new JuegoCoop(c.yo, (i) => void c.enviar(i));
+          juego.empezar();
         }
-        sala.value = foto.lugar;
-        // El reloj se corrige solo con lo que lo trae: `inicio`, `reloj` y `estado`.
-        if (empieza || !e || e.t === 'inicio' || e.t === 'reloj' || e.t === 'estado') {
-          reloj.value = {
-            restanteMs: foto.reloj.restante_ms,
-            pausado: foto.reloj.pausado,
-            desde: performance.now(),
-          };
-        }
+        juego?.publicar(foto, e);
       }
     });
   }
@@ -192,6 +199,10 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
     batch(() => {
       reiniciarInterfaz();
       reiniciarPartida();
+      reiniciarCuaderno();
+      reiniciarMecanismo();
+      reiniciarVoz();
+      fichas.value = {};
     });
   }
 
@@ -218,6 +229,7 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
         if (coop.peek().estado !== 'inactivo') salir();
         return;
       default:
+        juego?.atender(comando);
         return;
     }
   }
@@ -225,7 +237,6 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
   const dejarDeEscuchar = escuchar(atender);
   return () => {
     dejarDeEscuchar();
-    limpiar();
-    reiniciarCoop();
+    if (coop.peek().estado !== 'inactivo') salir();
   };
 }
