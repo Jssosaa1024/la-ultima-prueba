@@ -26,7 +26,8 @@
     "hash-answers": "node scripts/hash-answers.ts",
     "modelo-prueba": "node scripts/modelo-prueba.ts",
     "exportar-guion": "node scripts/exportar-guion.ts",
-    "iconos-pwa": "node scripts/iconos-pwa.ts"
+    "iconos-pwa": "node scripts/iconos-pwa.ts",
+    "prueba-carga": "node scripts/prueba-carga.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.2",
