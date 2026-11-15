@@ -660,8 +660,8 @@ Las reglas están en `src/game/coop/sesion.ts` (puras, con las mismas funciones 
 - **Reloj:** el anfitrión guarda el tiempo restante; cada cliente descuenta con su reloj local desde que recibe `reloj` o `estado`, y cada `estado` corrige la deriva. La pausa exige que todos voten a favor.
 - **Avance en grupo:** todo el grupo está siempre en la misma sala. Para pasar a la siguiente, o volver a una anterior a buscar grabaciones, se vota `sala` por unanimidad; el anfitrión emite `roles` de la nueva sala y todos los clientes la cargan.
 - **Confirmar una etapa:** una propuesta solo se acciona cuando todos los conectados aceptan; un rechazo o una propuesta nueva la anula. Elegir final y usar el intercomunicador siguen la misma unanimidad, para que nadie termine la partida por los demás.
-- **Desconexión:** al salir de Presence, los objetos del jugador quedan reservados 60 s y luego quedan en el piso de la sala; si tenía el rol D, el grupo lo espera esos mismos 60 s y, si no vuelve, D pasa al siguiente jugador conectado (ver «Reparto y rotación de encargos»). Al volver con el mismo `jugador` (guardado en el navegador), recupera rol y objetos.
-- **Migración de anfitrión:** si el anfitrión falta 5 s, asume el jugador con `unido_en` más antiguo; pausa el reloj, emite `anfitrion` y `estado` desde su última copia, y reanuda a los 3 s.
+- **Desconexión:** al salir de Presence, los objetos del jugador quedan reservados 60 s y luego quedan en el piso de la sala; si tenía el rol D, el grupo lo espera esos mismos 60 s y, si no vuelve, D pasa al siguiente jugador conectado (ver «Reparto y rotación de encargos»). Al volver con el mismo `jugador` (guardado en el navegador), recupera rol y objetos. T89: el id se guarda en `localStorage` (`src/net/identidad.ts`, validado al leerlo); el anfitrión suelta los objetos vencidos en su `tick()` con un evento `objeto` por cada uno, y al volver el jugador recibe la foto y, si le tocaba, `roles` con D.
+- **Migración de anfitrión:** si el anfitrión falta 5 s, asume el jugador con `unido_en` más antiguo; pausa el reloj, emite `anfitrion` y `estado` desde su última copia, y reanuda a los 3 s. T90 (`src/net/cliente.ts`): cada cliente vigila Presence en su `tick()`; el sucesor rearma la sesión con `sesionDesdeFoto()` y sigue la numeración desde su último `n`. Los demás aceptan el cambio si lo anuncia el propio jugador (`anfitrion` o una foto que lo dice) y su anfitrión anterior ya no está. Un anfitrión que vuelve espera 2 s: si otro asumió, pasa a ser jugador y se pone al día con la foto; si nadie asumió (volvió antes de 5 s), retoma el puesto y difunde la foto.
 - **Versiones:** si `v` o `version_contenido` no coinciden, se rechaza la unión con el mensaje «Actualiza la página».
 
 ### Reparto y rotación de encargos (T29)
@@ -856,8 +856,8 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T86** Pistas por rol y cuaderno compartido (datos encontrados y pistas; las notas son de cada jugador y no viajan) — 50 min
 - [x] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min
 - [x] **T88** Secuencia, foto periódica y resincronización — 50 min
-- [ ] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
-- [ ] **T90** Migración de anfitrión — 55 min
+- [x] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
+- [x] **T90** Migración de anfitrión — 55 min
 - [ ] **T91** Señalar y frases rápidas — 40 min
 - [ ] **T92** Prueba de carga con partidas simuladas para medir eventos por segundo — 50 min
 - [ ] **T93** Prueba con cuatro celulares reales en datos móviles — 45 min
