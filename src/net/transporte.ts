@@ -30,6 +30,11 @@ export interface Transporte {
   presencia(fn: (presentes: readonly Identidad[]) => void): () => void;
   /** Sale del canal y deja de escuchar. */
   salir(): Promise<void>;
+  /**
+   * Opcional: avisa cuando el transporte se vuelve a unir solo tras una caída (Supabase). Los
+   * transportes que no se reconectan solos no lo tienen.
+   */
+  alReconectar?(fn: () => void): () => void;
 }
 
 type Oyente = (m: never) => void;

@@ -30,6 +30,7 @@
   "dependencies": {
     "@astrojs/preact": "^6.1.2",
     "@preact/signals": "^2.11.4",
+    "@supabase/supabase-js": "2.118.0",
     "astro": "^7.4.7",
     "preact": "^11.2.0",
     "three": "0.187.0"

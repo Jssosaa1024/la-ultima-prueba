@@ -590,6 +590,7 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 - Código de 4 caracteres de un alfabeto sin símbolos confusos (sin 0, O, 1, I, L). Máximo 4 jugadores; el quinto recibe `rechazo { motivo: "llena" }`.
 - Tres nombres de evento Broadcast: `int` (intenciones, con `ack`), `evt` (eventos del anfitrión) y `dir` (poses y señales, sin `ack`). `self: true` para que el anfitrión procese sus propias intenciones por la misma ruta.
 - Presence guarda solo identidad: `{ jugador, alias, color, unido_en, version_contenido }`. Se escribe una vez al unirse, porque Supabase permite 5 llamadas de Presence por cliente cada 30 s; el estado «listo» va por Broadcast.
+- T79 y T78: el transporte está en `src/net/supabase.ts` (con `@supabase/supabase-js` 2.118.0, cargado con `import()` solo en el cooperativo) y las políticas RLS en `supabase/migrations/`: solo usuarios con sesión (la anónima cuenta), solo canales `partida:` con un código válido y solo Broadcast y Presence. Los pasos para crear el proyecto y poner las variables en Cloudflare Pages están en `docs/supabase.md`.
 
 ### Sobre de cada mensaje
 
@@ -845,8 +846,8 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 ### Fase 8 · Cooperativo
 
-- [ ] **T78** Proyecto Supabase: sesión anónima y canal privado con políticas RLS — 45 min
-- [ ] **T79** Módulo `net`: conexión, canal y Presence — 50 min
+- [x] **T78** Proyecto Supabase: sesión anónima y canal privado con políticas RLS — 45 min
+- [x] **T79** Módulo `net`: conexión, canal y Presence — 50 min
 - [x] **T80** Sobre de mensajes y validación de versión, tipo y tamaño — 40 min
 - [ ] **T81** Sala de espera: código, lista de jugadores, «listo» e iniciar — 50 min
 - [ ] **T82** Poses a 4 Hz e interpolación de los demás jugadores — 55 min

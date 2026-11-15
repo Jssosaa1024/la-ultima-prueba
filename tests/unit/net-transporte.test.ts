@@ -181,11 +181,17 @@ describe('transporte entre pestañas (BroadcastChannel)', () => {
 });
 
 describe('elegir la red', () => {
-  const env = { url: 'https://x.supabase.co', clave: 'anon' };
+  const env = {
+    url: 'https://abcdefghij.supabase.co',
+    clave: 'eyJhbGciOiJIUzI1NiJ9.e30.firma-de-prueba',
+  };
   it('usa Supabase si hay variables y pestañas si faltan', () => {
     expect(elegirRed(env, '')).toBe('supabase');
     expect(elegirRed({}, '')).toBe('pestanas');
-    expect(elegirRed({ url: 'https://x.supabase.co' }, '')).toBe('pestanas');
+    expect(elegirRed({ url: 'https://abcdefghij.supabase.co' }, '')).toBe('pestanas');
+    expect(elegirRed({ ...env, url: 'http://abcdefghij.supabase.co' }, '')).toBe('pestanas');
+    expect(elegirRed({ ...env, url: 'https://evil.example.com' }, '')).toBe('pestanas');
+    expect(elegirRed({ ...env, clave: 'corta' }, '')).toBe('pestanas');
   });
   it('el parámetro de prueba solo vale con el valor exacto', () => {
     expect(elegirRed(env, '?red=pestanas')).toBe('pestanas');
