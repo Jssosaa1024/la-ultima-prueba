@@ -23,6 +23,10 @@ test('«Examinar» abre la ficha con los datos en lista, texto y nota', async ({
   await expect(dialogo).toContainText('Una caja de lata con los rodillos de la etiquetadora.');
   await expect(dialogo.getByRole('listitem')).toHaveCount(5);
   await expect(dialogo.getByRole('listitem').first()).toHaveText('Rodillo −20 %');
+  // La ficha ocupa el ancho del panel: los estilos de otra pantalla no la encogen.
+  const ancho = (await dialogo.locator('.ficha').boundingBox())?.width ?? 0;
+  expect(ancho).toBeGreaterThan(200);
+  await expect(dialogo.getByRole('listitem').first()).toBeVisible();
   await expect(dialogo).toContainText('recibe uno o dos rodillos a la vez');
   await expect(dialogo).toContainText('Se perdió el de −25 %');
   // El HUD queda inerte detrás del panel.
