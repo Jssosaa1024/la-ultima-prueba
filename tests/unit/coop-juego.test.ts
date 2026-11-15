@@ -89,6 +89,14 @@ describe('partida cooperativa en este navegador', () => {
     expect(reloj.value.pausado).toBe(false);
   });
 
+  it('el reloj corre solo entre fotos del anfitrión', async () => {
+    const antes = reloj.value;
+    expect(antes.pausado).toBe(false);
+    // Pasa un segundo: el controlador vuelve a publicar sin evento nuevo.
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(reloj.value).toBe(antes);
+  });
+
   it('examinar anota el dato para todos; recoger va al inventario de quien recoge', async () => {
     await tocar('porteria-reloj', 'Reloj de pared', 'examinar');
     expect(panel.value).toBe('inspeccion');

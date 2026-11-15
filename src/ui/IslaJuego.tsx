@@ -7,6 +7,7 @@ import { iniciarControladorCoop } from '../signals/controlador-coop';
 import { pantalla } from '../signals/pantalla';
 import { fase } from '../signals/partida';
 import { pruebaCarga } from '../signals/prueba-carga';
+import Depuracion from '../debug/Depuracion';
 import { aplicarTamanoTexto } from './ajustes/aplicar';
 import MenuInicio from './menus/MenuInicio';
 import NoCompatible from './NoCompatible';
@@ -140,6 +141,8 @@ function Escena() {
       {/* La prueba de carga es técnica: va directo a la escena, sin menú. */}
       {!pruebaGlb && fase.value === 'inicio' && <MenuInicio />}
       {!pruebaGlb && (fase.value === 'jugando' || fase.value === 'final') && <Partida />}
+      {/* Panel de métricas ?debug=1 o 3 toques en la esquina (T11n). */}
+      {!pruebaGlb && <Depuracion />}
     </div>
   );
 }

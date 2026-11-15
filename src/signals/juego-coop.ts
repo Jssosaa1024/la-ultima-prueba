@@ -273,7 +273,9 @@ export class JuegoCoop {
           .flatMap((o) => objetoDeInventario(o.objeto) ?? []),
       );
       asignar(datosEncontrados, f.revelados);
-      if (!e || e.t === 'inicio' || e.t === 'reloj' || e.t === 'estado') {
+      // El reloj solo se corrige con lo que lo trae (y al empezar). Copiarlo en cada
+      // publicación lo dejaría quieto entre una foto y la siguiente.
+      if (!antes || e?.t === 'inicio' || e?.t === 'reloj' || e?.t === 'estado') {
         reloj.value = {
           restanteMs: f.reloj.restante_ms,
           pausado: f.reloj.pausado,
