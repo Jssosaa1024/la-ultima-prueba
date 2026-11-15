@@ -644,6 +644,16 @@ T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p
 
 **Las notas del cuaderno no viajan por la red** (decisión de la ola 4): no hay intención ni evento `nota`, porque sería chat libre entre menores. Cada jugador escribe sus notas solo en su cuaderno. Lo que sí se comparte es lo que encuentra el grupo: los datos (`revelado`, que llega al cuaderno de todos), las pistas abiertas (`pista`), los resultados de la máquina y las grabaciones.
 
+### El anfitrión (T84, T85, T87)
+
+Las reglas están en `src/game/coop/sesion.ts` (puras, con las mismas funciones del modo individual: `partida.ts`, `pistas.ts`, `reparto.ts` y `evaluar()`); `src/net/anfitrion.ts` solo escucha `int` y Presence, numera los eventos y los difunde. Cada cliente (`src/net/cliente.ts`) guarda una copia con `aplicarEvento()` de `src/game/coop/replica.ts`. Decisiones de la ola 4:
+
+- **Inicio:** la partida empieza sola cuando hay al menos 2 jugadores conectados y todos marcaron «listo». El orden queda fijo con los conectados en ese momento y el grupo arranca en la portería.
+- **Objetos:** se recoge lo que en `salas.json` tiene la acción «recoger» y está en el lugar del grupo; lo que lleva un jugador viaja con el grupo al cambiar de lugar. Usar un objeto sin herramienta revela un dato (si se examina) o abre un escondite (grabación); la pizarra de la sala 1 pide la linterna (`src/game/coop/mundo.ts`).
+- **Propuestas:** quien propone (D) cuenta como que acepta. Con todos los conectados de acuerdo, el anfitrión evalúa; si no queda resuelta, el intento cuenta para las pistas. Nadie propone mientras el grupo espera a quien tiene D.
+- **Pistas:** el tiempo activo de la etapa lo suma el anfitrión en cada `tick` (1 s); `pedir_pista` abre la siguiente ya ofrecida y la ven todos.
+- **Votos:** un voto por jugador y asunto; votar otra opción del mismo asunto reinicia la cuenta. Si alguien sale de Presence, lo que ya tenía el acuerdo de los que quedan se resuelve.
+
 ### Reglas de consistencia
 
 - **Orden:** los eventos llevan `n` creciente. Si un cliente detecta un hueco, envía `pedir_estado` y aplica la foto completa. Las intenciones repetidas con el mismo `cid` se ignoran.
@@ -841,10 +851,10 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T81** Sala de espera: código, lista de jugadores, «listo» e iniciar — 50 min
 - [ ] **T82** Poses a 4 Hz e interpolación de los demás jugadores — 55 min
 - [ ] **T83** Avatares de bajo polígono con color y alias — 45 min
-- [ ] **T84** Anfitrión: recoger, pasar y usar objetos — 55 min
-- [ ] **T85** Flujo de propuesta, confirmación y resultado — 55 min
+- [x] **T84** Anfitrión: recoger, pasar y usar objetos — 55 min
+- [x] **T85** Flujo de propuesta, confirmación y resultado — 55 min
 - [ ] **T86** Pistas por rol y cuaderno compartido (datos encontrados y pistas; las notas son de cada jugador y no viajan) — 50 min
-- [ ] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min
+- [x] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min
 - [ ] **T88** Secuencia, foto periódica y resincronización — 50 min
 - [ ] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
 - [ ] **T90** Migración de anfitrión — 55 min
