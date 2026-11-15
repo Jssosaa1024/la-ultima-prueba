@@ -3,7 +3,7 @@ import { iniciarControlador } from '../../src/signals/controlador';
 import { reiniciarInterfaz } from '../../src/signals/interfaz';
 import { DURACION_MS, FINALES, fase, final, reiniciarPartida } from '../../src/signals/partida';
 import { enviar } from '../../src/signals/puente';
-import { FINALES_TEXTO } from '../../src/ui/finales/textos';
+import { FINALES_TEXTO, textoConfirmarSalida } from '../../src/ui/finales/textos';
 
 describe('fin del reloj', () => {
   let detener: () => void;
@@ -64,5 +64,13 @@ describe('textos de los finales', () => {
       expect(FINALES_TEXTO[f].titulo.length).toBeGreaterThan(0);
       expect(FINALES_TEXTO[f].parrafos.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('confirmación de «Salir» con grabaciones pendientes', () => {
+  it('dice cuántas faltan, en singular o plural, y que el archivo se pierde', () => {
+    expect(textoConfirmarSalida(1)).toMatch(/^Todavía falta 1 grabación\./);
+    expect(textoConfirmarSalida(3)).toMatch(/^Todavía faltan 3 grabaciones\./);
+    expect(textoConfirmarSalida(2)).toContain('ya no podrás restaurarlo');
   });
 });
