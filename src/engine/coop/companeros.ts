@@ -1,6 +1,7 @@
 /**
  * Los compañeros del cooperativo en el motor (T82): envía la pose propia a 4 Hz en movimiento
- * (más una al detenerse) y dibuja a los demás interpolados 150 ms en el pasado.
+ * (más una al detenerse) y dibuja a los demás interpolados 150 ms en el pasado. También dibuja
+ * las señales de la sala (T91).
  *
  * El motor lo carga con `import()` solo en el modo cooperativo. Habla con la red únicamente
  * por signals: escribe `poseParaEnviar` y `miPosicion`, y lee `poseRecibida` y `coop`.
@@ -9,9 +10,11 @@ import { effect } from '@preact/signals';
 import type { Object3D } from 'three';
 import { LUGARES } from '../../content/esquema-salas';
 import type { Lugar } from '../../content/esquema-salas';
-import { coop, miPosicion } from '../../signals/coop';
+import { coop, miPosicion, senales } from '../../signals/coop';
+import type { Color } from '../../signals/coop';
 import { poseParaEnviar, poseRecibida, ultimasPoses } from '../../signals/poses';
 import { crearAvatares, MAX_COMPANEROS } from './avatares';
+import { crearMarcadores } from './marcadores';
 import { aCm, crearEmisorPoses, crearInterpolador, yawACentesimas } from './poses';
 import type { Interpolador, PoseMundo, PoseRed } from './poses';
 
@@ -29,6 +32,11 @@ export function crearCompaneros(escena: Object3D, canvas: HTMLCanvasElement): Co
   const interpoladores = new Map<string, Interpolador>();
   const avatares = crearAvatares();
   escena.add(avatares.malla);
+  const marcadores = crearMarcadores();
+  escena.add(marcadores.malla);
+  let senalesVistas = -1;
+  const colorDe = (jugador: string): Color | null =>
+    coop.peek().jugadores.find((j) => j.jugador === jugador)?.color ?? null;
   const muestra: PoseMundo = { s: 0, x: 0, y: 0, z: 0, yaw: 0 };
   let ultimoAtributo = 0;
 
@@ -80,6 +88,13 @@ export function crearCompaneros(escena: Object3D, canvas: HTMLCanvasElement): Co
           texto += `${texto ? ';' : ''}${j.alias}:${muestra.x.toFixed(2)},${muestra.z.toFixed(2)}`;
       }
       avatares.mostrar(n);
+
+      // Señales (T91): `find` solo corre si hay señales en la lista.
+      const vistas = marcadores.cuadro(ahoraMs, s, senales.peek(), colorDe);
+      if (vistas !== senalesVistas) {
+        senalesVistas = vistas;
+        canvas.dataset['senales'] = String(vistas);
+      }
       if (escribir) {
         ultimoAtributo = ahoraMs;
         if (canvas.dataset['companeros'] !== texto) canvas.dataset['companeros'] = texto;
@@ -89,8 +104,10 @@ export function crearCompaneros(escena: Object3D, canvas: HTMLCanvasElement): Co
       dejarDeRecibir();
       dejarDeSeguirGrupo();
       avatares.liberar();
+      marcadores.liberar();
       interpoladores.clear();
       delete canvas.dataset['companeros'];
+      delete canvas.dataset['senales'];
     },
   };
 }
