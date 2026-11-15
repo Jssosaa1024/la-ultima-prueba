@@ -4,7 +4,7 @@
  *
  *   npm run prueba-carga                 # 1, 2, 3, 5 y 10 partidas de 4, 2 minutos cada una
  *   npm run prueba-carga -- --partidas 4 --segundos 60
- *   npm run prueba-carga -- --hz 2       # poses a 2 Hz (respaldo de la especificación)
+ *   npm run prueba-carga -- --hz 4       # otras poses por segundo (el juego usa 2, T82b)
  *
  * No usa la red: todo pasa en la red en memoria de las pruebas (`src/net/memoria.ts`), con el
  * anfitrión, los clientes y el emisor de poses del juego. El código de `src/` se carga con el
@@ -20,7 +20,7 @@ const { values } = parseArgs({
     partidas: { type: 'string' },
     segundos: { type: 'string', default: '120' },
     moviendose: { type: 'string', default: '0.5' },
-    hz: { type: 'string', default: '4' },
+    hz: { type: 'string' },
   },
 });
 
@@ -37,7 +37,7 @@ async function principal(): Promise<number> {
   });
   const segundos = entero(values.segundos, 120, 3600);
   const fraccion = Math.min(1, Math.max(0, Number(values.moviendose) || 0.5));
-  const hz = entero(values.hz, 4, 30);
+  const hz = entero(values.hz, sim.ESCENARIO_BASE.hz, 30);
   const lista = values.partidas ? [entero(values.partidas, 2, 100)] : [1, 2, 3, 5, 10];
   const resultados = [];
   for (const partidas of lista) {

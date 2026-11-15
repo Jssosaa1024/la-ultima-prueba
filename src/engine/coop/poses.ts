@@ -4,8 +4,8 @@
  *
  * Protocolo (especificación, sección 3, `dir`): `pose { s, x, y, z, yaw }` con la sala por
  * número (0 = portería), la posición en centímetros enteros y el giro en centésimas de grado.
- * Se envía a 4 Hz solo en movimiento, más una al detenerse; los demás interpolan con 150 ms
- * de retraso.
+ * Se envía a `POSES_POR_SEGUNDO` (2 Hz desde T82b) solo en movimiento, más una al detenerse;
+ * los demás la dibujan un poco en el pasado, con una curva suave entre las poses recibidas.
  */
 
 import type { PoseRed } from '../../signals/poses';
@@ -13,12 +13,31 @@ import type { PoseRed } from '../../signals/poses';
 /** Pose tal como viaja por la red. */
 export type { PoseRed };
 
-/** 4 Hz: una pose cada 250 ms mientras el jugador se mueve. */
-export const MS_ENTRE_POSES = 250;
+/**
+ * Poses por segundo mientras el jugador se mueve (T82b). Es la única constante que se cambia:
+ * el intervalo, el retraso de la interpolación y la prueba de carga salen de aquí. A 2 Hz,
+ * dos partidas de 4 caben en el plan Free de Supabase (`npm run prueba-carga`).
+ */
+export const POSES_POR_SEGUNDO = 2;
+/** Una pose cada 500 ms mientras el jugador se mueve. */
+export const MS_ENTRE_POSES = 1000 / POSES_POR_SEGUNDO;
 /** Sin cambios durante este tiempo, el jugador se detuvo: sale su última pose. */
 export const MS_PARA_DETENIDO = 120;
-/** Los demás se dibujan 150 ms en el pasado: así casi siempre hay dos poses entre las cuales interpolar. */
-export const RETRASO_INTERPOLACION_MS = 150;
+/** Lo que una pose puede llegar tarde respecto a la anterior sin que el compañero se frene. */
+const MARGEN_RED_MS = 120;
+/**
+ * Los demás se dibujan este tiempo en el pasado: un intervalo entero más el margen de la red,
+ * así siempre hay una pose después del instante que se dibuja y el compañero no se frena
+ * entre una y otra (con 4 Hz eran 150 ms, menos que el intervalo).
+ */
+export const RETRASO_INTERPOLACION_MS = MS_ENTRE_POSES + MARGEN_RED_MS;
+/**
+ * Lo dibujado persigue la pose interpolada con esta constante de tiempo (T82b): redondea las
+ * esquinas que deja la línea recta entre poses. Agrega este tiempo de retraso, más o menos.
+ */
+export const SUAVIZADO_MS = 120;
+/** Si pasa más que esto entre dos cuadros (el compañero no se veía), no se suaviza: se salta. */
+const MS_SIN_SUAVIZAR = 1000;
 
 const LIMITE_CM = 10_000;
 const cm = (metros: number): number =>
@@ -101,16 +120,18 @@ export interface PoseMundo {
   yaw: number;
 }
 
-/** Poses guardadas por jugador: con 4 Hz y 150 ms de retraso bastan unas pocas. */
+/** Poses guardadas por jugador: con el retraso de poco más de un intervalo bastan unas pocas. */
 const CAPACIDAD = 8;
 
 export interface Interpolador {
   /** Guarda una pose recibida en el instante local `enMs`. */
   recibir(enMs: number, pose: PoseRed): void;
   /**
-   * Escribe en `destino` la pose de hace `RETRASO_INTERPOLACION_MS`. Entre dos poses
-   * interpola; antes de la primera o después de la última, se queda en la más cercana (sin
-   * adivinar hacia adelante). Devuelve `false` si aún no llegó ninguna. No asigna memoria.
+   * Escribe en `destino` la pose de hace `RETRASO_INTERPOLACION_MS`: en línea recta entre las
+   * dos poses que la rodean (antes de la primera o después de la última, la más cercana, sin
+   * adivinar hacia adelante). Lo dibujado persigue esa pose con un suavizado de
+   * `SUAVIZADO_MS`, para que el compañero no doble en ángulo en cada pose ni cambie de
+   * rapidez de golpe. Devuelve `false` si aún no llegó ninguna. No asigna memoria.
    */
   muestra(ahoraMs: number, destino: PoseMundo): boolean;
 }
@@ -123,7 +144,10 @@ export function diferenciaAngulo(a: number, b: number): number {
   return d;
 }
 
-export function crearInterpolador(retrasoMs = RETRASO_INTERPOLACION_MS): Interpolador {
+export function crearInterpolador(
+  retrasoMs = RETRASO_INTERPOLACION_MS,
+  suavizadoMs = SUAVIZADO_MS,
+): Interpolador {
   const t = new Float64Array(CAPACIDAD);
   const s = new Int32Array(CAPACIDAD);
   const x = new Float64Array(CAPACIDAD);
@@ -132,6 +156,9 @@ export function crearInterpolador(retrasoMs = RETRASO_INTERPOLACION_MS): Interpo
   const yaw = new Float64Array(CAPACIDAD);
   let n = 0;
   let inicio = 0;
+  // Lo que se dibujó en el cuadro anterior, para suavizar.
+  const vista: PoseMundo = { s: 0, x: 0, y: 0, z: 0, yaw: 0 };
+  let tVista = NaN;
 
   const indice = (k: number): number => (inicio + k) % CAPACIDAD;
   const copiar = (i: number, d: PoseMundo): void => {
@@ -140,6 +167,35 @@ export function crearInterpolador(retrasoMs = RETRASO_INTERPOLACION_MS): Interpo
     d.y = y[i] ?? 0;
     d.z = z[i] ?? 0;
     d.yaw = yaw[i] ?? 0;
+  };
+
+  /** La pose del instante `objetivo`, en línea recta entre las dos que lo rodean. */
+  const enLinea = (objetivo: number, destino: PoseMundo): void => {
+    const primero = indice(0);
+    if (objetivo <= (t[primero] ?? 0)) {
+      copiar(primero, destino);
+      return;
+    }
+    for (let k = n - 1; k > 0; k--) {
+      const b = indice(k);
+      const a = indice(k - 1);
+      const ta = t[a] ?? 0;
+      const tb = t[b] ?? 0;
+      if (objetivo < ta) continue;
+      // Después de la última, o al cambiar de sala (no se cruzan paredes): la más nueva.
+      if (objetivo >= tb || s[a] !== s[b]) {
+        copiar(b, destino);
+        return;
+      }
+      const f = (objetivo - ta) / Math.max(1, tb - ta);
+      destino.s = s[b] ?? 0;
+      destino.x = (x[a] ?? 0) + ((x[b] ?? 0) - (x[a] ?? 0)) * f;
+      destino.y = (y[a] ?? 0) + ((y[b] ?? 0) - (y[a] ?? 0)) * f;
+      destino.z = (z[a] ?? 0) + ((z[b] ?? 0) - (z[a] ?? 0)) * f;
+      destino.yaw = (yaw[a] ?? 0) + diferenciaAngulo(yaw[a] ?? 0, yaw[b] ?? 0) * f;
+      return;
+    }
+    copiar(indice(n - 1), destino);
   };
 
   return {
@@ -161,36 +217,27 @@ export function crearInterpolador(retrasoMs = RETRASO_INTERPOLACION_MS): Interpo
     },
     muestra(ahoraMs, destino) {
       if (n === 0) return false;
-      const objetivo = ahoraMs - retrasoMs;
-      const primero = indice(0);
-      if (objetivo <= (t[primero] ?? 0)) {
-        copiar(primero, destino);
-        return true;
+      enLinea(ahoraMs - retrasoMs, destino);
+      const dt = ahoraMs - tVista;
+      // Sin cuadro anterior cercano (o en otra sala), se dibuja donde va, sin perseguirlo.
+      if (suavizadoMs > 0 && dt >= 0 && dt <= MS_SIN_SUAVIZAR && vista.s === destino.s) {
+        const k = 1 - Math.exp(-dt / suavizadoMs);
+        vista.x += (destino.x - vista.x) * k;
+        vista.y += (destino.y - vista.y) * k;
+        vista.z += (destino.z - vista.z) * k;
+        vista.yaw += diferenciaAngulo(vista.yaw, destino.yaw) * k;
+        destino.x = vista.x;
+        destino.y = vista.y;
+        destino.z = vista.z;
+        destino.yaw = vista.yaw;
+      } else {
+        vista.s = destino.s;
+        vista.x = destino.x;
+        vista.y = destino.y;
+        vista.z = destino.z;
+        vista.yaw = destino.yaw;
       }
-      for (let k = n - 1; k > 0; k--) {
-        const b = indice(k);
-        const a = indice(k - 1);
-        const ta = t[a] ?? 0;
-        const tb = t[b] ?? 0;
-        if (objetivo < ta) continue;
-        if (objetivo >= tb) {
-          copiar(b, destino);
-          return true;
-        }
-        // Al cambiar de sala no se interpola: se salta.
-        if (s[a] !== s[b]) {
-          copiar(b, destino);
-          return true;
-        }
-        const f = (objetivo - ta) / Math.max(1, tb - ta);
-        destino.s = s[b] ?? 0;
-        destino.x = (x[a] ?? 0) + ((x[b] ?? 0) - (x[a] ?? 0)) * f;
-        destino.y = (y[a] ?? 0) + ((y[b] ?? 0) - (y[a] ?? 0)) * f;
-        destino.z = (z[a] ?? 0) + ((z[b] ?? 0) - (z[a] ?? 0)) * f;
-        destino.yaw = (yaw[a] ?? 0) + diferenciaAngulo(yaw[a] ?? 0, yaw[b] ?? 0) * f;
-        return true;
-      }
-      copiar(indice(n - 1), destino);
+      tVista = ahoraMs;
       return true;
     },
   };

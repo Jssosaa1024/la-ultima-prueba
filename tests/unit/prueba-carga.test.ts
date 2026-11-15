@@ -26,11 +26,20 @@ describe('prueba de carga del cooperativo (T92)', () => {
       segundos: 20,
       fraccionMoviendose: 1,
       senalesPorMinuto: 0,
+      hz: 4,
     });
     expect(r.mensajes.dir / 20).toBeGreaterThan(14);
     expect(r.mensajes.dir / 20).toBeLessThan(18);
     expect(r.eventosPorSegundo.pico).toBeLessThanOrEqual(90);
     expect(r.eventosPorSegundoSinPropia.pico).toBeLessThan(r.eventosPorSegundo.pico);
+  }, 60_000);
+
+  it('a 2 Hz, las del juego (T82b), 2 partidas de 4 caben en el plan Free', async () => {
+    expect(ESCENARIO_BASE.hz).toBe(2);
+    const r = await simular({ ...ESCENARIO_BASE, partidas: 2, segundos: 60 });
+    expect(r.mensajes.dir).toBeGreaterThan(0);
+    expect(r.eventosPorSegundo.pico).toBeLessThan(100);
+    expect(r.planes.find((p) => p.plan === 'Free')?.cabe).toBe(true);
   }, 60_000);
 
   it('la tabla compara con los tres planes', async () => {

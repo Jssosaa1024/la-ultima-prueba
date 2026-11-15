@@ -181,7 +181,7 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
           // Poses de los demás (T82): el motor las interpola.
           else if (m.t === 'pose' && m.de !== c.yo) recibirPose(m.de, m.p);
         }),
-        // La pose propia (T82): el motor decide cuándo (4 Hz en movimiento y al detenerse).
+        // La pose propia (T82): el motor decide cuándo (2 Hz en movimiento y al detenerse).
         effect(() => {
           const p = poseParaEnviar.value;
           if (p && juego) void t.enviar('dir', directo(c.yo, { t: 'pose', p }));

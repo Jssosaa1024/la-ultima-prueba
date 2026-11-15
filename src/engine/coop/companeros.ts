@@ -1,6 +1,7 @@
 /**
- * Los compañeros del cooperativo en el motor (T82): envía la pose propia a 4 Hz en movimiento
- * (más una al detenerse) y dibuja a los demás interpolados 150 ms en el pasado. También dibuja
+ * Los compañeros del cooperativo en el motor (T82): envía la pose propia a `POSES_POR_SEGUNDO`
+ * en movimiento (más una al detenerse) y dibuja a los demás interpolados un poco en el pasado
+ * (`RETRASO_INTERPOLACION_MS`, en `poses.ts`). También dibuja
  * las señales de la sala (T91).
  *
  * El motor lo carga con `import()` solo en el modo cooperativo. Habla con la red únicamente

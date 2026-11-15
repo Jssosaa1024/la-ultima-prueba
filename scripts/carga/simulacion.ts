@@ -12,7 +12,7 @@
  * Este módulo importa código de `src/` sin extensiones: lo carga `scripts/prueba-carga.ts`
  * con el cargador de Vite, y Vitest lo prueba directo.
  */
-import { crearEmisorPoses, yawACentesimas } from '../../src/engine/coop/poses';
+import { crearEmisorPoses, POSES_POR_SEGUNDO, yawACentesimas } from '../../src/engine/coop/poses';
 import { ClienteCoop } from '../../src/net/cliente';
 import { RedEnMemoria } from '../../src/net/memoria';
 import {
@@ -43,7 +43,7 @@ export interface Escenario {
   fraccionMoviendose: number;
   /** Señales por jugador y minuto (frases rápidas). */
   senalesPorMinuto: number;
-  /** Poses por segundo en movimiento: 4 (normal) o 2 (respaldo si Supabase corta). */
+  /** Poses por segundo en movimiento; por defecto, las del juego (`POSES_POR_SEGUNDO`). */
   hz: number;
   semilla: number;
 }
@@ -54,7 +54,7 @@ export const ESCENARIO_BASE: Escenario = {
   segundos: 120,
   fraccionMoviendose: 0.5,
   senalesPorMinuto: 2,
-  hz: 4,
+  hz: POSES_POR_SEGUNDO,
   semilla: 1,
 };
 
