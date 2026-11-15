@@ -145,3 +145,65 @@
 .coop-cuenta {
   margin: 0;
 }
+
+/* En partida (T85, T87): avisos del grupo arriba al centro, debajo del reloj. */
+.coop-barra {
+  position: absolute;
+  top: calc(64px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(28rem, 62vw);
+  display: grid;
+  gap: 6px;
+  pointer-events: none;
+  color: #f2f2f2;
+  font-size: 0.875rem;
+}
+
+.coop-barra button {
+  pointer-events: auto;
+}
+
+.coop-barra-fila {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.coop-encargos {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 60%);
+}
+
+.coop-aviso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 10px;
+  border-left: 4px solid #e8a33d;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 78%);
+}
+
+.coop-aviso p {
+  margin: 0;
+}
+
+.coop-aviso .boton {
+  flex: none;
+  padding: 0 1rem;
+}
+
+/* Estado de la propuesta dentro del panel de la máquina. */
+.coop-propuesta {
+  margin: 0 0 0.75rem;
+  padding: 8px 12px;
+  border-left: 4px solid #3ec1c9;
+  border-radius: 4px;
+  background: rgb(62 193 201 / 12%);
+}
