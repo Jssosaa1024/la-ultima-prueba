@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { crearAmbiente, FONDOS } from '../../src/engine/audio/ambiente';
 import {
   DURACION_MURMULLO_S,
+  duracionDe,
   efectosDeResultado,
   iniciarAudio,
 } from '../../src/engine/audio/audio';
@@ -26,6 +27,7 @@ import {
   type ResultadoMecanismo,
 } from '../../src/signals/mecanismo';
 import { fase, reiniciarPartida, sala } from '../../src/signals/partida';
+import { colaVoz, reiniciarVoz } from '../../src/signals/voz';
 
 // T43: módulo de audio del motor (desbloqueo en iOS, mezcla, ambiente y efectos por código).
 
@@ -117,6 +119,7 @@ afterEach(() => {
   reiniciarInterfaz();
   reiniciarMecanismo();
   ajustes.value = { ...AJUSTES_INICIALES };
+  reiniciarVoz();
 });
 
 describe('desbloqueo del audio', () => {
@@ -248,6 +251,14 @@ describe('sonidos por código', () => {
   });
 });
 
+describe('voz provisional', () => {
+  it('dura lo que dice el guion, o 4 s si la línea no está', () => {
+    expect(duracionDe('grab-1')).toBeGreaterThan(0);
+    expect(duracionDe('no-existe')).toBe(DURACION_MURMULLO_S);
+    expect(duracionDe(undefined)).toBe(DURACION_MURMULLO_S);
+  });
+});
+
 describe('qué suena cuando responde una máquina', () => {
   const r = (puzzle: string, etapa = 0, sello = false): ResultadoMecanismo => ({
     n: 1,
@@ -313,10 +324,21 @@ describe('iniciarAudio', () => {
     sonar('mano');
     expect(sonidos.at(-1)).toBe('mano');
 
+    // Cada subtítulo nuevo de La Voz (T34) suena con la voz provisional.
+    const antes = sonidos.length;
+    colaVoz.value = ['voz-s1-sello'];
+    expect(sonidos.slice(antes)).toEqual(['voz']);
+    colaVoz.value = ['voz-s1-sello', 'voz-final'];
+    expect(sonidos.length).toBe(antes + 1);
+    colaVoz.value = ['voz-final'];
+    expect(sonidos.length).toBe(antes + 2);
+
     detener();
     expect(contexto.close).toHaveBeenCalled();
     expect(audioDesbloqueado.value).toBe(false);
+    // Apagado, ya nada suena.
     sonar('clic');
-    expect(sonidos.at(-1)).toBe('mano');
+    colaVoz.value = ['voz-espera'];
+    expect(sonidos.length).toBe(antes + 2);
   });
 });

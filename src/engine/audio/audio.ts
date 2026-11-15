@@ -7,27 +7,34 @@
  * - **Ambiente.** Un fondo por sala durante la partida; en el menú y los finales, silencio.
  * - **Efectos.** Lo que hace cada máquina al responder (signal `resultado`), el sello ganado y
  *   lo que piden las animaciones con `sonar()` (la mano de la urna, la caja fuerte, la campana).
- * - **Voz provisional.** Al abrir una grabación suena un murmullo sin palabras, hasta que
- *   llegue la voz grabada de La Voz (ElevenLabs, plan de pago).
+ * - **Voz provisional.** Cada línea de La Voz que muestra un subtítulo (cola `colaVoz`, T34)
+ *   y cada grabación que se abre suenan con un murmullo sin palabras de la misma duración del
+ *   guion, hasta que llegue la voz grabada (ElevenLabs, plan de pago).
  *
  * Todo se genera con Web Audio: no hay archivos que descargar todavía. Lee signals y no
  * escribe más que `audioDesbloqueado`.
  */
 import { effect } from '@preact/signals';
 import type { Lugar } from '../../content/esquema-salas';
+import { lineaPorId } from '../../content/guion';
 import { ajustes } from '../../signals/ajustes';
 import { audioDesbloqueado } from '../../signals/audio';
 import { panel } from '../../signals/interfaz';
 import { resultado, type ResultadoMecanismo } from '../../signals/mecanismo';
-import { fase, sala } from '../../signals/partida';
+import { fase, grabaciones, sala } from '../../signals/partida';
+import { colaVoz } from '../../signals/voz';
 import { crearAmbiente, type Ambiente } from './ambiente';
 import { desbloquearAlPrimerToque, type DocumentoAudio } from './desbloqueo';
 import { escucharSonidos } from './eventos';
 import { crearMezcla, volumenesDeAjustes, type Mezcla } from './mezcla';
 import { EFECTOS, murmullo, type NombreEfecto } from './sintesis';
 
-/** Lo que dura la voz provisional de una grabación, en segundos. */
+/** Lo que dura la voz provisional si la línea no está en el guion, en segundos. */
 export const DURACION_MURMULLO_S = 4;
+
+/** Lo que dura una línea del guion (`duracion_s`), o el valor por defecto. */
+export const duracionDe = (id: string | undefined): number =>
+  (id ? lineaPorId(id)?.duracion_s : undefined) ?? DURACION_MURMULLO_S;
 /** Espera entre el sonido de la máquina y el del sello. */
 const ESPERA_SELLO_S = 0.45;
 
@@ -111,12 +118,23 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
         });
       }),
     );
+    // La grabación recién recogida: su texto está en el guion con el id `grab-N`.
     let grabacionAbierta = panel.peek() === 'grabacion';
     efectos.push(
       effect(() => {
         const abierta = panel.value === 'grabacion';
-        if (abierta && !grabacionAbierta) hablar(DURACION_MURMULLO_S);
+        if (abierta && !grabacionAbierta) hablar(duracionDe(grabaciones.peek().at(-1)));
         grabacionAbierta = abierta;
+      }),
+    );
+    // La línea cuyo subtítulo se está viendo (T34). La que ya se veía al desbloquear también
+    // suena: es la presentación de La Voz, pedida en el mismo toque de «Jugar solo».
+    let lineaActual: string | null = null;
+    efectos.push(
+      effect(() => {
+        const id = colaVoz.value[0] ?? null;
+        if (id && id !== lineaActual) hablar(duracionDe(id));
+        lineaActual = id;
       }),
     );
   };
