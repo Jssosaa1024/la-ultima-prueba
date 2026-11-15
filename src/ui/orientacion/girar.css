@@ -1,0 +1,86 @@
+/* Aviso de girar el teléfono (T41b): tapa toda la pantalla, también los paneles. */
+.girar {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: calc(24px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));
+  background: #111418;
+  color: #f2f2f2;
+  text-align: center;
+}
+
+.girar-icono {
+  width: 96px;
+  height: 96px;
+  fill: none;
+  stroke: #e8a33d;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: girar-telefono 2.4s ease-in-out infinite;
+}
+
+@keyframes girar-telefono {
+  0%,
+  30% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(-90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .girar-icono {
+    animation: none;
+    transform: rotate(-90deg);
+  }
+}
+
+.girar-titulo {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #e8a33d;
+  outline: none;
+}
+
+.girar-texto {
+  margin: 0;
+  max-width: 22rem;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+
+.girar-pausa {
+  color: #b8c2cc;
+}
+
+.girar-boton {
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 24px;
+  background: #e8a33d;
+  color: #111418;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.girar-boton:focus-visible {
+  outline: 3px solid #f2f2f2;
+  outline-offset: 2px;
+}
+
+/* Envoltorio de las capas de la partida: no crea caja, solo permite volverlas inertes. */
+.partida-capas {
+  display: contents;
+}

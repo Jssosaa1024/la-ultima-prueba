@@ -21,8 +21,9 @@ export default defineConfig({
     trace: 'off',
   },
   projects: [
-    // Celular de gama media-baja con pantalla pequeña (el juego es celular primero).
-    { name: 'celular', use: { ...devices['Pixel 5'] } },
+    // Celular de gama media-baja con pantalla pequeña (el juego es celular primero), en
+    // horizontal: en vertical el juego solo muestra el aviso de girar el teléfono (T41b).
+    { name: 'celular', use: { ...devices['Pixel 5 landscape'] } },
     // Soporte secundario: teclado y ratón.
     { name: 'escritorio', use: { ...devices['Desktop Chrome'] } },
   ],

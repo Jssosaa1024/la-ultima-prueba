@@ -14,8 +14,9 @@ import { RADIO_JOYSTICK } from '../input/joystick';
 import { conectarEscritorio } from '../input/escritorio';
 import { conectarTactil } from '../input/tactil';
 import { joystick, punteroBloqueado } from '../signals/controles';
-import { controlesActivos, enfocado } from '../signals/interfaz';
+import { controlesActivos, enfocado, panel } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
+import { girarTelefono } from '../signals/pantalla';
 import { fase, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { crearInteraccion } from './interaccion/interaccion';
@@ -37,6 +38,12 @@ import { salaDeLaUrl } from './salas/url';
 export const ALTURA_OJOS = 1.6;
 /** Al entrar a una sala se mira un poco hacia abajo, a la altura de los muebles. */
 const PITCH_INICIAL = -0.12;
+/**
+ * Con un panel 2D abierto la escena casi no se ve: se dibuja a unos 10 cuadros por segundo,
+ * lo justo para que la animación de la máquina termine detrás (punto 21 del hito 1). En un
+ * celular es batería y calor, y en las e2e deja el procesador libre para los clics.
+ */
+export const MS_POR_CUADRO_CON_PANEL = 100;
 /** Espera antes de preparar la siguiente sala, para no competir con la entrada. */
 const ESPERA_PRECARGA_MS = 1500;
 
@@ -209,7 +216,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion?.tocar(0, 0);
       interaccion?.actualizar();
       if (animacion) {
-        // También con un panel abierto: al cerrarlo, la máquina ya terminó de moverse.
+        // También con un panel abierto (a 10 cuadros por segundo): al cerrarlo, la máquina ya
+        // terminó de moverse.
         animacion.actualizar(dt);
         // Atributo para las pruebas e2e. Solo se escribe si cambió.
         if (canvas.dataset['maquina'] !== animacion.estado) {
@@ -230,12 +238,14 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     },
     // Hasta que empiece la partida no hay nada que animar.
     permitido: fase.peek() === 'jugando',
+    intervaloMs: () => (panel.peek() === null ? 0 : MS_POR_CUADRO_CON_PANEL),
   });
 
   // El motor solo dibuja durante la partida (T20b). Detrás del menú y de las pantallas de
-  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor.
+  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor. Lo
+  // mismo detrás del aviso de girar el teléfono (T41b).
   const dejarDeSeguirFase = effect(() => {
-    const jugando = fase.value === 'jugando';
+    const jugando = fase.value === 'jugando' && !girarTelefono.value;
     if (!jugando) {
       // Lo que hacía el bucle en cada cuadro sin controles: soltar dedos, teclas y ratón.
       soltarTodo(entrada);
