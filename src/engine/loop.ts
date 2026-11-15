@@ -4,10 +4,19 @@
  *
  * También se detiene cuando el juego no lo necesita (T20b): detrás del menú y de las pantallas
  * de final no hay nada que animar. Corre solo si la pestaña se ve **y** `permitir(true)`.
+ *
+ * Con `intervaloMs` puede ir más despacio que la pantalla (punto 21 del hito 1): con un panel
+ * abierto basta con unos 10 cuadros por segundo para que la máquina termine de moverse detrás.
  */
 
 /** Paso de tiempo máximo: tras una pausa o un tirón, el juego no salta más de 0,1 s. */
 export const DT_MAX = 0.1;
+
+/**
+ * Margen al comparar con el intervalo pedido: las pantallas no dan los cuadros exactos (a
+ * 60 Hz llegan cada 16,7 ms), y sin margen 100 ms se volverían 117.
+ */
+export const HOLGURA_INTERVALO_MS = 4;
 
 export type EstadoBucle = 'activo' | 'pausado' | 'detenido';
 
@@ -26,6 +35,11 @@ export interface OpcionesBucle {
   documento?: DocumentoVisible;
   /** Si el bucle puede correr desde el principio. Por defecto, sí. */
   permitido?: boolean;
+  /**
+   * Tiempo mínimo entre dos llamadas a `alCuadro`, en ms; se consulta en cada cuadro de la
+   * pantalla. `0` (por defecto): en todos. Los cuadros que se saltan no hacen nada.
+   */
+  intervaloMs?: () => number;
 }
 
 export interface Bucle {
@@ -41,6 +55,7 @@ export function crearBucle({
   alCambiarEstado,
   documento = document,
   permitido = true,
+  intervaloMs,
 }: OpcionesBucle): Bucle {
   let estado: EstadoBucle = 'detenido';
   let iniciado = false;
@@ -53,6 +68,10 @@ export function crearBucle({
   };
 
   const cuadro = (tiempoMs: number): void => {
+    if (anterior !== null && intervaloMs) {
+      const intervalo = intervaloMs();
+      if (intervalo > 0 && tiempoMs - anterior < intervalo - HOLGURA_INTERVALO_MS) return;
+    }
     const dt = anterior === null ? 0 : Math.min(DT_MAX, Math.max(0, (tiempoMs - anterior) / 1000));
     anterior = tiempoMs;
     alCuadro(dt);

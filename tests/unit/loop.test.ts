@@ -49,6 +49,30 @@ describe('bucle de juego', () => {
     expect(pasos).toEqual([0, 0.016, 0.033, DT_MAX]);
   });
 
+  it('con intervalo, se salta los cuadros intermedios y el paso suma el tiempo real', () => {
+    const doc = documentoFalso();
+    const reloj = programadorFalso();
+    const pasos: number[] = [];
+    let intervalo = 100;
+    crearBucle({
+      programar: reloj.programar,
+      alCuadro: (dt) => pasos.push(Number(dt.toFixed(4))),
+      documento: doc,
+      intervaloMs: () => intervalo,
+    });
+    // Pantalla de 60 Hz: un cuadro cada 16,7 ms durante algo más de 0,3 s.
+    for (let i = 0; i <= 20; i++) reloj.tic(1000 + i * (1000 / 60));
+    // El primero, y luego uno cada 6 cuadros de pantalla (unos 100 ms).
+    expect(pasos).toEqual([0, 0.1, 0.1, 0.1]);
+
+    // De vuelta a intervalo 0: todos los cuadros.
+    intervalo = 0;
+    pasos.length = 0;
+    reloj.tic(1350);
+    reloj.tic(1366);
+    expect(pasos).toEqual([0.05, 0.016]);
+  });
+
   it('se pausa al ocultar la pestaña y al volver no salta el tiempo', () => {
     const doc = documentoFalso();
     const reloj = programadorFalso();
