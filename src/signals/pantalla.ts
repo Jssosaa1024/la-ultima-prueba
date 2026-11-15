@@ -20,3 +20,9 @@ export const pantalla = signal<Pantalla>({ ancho: 0, alto: 0, dprEquipo: 1, dprU
  * Lo escribe engine/ (pantalla.ts); lo leen ui/ y el controlador de la partida.
  */
 export const girarTelefono = signal(false);
+
+/**
+ * Escala dinámica de resolución (T13), de 0,5 a 1,0 sobre el DPR limitado. La escribe el
+ * motor según los fps medidos; `engine/pantalla.ts` la aplica al tamaño del búfer del canvas.
+ */
+export const escalaResolucion = signal(1);

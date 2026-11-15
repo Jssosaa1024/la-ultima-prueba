@@ -734,7 +734,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 2 · Motor y controles táctiles
 
 - [x] **T12** Renderer y bucle con DPR limitado; pausa al ocultar la pestaña — 40 min
-- [ ] **T13** Escala dinámica de resolución según los fps medidos — 45 min
+- [x] **T13** Escala dinámica de resolución según los fps medidos — 45 min
 - [x] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [x] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min
 - [x] **T15b** (nueva) Dibujar el joystick (signal `joystick`) y la mira con el aviso «Esc para soltar el ratón» (signal `punteroBloqueado`), en `src/ui/controles/` — 40 min
