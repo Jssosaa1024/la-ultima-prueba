@@ -74,7 +74,7 @@ export function crearCompaneros(escena: Object3D, canvas: HTMLCanvasElement): Co
         if (!j || j.yo || !j.conectado || n >= MAX_COMPANEROS) continue;
         const interpolador = interpoladores.get(j.jugador);
         if (!interpolador?.muestra(ahoraMs, muestra) || muestra.s !== s) continue;
-        avatares.poner(n, muestra.x, muestra.y, muestra.z, muestra.yaw, j.color);
+        avatares.poner(n, muestra.x, muestra.y, muestra.z, muestra.yaw, j.color, j.alias);
         n++;
         if (escribir)
           texto += `${texto ? ';' : ''}${j.alias}:${muestra.x.toFixed(2)},${muestra.z.toFixed(2)}`;
