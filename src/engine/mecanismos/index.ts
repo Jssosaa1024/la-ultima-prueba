@@ -6,6 +6,7 @@ import { animarFlechas } from './flechas';
 import { animarReflector } from './reflector';
 import { animarTanques } from './tanques';
 import type { AnimacionSala } from './tipos';
+import { animarUrna } from './urna';
 
 export type { AnimacionSala } from './tipos';
 
@@ -39,6 +40,7 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   's2-laboratorio': (raiz) => conDetalle(animarTanques(raiz), animarFlechas(raiz)),
   // El reflector y los balones del carro, que rebotan al tocarlos (T75).
   's3-gimnasio': (raiz) => conDetalle(animarReflector(raiz), animarBalones(raiz)),
+  's5-rectoria': (raiz) => animarUrna(raiz),
 };
 
 /** Prepara las animaciones de `lugar` sobre su sala ya construida, si las tiene. */
