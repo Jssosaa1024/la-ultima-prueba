@@ -164,6 +164,7 @@ export async function exportarInforme(
   document.body.append(enlace);
   enlace.click();
   enlace.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  // Con calma: un equipo ocupado tarda en guardar la descarga.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
   return 'descargado';
 }

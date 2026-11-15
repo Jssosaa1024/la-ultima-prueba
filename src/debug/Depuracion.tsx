@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentType } from 'preact';
 import { crearDetectorToques, pideDepuracion } from './apertura';
+import { describirCarga } from './estres/ejes';
+import { ESTRES_INACTIVO, estres } from './estres/estado';
+import { almacenDelNavegador, revisarRecarga } from './estres/marca';
 import { depuracionAbierta } from './metricas';
 
 /**
@@ -14,6 +17,24 @@ export default function Depuracion() {
 
   useEffect(() => {
     if (pideDepuracion(window.location.search)) depuracionAbierta.value = true;
+    // T11r: si la pestaña se recargó a mitad de la prueba de estrés, la marca lo dice. El
+    // escalón queda como «recarga por memoria» y el panel se abre para mostrarlo.
+    const dpr = window.devicePixelRatio || 1;
+    const recarga = revisarRecarga(almacenDelNavegador(), (eje, escalon) =>
+      describirCarga(eje, escalon, dpr),
+    );
+    if (recarga) {
+      estres.value = {
+        ...ESTRES_INACTIVO,
+        fase: 'terminada',
+        eje: recarga.eje,
+        escalon: recarga.escalon,
+        carga: describirCarga(recarga.eje, recarga.escalon, dpr),
+        escalones: recarga.escalones,
+        motivo: 'recarga',
+      };
+      depuracionAbierta.value = true;
+    }
     const detector = crearDetectorToques();
     // En captura: el toque sigue llegando al juego. Los toques sobre un botón no cuentan: en la
     // esquina está «Salir», que pide confirmación.
