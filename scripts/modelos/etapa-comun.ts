@@ -2,7 +2,7 @@
  * Etapa común del pipeline de modelos (T06, T07).
  *
  * Orden de la especificación: dedup → prune → weld → instance → quantize → meshopt → ktx2.
- * asset.copyright (T11a) se agrega después, en este mismo orden.
+ * Al final, asset.copyright (T11g): el crédito de art/credits.json viaja dentro del GLB.
  * Nunca se usa `simplify` aquí: simplificar va solo en la etapa de limpieza, antes de hornear.
  */
 import { NodeIO, Primitive } from '@gltf-transform/core';
@@ -24,6 +24,8 @@ export interface OpcionesEtapaComun {
   minimoInstancias?: number;
   /** Opciones del paso KTX2 (tamaño máximo, ejecutable de KTX-Software). */
   ktx2?: OpcionesKtx2;
+  /** Crédito para `asset.copyright` (T11g), armado con `textoCopyright()` de `creditos/reglas.ts`. */
+  copyright?: string;
 }
 
 export interface Medidas {
@@ -51,7 +53,7 @@ export async function aplicarEtapaComun(
   documento: Document,
   opciones: OpcionesEtapaComun = {},
 ): Promise<InformeTextura[]> {
-  const { instanciar = true, minimoInstancias = 5, ktx2 = {} } = opciones;
+  const { instanciar = true, minimoInstancias = 5, ktx2 = {}, copyright } = opciones;
   await MeshoptEncoder.ready;
 
   await documento.transform(
@@ -76,7 +78,11 @@ export async function aplicarEtapaComun(
     .setEncoderOptions({ method: EXTMeshoptCompression.EncoderMethod.QUANTIZE });
 
   // ktx2: ETC1S para color y lightmap, UASTC para mapas normales, máximo 1024 px.
-  return comprimirTexturas(documento, ktx2);
+  const texturas = await comprimirTexturas(documento, ktx2);
+
+  // asset.copyright: el crédito viaja con el archivo aunque alguien lo descargue suelto.
+  if (copyright !== undefined) documento.getRoot().getAsset().copyright = copyright;
+  return texturas;
 }
 
 /** Cuenta triángulos y draw calls de la escena principal. */
