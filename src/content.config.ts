@@ -3,6 +3,7 @@ import { file, glob } from 'astro/loaders';
 import { esquemaPuzzle } from './content/esquema';
 import { esquemaFichaValidada } from './content/esquema-fichas';
 import { esquemaLineaGuionValidada } from './content/esquema-guion';
+import { esquemaResumen } from './content/esquema-resumenes';
 import { esquemaSalaValidada } from './content/esquema-salas';
 
 /**
@@ -32,4 +33,10 @@ const guion = defineCollection({
   schema: esquemaLineaGuionValidada,
 });
 
-export const collections = { puzzles, salas, fichas, guion };
+/** Resumen de aprendizaje de cada sala para los finales (punto 15 del hito 1). */
+const resumenes = defineCollection({
+  loader: file('./src/content/resumenes.json'),
+  schema: esquemaResumen,
+});
+
+export const collections = { puzzles, salas, fichas, guion, resumenes };

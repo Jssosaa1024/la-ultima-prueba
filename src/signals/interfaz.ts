@@ -1,4 +1,5 @@
 import { batch, computed, signal } from '@preact/signals';
+import { girarTelefono } from './pantalla';
 import { fase } from './partida';
 
 /**
@@ -24,7 +25,9 @@ export type Panel =
   | 'mecanismo'
   | 'pistas'
   /** La grabación escondida en la sala actual, recién recogida (T75). */
-  | 'grabacion';
+  | 'grabacion'
+  /** Sensibilidad, modo zurdo, tamaño del texto y volumen (T39). */
+  | 'ajustes';
 
 /** Lo que pasa al tocar el botón contextual sobre el objeto enfocado. */
 export type AccionObjeto = 'usar' | 'recoger' | 'examinar';
@@ -66,8 +69,13 @@ export const resultadoVisto = signal(0);
 /** Último aviso sin leer. Lo escribe el controlador y lo borra el HUD al rato de mostrarlo. */
 export const aviso = signal<Aviso | null>(null);
 
-/** El motor solo mueve al jugador y lee toques cuando se está jugando y no hay panel abierto. */
-export const controlesActivos = computed(() => fase.value === 'jugando' && panel.value === null);
+/**
+ * El motor solo mueve al jugador y lee toques cuando se está jugando, no hay panel abierto y
+ * el celular no está en vertical (T41b).
+ */
+export const controlesActivos = computed(
+  () => fase.value === 'jugando' && panel.value === null && !girarTelefono.value,
+);
 
 /** Abre la vista de inspección de un objeto. */
 export function abrirInspeccion(objeto: string): void {
@@ -86,7 +94,9 @@ export function abrirCuaderno(): void {
 }
 
 /** Abre un panel que no necesita más datos (la puerta de salida, la máquina de la sala…). */
-export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion'): void {
+export function abrirPanel(
+  cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion' | 'ajustes',
+): void {
   batch(() => {
     inspeccionando.value = null;
     panel.value = cual;

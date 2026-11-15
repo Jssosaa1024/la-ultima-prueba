@@ -151,12 +151,13 @@ describe('fichas en la urna', () => {
     animacion.liberar();
   });
 
-  it('el motor la crea para la rectoría, y no para una sala sin animación', () => {
+  it('el motor la crea para la rectoría, y en una portería sin mural no anima nada', () => {
     const { raiz } = sala();
     const animacion = animacionDeSala('s5-rectoria', raiz);
     expect(animacion?.estado).toBe('0,0');
     animacion?.liberar();
-    expect(animacionDeSala('porteria', new Group())).toBeNull();
+    // La portería tiene animación (el mural, hito 1 punto 16), pero sin su mural no hace nada.
+    expect(animacionDeSala('porteria', new Group())?.estado).toBe('sin-piezas');
   });
 });
 

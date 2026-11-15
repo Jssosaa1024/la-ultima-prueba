@@ -52,6 +52,16 @@ test('con los cinco sellos, «Salir» lleva al final «Justo a tiempo»', async 
   await expect(encabezado).toBeVisible();
   await expect(encabezado).toBeFocused();
   await expect(page.getByRole('timer')).toHaveCount(0);
+  // Resumen de aprendizaje (punto 15 del hito 1): las cinco salas, cómo terminó cada una y
+  // cómo funcionaba su máquina. La partida de prueba no abrió pistas.
+  // La línea de La Voz de este final (T34).
+  await expect(page.locator('.final-voz')).toContainText('La Voz: Ahí está tu memoria.');
+  const resumen = page.getByRole('region', { name: 'Lo que aprendiste esta noche' });
+  await expect(resumen).toContainText('Resolviste 5 de 5 salas, todas sin pistas.');
+  await expect(resumen.getByRole('listitem')).toHaveCount(5);
+  await expect(resumen).toContainText('Sala 1 · Porcentajes');
+  await expect(resumen).toContainText('Sala 5 · Probabilidad');
+  await expect(resumen).toContainText('La etiquetadora');
 });
 
 test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El legado», y de ahí a los créditos', async ({
@@ -69,8 +79,8 @@ test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El 
   const salida = page.getByRole('dialog', { name: 'Puerta de salida' });
   await salida.getByRole('button', { name: 'Restaurar archivo' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'El legado' })).toBeFocused();
-  await expect(page.getByText('5 de 5')).toBeVisible();
-  await expect(page.getByText('3 de 3')).toBeVisible();
+  await expect(page.getByText('5 de 5', { exact: true })).toBeVisible();
+  await expect(page.getByText('3 de 3', { exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Ver créditos' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'La Última Prueba' })).toBeFocused();
@@ -93,4 +103,10 @@ test('cuando se acaba el reloj aparece «Tiempo cumplido»', async ({ page }) =>
   await expect(encabezado).toBeVisible();
   await expect(encabezado).toBeFocused();
   await expect(page.getByRole('timer')).toHaveCount(0);
+  // Ningún final castiga: también se explican las salas que faltaron, sin prometer un modo
+  // práctica que no existe.
+  const resumen = page.getByRole('region', { name: 'Lo que aprendiste esta noche' });
+  await expect(resumen).toContainText('Esta vez no alcanzaste a resolver ninguna sala.');
+  await expect(resumen.getByText('Sin resolver')).toHaveCount(5);
+  await expect(page.getByText(/práctica/i)).toHaveCount(0);
 });

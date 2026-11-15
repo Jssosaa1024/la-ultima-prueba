@@ -734,7 +734,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 2 · Motor y controles táctiles
 
 - [x] **T12** Renderer y bucle con DPR limitado; pausa al ocultar la pestaña — 40 min
-- [ ] **T13** Escala dinámica de resolución según los fps medidos — 45 min
+- [x] **T13** Escala dinámica de resolución según los fps medidos — 45 min
 - [x] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [x] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min
 - [x] **T15b** (nueva) Dibujar el joystick (signal `joystick`) y la mira con el aviso «Esc para soltar el ratón» (signal `punteroBloqueado`), en `src/ui/controles/` — 40 min
@@ -769,7 +769,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T31d** (nueva) Órdenes de los mecanismos en el controlador: `ajustar` (ajustes nuevos, validados con las reglas) y `accionar` (palanca, polea o manija). Las etapas `accionar` responden al accionar; las etapas `reposo` se resuelven o cuentan un intento cuando los ajustes quedan quietos los segundos de la regla. Signal `resultado` con lo último que respondió la máquina — 50 min
 - [x] **T32** Menú de inicio: jugar solo, crear partida, unirse con código — 45 min
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
-- [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min
+- [x] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`). Sin audio todavía, cada línea se ve su `duracion_s` estimada; seguir al audio real queda para T43 — 45 min
 - [x] **T34a** (nueva) El guion de La Voz como contenido: `src/content/guion.json` con cada línea (portería, entrada y sello de cada sala, espera, fallo, cinco sellos, las tres grabaciones y los cuatro finales) con `id`, `texto`, `sala`, `momento` y `duracion_s` estimada, validado en build (colección `guion`, esquema en `src/content/esquema-guion.ts`). El id es el nombre del audio (`public/assets/audio/es-CO/<sala>/<id>.m4a`) y lo único que viaja por la red. `npm run exportar-guion` escribe `docs/guion-la-voz.csv` para revisarlo y grabarlo; un test falla si el CSV queda desactualizado. Reemplaza la carpeta `src/content/dialogos/` de la sección 1 — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
 - [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
@@ -778,9 +778,12 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [x] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
 - [x] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
-- [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
+- [x] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
+- [x] **T40b** (nueva) Resumen de aprendizaje de los finales, parte de contenido (punto 15 del hito 1): `src/content/resumenes.json` con el tema, la máquina y cómo funcionaba cada sala en una o dos frases, validado en build (colección `resumenes`), y `resumenDeAprendizaje()` en `src/game/aprendizaje.ts`, que a partir de la partida y las pistas dice qué salas se resolvieron y cuáles sin abrir pistas. Todo final muestra las cinco salas. Sin modo práctica por ahora; la pantalla es otra tarea — 40 min
+- [x] **T40c** (nueva) Resumen de aprendizaje de los finales, la pantalla (punto 15 del hito 1): todo final muestra las cinco salas con su tema, su máquina, el concepto, si se resolvió sin pistas, con pistas o no se resolvió, y cómo funcionaba. El controlador publica `aprendizaje` al llegar a un final. Se quita la mención al modo práctica de los textos de los finales — 40 min
 - [x] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min
+- [x] **T41b** (nueva) En celular el juego se juega solo en horizontal. En vertical, un aviso a pantalla completa pide girar el teléfono (signal `girarTelefono`, escrito por `engine/pantalla.ts`), el reloj se pausa y el motor no dibuja. En Android se intenta `screen.orientation.lock('landscape')` (con el botón «Pantalla completa», porque Chrome solo lo permite así); en iPhone basta el aviso. Los paneles caben en poca altura: el pie con los botones queda siempre a la vista y lo que se desplaza es el cuerpo. El perfil celular de las e2e pasa a horizontal (Pixel 5 landscape, 802 × 293) — 45 min
 
 ### Fase 5 · Audio
 

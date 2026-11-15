@@ -5,6 +5,7 @@
  */
 import { effect } from '@preact/signals';
 import { PerspectiveCamera, Scene } from 'three';
+import type { Mesh, Object3D } from 'three';
 import type { Lugar } from '../content/esquema-salas';
 import { destinoDePuerta, salaPorId } from '../content/salas';
 import { consumirMirada, crearEntrada, movimiento, soltarTodo } from '../input/entrada';
@@ -12,9 +13,11 @@ import type { Entrada } from '../input/entrada';
 import { RADIO_JOYSTICK } from '../input/joystick';
 import { conectarEscritorio } from '../input/escritorio';
 import { conectarTactil } from '../input/tactil';
+import { ajustes } from '../signals/ajustes';
 import { joystick, punteroBloqueado } from '../signals/controles';
-import { controlesActivos, enfocado } from '../signals/interfaz';
+import { controlesActivos, enfocado, panel } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
+import { escalaResolucion, girarTelefono } from '../signals/pantalla';
 import { fase, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { crearInteraccion } from './interaccion/interaccion';
@@ -23,6 +26,7 @@ import { aplicarACamara, girar } from './jugador/camara';
 import type { Orientacion } from './jugador/camara';
 import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
+import { crearEscalaDinamica } from './escala';
 import { crearBucle } from './loop';
 import { animacionDeSala } from './mecanismos';
 import type { AnimacionSala } from './mecanismos';
@@ -36,6 +40,12 @@ import { salaDeLaUrl } from './salas/url';
 export const ALTURA_OJOS = 1.6;
 /** Al entrar a una sala se mira un poco hacia abajo, a la altura de los muebles. */
 const PITCH_INICIAL = -0.12;
+/**
+ * Con un panel 2D abierto la escena casi no se ve: se dibuja a unos 10 cuadros por segundo,
+ * lo justo para que la animación de la máquina termine detrás (punto 21 del hito 1). En un
+ * celular es batería y calor, y en las e2e deja el procesador libre para los clics.
+ */
+export const MS_POR_CUADRO_CON_PANEL = 100;
 /** Espera antes de preparar la siguiente sala, para no competir con la entrada. */
 const ESPERA_PRECARGA_MS = 1500;
 
@@ -82,6 +92,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   let mostrada: Lugar | null = null;
   let precarga: ReturnType<typeof setTimeout> | undefined;
   let detenido = false;
+  // Escala dinámica de resolución (T13): baja los píxeles si no se alcanzan los 30 fps.
+  const escala = crearEscalaDinamica(escalaResolucion.peek());
+  canvas.dataset['escala'] = String(escala.valor);
   const depuracion = { mirada: '', posicion: '' };
 
   /** Dibuja un cuadro. Lo llama el bucle y, con el bucle en pausa, quien cambie la escena. */
@@ -112,6 +125,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     animacion = null;
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
+    // Compilar y armar la sala da tirones que no dicen nada del rendimiento al jugar.
+    escala.reiniciar();
     const nueva = await cargador.entrar(lugar);
     // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
     if (!nueva || detenido || mostrada !== lugar) return;
@@ -123,8 +138,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
     canvas.dataset['sala'] = lugar;
-    // Mallas de la sala: las geometrías en la GPU no deben pasar de aquí (más las de la portería).
-    canvas.dataset['mallas'] = String(nueva.mallas);
+    // Mallas de la sala, con las que agregan sus animaciones: las geometrías en la GPU no deben
+    // pasar de aquí (más las de la portería).
+    canvas.dataset['mallas'] = String(contarMallas(nueva.raiz));
     dibujarSiEnPausa();
     // Con calma, se arma en la CPU la siguiente sala sin sello.
     precarga = setTimeout(() => {
@@ -158,6 +174,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const activos = (): boolean => controlesActivos.value;
   const desconectarTactil = conectarTactil(canvas, entrada, {
     activos,
+    // Ajustes del jugador (T39): se leen sin suscribirse, en cada toque.
+    zurdo: () => ajustes.peek().zurdo,
     alTocar: (x, y) => {
       const ancho = Math.max(1, canvas.clientWidth);
       const alto = Math.max(1, canvas.clientHeight);
@@ -179,6 +197,18 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   });
   let cuadro = 0;
 
+  /** Solo cuentan los cuadros a velocidad normal: con un panel abierto se dibuja más lento. */
+  const medirRendimiento = (dt: number): void => {
+    if (panel.peek() !== null) {
+      escala.reiniciar();
+      return;
+    }
+    const nueva = escala.registrar(dt);
+    if (nueva === null) return;
+    escalaResolucion.value = nueva;
+    canvas.dataset['escala'] = String(nueva);
+  };
+
   const bucle = crearBucle({
     programar: (cuadro) => renderer.setAnimationLoop(cuadro),
     alCuadro: (dt) => {
@@ -190,7 +220,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       } else {
         const { dx, dy } = consumirMirada(entrada);
         if (dx !== 0 || dy !== 0) {
-          orientacion = girar(orientacion, dx, dy);
+          // Sensibilidad elegida en los ajustes (T39), para el dedo y el ratón.
+          const s = ajustes.peek().sensibilidad;
+          orientacion = girar(orientacion, dx * s, dy * s);
           aplicarACamara(camara, orientacion);
         }
         const pedido = movimiento(entrada);
@@ -207,7 +239,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion?.tocar(0, 0);
       interaccion?.actualizar();
       if (animacion) {
-        // También con un panel abierto: al cerrarlo, la máquina ya terminó de moverse.
+        // También con un panel abierto (a 10 cuadros por segundo): al cerrarlo, la máquina ya
+        // terminó de moverse.
         animacion.actualizar(dt);
         // Atributo para las pruebas e2e. Solo se escribe si cambió.
         if (canvas.dataset['maquina'] !== animacion.estado) {
@@ -220,6 +253,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       }
       publicarJoystick(entrada);
       dibujar();
+      medirRendimiento(dt);
     },
     alCambiarEstado: (estado) => {
       estadoMotor.value = estado;
@@ -228,12 +262,14 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     },
     // Hasta que empiece la partida no hay nada que animar.
     permitido: fase.peek() === 'jugando',
+    intervaloMs: () => (panel.peek() === null ? 0 : MS_POR_CUADRO_CON_PANEL),
   });
 
   // El motor solo dibuja durante la partida (T20b). Detrás del menú y de las pantallas de
-  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor.
+  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor. Lo
+  // mismo detrás del aviso de girar el teléfono (T41b).
   const dejarDeSeguirFase = effect(() => {
-    const jugando = fase.value === 'jugando';
+    const jugando = fase.value === 'jugando' && !girarTelefono.value;
     if (!jugando) {
       // Lo que hacía el bucle en cada cuadro sin controles: soltar dedos, teclas y ratón.
       soltarTodo(entrada);
@@ -266,7 +302,18 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['mallas'];
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
+    delete canvas.dataset['escala'];
+    escalaResolucion.value = 1;
   };
+}
+
+/** Mallas que cuelgan de `raiz`: una draw call cada una. */
+function contarMallas(raiz: Object3D): number {
+  let n = 0;
+  raiz.traverse((o) => {
+    if ((o as Mesh).isMesh) n++;
+  });
+  return n;
 }
 
 /** Mirada y posición en atributos del canvas, para pruebas e2e. Solo escribe si cambian. */
