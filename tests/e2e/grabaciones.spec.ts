@@ -101,13 +101,13 @@ test('sala 3: los balones rebotan y el que no rebota entrega la grabación 2', a
   // Un balón normal rebota y no pasa nada más: ni grabación ni panel de la máquina.
   await tocarObjeto(page, caja, BALON_NARANJA, conDedo, /Usar.*Balón naranja/);
   await page.getByRole('button', { name: /Usar.*Balón naranja/ }).click();
-  await expect(canvas).toHaveAttribute('data-maquina', 'rebotando');
+  await expect(canvas).toHaveAttribute('data-detalle', 'rebotando');
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   // El verde no rebota: está desinflado y guarda la grabación.
   await tocarObjeto(page, caja, BALON_VERDE, conDedo, /Usar.*Balón verde/);
   await page.getByRole('button', { name: /Usar.*Balón verde/ }).click();
-  await expect(canvas).toHaveAttribute('data-maquina', 'sin-rebote');
+  await expect(canvas).toHaveAttribute('data-detalle', 'sin-rebote');
   const panel = page.getByRole('dialog', { name: 'Encontraste una grabación' });
   await expect(panel).toContainText('Grabación 2 de 3');
   await expect(panel).toContainText('Una nota mide una mañana, no a una persona.');

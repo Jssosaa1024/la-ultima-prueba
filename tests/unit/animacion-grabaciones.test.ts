@@ -99,11 +99,12 @@ describe('animación de los balones en el gimnasio', () => {
     if (!animacion) throw new Error('el gimnasio no tiene animación');
     const balon = pieza(raiz, 's3-balon-1');
     const base = balon.position.y;
-    expect(animacion.estado).toBe('reposo');
+    // En el gimnasio los balones van junto al reflector, que es la máquina de la sala.
+    expect(animacion.detalle).toBe('reposo');
 
     tocarBalon('s3-balon-1');
     avanzar(animacion, DURACION_REBOTE_S * 0.3);
-    expect(animacion.estado).toBe('rebotando');
+    expect(animacion.detalle).toBe('rebotando');
     expect(balon.position.y).toBeGreaterThan(base + 0.3);
     // Los demás no se mueven.
     expect(pieza(raiz, 's3-balon-2').position.y).toBe(base);

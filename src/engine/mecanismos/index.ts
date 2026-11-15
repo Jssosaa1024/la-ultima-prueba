@@ -3,6 +3,7 @@ import type { Lugar } from '../../content/esquema-salas';
 import { animarBalones } from './balones';
 import { animarEtiquetadora } from './etiquetadora';
 import { animarFlechas } from './flechas';
+import { animarReflector } from './reflector';
 import { animarTanques } from './tanques';
 import type { AnimacionSala } from './tipos';
 
@@ -36,8 +37,8 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   's1-cooperativa': animarEtiquetadora,
   // Los tanques y, con la linterna, las flechas hacia la grabación 1 (T75).
   's2-laboratorio': (raiz) => conDetalle(animarTanques(raiz), animarFlechas(raiz)),
-  // Por ahora solo los balones del carro (T75); el reflector llega con T58.
-  's3-gimnasio': animarBalones,
+  // El reflector y los balones del carro, que rebotan al tocarlos (T75).
+  's3-gimnasio': (raiz) => conDetalle(animarReflector(raiz), animarBalones(raiz)),
 };
 
 /** Prepara las animaciones de `lugar` sobre su sala ya construida, si las tiene. */
