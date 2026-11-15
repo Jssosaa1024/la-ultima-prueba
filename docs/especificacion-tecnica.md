@@ -309,7 +309,7 @@ la-ultima-prueba/
 │  │  ├─ puzzles/                 # v1.2: s1-etiquetadora.json … s5-urna.json
 │  │  ├─ respuestas.json          # T23: hashes del estado resuelto; lo escribe hash-answers
 │  │  ├─ salas/                   # objetos por rol A–D y escondite de la grabación
-│  │  ├─ dialogos/                # líneas de La Voz con tiempos de subtítulo
+│  │  ├─ guion.json               # T34a: líneas de La Voz con id, momento y duración
 │  │  └─ finales/
 │  ├─ game/                      # REGLAS PURAS: sin DOM, sin Three, sin red
 │  │  ├─ partida.ts               # máquina de estados: portería → salas → final
@@ -691,6 +691,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T01** Crear el repositorio con Astro, TypeScript estricto, Preact, Signals, ESLint y Prettier — 40 min
 - [ ] **T02** Conectar Cloudflare Pages con vistas previas por rama y `_headers` de caché — 30 min
 - [ ] **T03** Página `/jugar` con isla `client:only`, canvas a pantalla completa, viewport y safe-area — 45 min
+- [x] **T03b** (nueva) La portada `/` deja de ser la demo de T01: título, la historia en una frase, botón grande «Jugar» que lleva a `/jugar` y enlace a `/docentes`. Pensada para celular en horizontal: todo cabe sin desplazarse. Se borran `src/ui/Contador.tsx` y `src/signals/demo.ts` — 30 min
 - [ ] **T04** Detectar WebGL2 y mostrar la pantalla de equipo no compatible — 20 min
 - [ ] **T05** Configurar Vitest y Playwright con perfiles de celular y una prueba de humo — 45 min
 - [x] **T05b** (nueva) Pruebas e2e confiables con varias sesiones en el mismo equipo: Playwright nunca reutiliza un servidor que ya esté escuchando (`reuseExistingServer: false`, cada sesión con su `PUERTO_E2E`), espera 4 minutos al servidor y da más tiempo a cada prueba (90 s) y a cada espera (15 s). Las pruebas no dependen del reloj: el toque simulado dura siempre 50 ms (`tests/e2e/toque.ts`) y se camina hasta llegar, no un tiempo fijo — 30 min
@@ -709,8 +710,8 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T11d** (v1.1) Perfil Meshy: pivote en la base, escala a metros, `simplify` y revisión de luz horneada — 40 min
 - [ ] **T11e** (v1.1) Perfiles Poly Haven, ambientCG e imágenes de IA: 1024 px, solo color en entorno, mapas extra solo en interactivos — 45 min
 - [ ] **T11f** (v1.1) Plantilla de Blender para rehornear assets externos con el lightmap de la sala (UV2, Cycles, exportación) — 55 min
-- [ ] **T11g** (v1.1) Esquema de `art/credits.json`, carpeta de evidencias y escritura de `asset.copyright` en cada GLB — 50 min
-- [ ] **T11h** (v1.1) Script `check-credits` con todas las reglas de licencia y sus tests — 50 min
+- [x] **T11g** (v1.1) Esquema de `art/credits.json`, carpeta de evidencias y escritura de `asset.copyright` en cada GLB — 50 min. Esquema en `scripts/creditos/esquema.ts`; `optimize-models` escribe el crédito con `textoCopyright()` y no escribe en `public/assets/salas/` un modelo sin entrada
+- [x] **T11h** (v1.1) Script `check-credits` con todas las reglas de licencia y sus tests — 50 min. Reglas en `scripts/creditos/reglas.ts`; corre en `build` y `verify` antes de `astro build`. Además de las de la lista: CC BY exige el enlace a la licencia, lo generado con IA exige el prompt y la captura anotada debe existir
 - [ ] **T11i** (v1.1) Página `/creditos` generada desde el manifiesto y agrupada por sala — 45 min
 - [ ] **T11j** (v1.1) Script `check-audio`: sin `.ogg` en `public/` y −16 LUFS ± 1 LU — 35 min
 - [ ] **T11k** (v1.1) Bandera `PUBLIC_LAB`, `build:lab` con originales y `noindex`, y exclusión total en producción — 45 min
@@ -769,6 +770,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T32** Menú de inicio: jugar solo, crear partida, unirse con código — 45 min
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min
+- [x] **T34a** (nueva) El guion de La Voz como contenido: `src/content/guion.json` con cada línea (portería, entrada y sello de cada sala, espera, fallo, cinco sellos, las tres grabaciones y los cuatro finales) con `id`, `texto`, `sala`, `momento` y `duracion_s` estimada, validado en build (colección `guion`, esquema en `src/content/esquema-guion.ts`). El id es el nombre del audio (`public/assets/audio/es-CO/<sala>/<id>.m4a`) y lo único que viaja por la red. `npm run exportar-guion` escribe `docs/guion-la-voz.csv` para revisarlo y grabarlo; un test falla si el CSV queda desactualizado. Reemplaza la carpeta `src/content/dialogos/` de la sección 1 — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
 - [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
 - [x] **T35c** (nueva) Contenido de las fichas de inspección de todas las salas: `src/content/fichas.json` validado en build, `fichaDeObjeto()` en `src/content/fichas.ts` y un test que falla si un objeto examinable no tiene ficha — 50 min
@@ -852,7 +854,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T96** Pruebas en Safari de iOS: memoria, audio y gestos — 50 min
 - [ ] **T97** Perfilar en el celular de referencia y corregir el mayor cuello de botella — 55 min
 - [ ] **T98** Analítica sin cookies ni datos personales — 30 min
-- [ ] **T99** Página de guía para docentes — 45 min
+- [x] **T99** Página de guía para docentes — 45 min. `/docentes`: qué es, para quién, cuánto dura, qué matemática trabaja cada sala (concepto, proceso y grado salen de los puzzles), cómo usarlo en clase y qué datos guarda
 - [ ] **T100** Piloto con un grupo de grado 10 (y algunos de grado 9) — 55 min
 - [ ] **T101** Convertir los hallazgos del piloto en tareas de menos de una hora — 40 min
 - [ ] **T102** Publicación: dominio, versión de contenido y etiqueta en git — 30 min
