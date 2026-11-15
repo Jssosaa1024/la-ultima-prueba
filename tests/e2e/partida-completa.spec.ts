@@ -222,7 +222,11 @@ test('una partida nueva termina en «Tiempo cumplido» cuando pasan los 40 minut
   await expect(page.getByRole('timer')).toHaveAttribute('aria-label', /^Tiempo restante: (40|39)/);
 
   await page.clock.fastForward('39:00');
-  await expect(page.getByRole('timer')).toHaveAttribute('aria-label', /^Tiempo restante: (1 |0 )/);
+  // Queda 1 minuto, o unos segundos menos si el equipo tardó en llegar hasta aquí.
+  await expect(page.getByRole('timer')).toHaveAttribute(
+    'aria-label',
+    /^Tiempo restante: (1 minuto|\d+ segundos?)$/,
+  );
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Partida en curso');
 
   await page.clock.fastForward('01:05');
