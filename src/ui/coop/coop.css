@@ -207,3 +207,27 @@
   border-radius: 4px;
   background: rgb(62 193 201 / 12%);
 }
+
+/* Encargo de la sala (T86), en el cuaderno y en el panel de pistas. */
+.coop-encargo-lista {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.coop-encargo-lista li {
+  padding: 8px 12px;
+  border-left: 4px solid #3ec1c9;
+  border-radius: 4px;
+  background: rgb(62 193 201 / 12%);
+}
+
+.coop-encargo-lista p {
+  margin: 0;
+}
+
+.coop-encargo-rol {
+  font-weight: 600;
+}

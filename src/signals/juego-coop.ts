@@ -36,7 +36,15 @@ import {
   panel,
   type ObjetoEnfocado,
 } from './interfaz';
-import { condiciones, etapa, maquinaResuelta, mecanismo, pistas, resultado } from './mecanismo';
+import {
+  condiciones,
+  etapa,
+  maquinaResuelta,
+  mecanismo,
+  pistas,
+  pistasVistas,
+  resultado,
+} from './mecanismo';
 import {
   aprendizaje,
   avance,
@@ -288,6 +296,16 @@ export class JuegoCoop {
       ofrecidas: yaResuelta ? (vistas?.vistas ?? 0) : (vistas?.ofrecidas ?? 0),
       vistas: vistas?.vistas ?? 0,
     });
+    // Las pistas que abrió cualquiera del grupo, para el cuaderno de todos (T86).
+    asignar(
+      pistasVistas,
+      Object.fromEntries(
+        SALAS.flatMap((s, k) => {
+          const n = f.pistas[k]?.vistas ?? 0;
+          return n > 0 ? [[s, n]] : [];
+        }),
+      ),
+    );
   }
 
   private alResultado(r: Extract<Evento, { t: 'resultado' }>['p'], p: Partida): void {

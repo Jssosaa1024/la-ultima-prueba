@@ -71,6 +71,7 @@ import {
   maquinaResuelta,
   mecanismo,
   pistas,
+  pistasVistas,
   reiniciarMecanismo,
   resultado,
 } from './mecanismo';
@@ -397,6 +398,15 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         ofrecidas: yaResuelta ? (vistas?.vistas ?? 0) : (vistas?.ofrecidas ?? 0),
         vistas: vistas?.vistas ?? 0,
       });
+      asignar(
+        pistasVistas,
+        Object.fromEntries(
+          SALAS.flatMap((s) => {
+            const n = pistasPorSala[s]?.vistas ?? 0;
+            return n > 0 ? [[s, n]] : [];
+          }),
+        ),
+      );
 
       if (p.fase === 'final') {
         cerrarPanel();
