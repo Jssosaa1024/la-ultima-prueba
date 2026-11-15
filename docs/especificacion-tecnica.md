@@ -309,7 +309,7 @@ la-ultima-prueba/
 │  │  ├─ puzzles/                 # v1.2: s1-etiquetadora.json … s5-urna.json
 │  │  ├─ respuestas.json          # T23: hashes del estado resuelto; lo escribe hash-answers
 │  │  ├─ salas/                   # objetos por rol A–D y escondite de la grabación
-│  │  ├─ dialogos/                # líneas de La Voz con tiempos de subtítulo
+│  │  ├─ guion.json               # T34a: líneas de La Voz con id, momento y duración
 │  │  └─ finales/
 │  ├─ game/                      # REGLAS PURAS: sin DOM, sin Three, sin red
 │  │  ├─ partida.ts               # máquina de estados: portería → salas → final
@@ -769,6 +769,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T32** Menú de inicio: jugar solo, crear partida, unirse con código — 45 min
 - [x] **T33** HUD: reloj, sellos, inventario y botón «Usar» — 50 min
 - [ ] **T34** Subtítulos de La Voz sincronizados con el audio (guion de `docs/salas-y-puzzles.md`) — 45 min
+- [x] **T34a** (nueva) El guion de La Voz como contenido: `src/content/guion.json` con cada línea (portería, entrada y sello de cada sala, espera, fallo, cinco sellos, las tres grabaciones y los cuatro finales) con `id`, `texto`, `sala`, `momento` y `duracion_s` estimada, validado en build (colección `guion`, esquema en `src/content/esquema-guion.ts`). El id es el nombre del audio (`public/assets/audio/es-CO/<sala>/<id>.m4a`) y lo único que viaja por la red. `npm run exportar-guion` escribe `docs/guion-la-voz.csv` para revisarlo y grabarlo; un test falla si el CSV queda desactualizado. Reemplaza la carpeta `src/content/dialogos/` de la sección 1 — 45 min
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
 - [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
 - [x] **T35c** (nueva) Contenido de las fichas de inspección de todas las salas: `src/content/fichas.json` validado en build, `fichaDeObjeto()` en `src/content/fichas.ts` y un test que falla si un objeto examinable no tiene ficha — 50 min

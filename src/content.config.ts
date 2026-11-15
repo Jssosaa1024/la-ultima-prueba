@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { esquemaPuzzle } from './content/esquema';
 import { esquemaFichaValidada } from './content/esquema-fichas';
+import { esquemaLineaGuionValidada } from './content/esquema-guion';
 import { esquemaSalaValidada } from './content/esquema-salas';
 
 /**
@@ -25,4 +26,10 @@ const fichas = defineCollection({
   schema: esquemaFichaValidada,
 });
 
-export const collections = { puzzles, salas, fichas };
+/** Lo que dice La Voz, con id, sala, momento y duración estimada (T34a). */
+const guion = defineCollection({
+  loader: file('./src/content/guion.json'),
+  schema: esquemaLineaGuionValidada,
+});
+
+export const collections = { puzzles, salas, fichas, guion };
