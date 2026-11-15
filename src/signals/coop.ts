@@ -1,5 +1,6 @@
-import { signal } from '@preact/signals';
-import type { Foto } from '../game/coop/mensajes';
+import { batch, signal } from '@preact/signals';
+import type { Asunto, Foto, OpcionVoto } from '../game/coop/mensajes';
+import type { Reparto, Rol } from '../game/reparto';
 import { elegirRed, entornoDelBuild } from '../net';
 import type { Alias, Color, Identidad } from '../net/protocolo';
 
@@ -61,8 +62,56 @@ export const COOP_INICIAL: Coop = {
 
 export const coop = signal<Coop>(COOP_INICIAL);
 
+/** Propuesta abierta en la máquina de la sala (T85): la hizo quien tiene D. */
+export interface PropuestaCoop {
+  id: number;
+  puzzle: string;
+  etapa: number;
+  por: string;
+  estado: unknown;
+  /** Quiénes ya aceptaron (quien propone cuenta como que acepta). */
+  aceptan: readonly string[];
+}
+
+/** Un voto abierto (T87): pausa, reanudar, cambio de sala, final o ayuda. */
+export interface VotoCoop {
+  asunto: Asunto;
+  opcion: OpcionVoto | null;
+  /** Quiénes votaron a favor. */
+  votos: readonly string[];
+}
+
+/** El grupo espera a quien tiene D, que se desconectó (T89): hasta 60 s. */
+export interface EsperaD {
+  jugador: string;
+  /** Lo que faltaba en `desde` (`performance.now()`). */
+  faltanMs: number;
+  desde: number;
+}
+
+/** Quién tiene cada encargo en la sala actual; `null` en la portería. */
+export const reparto = signal<Reparto | null>(null);
+/** Los encargos de este jugador en la sala actual. */
+export const misRoles = signal<readonly Rol[]>([]);
+export const propuestaCoop = signal<PropuestaCoop | null>(null);
+export const votosCoop = signal<readonly VotoCoop[]>([]);
+export const esperaD = signal<EsperaD | null>(null);
+
 export function reiniciarCoop(): void {
-  coop.value = COOP_INICIAL;
+  batch(() => {
+    coop.value = COOP_INICIAL;
+    reparto.value = null;
+    misRoles.value = [];
+    propuestaCoop.value = null;
+    votosCoop.value = [];
+    esperaD.value = null;
+  });
+}
+
+/** Los encargos de un jugador en un reparto, en orden (A, B, C, D). */
+export function rolesDe(r: Reparto | null, jugador: string): Rol[] {
+  if (!r) return [];
+  return (['A', 'B', 'C', 'D'] as const).filter((rol) => r[rol] === jugador);
 }
 
 /** Mínimo de jugadores para empezar (el de `game/coop/sesion.ts`). */
