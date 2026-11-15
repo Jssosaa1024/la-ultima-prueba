@@ -1,3 +1,4 @@
+import type { ResultadoSala } from '../../game/aprendizaje';
 import type { FinalId } from '../../signals/partida';
 
 /**
@@ -30,14 +31,14 @@ export const FINALES_TEXTO: Readonly<Record<FinalId, TextoFinal>> = {
     titulo: 'También vale pedir ayuda',
     parrafos: [
       'Usaste el intercomunicador de emergencia. Don Efraín, el celador de la noche, llega con su llave y abre la puerta.',
-      'Antes de que te vayas, te ofrece repasar las salas pendientes en modo práctica, sin reloj.',
+      'Mientras caminan hacia la salida, te cuenta cómo funcionaba cada máquina, también las que faltaron.',
     ],
   },
   tiempo_cumplido: {
     titulo: 'Tiempo cumplido',
     parrafos: [
       'El reloj de la portería marca las 00:40. Las cerraduras ceden y la puerta queda libre.',
-      'Los acertijos que faltaron siguen disponibles en modo práctica, sin reloj.',
+      'Abajo está cómo funcionaba cada máquina, también las que no alcanzaste a resolver.',
     ],
   },
 };
@@ -85,4 +86,24 @@ export function textoConfirmarSalida(faltan: number): string {
   const cuantas =
     faltan === 1 ? 'Todavía falta 1 grabación' : `Todavía faltan ${faltan} grabaciones`;
   return `${cuantas}. Si sales ahora, el archivo de La Voz se borra a las 00:40 y ya no podrás restaurarlo.`;
+}
+
+/** Cómo terminó una sala en el resumen de aprendizaje. */
+export function textoResultadoSala(resultado: ResultadoSala, pistas: number): string {
+  if (resultado === 'sin_resolver') return 'Sin resolver';
+  if (resultado === 'sin_pistas') return 'Resuelta sin pistas';
+  return pistas === 1 ? 'Resuelta con 1 pista' : `Resuelta con ${pistas} pistas`;
+}
+
+/** La frase de arriba del resumen: «Resolviste 4 de 5 salas, 2 sin pistas.» */
+export function textoTotalAprendizaje(resueltas: number, sinPistas: number): string {
+  const salas = resueltas === 1 ? '1 de 5 salas' : `${resueltas} de 5 salas`;
+  if (resueltas === 0) return 'Esta vez no alcanzaste a resolver ninguna sala.';
+  if (sinPistas === 0) return `Resolviste ${salas}.`;
+  if (sinPistas === resueltas) {
+    return resueltas === 1
+      ? `Resolviste ${salas}, sin pistas.`
+      : `Resolviste ${salas}, todas sin pistas.`;
+  }
+  return `Resolviste ${salas}, ${sinPistas} sin pistas.`;
 }

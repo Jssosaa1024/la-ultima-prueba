@@ -40,6 +40,7 @@ import {
   verPista,
   type EstadoPistas,
 } from '../game/pistas';
+import { resumenDeAprendizaje } from '../game/aprendizaje';
 import type { Evaluacion } from '../game/puzzles';
 import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
@@ -81,6 +82,7 @@ import {
   inventario,
   modo,
   opcionesFinal,
+  aprendizaje,
   reiniciarPartida,
   reloj,
   sala,
@@ -342,6 +344,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
       if (p.fase === 'final') {
         cerrarPanel();
+        // Lo que aprendió en cada sala, con las pistas que abrió (punto 15 del hito 1).
+        aprendizaje.value = resumenDeAprendizaje(p, pistasPorSala);
         final.value = p.final;
         fase.value = 'final';
         // Un final borra el guardado (lo hace `guardar`): ya no hay nada que continuar.
