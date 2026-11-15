@@ -2,8 +2,8 @@
  * Módulo de audio del motor (T43).
  *
  * - **Desbloqueo.** Nada suena hasta el primer toque del jugador (lo exige Safari en iPhone).
- * - **Mezcla.** Voz, ambiente y efectos, cada uno con su volumen (signal `volumenes`); el
- *   ambiente baja mientras habla La Voz.
+ * - **Mezcla.** Voz, ambiente y efectos, cada uno con su volumen (voz y ambiente, de los
+ *   ajustes del jugador, T39); el ambiente baja mientras habla La Voz.
  * - **Ambiente.** Un fondo por sala durante la partida; en el menú y los finales, silencio.
  * - **Efectos.** Lo que hace cada máquina al responder (signal `resultado`), el sello ganado y
  *   lo que piden las animaciones con `sonar()` (la mano de la urna, la caja fuerte, la campana).
@@ -15,14 +15,15 @@
  */
 import { effect } from '@preact/signals';
 import type { Lugar } from '../../content/esquema-salas';
-import { audioDesbloqueado, volumenes } from '../../signals/audio';
+import { ajustes } from '../../signals/ajustes';
+import { audioDesbloqueado } from '../../signals/audio';
 import { panel } from '../../signals/interfaz';
 import { resultado, type ResultadoMecanismo } from '../../signals/mecanismo';
 import { fase, sala } from '../../signals/partida';
 import { crearAmbiente, type Ambiente } from './ambiente';
 import { desbloquearAlPrimerToque, type DocumentoAudio } from './desbloqueo';
 import { escucharSonidos } from './eventos';
-import { crearMezcla, type Mezcla } from './mezcla';
+import { crearMezcla, volumenesDeAjustes, type Mezcla } from './mezcla';
 import { EFECTOS, murmullo, type NombreEfecto } from './sintesis';
 
 /** Lo que dura la voz provisional de una grabación, en segundos. */
@@ -86,12 +87,13 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
 
   const alDesbloquear = (c: AudioContext): void => {
     contexto = c;
-    mezcla = crearMezcla(c, volumenes.peek());
+    mezcla = crearMezcla(c, volumenesDeAjustes(ajustes.peek()));
     ambiente = crearAmbiente(c, mezcla.ambiente);
     audioDesbloqueado.value = true;
 
     efectos.push(
-      effect(() => mezcla?.aplicar(volumenes.value)),
+      // Los volúmenes de voz y ambiente de la pantalla de ajustes (T39).
+      effect(() => mezcla?.aplicar(volumenesDeAjustes(ajustes.value))),
       effect(() => {
         const lugar: Lugar | null = fase.value === 'jugando' ? sala.value : null;
         ambiente?.cambiar(lugar);

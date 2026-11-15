@@ -7,9 +7,18 @@ import {
 } from '../../src/engine/audio/audio';
 import { desbloquearAlPrimerToque, GESTOS } from '../../src/engine/audio/desbloqueo';
 import { sonar } from '../../src/engine/audio/eventos';
-import { AMBIENTE_BAJO_LA_VOZ, crearMezcla, niveles } from '../../src/engine/audio/mezcla';
+import {
+  AMBIENTE_BAJO_LA_VOZ,
+  crearMezcla,
+  niveles,
+  TECHO_AMBIENTE,
+  volumenesDeAjustes,
+} from '../../src/engine/audio/mezcla';
+import { AJUSTES_INICIALES, ajustes } from '../../src/signals/ajustes';
 import { EFECTOS, murmullo } from '../../src/engine/audio/sintesis';
-import { audioDesbloqueado, VOLUMENES_INICIALES, volumenes } from '../../src/signals/audio';
+import { audioDesbloqueado } from '../../src/signals/audio';
+
+const VOLUMENES_INICIALES = volumenesDeAjustes(AJUSTES_INICIALES);
 import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
 import {
   reiniciarMecanismo,
@@ -107,7 +116,7 @@ afterEach(() => {
   reiniciarPartida();
   reiniciarInterfaz();
   reiniciarMecanismo();
-  volumenes.value = VOLUMENES_INICIALES;
+  ajustes.value = { ...AJUSTES_INICIALES };
 });
 
 describe('desbloqueo del audio', () => {
@@ -170,6 +179,17 @@ describe('desbloqueo del audio', () => {
 });
 
 describe('mezcla', () => {
+  it('los volúmenes de voz y ambiente salen de los ajustes del jugador (T39)', () => {
+    expect(volumenesDeAjustes({ volumenVoz: 100, volumenAmbiente: 70 })).toMatchObject({
+      voz: 1,
+      ambiente: 0.7 * TECHO_AMBIENTE,
+    });
+    expect(volumenesDeAjustes({ volumenVoz: 0, volumenAmbiente: 0 })).toMatchObject({
+      voz: 0,
+      ambiente: 0,
+    });
+  });
+
   it('cada canal va por el volumen general, y el ambiente baja mientras habla La Voz', () => {
     const v = { general: 0.5, voz: 1, ambiente: 0.4, efectos: 0.8 };
     expect(niveles(v, false)).toEqual({ voz: 0.5, ambiente: 0.2, efectos: 0.4 });

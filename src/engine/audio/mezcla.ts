@@ -2,7 +2,36 @@
  * Mezcla del audio (T43): tres canales con su volumen (voz, ambiente y efectos) que entran a
  * un volumen general. Mientras suena la voz, el ambiente baja un poco para que se entienda.
  */
-import type { Volumenes } from '../../signals/audio';
+import type { Ajustes } from '../../signals/ajustes';
+
+/** Volúmenes de 0 a 1. `general` multiplica a los otros tres. */
+export interface Volumenes {
+  general: number;
+  /** La Voz y las grabaciones. */
+  voz: number;
+  /** El fondo de cada sala, en bucle. */
+  ambiente: number;
+  /** Máquinas, sellos y la rectoría. */
+  efectos: number;
+}
+
+/**
+ * El ambiente al 100 % de los ajustes suena a la mitad de la voz: así ella siempre se
+ * entiende. Con el 70 % inicial queda en 0,35.
+ */
+export const TECHO_AMBIENTE = 0.5;
+/** Los efectos no tienen ajuste propio: van a un volumen fijo, por debajo de la voz. */
+export const VOLUMEN_EFECTOS = 0.7;
+
+/** Los volúmenes de la mezcla según los ajustes del jugador (T39, de 0 a 100). */
+export function volumenesDeAjustes(a: Pick<Ajustes, 'volumenVoz' | 'volumenAmbiente'>): Volumenes {
+  return {
+    general: 1,
+    voz: a.volumenVoz / 100,
+    ambiente: (a.volumenAmbiente / 100) * TECHO_AMBIENTE,
+    efectos: VOLUMEN_EFECTOS,
+  };
+}
 
 /** Cuánto baja el ambiente mientras habla La Voz (0,5 = a la mitad). */
 export const AMBIENTE_BAJO_LA_VOZ = 0.5;
