@@ -62,7 +62,6 @@ export class TransporteSupabase implements Transporte {
   private readonly oyentes = new Oyentes();
   private readonly cliente: ClienteRealtime;
   private canal: CanalRealtime | null = null;
-  private identidad: Identidad | null = null;
   private unido = false;
   private readonly reconexiones = new Set<() => void>();
   private readonly esperaMs: number;
@@ -75,7 +74,6 @@ export class TransporteSupabase implements Transporte {
   async unirse(codigo: string, identidad: Identidad): Promise<void> {
     revisarUnion(codigo, identidad);
     await this.salir();
-    this.identidad = identidad;
     await this.sesionAnonima();
     // Los canales privados autorizan con el token de la sesión.
     await this.cliente.realtime.setAuth();
