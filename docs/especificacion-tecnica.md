@@ -865,7 +865,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 ### Fase 9 · Rendimiento y lanzamiento
 
-- [ ] **T94** Service worker: precarga del núcleo y caché de salas visitadas — 50 min
+- [x] **T94** Service worker: precarga del núcleo y caché de salas visitadas — 50 min. Propio y sin librerías: plantilla en `scripts/pwa/sw.js` y `dist/sw.js` generado al terminar el build (integración `scripts/pwa/integracion.ts`) con la lista del núcleo (`/`, `/jugar/`, todo `/_astro/`, manifiesto e iconos) y una versión que es el hash de su contenido. Páginas: primero la red y, sin red, la copia (una versión nueva nunca queda tapada). `/_astro/` y los archivos con hash de `/assets/`: primero la caché. Una versión nueva espera a que se cierren las pestañas (sin `skipWaiting`), así una partida abierta conserva sus archivos; al activarse borra los núcleos viejos y las salas que ya no existen. Nunca toca `localStorage`: la partida guardada sobrevive. Solo se registra en el sitio construido; las e2e lo bloquean salvo `pwa.spec.ts`
 - [x] **T95** Manifiesto PWA para pantalla completa en iPhone — 30 min. `public/manifest.webmanifest` (pantalla completa y horizontal en Android, abre `/jugar/`), iconos dibujados por código (`npm run iconos-pwa`, un test falla si los PNG quedan viejos), etiquetas `apple-mobile-web-app-*` en todas las páginas y, en iPhone sin instalar, el menú sugiere «Agregar a inicio»
 - [ ] **T96** Pruebas en Safari de iOS: memoria, audio y gestos — 50 min
 - [ ] **T97** Perfilar en el celular de referencia y corregir el mayor cuello de botella — 55 min

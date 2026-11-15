@@ -17,3 +17,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Última Prueba" />
+
+<script>
+  // T94: el service worker solo existe en el sitio construido (no en `astro dev`).
+  if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        // Sin service worker el juego funciona igual, solo que sin caché propia.
+      });
+    });
+  }
+</script>
