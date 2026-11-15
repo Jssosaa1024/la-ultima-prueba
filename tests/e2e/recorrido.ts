@@ -374,10 +374,10 @@ async function ponerCarritos(
         const movio = await carrito(destino)
           .click({ timeout: 5000 })
           .then(() => true)
-          .catch(async (error: unknown) => {
-            if (await resuelta.isVisible()) return false;
-            throw error;
-          });
+          // Si el clic no termina a tiempo y la etapa no está resuelta, puede que el libro sí
+          // se haya movido y sea Playwright el que no recibió la confirmación (pasó en
+          // escritorio con el equipo ocupado): la cuenta de abajo dice si se movió.
+          .catch(async () => !(await resuelta.isVisible()));
         if (!movio) return;
         tiene[destino] = (tiene[destino] ?? 0) + 1;
         if (origen.carrito !== null) tiene[origen.carrito] = (tiene[origen.carrito] ?? 0) - 1;
