@@ -24,8 +24,12 @@ export function nombreJugador(j: Pick<JugadorCoop, 'alias' | 'yo'>): string {
  * Sala de espera (T81): el código para dictarlo, quiénes están, «listo» e «Iniciar». Solo el
  * anfitrión inicia, y solo cuando todos los demás están listos.
  */
-export default function SalaDeEspera() {
+export default function SalaDeEspera({ alSalir }: { alSalir: () => void }) {
   const c = coop.value;
+  const salir = (): void => {
+    enviar({ t: 'salir' });
+    alSalir();
+  };
   const tituloRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => tituloRef.current?.focus(), [c.estado]);
 
@@ -37,11 +41,7 @@ export default function SalaDeEspera() {
         </h2>
         <p role="alert">{c.error ? TEXTO_ERROR[c.error] : TEXTO_ERROR.conexion}</p>
         <div class="menu-acciones">
-          <button
-            type="button"
-            class="boton boton-principal"
-            onClick={() => enviar({ t: 'salir' })}
-          >
+          <button type="button" class="boton boton-principal" onClick={salir}>
             Volver al menú
           </button>
         </div>
@@ -57,11 +57,7 @@ export default function SalaDeEspera() {
         </h2>
         {c.codigo && <p>Partida {c.codigo}</p>}
         <div class="menu-acciones">
-          <button
-            type="button"
-            class="boton boton-secundario"
-            onClick={() => enviar({ t: 'salir' })}
-          >
+          <button type="button" class="boton boton-secundario" onClick={salir}>
             Cancelar
           </button>
         </div>
@@ -131,7 +127,7 @@ export default function SalaDeEspera() {
             {yo?.listo ? 'Ya no estoy listo' : 'Estoy listo'}
           </button>
         )}
-        <button type="button" class="boton boton-secundario" onClick={() => enviar({ t: 'salir' })}>
+        <button type="button" class="boton boton-secundario" onClick={salir}>
           Salir
         </button>
       </div>

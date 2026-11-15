@@ -42,7 +42,8 @@ export default function MenuInicio() {
             despierta La Voz: supera cinco salas y recupera la salida. Tienes 40 minutos.
           </p>
           {coop.value.estado !== 'inactivo' ? (
-            <SalaDeEspera />
+            // Al salir de la sala de espera (o de un error) se vuelve al menú principal.
+            <SalaDeEspera alSalir={() => setVista('principal')} />
           ) : vista !== 'principal' ? (
             <FormularioCoop
               modo={vista}
