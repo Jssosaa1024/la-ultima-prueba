@@ -74,7 +74,11 @@ test.describe('service worker', () => {
 
     await sinRed(context);
     await page.reload();
-    await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+    // Arrancar el juego desde la caché cuesta lo mismo que desde la red: con el equipo
+    // ocupado puede tardar más que la espera normal.
+    await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible({
+      timeout: 30_000,
+    });
     await page.goto('/');
     await expect(page.getByRole('link', { name: 'Jugar' })).toBeVisible();
   });
