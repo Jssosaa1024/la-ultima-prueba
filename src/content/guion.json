@@ -1,0 +1,190 @@
+[
+  {
+    "id": "voz-intro-1",
+    "sala": "porteria",
+    "momento": "puerta_cerrada",
+    "texto": "Buenas noches. Llegas tarde, como siempre a lo importante.",
+    "duracion_s": 4,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-intro-2",
+    "sala": "porteria",
+    "momento": "primer_paso",
+    "texto": "Cinco salas, cinco sellos. Con ellos se abre esta puerta.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-intro-3",
+    "sala": "porteria",
+    "momento": "mira_reloj",
+    "texto": "A las 00:40 algo se borra. Tú decides si te importa.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s1-entrar",
+    "sala": "s1-cooperativa",
+    "momento": "entrar_sala",
+    "texto": "La cooperativa. Aquí aprendieron a pagar de más varias generaciones.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s1-sello",
+    "sala": "s1-cooperativa",
+    "momento": "sello",
+    "texto": "Cuentas claras. El descuento no se le aplica a la paciencia.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s2-entrar",
+    "sala": "s2-laboratorio",
+    "momento": "entrar_sala",
+    "texto": "Aquí todo cambia a ritmo constante. Casi como yo esperando respuestas.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s2-sello",
+    "sala": "s2-laboratorio",
+    "momento": "sello",
+    "texto": "Una línea recta. Lo más honesto que hay en un laboratorio.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s3-entrar",
+    "sala": "s3-gimnasio",
+    "momento": "entrar_sala",
+    "texto": "El gimnasio. Lo que está alto no siempre es inalcanzable.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s3-sello",
+    "sala": "s3-gimnasio",
+    "momento": "sello",
+    "texto": "Un ángulo y una distancia. Con eso se mide lo que no se alcanza.",
+    "duracion_s": 5.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s4-entrar",
+    "sala": "s4-biblioteca",
+    "momento": "entrar_sala",
+    "texto": "Silencio, por favor. Y orden, sobre todo orden.",
+    "duracion_s": 3.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s4-sello",
+    "sala": "s4-biblioteca",
+    "momento": "sello",
+    "texto": "Cuatro números y una sola semana posible. Eso es deducir.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s5-entrar",
+    "sala": "s5-rectoria",
+    "momento": "entrar_sala",
+    "texto": "La última. Aquí nada vuelve a donde estaba.",
+    "duracion_s": 3.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-s5-sello",
+    "sala": "s5-rectoria",
+    "momento": "sello",
+    "texto": "Ya no me necesitas. Eso era lo que quería oír.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-espera",
+    "sala": "cualquiera",
+    "momento": "espera",
+    "texto": "El cuaderno también sirve para pensar, no solo para copiar.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-fallo",
+    "sala": "cualquiera",
+    "momento": "fallo",
+    "texto": "Equivocarse aquí es gratis. Y enseña más que acertar de suerte.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-final",
+    "sala": "porteria",
+    "momento": "cinco_sellos",
+    "texto": "Salir o salvar el archivo. No hay respuesta incorrecta esta vez.",
+    "duracion_s": 4.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "grab-1",
+    "sala": "s2-laboratorio",
+    "momento": "grabacion",
+    "texto": "Grabación uno. Treinta y cuatro años diciendo “revisa tus cuentas”. Esta vez quiero decir otra cosa.",
+    "duracion_s": 6.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "grab-2",
+    "sala": "s3-gimnasio",
+    "momento": "grabacion",
+    "texto": "Grabación dos. Una nota mide una mañana, no a una persona. Eso no sale en ningún boletín.",
+    "duracion_s": 7,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "grab-3",
+    "sala": "s4-biblioteca",
+    "momento": "grabacion",
+    "texto": "Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.",
+    "duracion_s": 7.5,
+    "origen": "salas-y-puzzles"
+  },
+  {
+    "id": "voz-fin-legado",
+    "sala": "porteria",
+    "momento": "final",
+    "final": "el_legado",
+    "texto": "Me llamo Tobías Rincón. Treinta y cuatro años, y la última clase la diste tú.",
+    "duracion_s": 6,
+    "origen": "propuesta"
+  },
+  {
+    "id": "voz-fin-justo",
+    "sala": "porteria",
+    "momento": "final",
+    "final": "justo_a_tiempo",
+    "texto": "Ahí está tu memoria. El archivo se va; lo que pensaste aquí se queda.",
+    "duracion_s": 5.5,
+    "origen": "propuesta"
+  },
+  {
+    "id": "voz-fin-ayuda",
+    "sala": "porteria",
+    "momento": "final",
+    "final": "pedir_ayuda",
+    "texto": "Pedir ayuda a tiempo también es pensar. Don Efraín tiene la llave.",
+    "duracion_s": 5,
+    "origen": "propuesta"
+  },
+  {
+    "id": "voz-fin-tiempo",
+    "sala": "porteria",
+    "momento": "final",
+    "final": "tiempo_cumplido",
+    "texto": "Las 00:40. Se acabó el reloj, no las ganas de entender.",
+    "duracion_s": 4.5,
+    "origen": "propuesta"
+  }
+]

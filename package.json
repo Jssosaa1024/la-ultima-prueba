@@ -21,7 +21,8 @@
     "build-manifest": "node scripts/build-manifest.ts",
     "check-budget": "node scripts/check-budget.ts",
     "hash-answers": "node scripts/hash-answers.ts",
-    "modelo-prueba": "node scripts/modelo-prueba.ts"
+    "modelo-prueba": "node scripts/modelo-prueba.ts",
+    "exportar-guion": "node scripts/exportar-guion.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.2",
