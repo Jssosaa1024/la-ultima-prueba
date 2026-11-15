@@ -1,141 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { PUZZLES } from '../../src/content/puzzles';
-import type { Evento, Foto, Intencion } from '../../src/game/coop/mensajes';
-import { fotoEn } from '../../src/game/coop/sesion';
-import type { Rol } from '../../src/game/reparto';
 import { ClienteCoop } from '../../src/net/cliente';
-import { RedEnMemoria, type ClienteMemoria } from '../../src/net/memoria';
-import { VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
+import type { ClienteMemoria } from '../../src/net/memoria';
+import {
+  copiasIguales,
+  empezarYEntrar,
+  etapa,
+  identidad,
+  mesa,
+  proponerYConfirmar,
+  S1,
+} from './coop-mesa';
 
 /**
  * Anfitrión autoritativo (T84, T85, T87, pedir_pista) con clientes simulados sobre la red en
  * memoria, con retraso. Los jugadores juegan la sala 1 completa.
  */
-
-function puzzleSala1() {
-  const p = PUZZLES[0];
-  if (!p) throw new Error('falta el puzzle de la sala 1');
-  return p;
-}
-const S1 = puzzleSala1();
-
-const identidad = (jugador: string, unido_en: number, version = VERSION_CONTENIDO): Identidad => ({
-  jugador,
-  alias: 'zorro',
-  color: 'ambar',
-  unido_en,
-  version_contenido: version,
-});
-
-interface Mesa {
-  red: RedEnMemoria;
-  clientes: ClienteCoop[];
-  eventos: Evento[];
-  host: ClienteCoop;
-  /** Envía y entrega todo lo que eso provoque. */
-  hacer(c: ClienteCoop, i: Intencion): Promise<void>;
-  /** Cliente que tiene ese encargo en la sala actual. */
-  con(rol: Rol): ClienteCoop;
-  /** Todos votan lo mismo. */
-  votarTodos(i: Intencion): Promise<void>;
-  avanzar(ms: number): void;
-}
-
-async function mesa(n: number, retrasoMs = 40): Promise<Mesa> {
-  const red = new RedEnMemoria({ retrasoMs });
-  const clientes = Array.from(
-    { length: n },
-    (_, i) =>
-      new ClienteCoop(red.cliente(), identidad(`j_jugador${i + 1}`, 1000 + i), () => red.ahora),
-  );
-  const [host, ...otros] = clientes;
-  if (!host) throw new Error('sin anfitrión');
-  const eventos: Evento[] = [];
-  host.alCambiar((e) => eventos.push(e));
-  await host.crear('K7MP');
-  red.vaciar();
-  for (const c of otros) {
-    await c.unirse('K7MP');
-    red.vaciar();
-  }
-  const m: Mesa = {
-    red,
-    clientes,
-    eventos,
-    host,
-    async hacer(c, i) {
-      expect(await c.enviar(i)).toBe(true);
-      red.vaciar();
-    },
-    con(rol) {
-      const roles = host.roles;
-      const c = clientes.find((x) => roles?.[rol] === x.yo);
-      if (!c) throw new Error(`nadie tiene ${rol}`);
-      return c;
-    },
-    async votarTodos(i) {
-      for (const c of clientes) await c.enviar(i);
-      red.vaciar();
-    },
-    avanzar(ms) {
-      for (let t = 0; t < ms; t += 1000) {
-        red.avanzar(Math.min(1000, ms - t));
-        host.anfitrion?.tick();
-        red.vaciar();
-      }
-    },
-  };
-  return m;
-}
-
-/** Lo que todas las copias deben tener igual al anfitrión (sin los campos de tiempo). */
-function sinTiempo(f: Foto | null) {
-  if (!f) return null;
-  return {
-    ...f,
-    reloj: { pausado: f.reloj.pausado },
-    pistas: f.pistas.map((p) => ({
-      ofrecidas: p.ofrecidas,
-      vistas: p.vistas,
-      intentos: p.intentos,
-    })),
-    ausentes: f.ausentes.map((a) => a.jugador),
-  };
-}
-
-function copiasIguales(m: Mesa) {
-  const s = m.host.anfitrion?.sesion;
-  if (!s) throw new Error('sin sesión');
-  const esperada = sinTiempo(fotoEn(s, m.red.ahora));
-  for (const c of m.clientes) expect(sinTiempo(c.foto), c.yo).toEqual(esperada);
-}
-
-const etapa = (k: number) => {
-  const e = S1.etapas[k];
-  if (!e) throw new Error('etapa');
-  return e;
-};
-
-async function empezarYEntrar(m: Mesa) {
-  for (const c of m.clientes) await m.hacer(c, { t: 'listo', p: { listo: true } });
-  expect(m.clientes.every((c) => c.foto?.fase === 'jugando')).toBe(true);
-  // Alguien recoge la linterna en la portería antes de entrar.
-  await m.hacer(m.host, { t: 'recoger', p: { objeto: 'porteria-linterna' } });
-  await m.votarTodos({ t: 'votar', p: { asunto: 'sala', opcion: 's1-cooperativa', acepta: true } });
-  expect(m.clientes.every((c) => c.foto?.lugar === 's1-cooperativa')).toBe(true);
-  expect(m.clientes.every((c) => c.roles?.sala === 1)).toBe(true);
-}
-
-async function proponerYConfirmar(m: Mesa, k: number, estado: unknown) {
-  const d = m.con('D');
-  await m.hacer(d, { t: 'proponer', p: { puzzle: S1.id, etapa: k, estado } });
-  const id = m.host.foto?.propuesta?.id;
-  for (const c of m.clientes) {
-    if (c !== d && id !== undefined)
-      await c.enviar({ t: 'confirmar', p: { propuesta: id, acepta: true } });
-  }
-  m.red.vaciar();
-}
 
 describe.each([2, 3, 4])('sala 1 completa con %i jugadores', (n) => {
   it('listo, inicio, objetos, datos, propuestas, pistas y sello; todas las copias iguales', async () => {
@@ -360,7 +239,7 @@ describe('T87 · votos y reloj', () => {
   });
 
   it('al agotarse el reloj, «tiempo_cumplido»', async () => {
-    const m = await mesa(2, 0);
+    const m = await mesa(2, { retrasoMs: 0 });
     for (const c of m.clientes) await m.hacer(c, { t: 'listo', p: { listo: true } });
     m.avanzar(40 * 60 * 1000 + 1000);
     expect(m.clientes.every((c) => c.foto?.final === 'tiempo_cumplido')).toBe(true);
