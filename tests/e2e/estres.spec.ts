@@ -57,11 +57,17 @@ test('eje píxeles: baja el pixel ratio a 0,5 y al detener vuelve al del juego',
   const panel = page.getByRole('region', { name: 'Métricas de rendimiento' });
   const canvas = page.getByLabel('Escena del juego');
   const relacion = () => canvas.evaluate((c: HTMLCanvasElement) => c.width / c.clientWidth);
-  const antes = await relacion();
+  const escala = async () => Number(await canvas.getAttribute('data-escala'));
+  // Pixel ratio del juego sin la escala dinámica (T13): el DPR limitado a 1,25.
+  const base = (await relacion()) / (await escala());
   await panel.getByRole('button', { name: 'Píxeles' }).click();
   await expect.poll(relacion).toBeCloseTo(0.5, 1);
   await panel.getByRole('button', { name: 'Detener prueba' }).click();
-  await expect.poll(relacion).toBeCloseTo(antes, 1);
+  // Vuelve al del juego. Con el equipo lento, la escala dinámica pudo bajar mientras tanto:
+  // se compara con la escala de ese momento, no con el pixel ratio del principio.
+  await expect
+    .poll(async () => Math.abs((await relacion()) - base * (await escala())))
+    .toBeLessThan(0.05);
 });
 
 test('si la pestaña se recargó a mitad de un escalón, el panel lo muestra como recarga por memoria', async ({
