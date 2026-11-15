@@ -323,11 +323,13 @@
       },
       {
         "id": "s2-panel",
+        "nombre": "Tablero de los tanques",
         "forma": "caja",
         "tam": [2, 0.9, 0.3],
         "pos": [-1.3, 0, -1],
         "color": "#4d5656",
-        "solido": true
+        "solido": true,
+        "accion": "usar"
       },
       {
         "id": "s2-perilla-verde",

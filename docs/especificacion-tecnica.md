@@ -785,7 +785,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 7 · Salas 2 a 5
 
 - [ ] **T51** Sala 2: blockout del laboratorio con colisiones — 55 min
-- [ ] **T52** (v1.2) Sala 2: tanques con perillas, graficador, campana y hoja de ayer, en tres etapas — 50 min
+- [x] **T52** (v1.2) Sala 2: tanques con perillas, graficador, campana y hoja de ayer, en tres etapas — 50 min
 - [ ] **T53** Sala 2: props, lote 1 — 55 min
 - [ ] **T54** Sala 2: props, lote 2 — 55 min
 - [ ] **T55** Sala 2: lightmap y exportación — 45 min
