@@ -13,7 +13,13 @@ import { reiniciarPartida, sellos } from '../../src/signals/partida';
 // Hito 1, punto 16: el mural de la portería muestra los sellos ganados y se enciende la luz
 // sobre la puerta que toca abrir.
 
-const S = ['s1-cooperativa', 's2-laboratorio', 's3-gimnasio', 's4-biblioteca', 's5-rectoria'];
+const S = [
+  's1-cooperativa',
+  's2-laboratorio',
+  's3-gimnasio',
+  's4-biblioteca',
+  's5-rectoria',
+] as const;
 
 afterEach(() => reiniciarPartida());
 

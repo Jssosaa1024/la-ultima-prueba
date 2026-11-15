@@ -202,7 +202,7 @@ export function animarPorteria(raiz: Object3D): AnimacionSala {
   const { piezas, luces, mostradas } = armar(raiz, mural);
 
   /** De 0 (apagada) a 1 (encendida), para cada pieza. */
-  const encendido = ORDEN_SALAS.map((sala) => (mostradas.has(sala) ? 1 : 0));
+  const encendido: number[] = ORDEN_SALAS.map((sala) => (mostradas.has(sala) ? 1 : 0));
   let conSello: readonly string[] = [];
   let estadosLuz = lucesDePuertas([]);
   let tiempo = 0;
