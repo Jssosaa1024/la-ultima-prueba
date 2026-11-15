@@ -16,7 +16,18 @@ import { esEstadoUrna, evaluarUrna } from './urna.ts';
 export type { Condiciones, Evaluacion } from './tipos.ts';
 export { precioImpreso } from './etiquetadora.ts';
 export { duracionCorridaS, nivelEn } from './tanques.ts';
-export { RAZON_SOMBRA, sombra } from './reflector.ts';
+export {
+  RAZON_SOMBRA,
+  conDistancia,
+  conMuesca,
+  conPolea,
+  lecturaPolea,
+  lecturaPostes,
+  sombra,
+  sombraMarcador,
+  type Alcance,
+  type LecturaPoste,
+} from './reflector.ts';
 export { estadisticas, librosEnPila, type Estadisticas } from './carritos.ts';
 export { parejas, probabilidadMismoColor } from './urna.ts';
 export {

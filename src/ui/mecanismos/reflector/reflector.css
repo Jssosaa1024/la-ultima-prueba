@@ -1,0 +1,82 @@
+/* Sala 3 · El reflector (T58): vista de lado con postes, sombras y sensores. */
+
+.reflector-escena {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 4px 0 0;
+  border-radius: 8px;
+  background: #10151b;
+}
+
+.reflector-regla line {
+  stroke: #8a96a3;
+  stroke-width: 1;
+}
+
+.reflector-regla text,
+.reflector-rotulo {
+  fill: #b8c2cc;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.reflector-poste {
+  stroke: #f2f2f2;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.reflector-pared {
+  stroke: #6b7785;
+  stroke-width: 5;
+  stroke-dasharray: 10 5;
+}
+
+/* La sombra: una franja oscura con borde claro, para que se vea sobre el fondo oscuro. */
+.reflector-sombra {
+  stroke: #e8a33d;
+  stroke-width: 6;
+  stroke-linecap: butt;
+  opacity: 0.85;
+}
+
+.reflector-rayo {
+  stroke: #f7dc6f;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  opacity: 0.7;
+}
+
+/* El sensor no depende solo del color: apagado es un aro; cuando suena, un disco lleno. */
+.reflector-sensor {
+  fill: #10151b;
+  stroke: #8fd3a8;
+  stroke-width: 2.5;
+}
+
+.reflector-sensor-suena {
+  fill: #8fd3a8;
+  stroke: #ffffff;
+}
+
+.reflector-lecturas {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.reflector-lecturas li + li {
+  margin-top: 4px;
+}
+
+/* Las cinco muescas en una sola fila: cada botón toma un quinto del ancho (48 px o más). */
+.reflector-muescas .opciones {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.reflector-muescas .opcion {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+}
