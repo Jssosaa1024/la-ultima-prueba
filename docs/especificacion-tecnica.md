@@ -852,7 +852,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T96** Pruebas en Safari de iOS: memoria, audio y gestos — 50 min
 - [ ] **T97** Perfilar en el celular de referencia y corregir el mayor cuello de botella — 55 min
 - [ ] **T98** Analítica sin cookies ni datos personales — 30 min
-- [ ] **T99** Página de guía para docentes — 45 min
+- [x] **T99** Página de guía para docentes — 45 min. `/docentes`: qué es, para quién, cuánto dura, qué matemática trabaja cada sala (concepto, proceso y grado salen de los puzzles), cómo usarlo en clase y qué datos guarda
 - [ ] **T100** Piloto con un grupo de grado 10 (y algunos de grado 9) — 55 min
 - [ ] **T101** Convertir los hallazgos del piloto en tareas de menos de una hora — 40 min
 - [ ] **T102** Publicación: dominio, versión de contenido y etiqueta en git — 30 min
