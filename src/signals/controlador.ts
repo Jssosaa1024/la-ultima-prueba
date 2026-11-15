@@ -71,6 +71,7 @@ import {
   maquinaResuelta,
   mecanismo,
   pistas,
+  pistasVistas,
   reiniciarMecanismo,
   resultado,
 } from './mecanismo';
@@ -397,6 +398,15 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         ofrecidas: yaResuelta ? (vistas?.vistas ?? 0) : (vistas?.ofrecidas ?? 0),
         vistas: vistas?.vistas ?? 0,
       });
+      asignar(
+        pistasVistas,
+        Object.fromEntries(
+          SALAS.flatMap((s) => {
+            const n = pistasPorSala[s]?.vistas ?? 0;
+            return n > 0 ? [[s, n]] : [];
+          }),
+        ),
+      );
 
       if (p.fase === 'final') {
         cerrarPanel();
@@ -556,6 +566,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   }
 
   function salir(): void {
+    // En cooperativo este controlador no tiene partida: no hay nada suyo que borrar, y la
+    // partida individual guardada sigue ahí.
+    const habia = partida !== null;
     clearTimeout(temporizador);
     temporizador = undefined;
     partida = null;
@@ -563,8 +576,10 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     marca = null;
     motivos.delete('orden');
     // Salir es abandonar la partida («Se pierde lo que llevas»): también se borra lo guardado.
-    if (almacen) borrarGuardado(almacen);
-    guardada.value = null;
+    if (almacen && habia) {
+      borrarGuardado(almacen);
+      guardada.value = null;
+    }
     batch(() => {
       fichas.value = {};
       reiniciarInterfaz();
