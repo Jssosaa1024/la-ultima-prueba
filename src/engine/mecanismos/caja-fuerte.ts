@@ -15,6 +15,7 @@ import type { Object3D } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { panel } from '../../signals/interfaz';
 import { sellos } from '../../signals/partida';
+import { sonar } from '../audio/eventos';
 import { sinRayo } from './comunes';
 import { suave } from './curvas';
 import type { AnimacionSala } from './tipos';
@@ -113,6 +114,8 @@ export function animarCajaFuerte(raiz: Object3D): AnimacionSala {
     actualizar(dt) {
       // Se abre cuando el jugador puede verla: sin panel encima.
       if (!conSello || apertura >= 1 || panel.peek() !== null) return;
+      // El cerrojo y la bisagra suenan al empezar a abrirse (T43).
+      if (apertura === 0) sonar('caja-fuerte');
       apertura = Math.min(1, apertura + dt / DURACION_APERTURA_S);
       colocar();
     },
