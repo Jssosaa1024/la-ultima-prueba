@@ -35,7 +35,7 @@ Las soluciones de cada etapa están en `docs/salas-y-puzzles.md` y en `src/conte
 
 ## Versión individual: 1 jugador
 
-Comienzas en la portería. La linterna está en el escritorio del celador y el cuaderno en una silla: recogerlos enseña el botón «Usar» y la vista de inspección antes de la sala 1. Las salas se abren en orden y cada mecanismo conserva sus ajustes al salir y volver. El cuaderno guarda los datos encontrados, tus notas y los conceptos que vas descubriendo. Consultarlo pausa el reloj. Puedes volver a salas resueltas para buscar grabaciones antes de elegir el final.
+Comienzas en la portería. La linterna está en el escritorio del celador y el cuaderno en una silla: recogerlos enseña el botón «Usar» y la vista de inspección antes de la sala 1. Las salas se abren en orden y cada mecanismo conserva sus ajustes al salir y volver. El cuaderno guarda los datos encontrados, tus notas y los conceptos que vas descubriendo. En el cooperativo, los datos y las pistas se comparten con el grupo; las notas son solo tuyas y no viajan por la red. Consultarlo pausa el reloj. Puedes volver a salas resueltas para buscar grabaciones antes de elegir el final.
 
 ## Versión cooperativa: 2 a 4 jugadores
 
