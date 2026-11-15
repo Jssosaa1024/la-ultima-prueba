@@ -860,7 +860,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T88** Secuencia, foto periódica y resincronización — 50 min
 - [x] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
 - [x] **T90** Migración de anfitrión — 55 min
-- [ ] **T91** Señalar y frases rápidas — 40 min
+- [x] **T91** Señalar y frases rápidas — 40 min. Botón «Frases» en la barra del grupo: «Señalar» el objeto enfocado y seis frases de la lista (`FRASES`); viaja `senal` con el id de la frase y el centro del objeto en cm, una por segundo como máximo. Los demás ven «Búho: ¡Aquí!» unos segundos (también por lector de pantalla). Las señales quedan en el signal `senales` para que el motor dibuje el punto (sesión A); sin objeto enfocado se usa `miPosicion`, que debe escribir el motor, y mientras no lo haga la señal va sin punto (0, 0, 0). E2e `coop-sala1.spec.ts`: dos pestañas juegan la sala 1 completa
 - [ ] **T92** Prueba de carga con partidas simuladas para medir eventos por segundo — 50 min
 - [ ] **T93** Prueba con cuatro celulares reales en datos móviles — 45 min
 

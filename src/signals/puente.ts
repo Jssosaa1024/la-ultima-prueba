@@ -1,5 +1,5 @@
 import type { AccionObjeto } from './interfaz';
-import type { Asunto, OpcionVoto } from '../game/coop/mensajes';
+import type { Asunto, FRASES, OpcionVoto } from '../game/coop/mensajes';
 import type { OpcionFinal } from '../game/partida';
 import type { Alias, Color } from '../net/protocolo';
 import type { Modo } from './partida';
@@ -37,6 +37,11 @@ export type Comando =
   | { t: 'confirmar'; acepta: boolean }
   /** Cooperativo (T87): votar (o retirar el voto) por pausar, reanudar, ir a otra sala, el final o la ayuda. */
   | { t: 'votar'; asunto: Asunto; opcion: OpcionVoto | null; acepta: boolean }
+  /**
+   * Cooperativo (T91): señalar el objeto enfocado (o donde está el jugador) con una frase
+   * rápida de la lista, o sin frase. Máximo una por segundo.
+   */
+  | { t: 'senal'; frase: (typeof FRASES)[number] | null }
   /** Botón contextual sobre el objeto enfocado. */
   | { t: 'accion'; objeto: string; accion: AccionObjeto }
   /** Pausar el reloj (el cuaderno lo pausa en modo individual). */

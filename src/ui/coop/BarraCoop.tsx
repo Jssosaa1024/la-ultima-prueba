@@ -2,16 +2,26 @@ import { useEffect, useState } from 'preact/hooks';
 import {
   coop,
   esperaD,
+  FRASES_RAPIDAS,
+  senales,
   misRoles,
   propuestaCoop,
   votosCoop,
   type EsperaD,
   type VotoCoop,
 } from '../../signals/coop';
-import { abrirCuaderno, abrirPanel, panel } from '../../signals/interfaz';
+import { abrirCuaderno, abrirPanel, enfocado, panel } from '../../signals/interfaz';
 import { reloj } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
-import { aliasDe, textoCuenta, textoEncargos, textoEsperaD, textoVoto } from './textos';
+import {
+  aliasDe,
+  TEXTO_FRASE,
+  textoCuenta,
+  textoEncargos,
+  textoEsperaD,
+  textoSenal,
+  textoVoto,
+} from './textos';
 import '../botones.css';
 import './coop.css';
 
@@ -42,6 +52,8 @@ export default function BarraCoop() {
   const pausado = reloj.value.pausado;
   const roles = misRoles.value;
   const hayVoto = (asunto: VotoCoop['asunto']) => votos.some((v) => v.asunto === asunto);
+  const [conFrases, setConFrases] = useState(false);
+  const objeto = enfocado.value;
 
   return (
     <section class="coop-barra" aria-label="Grupo">
@@ -52,6 +64,14 @@ export default function BarraCoop() {
             {textoEncargos(roles)}
           </button>
         )}
+        <button
+          type="button"
+          class="hud-boton-redondo"
+          aria-expanded={conFrases}
+          onClick={() => setConFrases(!conFrases)}
+        >
+          Frases
+        </button>
         {!pausado && !hayVoto('pausa') && (
           <button
             type="button"
@@ -62,6 +82,30 @@ export default function BarraCoop() {
           </button>
         )}
       </div>
+      {conFrases && (
+        <div class="coop-frases" role="group" aria-label="Frases rápidas">
+          {/* T91: señala el objeto que tienes enfocado; el motor lo marca para los demás. */}
+          <button
+            type="button"
+            class="hud-boton-redondo"
+            disabled={!objeto}
+            onClick={() => enviar({ t: 'senal', frase: null })}
+          >
+            {objeto ? `Señalar: ${objeto.nombre}` : 'Señalar (enfoca un objeto)'}
+          </button>
+          {FRASES_RAPIDAS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              class="hud-boton-redondo"
+              onClick={() => enviar({ t: 'senal', frase: f })}
+            >
+              {TEXTO_FRASE[f]}
+            </button>
+          ))}
+        </div>
+      )}
+      <SenalesRecientes />
       {espera && (
         <p class="coop-aviso" role="status">
           {textoEsperaD(aliasDe(jugadores, espera.jugador), restante)}
@@ -123,5 +167,31 @@ export default function BarraCoop() {
         );
       })}
     </section>
+  );
+}
+
+/** Cuánto se ve una señal o frase de otro jugador. */
+const DURACION_SENAL_MS = 6000;
+
+/** Las señales y frases de los últimos segundos (T91). El lector de pantalla las anuncia. */
+function SenalesRecientes() {
+  const [, setTic] = useState(0);
+  const lista = senales.value;
+  const jugadores = coop.value.jugadores;
+  const ahora = performance.now();
+  const vivas = lista.filter((s) => ahora - s.en < DURACION_SENAL_MS).slice(-3);
+  useEffect(() => {
+    if (vivas.length === 0) return;
+    const id = window.setTimeout(() => setTic((n) => n + 1), 1000);
+    return () => window.clearTimeout(id);
+  });
+  return (
+    <div class="coop-senales" aria-live="polite">
+      {vivas.map((s) => (
+        <p key={s.n} class="coop-senal">
+          {textoSenal(aliasDe(jugadores, s.jugador), s.frase)}
+        </p>
+      ))}
+    </div>
   );
 }

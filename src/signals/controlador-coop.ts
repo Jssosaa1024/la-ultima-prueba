@@ -4,6 +4,7 @@ import {
   ClienteCoop,
   crearCodigo,
   crearTransporte,
+  directo,
   elegirRed,
   entornoDelBuild,
   jugadorDelNavegador,
@@ -132,7 +133,11 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
           fichas.value = {};
           modo.value = 'cooperativo';
           fase.value = 'jugando';
-          juego = new JuegoCoop(c.yo, (i) => void c.enviar(i));
+          juego = new JuegoCoop(
+            c.yo,
+            (i) => void c.enviar(i),
+            (d) => void c.t.enviar('dir', directo(c.yo, d)),
+          );
           juego.empezar();
         }
         juego?.publicar(foto, e);
@@ -169,6 +174,10 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
       cliente = c;
       quitar.push(
         c.alCambiar((e) => publicar(e)),
+        // Señales y frases rápidas de los demás (T91). Las propias ya se anotaron al enviarlas.
+        t.escuchar('dir', (m) => {
+          if (m.t === 'senal' && m.de !== c.yo) juego?.alSenal(m.de, m.p);
+        }),
         t.presencia(() => queueMicrotask(() => publicar())),
       );
       if (crear) await c.crear(codigo);

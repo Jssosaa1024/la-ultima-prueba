@@ -1,5 +1,5 @@
 import { batch, signal } from '@preact/signals';
-import type { Asunto, Foto, OpcionVoto } from '../game/coop/mensajes';
+import { FRASES, type Asunto, type Foto, type OpcionVoto } from '../game/coop/mensajes';
 import type { Reparto, Rol } from '../game/reparto';
 import { elegirRed, entornoDelBuild } from '../net';
 import type { Alias, Color, Identidad } from '../net/protocolo';
@@ -89,6 +89,38 @@ export interface EsperaD {
   desde: number;
 }
 
+/** Frases rápidas (T91): viaja el id; el texto lo pone cada cliente. */
+export const FRASES_RAPIDAS = FRASES;
+export type Frase = (typeof FRASES)[number];
+
+/**
+ * Una señal de un jugador (T91): un punto de la sala (en cm) y, si quiere, una frase. Las
+ * guarda el controlador para que la interfaz muestre la frase y el motor dibuje el punto
+ * (sesión A). `x = y = z = 0` es «sin punto»: solo la frase.
+ */
+export interface SenalCoop {
+  /** Sube con cada señal, para mostrarla aunque sea igual a la anterior. */
+  n: number;
+  jugador: string;
+  /** Número de la sala (0 = portería). */
+  s: number;
+  x: number;
+  y: number;
+  z: number;
+  frase: Frase | null;
+  /** `performance.now()` al llegar. */
+  en: number;
+}
+
+/** Las últimas señales (hasta 8), la más nueva al final. */
+export const senales = signal<readonly SenalCoop[]>([]);
+
+/**
+ * Dónde está este jugador, en metros. Lo escribe el motor (sesión A, con las poses de T82);
+ * mientras no lo haga, una señal sin objeto enfocado va «sin punto».
+ */
+export const miPosicion = signal<{ x: number; y: number; z: number } | null>(null);
+
 /** Quién tiene cada encargo en la sala actual; `null` en la portería. */
 export const reparto = signal<Reparto | null>(null);
 /** Los encargos de este jugador en la sala actual. */
@@ -105,6 +137,7 @@ export function reiniciarCoop(): void {
     propuestaCoop.value = null;
     votosCoop.value = [];
     esperaD.value = null;
+    senales.value = [];
   });
 }
 
