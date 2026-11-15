@@ -76,3 +76,13 @@ export function textoGrabacionesFaltantes(faltan: number, salas: readonly string
   const donde = faltan === 1 ? 'Sigue escondida en' : 'Siguen escondidas en';
   return `${cuantas} para restaurar el archivo. ${donde}: ${enLista(salas)}.`;
 }
+
+/**
+ * Lo que pregunta la puerta antes de «Salir» con grabaciones pendientes (hito 1, punto 2):
+ * al salir, el archivo de La Voz se borra y ya no se puede restaurar.
+ */
+export function textoConfirmarSalida(faltan: number): string {
+  const cuantas =
+    faltan === 1 ? 'Todavía falta 1 grabación' : `Todavía faltan ${faltan} grabaciones`;
+  return `${cuantas}. Si sales ahora, el archivo de La Voz se borra a las 00:40 y ya no podrás restaurarlo.`;
+}

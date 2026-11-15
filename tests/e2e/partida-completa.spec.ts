@@ -100,7 +100,9 @@ test('partida completa desde el menú: cinco máquinas, cinco sellos y «Justo a
   await expect(salida).toContainText('Faltan 3 grabaciones');
   await expect(salida).toContainText('El laboratorio, El gimnasio y La biblioteca');
 
-  await salida.getByRole('button', { name: 'Salir' }).click();
+  await salida.getByRole('button', { name: 'Salir', exact: true }).click();
+  // Faltan las tres grabaciones: la puerta pide confirmar antes de terminar.
+  await salida.getByRole('button', { name: 'Salir de todos modos' }).click();
   const titulo = page.getByRole('heading', { level: 1, name: 'Justo a tiempo' });
   await expect(titulo).toBeFocused();
   await expect(page.getByRole('timer')).toHaveCount(0);
