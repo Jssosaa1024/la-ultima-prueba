@@ -1,6 +1,7 @@
 import type { Object3D } from 'three';
 import type { Lugar } from '../../content/esquema-salas';
 import { animarBalones } from './balones';
+import { animarCarritos } from './carritos';
 import { animarEtiquetadora } from './etiquetadora';
 import { animarFlechas } from './flechas';
 import { animarReflector } from './reflector';
@@ -40,6 +41,7 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   's2-laboratorio': (raiz) => conDetalle(animarTanques(raiz), animarFlechas(raiz)),
   // El reflector y los balones del carro, que rebotan al tocarlos (T75).
   's3-gimnasio': (raiz) => conDetalle(animarReflector(raiz), animarBalones(raiz)),
+  's4-biblioteca': animarCarritos,
   's5-rectoria': (raiz) => animarUrna(raiz),
 };
 

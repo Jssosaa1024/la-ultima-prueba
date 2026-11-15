@@ -551,6 +551,18 @@ Los cálculos están en `src/game/puzzles/reflector.ts` (`lecturaPostes`, `sombr
 
 **Animación 3D.** Usa el enganche de T45 (`src/engine/mecanismos/`): cada sala registra su animación en `index.ts` y el motor la crea al entrar, la llama una vez por cuadro y la libera al salir. La del gimnasio (`reflector.ts`) lee los signals de `src/signals/mecanismo.ts`, crea sus mallas una sola vez colgadas de la sala y no reserva memoria por cuadro. Inclina el reflector, muestra solo los postes de la etapa, desliza el poste móvil, estira la sombra de cada poste, enciende un disco por sensor y sube el gancho de la polea. Agrega 8 mallas (la sala queda muy por debajo de las 40), que no reciben toques (`sinRayo`, en `comunes.ts`). Es un blockout: una sombra que no cabe en la cancha se corta en la pared.
 
+### Sala 4: el panel de los carritos y su animación (T64)
+
+**Panel 2D** (`src/ui/mecanismos/carritos/`), dentro del marco de T37:
+
+- **Mover libros, pensado para el pulgar.** La pila y los cinco carritos son botones grandes (cada carrito mide al menos 48 px de ancho en un celular de 320 px). Un libro se mueve con dos toques: primero de dónde sale y después a dónde va. El origen se queda elegido, así que repartir es un toque por libro. Al llegar ya está elegida la pila, si tiene libros. Tocar el origen otra vez lo suelta.
+- **Un movimiento, un solo cambio.** Pasar un libro de un carrito a otro es una sola orden `ajustar` (`moverLibro` en `src/game/puzzles/carritos.ts`): el libro no pasa por la pila, y por eso la lámpara de la media no se apaga a medio camino. Es justo lo que la primera etapa quiere que se note.
+- **Lámparas en vivo y siempre a la vista.** Las cuatro lámparas quedan pegadas arriba del panel mientras se mueven los libros. Las que no cuentan en la etapa se ven «tapadas». El panel no muestra la media ni la mediana que hay: solo si cada lámpara se enciende. Qué mira cada una se descubre moviendo.
+- «Devolver todo a la pila» deja los 20 libros listos para repartir otra vez.
+- Las tres etapas se resuelven solas tras 5 s quietas con los 20 libros repartidos (lo hace el controlador, T31d). No hay nada que accionar.
+
+**Animación 3D** (`src/engine/mecanismos/carritos.ts`, con el enganche de T45): sobre cada carrito crece un montón de libros tan alto como los que tiene, la pila del mostrador baja a medida que se reparte, y en la pared hay cuatro lámparas: apagada si está tapada, tenue si cuenta y verde si se cumple. Son 9 mallas más. El atributo `data-maquina` del canvas dice cuántas lámparas están en verde (`lamparas-2`), para las e2e.
+
 ## 3) Protocolo del modo cooperativo
 
 Cada partida usa un canal privado de Supabase Realtime (`partida:K7MP`) y un anfitrión autoritativo: quien crea la partida decide reloj, objetos, etapas resueltas y finales; los demás envían intenciones y reciben eventos numerados. Los mensajes llevan identificadores, nunca textos, porque cada cliente ya tiene el contenido.
@@ -798,7 +810,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T61** Sala 3: lightmap y exportación — 45 min
 - [ ] **T62** Sala 3: presupuesto y prueba en celular — 40 min
 - [ ] **T63** Sala 4: blockout de la biblioteca con colisiones — 55 min
-- [ ] **T64** (v1.2) Sala 4: carritos, pila de 20 libros y lámparas en vivo, en tres etapas — 50 min
+- [x] **T64** (v1.2) Sala 4: carritos, pila de 20 libros y lámparas en vivo, en tres etapas — 50 min
 - [ ] **T65** Sala 4: props, lote 1 — 55 min
 - [ ] **T66** Sala 4: props, lote 2 — 55 min
 - [ ] **T67** Sala 4: lightmap y exportación — 45 min

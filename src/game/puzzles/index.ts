@@ -28,7 +28,15 @@ export {
   type Alcance,
   type LecturaPoste,
 } from './reflector.ts';
-export { estadisticas, librosEnPila, type Estadisticas } from './carritos.ts';
+export {
+  estadisticas,
+  librosEn,
+  librosEnPila,
+  moverLibro,
+  vaciarCarritos,
+  type Estadisticas,
+  type LugarLibro,
+} from './carritos.ts';
 export { parejas, probabilidadMismoColor } from './urna.ts';
 export {
   evaluarCarritos,
