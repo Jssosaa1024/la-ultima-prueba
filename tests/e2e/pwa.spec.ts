@@ -79,47 +79,16 @@ test.describe('service worker', () => {
     await expect(page.getByRole('link', { name: 'Jugar' })).toBeVisible();
   });
 
-  test('una versión nueva reemplaza la caché vieja y la partida guardada sigue', async ({
-    page,
-    context,
-  }) => {
+  // Que una versión nueva reemplace a la vieja lo prueban las pruebas de unidad
+  // (`service-worker.test.ts`): Playwright no deja cambiar el sw.js que el navegador revisa.
+  test('con el service worker, la partida guardada sigue al recargar', async ({ page }) => {
     await page.goto('/jugar');
-    const antes = await listo(page);
+    await listo(page);
     await page.getByRole('button', { name: 'Jugar solo' }).click();
     await expect
       .poll(() => page.evaluate(() => localStorage.getItem('la-ultima-prueba:partida') !== null))
       .toBe(true);
-
-    // Un build nuevo: el mismo sw.js con otra versión.
-    await context.route('**/sw.js', async (route) => {
-      const r = await route.fetch();
-      const texto = (await r.text()).replace(/"version":"[0-9a-f]+"/, '"version":"nueva"');
-      await route.fulfill({ response: r, body: texto });
-    });
-    await page.evaluate(async () => {
-      const r = await navigator.serviceWorker.getRegistration();
-      await r?.update();
-    });
-    // La versión nueva espera mientras la pestaña con la partida siga abierta.
-    await expect
-      .poll(() =>
-        page.evaluate(async () => {
-          const r = await navigator.serviceWorker.getRegistration();
-          return r?.waiting?.state ?? null;
-        }),
-      )
-      .toBe('installed');
-    expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining(antes));
-
-    // Al cerrar la pestaña y volver, entra la versión nueva y la vieja se borra.
-    await page.close();
-    const otra = await context.newPage();
-    await otra.goto('/jugar');
-    await expect
-      .poll(() => otra.evaluate(() => caches.keys()))
-      .toEqual(expect.arrayContaining(['nucleo-nueva']));
-    const ahora = await otra.evaluate(() => caches.keys());
-    expect(ahora.filter((n) => n.startsWith('nucleo-'))).toEqual(['nucleo-nueva']);
-    await expect(otra.getByRole('button', { name: 'Continuar partida' })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Continuar partida' })).toBeVisible();
   });
 });

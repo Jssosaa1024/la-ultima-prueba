@@ -60,6 +60,12 @@ function rutaDePagina(ruta) {
   return /\.[a-z0-9]+$/i.test(ruta) ? ruta : ruta + '/';
 }
 
+/**
+ * Lo guardado se busca sin mirar `Vary`: un módulo JS se pide con la cabecera `Origin` y la
+ * copia guardada al instalar no la tiene. El contenido es el mismo.
+ */
+const BUSQUEDA = { ignoreVary: true };
+
 /** Solo se guarda una respuesta completa y del propio sitio. */
 function guardable(respuesta) {
   return respuesta.ok && respuesta.status === 200 && respuesta.type === 'basic';
@@ -81,14 +87,14 @@ async function redPrimero(peticion, nombreCache, clave) {
     if (guardable(respuesta)) await guardar(nombreCache, clave, respuesta.clone());
     return respuesta;
   } catch (error) {
-    const guardada = await caches.match(clave);
+    const guardada = await caches.match(clave, BUSQUEDA);
     if (guardada) return guardada;
     throw error;
   }
 }
 
 async function cachePrimero(peticion, nombreCache) {
-  const guardada = await caches.match(peticion);
+  const guardada = await caches.match(peticion, BUSQUEDA);
   if (guardada) return guardada;
   const respuesta = await fetch(peticion);
   if (guardable(respuesta)) await guardar(nombreCache, peticion, respuesta.clone());
