@@ -35,39 +35,31 @@ async function abrirCarritos(
 const lugar = (panel: Locator, nombre: string): Locator =>
   panel.getByRole('button', { name: new RegExp(`^${nombre}:`) });
 
-test('presentar: con los 20 libros repartidos se enciende MEDIA, y mover un libro entre carritos no la apaga', async ({
+test('presentar: mover un libro entre carritos no apaga MEDIA, y la etapa se resuelve sola', async ({
   page,
 }, info) => {
   const conDedo = info.project.use.hasTouch === true;
   const canvas = page.getByLabel('Escena del juego');
-  // Quedan 2 libros en la pila: faltan por repartir.
-  const panel = await abrirCarritos(page, conDedo, 0, [4, 4, 4, 4, 2]);
+  // Los 20 libros ya están repartidos, disparejos. La máquina solo empieza a contar su reposo
+  // con el primer cambio, así que la prueba no tiene que ganarle al reloj.
+  const panel = await abrirCarritos(page, conDedo, 0, [5, 4, 4, 4, 3]);
 
   await expect(panel).toContainText('Sala 4 · Etapa 1 de 3');
-  await expect(panel).toContainText('MEDIA 4: apagado');
-  await expect(panel).toContainText('MEDIANA 3 · tapada');
-  // Al llegar ya se está sacando de la pila: cada toque en un carrito deja un libro.
-  await expect(panel).toContainText('Estás sacando libros de la pila.');
-  await expect(lugar(panel, 'Pila')).toHaveAccessibleName(/Pila: 2 libros/);
-  await expect(lugar(panel, 'Pila')).toHaveAttribute('aria-pressed', 'true');
-
-  await lugar(panel, 'Carrito del viernes').click();
-  await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(/3 libros/);
-  await lugar(panel, 'Carrito del viernes').click();
-  await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(/4 libros/);
-
-  // Con los 20 repartidos, la lámpara responde en vivo y en la biblioteca se ve una en verde.
+  // La lámpara responde en vivo, y en la biblioteca se ve una en verde.
   await expect(panel).toContainText('MEDIA 4: encendido');
+  await expect(panel).toContainText('MEDIANA 3 · tapada');
+  await expect(canvas).toHaveAttribute('data-maquina', 'lamparas-1');
+  // Sin libros en la pila, primero hay que elegir de qué carrito sale el libro.
   await expect(lugar(panel, 'Pila')).toBeDisabled();
   await expect(panel).toContainText('Toca de dónde quieres sacar un libro');
-  await expect(canvas).toHaveAttribute('data-maquina', 'lamparas-1');
 
   // Pasar un libro del lunes al viernes es un solo movimiento: la media sigue encendida.
   await lugar(panel, 'Carrito del lunes').click();
   await expect(lugar(panel, 'Carrito del lunes')).toHaveAttribute('aria-pressed', 'true');
+  await expect(panel).toContainText('Estás sacando libros del carrito del lunes.');
   await lugar(panel, 'Carrito del viernes').click();
-  await expect(lugar(panel, 'Carrito del lunes')).toHaveAccessibleName(/3 libros/);
-  await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(/5 libros/);
+  await expect(lugar(panel, 'Carrito del lunes')).toHaveAccessibleName(/4 libros/);
+  await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(/4 libros/);
   await expect(panel).toContainText('MEDIA 4: encendido');
 
   // Tras 5 segundos quieta, la máquina acepta el reparto y el panel espera el «Seguir».
@@ -83,11 +75,18 @@ test('presentar: con los 20 libros repartidos se enciende MEDIA, y mover un libr
   await expect(panel).toContainText('MODA 2 · tapada');
   await expect(lugar(panel, 'Carrito del miércoles')).toHaveAccessibleName(/4 libros/);
 
-  // Devolver todo a la pila deja los 20 libros listos para repartir otra vez.
+  // Devolver todo a la pila deja los 20 libros listos, y ya se está sacando de ella: cada
+  // toque en un carrito deja un libro.
   await panel.getByRole('button', { name: 'Devolver todo a la pila' }).click();
   await expect(lugar(panel, 'Pila')).toHaveAccessibleName(/Pila: 20 libros/);
+  await expect(lugar(panel, 'Pila')).toHaveAttribute('aria-pressed', 'true');
   await expect(panel).toContainText('MEDIA 4: apagado');
   await expect(panel).toContainText('Estás sacando libros de la pila.');
+  await lugar(panel, 'Carrito del viernes').click();
+  await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(/1 libro\./);
+  await lugar(panel, 'Carrito del viernes').click();
+  await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(/2 libros/);
+  await expect(lugar(panel, 'Pila')).toHaveAccessibleName(/Pila: 18 libros/);
 });
 
 test('dominar: con las cuatro lámparas encendidas se gana el sello de la sala 4', async ({
