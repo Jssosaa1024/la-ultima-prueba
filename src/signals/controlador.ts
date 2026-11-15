@@ -1,6 +1,7 @@
 import { batch, type Signal } from '@preact/signals';
 import { PUZZLES, puzzleDeSala } from '../content/puzzles';
 import type { Puzzle } from '../content/esquema';
+import { fichasDeLugar } from '../content/fichas';
 import { destinoDePuerta, nombreDeObjeto } from '../content/salas';
 import {
   borrarGuardado,
@@ -20,12 +21,11 @@ import {
 import {
   aplicar,
   crearPartida,
-  ETAPAS_POR_SALA,
   etapaActual,
-  GRABACIONES,
   numeroDeSala,
   opcionesDeFinal,
   salaResuelta,
+  SALAS,
   sellos as sellosDe,
   type Accion,
   type Partida,
@@ -43,6 +43,7 @@ import type { Evaluacion } from '../game/puzzles';
 import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
 import { agotado, crearReloj, pausar, reanudar, restante } from '../game/reloj';
+import { fichas, type Ficha } from './contenido';
 import {
   cuadernoActivo,
   datosEncontrados,
@@ -51,7 +52,6 @@ import {
   notas,
   reiniciarCuaderno,
 } from './cuaderno';
-import { cargarEjemplo, conEjemplo, enfocarSiguiente, quitarEjemplo } from './ejemplo';
 import {
   abrirInspeccion,
   abrirPanel,
@@ -76,7 +76,6 @@ import {
   reloj,
   sala,
   sellos,
-  type FinalId,
   type ObjetoInventario,
 } from './partida';
 import { escuchar, type Comando } from './puente';
@@ -152,14 +151,6 @@ interface EtapaEnCurso {
   etapa: number;
 }
 
-/** Con `?ejemplo=1&final=<id>`: la acción de `game/partida.ts` que lleva a ese final. */
-const ACCION_DE_FINAL: Readonly<Record<FinalId, Accion>> = {
-  justo_a_tiempo: { t: 'elegir_final', opcion: 'salir' },
-  el_legado: { t: 'elegir_final', opcion: 'restaurar' },
-  pedir_ayuda: { t: 'pedir_ayuda' },
-  tiempo_cumplido: { t: 'tiempo_agotado' },
-};
-
 const ahora = (): number => performance.now();
 
 /** Escribe el signal solo si el contenido cambió, para no redibujar sin necesidad. */
@@ -198,6 +189,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   /** En las etapas que responden en vivo: cuánto llevan quietos los ajustes de cada sala. */
   let reposos: Partial<Record<SalaId, Reposo>> = {};
   let contadorResultados = 0;
+  /** Avance con el que se armaron las fichas publicadas. */
+  let fichasDe: Partida['etapas'] | null = null;
   /** Instante desde el que corre tiempo de etapa sin contar todavía en las pistas. */
   let marca: number | null = null;
   let contadorNotas = 0;
@@ -273,12 +266,26 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     reloj.value = detenido ? pausar(reloj.value, t) : reanudar(reloj.value, t);
   }
 
+  /**
+   * Lo que se lee al examinar cada objeto (T35c), de todas las salas a la vez: el cuaderno
+   * muestra los datos encontrados en cualquiera. Algunas fichas cambian con la etapa de su
+   * sala, así que se vuelven a armar solo cuando cambia el avance.
+   */
+  function publicarFichas(p: Partida): void {
+    if (fichasDe === p.etapas) return;
+    fichasDe = p.etapas;
+    const todas: Record<string, Ficha> = { ...fichasDeLugar('porteria') };
+    for (const s of SALAS) Object.assign(todas, fichasDeLugar(s, etapaActual(p, s)));
+    asignar(fichas, todas);
+  }
+
   /** Copia la partida a los signals. */
   function publicar(): void {
     const p = partida;
     if (!p) return;
     batch(() => {
       sala.value = p.lugar;
+      publicarFichas(p);
       asignar(sellos, sellosDe(p));
       asignar(avance, p.etapas);
       asignar(grabaciones, p.grabaciones);
@@ -361,9 +368,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     return aceptada;
   }
 
-  /** Guarda la partida en curso. Con datos de ejemplo no se guarda: no es una partida real. */
+  /** Guarda la partida en curso. */
   function guardarPartida(): void {
-    if (!almacen || !partida || conEjemplo.value) return;
+    if (!almacen || !partida) return;
     guardar(almacen, {
       v: VERSION_GUARDADO,
       partida,
@@ -441,48 +448,18 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     clearTimeout(temporizador);
     temporizador = undefined;
     partida = null;
+    fichasDe = null;
     marca = null;
     motivos.delete('orden');
     // Salir es abandonar la partida («Se pierde lo que llevas»): también se borra lo guardado.
     if (almacen) borrarGuardado(almacen);
     guardada.value = null;
     batch(() => {
-      quitarEjemplo();
+      fichas.value = {};
       reiniciarInterfaz();
       reiniciarPartida();
       reiniciarCuaderno();
       reiniciarMecanismo();
-    });
-  }
-
-  /** `/jugar?ejemplo=1`: sala 1 resuelta y cuaderno en mano; con `final`, salta a ese final. */
-  function cargarDatosDeEjemplo(finalPedido: FinalId | null): void {
-    const base = partida;
-    if (!base || base.fase !== 'jugando') return;
-    // Los datos de ejemplo no son una partida: no dejan nada guardado que continuar.
-    if (almacen) borrarGuardado(almacen);
-    guardada.value = null;
-    cambiar(() => {
-      let p: Partida = { ...base, etapas: { ...base.etapas, 's1-cooperativa': ETAPAS_POR_SALA } };
-      if (finalPedido) {
-        p = {
-          ...crearPartida(),
-          etapas: {
-            's1-cooperativa': ETAPAS_POR_SALA,
-            's2-laboratorio': ETAPAS_POR_SALA,
-            's3-gimnasio': ETAPAS_POR_SALA,
-            's4-biblioteca': ETAPAS_POR_SALA,
-            's5-rectoria': ETAPAS_POR_SALA,
-          },
-          grabaciones: [...GRABACIONES],
-        };
-        p = aplicar(p, ACCION_DE_FINAL[finalPedido]);
-      }
-      partida = p;
-      batch(() => {
-        cuadernoActivo.value = true;
-        cargarEjemplo();
-      });
     });
   }
 
@@ -497,6 +474,14 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         : { id: objeto.id, nombre: objeto.nombre },
     ];
     if (esCuaderno) cuadernoActivo.value = true;
+    // Los papeles que se recogen también se leen: quedan en «Datos encontrados».
+    if (fichas.value[objeto.id]) anotarDato(objeto.id);
+  }
+
+  function anotarDato(objeto: string): void {
+    if (!datosEncontrados.value.includes(objeto)) {
+      datosEncontrados.value = [...datosEncontrados.value, objeto];
+    }
   }
 
   /** Usa un objeto. Devuelve si el objeto debe seguir enfocado después. */
@@ -535,9 +520,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       if (accion === 'examinar') {
         abrirInspeccion(objeto);
         // Lo que se inspecciona queda anotado en «Datos encontrados» del cuaderno.
-        if (!datosEncontrados.value.includes(objeto)) {
-          datosEncontrados.value = [...datosEncontrados.value, objeto];
-        }
+        anotarDato(objeto);
         // El objeto sigue enfocado: al cerrar la ficha, su botón «Examinar» vuelve a estar
         // ahí (y el foco vuelve a él), por si el jugador quiere leerla otra vez.
       } else if (accion === 'recoger') {
@@ -546,7 +529,6 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       } else if (!usar(objeto)) {
         enfocado.value = null;
       }
-      enfocarSiguiente();
     });
   }
 
@@ -627,9 +609,6 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         });
         return;
       }
-      case 'ejemplo':
-        cargarDatosDeEjemplo(comando.final);
-        return;
       case 'nota':
         if (!partida || partida.fase !== 'jugando') return;
         if (comando.op === 'agregar') {

@@ -760,6 +760,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T35** Vista de inspección 2D para objetos con datos — 50 min
 - [x] **T35b** (nueva) Al cerrar un panel, el foco vuelve a un lugar útil: el botón «Examinar» del mismo objeto, el botón «Cuaderno» o el encabezado del HUD, nunca al principio de la página — 30 min
 - [x] **T35c** (nueva) Contenido de las fichas de inspección de todas las salas: `src/content/fichas.json` validado en build, `fichaDeObjeto()` en `src/content/fichas.ts` y un test que falla si un objeto examinable no tiene ficha — 50 min
+- [x] **T35d** (nueva) Conectar las fichas reales: el controlador llena el signal `fichas` con `src/content/fichas.ts` (todas las salas, según la etapa de cada una) y los papeles recogidos quedan en los datos del cuaderno. Se borran `?ejemplo=1` y `src/signals/ejemplo.ts`; las e2e que lo usaban pasan a objetos y finales reales — 60 min
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [x] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
 - [x] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min

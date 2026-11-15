@@ -53,6 +53,12 @@ export interface PartidaDePrueba {
   /** Ids de los objetos recogidos (por ejemplo, `porteria-linterna`). */
   inventario?: readonly string[];
   grabaciones?: readonly string[];
+  /** `'porteria'`: el jugador está en la portería, con el avance que dicen `sala` y `etapas`. */
+  lugar?: 'porteria';
+  /** Ids de los objetos ya examinados (datos encontrados del cuaderno). */
+  datos?: readonly string[];
+  /** Tiempo que le queda al reloj, en ms. Por defecto, 30 minutos. */
+  restanteMs?: number;
 }
 
 /**
@@ -68,16 +74,16 @@ export async function continuarEn(page: Page, p: PartidaDePrueba): Promise<Caja>
     v: VERSION_GUARDADO,
     partida: {
       fase: 'jugando',
-      lugar: p.sala,
+      lugar: p.lugar ?? p.sala,
       etapas,
       final: null,
       grabaciones: p.grabaciones ?? [],
     },
-    restanteMs: 30 * 60 * 1000,
+    restanteMs: p.restanteMs ?? 30 * 60 * 1000,
     pistas: {},
     mecanismos: p.ajustes === undefined ? {} : { [p.sala]: p.ajustes },
     notas: [],
-    datos: [],
+    datos: p.datos ?? [],
     inventario: p.inventario ?? [],
   };
   await page.addInitScript(
@@ -94,7 +100,7 @@ export async function continuarEn(page: Page, p: PartidaDePrueba): Promise<Caja>
   // La espera más larga: descargar el juego y arrancar WebGL por software (T05b).
   await expect(canvas).toHaveAttribute('data-motor', 'pausado', { timeout: 30_000 });
   await page.getByRole('button', { name: 'Continuar partida' }).click();
-  await expect(canvas).toHaveAttribute('data-sala', p.sala);
+  await expect(canvas).toHaveAttribute('data-sala', p.lugar ?? p.sala);
   await expect(canvas).toHaveAttribute('data-mirada', /,/);
   const caja = await canvas.boundingBox();
   if (!caja) throw new Error('sin canvas');

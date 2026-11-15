@@ -1,28 +1,66 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { caminarHasta, continuarEn, type Caja } from './escena';
+import { tocar } from './toque';
 
-// T40: pantallas de final, créditos y poscréditos (con ?ejemplo=1&final=<id>).
+// T40: pantallas de final, créditos y poscréditos, llegando a cada final como en el juego.
+// «También vale pedir ayuda» se prueba con el intercomunicador en `partida.spec.ts`.
 
-const FINALES = [
-  ['justo_a_tiempo', 'Justo a tiempo'],
-  ['el_legado', 'El legado'],
-  ['pedir_ayuda', 'También vale pedir ayuda'],
-  ['tiempo_cumplido', 'Tiempo cumplido'],
-] as const;
+const TRES_GRABACIONES = ['grab-1', 'grab-2', 'grab-3'];
 
-for (const [id, titulo] of FINALES) {
-  test(`final «${titulo}»`, async ({ page }) => {
-    await page.goto(`/jugar?ejemplo=1&final=${id}`);
-    await page.getByRole('button', { name: 'Jugar solo' }).click();
-    const encabezado = page.getByRole('heading', { level: 1, name: titulo });
-    await expect(encabezado).toBeVisible();
-    await expect(encabezado).toBeFocused();
-    await expect(page.getByRole('timer')).toHaveCount(0);
-  });
+/** Camina hasta el fondo de la portería y usa la puerta de salida. */
+async function abrirLaPuertaDeSalida(page: Page, caja: Caja, conDedo: boolean): Promise<void> {
+  // La pared del fondo está en z = −5: el jugador se detiene contra ella en −4,7.
+  await caminarHasta(page, caja, conDedo, (_x, z) => z <= -4.5);
+  const usar = page.getByRole('button', { name: /Usar.*Puerta de salida/ });
+  // El centro de la pantalla apunta a la puerta, a 30 cm. En celular, si un toque no enfoca
+  // (equipo cargado), se repite.
+  const centro = { x: caja.x + caja.width / 2, y: caja.y + caja.height / 2 };
+  for (let intento = 0; intento < 4; intento++) {
+    await tocar(page, centro, conDedo);
+    const aparecio = await usar
+      .waitFor({ timeout: 4000 })
+      .then(() => true)
+      .catch(() => false);
+    if (aparecio || !conDedo) break;
+  }
+  await usar.click();
 }
 
-test('del final se pasa a créditos, poscréditos y de vuelta al menú', async ({ page }) => {
-  await page.goto('/jugar?ejemplo=1&final=el_legado');
-  await page.getByRole('button', { name: 'Jugar solo' }).click();
+test('con los cinco sellos, «Salir» lleva al final «Justo a tiempo»', async ({ page }, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await continuarEn(page, { sala: 's5-rectoria', etapas: 3, lugar: 'porteria' });
+  await expect(page.getByRole('img', { name: 'Sellos: 5 de 5' })).toBeVisible();
+  await abrirLaPuertaDeSalida(page, caja, conDedo);
+
+  const salida = page.getByRole('dialog', { name: 'Puerta de salida' });
+  await expect(salida).toContainText('Los cinco sellos están en el mural');
+  // Sin las grabaciones, «Restaurar archivo» está desactivado y dice cuántas faltan y dónde.
+  await expect(salida.getByRole('button', { name: 'Restaurar archivo' })).toBeDisabled();
+  await expect(salida).toContainText('Faltan 3 grabaciones');
+  await expect(salida).toContainText('El laboratorio, El gimnasio y La biblioteca');
+
+  await salida.getByRole('button', { name: 'Salir' }).click();
+  const encabezado = page.getByRole('heading', { level: 1, name: 'Justo a tiempo' });
+  await expect(encabezado).toBeVisible();
+  await expect(encabezado).toBeFocused();
+  await expect(page.getByRole('timer')).toHaveCount(0);
+});
+
+test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El legado», y de ahí a los créditos', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await continuarEn(page, {
+    sala: 's5-rectoria',
+    etapas: 3,
+    lugar: 'porteria',
+    grabaciones: TRES_GRABACIONES,
+  });
+  await abrirLaPuertaDeSalida(page, caja, conDedo);
+
+  const salida = page.getByRole('dialog', { name: 'Puerta de salida' });
+  await salida.getByRole('button', { name: 'Restaurar archivo' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'El legado' })).toBeFocused();
   await expect(page.getByText('5 de 5')).toBeVisible();
   await expect(page.getByText('3 de 3')).toBeVisible();
 
@@ -36,10 +74,15 @@ test('del final se pasa a créditos, poscréditos y de vuelta al menú', async (
 
   await page.getByRole('button', { name: 'Volver al menú' }).click();
   await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
+  // Un final borra la partida guardada: ya no hay nada que continuar.
+  await expect(page.getByRole('button', { name: 'Continuar partida' })).toHaveCount(0);
 });
 
-test('un final que no existe se ignora', async ({ page }) => {
-  await page.goto('/jugar?ejemplo=1&final=otro');
-  await page.getByRole('button', { name: 'Jugar solo' }).click();
-  await expect(page.getByRole('timer')).toBeVisible();
+test('cuando se acaba el reloj aparece «Tiempo cumplido»', async ({ page }) => {
+  // A la partida guardada le quedan dos segundos.
+  await continuarEn(page, { sala: 's1-cooperativa', restanteMs: 2000 });
+  const encabezado = page.getByRole('heading', { level: 1, name: 'Tiempo cumplido' });
+  await expect(encabezado).toBeVisible();
+  await expect(encabezado).toBeFocused();
+  await expect(page.getByRole('timer')).toHaveCount(0);
 });
