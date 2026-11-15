@@ -15,6 +15,7 @@ import { conectarTactil } from '../input/tactil';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
+import { girarTelefono } from '../signals/pantalla';
 import { fase, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { crearInteraccion } from './interaccion/interaccion';
@@ -231,9 +232,10 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   });
 
   // El motor solo dibuja durante la partida (T20b). Detrás del menú y de las pantallas de
-  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor.
+  // final, que tapan la escena, se detiene del todo: en un celular es batería y calor. Lo
+  // mismo detrás del aviso de girar el teléfono (T41b).
   const dejarDeSeguirFase = effect(() => {
-    const jugando = fase.value === 'jugando';
+    const jugando = fase.value === 'jugando' && !girarTelefono.value;
     if (!jugando) {
       // Lo que hacía el bucle en cada cuadro sin controles: soltar dedos, teclas y ratón.
       soltarTodo(entrada);
