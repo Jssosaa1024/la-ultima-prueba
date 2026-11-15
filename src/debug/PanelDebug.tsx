@@ -1,5 +1,7 @@
 import { useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
+import { estres, informeEstres } from './estres/estado';
+import VistaEstres from './estres/VistaEstres';
 import { armarInforme, contextoDelEquipo, exportarInforme } from './informe';
 import { LIMITES_PANEL, colorContra, depuracionAbierta, metricas } from './metricas';
 import type { Color } from './metricas';
@@ -37,55 +39,75 @@ function Fila(props: { nombre: string; color?: Color | undefined; children: Comp
 export default function PanelDebug() {
   const m = metricas.value;
   const [aviso, setAviso] = useState('');
+  // Si al abrir la página se encontró una prueba cortada por una recarga, se muestra de una vez.
+  const [vista, setVista] = useState<'metricas' | 'estres'>(() =>
+    estres.peek().motivo === 'recarga' ? 'estres' : 'metricas',
+  );
   const l = LIMITES_PANEL;
 
   const exportar = async (): Promise<void> => {
-    const informe = armarInforme(metricas.peek(), contextoDelEquipo(), new Date());
+    const informe = armarInforme(
+      metricas.peek(),
+      contextoDelEquipo(),
+      new Date(),
+      informeEstres(estres.peek()),
+    );
     const salio = await exportarInforme(informe);
     setAviso(salio === 'cancelado' ? 'No se exportó.' : 'JSON exportado.');
   };
 
   return (
     <section class="depuracion" aria-label="Métricas de rendimiento" data-lista={m.lista}>
-      <dl class="depuracion-lista">
-        <Fila nombre="Sala">{m.sala ?? '—'}</Fila>
-        <Fila
-          nombre="Cuadro p95"
-          color={m.lista ? colorContra(m.cuadro.p95Ms, l.p95Ms) : undefined}
-        >
-          {decimal.format(m.cuadro.p95Ms)} ms · mediana {decimal.format(m.cuadro.medianaMs)} · 1 %{' '}
-          {decimal.format(m.cuadro.p1Ms)}
-        </Fila>
-        <Fila nombre="Triángulos" color={colorContra(m.triangulos, l.triangulos)}>
-          {entero.format(m.triangulos)} / {entero.format(l.triangulos)}
-        </Fila>
-        <Fila nombre="Draw calls" color={colorContra(m.drawCalls, l.drawCalls)}>
-          {entero.format(m.drawCalls)} / {l.drawCalls}
-        </Fila>
-        <Fila nombre="Texturas" color={colorContra(m.mbTexturas, l.mbTexturas)}>
-          {decimal.format(m.mbTexturas)} MB / {l.mbTexturas}
-        </Fila>
-        <Fila nombre="En GPU">
-          {m.geometrias} geometrías · {m.texturas} texturas
-        </Fila>
-        <Fila nombre="Descarga" color={colorContra(m.mbDescargados, l.mbDescargados)}>
-          {decimal.format(m.mbDescargados)} MB / {decimal.format(l.mbDescargados)}
-          {m.archivosDeCache > 0 && ` · ${m.archivosDeCache} de caché`}
-        </Fila>
-        <Fila
-          nombre="Carga"
-          color={m.cargaMs === null ? undefined : colorContra(m.cargaMs, l.cargaMs)}
-        >
-          {m.cargaMs === null ? '—' : `${entero.format(m.cargaMs)} ms`}
-        </Fila>
-        <Fila nombre="Pixel ratio">
-          {decimal.format(m.devicePixelRatio)} → {decimal.format(m.pixelRatioUsado)} · perfil{' '}
-          {m.perfil ?? '—'}
-        </Fila>
-      </dl>
+      {vista === 'estres' ? (
+        <VistaEstres />
+      ) : (
+        <dl class="depuracion-lista">
+          <Fila nombre="Sala">{m.sala ?? '—'}</Fila>
+          <Fila
+            nombre="Cuadro p95"
+            color={m.lista ? colorContra(m.cuadro.p95Ms, l.p95Ms) : undefined}
+          >
+            {decimal.format(m.cuadro.p95Ms)} ms · mediana {decimal.format(m.cuadro.medianaMs)} · 1 %{' '}
+            {decimal.format(m.cuadro.p1Ms)}
+          </Fila>
+          <Fila nombre="Triángulos" color={colorContra(m.triangulos, l.triangulos)}>
+            {entero.format(m.triangulos)} / {entero.format(l.triangulos)}
+          </Fila>
+          <Fila nombre="Draw calls" color={colorContra(m.drawCalls, l.drawCalls)}>
+            {entero.format(m.drawCalls)} / {l.drawCalls}
+          </Fila>
+          <Fila nombre="Texturas" color={colorContra(m.mbTexturas, l.mbTexturas)}>
+            {decimal.format(m.mbTexturas)} MB / {l.mbTexturas}
+          </Fila>
+          <Fila nombre="En GPU">
+            {m.geometrias} geometrías · {m.texturas} texturas
+          </Fila>
+          <Fila nombre="Descarga" color={colorContra(m.mbDescargados, l.mbDescargados)}>
+            {decimal.format(m.mbDescargados)} MB / {decimal.format(l.mbDescargados)}
+            {m.archivosDeCache > 0 && ` · ${m.archivosDeCache} de caché`}
+          </Fila>
+          <Fila
+            nombre="Carga"
+            color={m.cargaMs === null ? undefined : colorContra(m.cargaMs, l.cargaMs)}
+          >
+            {m.cargaMs === null ? '—' : `${entero.format(m.cargaMs)} ms`}
+          </Fila>
+          <Fila nombre="Pixel ratio">
+            {decimal.format(m.devicePixelRatio)} → {decimal.format(m.pixelRatioUsado)} · perfil{' '}
+            {m.perfil ?? '—'}
+          </Fila>
+        </dl>
+      )}
       <div class="depuracion-botones">
         <button type="button" class="depuracion-boton" onClick={() => void exportar()}>
           Exportar JSON
+        </button>
+        <button
+          type="button"
+          class="depuracion-boton"
+          onClick={() => setVista(vista === 'estres' ? 'metricas' : 'estres')}
+        >
+          {vista === 'estres' ? 'Ver métricas' : 'Prueba de estrés'}
         </button>
         <button
           type="button"
