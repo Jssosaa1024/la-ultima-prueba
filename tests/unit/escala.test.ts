@@ -6,7 +6,8 @@ import { crearEscalaDinamica, ESCALA_MAX, ESCALA_MIN, VENTANA_S } from '../../sr
 /** Registra `segundos` de cuadros a `fps` y devuelve la última escala nueva (o null). */
 function jugar(escala: ReturnType<typeof crearEscalaDinamica>, fps: number, segundos: number) {
   let ultima: number | null = null;
-  for (let t = 0; t < segundos * fps; t++) {
+  // Un cuadro de más: sumar 1/60 muchas veces queda un pelo por debajo de 2 s.
+  for (let t = 0; t <= segundos * fps; t++) {
     const nueva = escala.registrar(1 / fps);
     if (nueva !== null) ultima = nueva;
   }
