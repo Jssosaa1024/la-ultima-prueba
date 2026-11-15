@@ -77,8 +77,8 @@ test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El 
   const salida = page.getByRole('dialog', { name: 'Puerta de salida' });
   await salida.getByRole('button', { name: 'Restaurar archivo' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'El legado' })).toBeFocused();
-  await expect(page.getByText('5 de 5')).toBeVisible();
-  await expect(page.getByText('3 de 3')).toBeVisible();
+  await expect(page.getByText('5 de 5', { exact: true })).toBeVisible();
+  await expect(page.getByText('3 de 3', { exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Ver créditos' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'La Última Prueba' })).toBeFocused();
