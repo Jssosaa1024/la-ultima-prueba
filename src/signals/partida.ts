@@ -1,4 +1,5 @@
 import { batch, computed, signal } from '@preact/signals';
+import type { ResumenDeAprendizaje } from '../game/aprendizaje';
 import type { OpcionesDeFinal } from '../game/partida';
 
 /**
@@ -104,6 +105,11 @@ export const inventario = signal<readonly ObjetoInventario[]>([]);
 export const final = signal<FinalId | null>(null);
 /** Qué se puede elegir frente a la puerta de salida (`opcionesDeFinal` de `game/partida.ts`). */
 export const opcionesFinal = signal<OpcionesDeFinal>(SIN_OPCIONES);
+/**
+ * Resumen de aprendizaje de las cinco salas (punto 15 del hito 1): cuáles se resolvieron y
+ * cuáles sin pistas. Lo escribe el controlador al llegar a un final; antes es `null`.
+ */
+export const aprendizaje = signal<ResumenDeAprendizaje | null>(null);
 
 /**
  * Hay una partida guardada que se puede continuar. No es parte de la partida en curso: la
@@ -128,5 +134,6 @@ export function reiniciarPartida(): void {
     inventario.value = [];
     final.value = null;
     opcionesFinal.value = SIN_OPCIONES;
+    aprendizaje.value = null;
   });
 }

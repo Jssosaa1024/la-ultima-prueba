@@ -130,3 +130,74 @@
 .eleccion-texto {
   margin: 0;
 }
+
+/* Resumen de aprendizaje: una tarjeta por sala, con su estado en texto (no solo en color). */
+.aprendizaje-salas {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.aprendizaje-sala {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 4px solid #6b7785;
+  background: #1c2229;
+}
+
+.aprendizaje-sin_pistas {
+  border-left-color: #e8a33d;
+}
+
+.aprendizaje-con_pistas {
+  border-left-color: #8fb3d9;
+}
+
+.aprendizaje-sala p {
+  margin: 0;
+}
+
+.aprendizaje-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.aprendizaje-tema {
+  font-weight: 700;
+}
+
+.aprendizaje-estado {
+  font-size: 0.875rem;
+  color: #b8c2cc;
+}
+
+.aprendizaje-sala .aprendizaje-maquina {
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  color: #e8a33d;
+}
+
+.aprendizaje-sala .aprendizaje-texto {
+  margin-top: 4px;
+  font-size: 0.9375rem;
+}
+
+/* La línea de La Voz del final (T34): como un subtítulo, con quién habla. */
+.final-voz {
+  margin: 1rem 0;
+  padding: 10px 14px;
+  border-left: 4px solid #e8a33d;
+  border-radius: 4px;
+  background: #1c2229;
+  font-style: italic;
+}
+
+.final-voz-quien {
+  font-style: normal;
+  font-weight: 700;
+  color: #e8a33d;
+}

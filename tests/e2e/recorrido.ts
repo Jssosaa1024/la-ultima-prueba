@@ -363,7 +363,14 @@ async function ponerCarritos(
     if (origen.sobran === 0) continue;
     // Se saca de un solo lugar a la vez: si hay otro elegido, primero se suelta.
     if ((await origen.boton.getAttribute('aria-pressed')) !== 'true') {
-      if ((await elegido.count()) > 0) await elegido.click();
+      // Al empezar una etapa, el panel puede mostrar un instante el origen de la etapa
+      // anterior antes de soltarlo. Si ya no está elegido al hacer clic, no hay nada que soltar.
+      if ((await elegido.count()) > 0) {
+        await elegido
+          .first()
+          .click({ timeout: 5000 })
+          .catch(() => undefined);
+      }
       await origen.boton.click();
       await expect(origen.boton).toHaveAttribute('aria-pressed', 'true');
     }

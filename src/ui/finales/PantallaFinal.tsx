@@ -1,6 +1,9 @@
 import type { RefObject } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { GUION } from '../../content/guion';
+import { textoResumen } from '../../content/resumenes';
 import {
+  aprendizaje,
   DURACION_MS,
   final,
   GRABACIONES,
@@ -10,7 +13,14 @@ import {
 } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import { formatoReloj } from '../hud/formato';
-import { AGRADECIMIENTO, CAMEOS, FINALES_TEXTO, POSCREDITOS } from './textos';
+import {
+  AGRADECIMIENTO,
+  CAMEOS,
+  FINALES_TEXTO,
+  POSCREDITOS,
+  textoResultadoSala,
+  textoTotalAprendizaje,
+} from './textos';
 import '../botones.css';
 import './finales.css';
 
@@ -91,6 +101,7 @@ function Resumen({
 }) {
   const id = final.value ?? 'tiempo_cumplido';
   const texto = FINALES_TEXTO[id];
+  const voz = GUION.find((l) => l.final === id);
   // Al terminar, el controlador deja el reloj en pausa: `restanteMs` es lo que sobró.
   const usado = DURACION_MS - reloj.value.restanteMs;
 
@@ -103,6 +114,12 @@ function Resumen({
       {texto.parrafos.map((p) => (
         <p key={p}>{p}</p>
       ))}
+      {/* Lo que dice La Voz en este final (T34), como subtítulo. */}
+      {voz && (
+        <p class="final-voz">
+          <span class="final-voz-quien">La Voz:</span> {voz.texto}
+        </p>
+      )}
       <dl class="final-resumen">
         <div>
           <dt>Sellos</dt>
@@ -119,6 +136,7 @@ function Resumen({
           <dd>{formatoReloj(usado)}</dd>
         </div>
       </dl>
+      <Aprendizaje />
       <div class="final-acciones">
         <button type="button" class="boton boton-principal" onClick={alSeguir}>
           Ver créditos
@@ -127,6 +145,45 @@ function Resumen({
           Volver al menú
         </button>
       </div>
+    </section>
+  );
+}
+
+/**
+ * Resumen de aprendizaje (punto 15 del hito 1): las cinco salas, resueltas o no, cuáles sin
+ * pistas y cómo funcionaba cada máquina. Ningún final castiga: las que faltaron también se
+ * explican.
+ */
+function Aprendizaje() {
+  const resumen = aprendizaje.value;
+  if (!resumen) return null;
+  return (
+    <section class="aprendizaje" aria-labelledby="aprendizaje-titulo">
+      <h2 id="aprendizaje-titulo" class="final-subtitulo">
+        Lo que aprendiste esta noche
+      </h2>
+      <p>{textoTotalAprendizaje(resumen.resueltas, resumen.resueltasSinPistas)}</p>
+      <ol class="aprendizaje-salas">
+        {resumen.salas.map((s) => {
+          const t = textoResumen(s.sala);
+          return (
+            <li key={s.sala} class={`aprendizaje-sala aprendizaje-${s.resultado}`}>
+              <p class="aprendizaje-cabeza">
+                <span class="aprendizaje-tema">
+                  Sala {s.numero} · {t.tema}
+                </span>
+                <span class="aprendizaje-estado">
+                  {textoResultadoSala(s.resultado, s.pistasVistas)}
+                </span>
+              </p>
+              <p class="aprendizaje-maquina">
+                {t.maquina}: {t.concepto}
+              </p>
+              <p class="aprendizaje-texto">{t.resumen}</p>
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }
