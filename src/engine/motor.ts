@@ -17,6 +17,8 @@ import { controlesActivos, enfocado } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
 import { fase, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
+import { audioDesbloqueado } from '../signals/audio';
+import { iniciarAudio } from './audio/audio';
 import { crearInteraccion } from './interaccion/interaccion';
 import type { Interaccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
@@ -153,6 +155,17 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     }
   });
 
+  // Audio (T43): suena después del primer toque. El último efecto queda en un atributo del
+  // canvas para las pruebas e2e.
+  const detenerAudio = iniciarAudio({
+    alSonar: (nombre) => {
+      canvas.dataset['sonido'] = nombre;
+    },
+  });
+  const dejarDeSeguirAudio = effect(() => {
+    canvas.dataset['audio'] = audioDesbloqueado.value ? 'listo' : 'bloqueado';
+  });
+
   const entrada = crearEntrada();
   // Los controles solo funcionan jugando y sin un panel 2D abierto (signals/interfaz.ts).
   const activos = (): boolean => controlesActivos.value;
@@ -245,6 +258,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
 
   return () => {
     bucle.detener();
+    detenerAudio();
+    dejarDeSeguirAudio();
     desconectarTactil();
     desconectarEscritorio();
     punteroBloqueado.value = false;
@@ -266,6 +281,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['mallas'];
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
+    delete canvas.dataset['sonido'];
+    delete canvas.dataset['audio'];
   };
 }
 

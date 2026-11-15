@@ -26,6 +26,7 @@ import {
 import type { Material, Object3D } from 'three';
 import { panel } from '../../signals/interfaz';
 import { etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
+import { sonar } from '../audio/eventos';
 import type { AnimacionSala } from './tipos';
 
 const SALA = 's5-rectoria';
@@ -239,6 +240,7 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
     pareja = sacarPareja(pendiente, azar);
     pendiente = null;
     tiempo = 0;
+    sonar('mano');
   }
 
   return {
