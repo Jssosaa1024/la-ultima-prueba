@@ -231,3 +231,30 @@
 .coop-encargo-rol {
   font-weight: 600;
 }
+
+/* Frases rápidas y señales (T91). */
+.coop-frases {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.coop-frases .hud-boton-redondo:disabled {
+  opacity: 0.6;
+}
+
+.coop-senales {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.coop-senal {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgb(62 193 201 / 85%);
+  color: #111418;
+  font-weight: 600;
+}

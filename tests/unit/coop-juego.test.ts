@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { partidaDeFoto, puedeIrA } from '../../src/signals/juego-coop';
 import { ClienteCoop } from '../../src/net/cliente';
 import { RedEnMemoria } from '../../src/net/memoria';
-import { VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
+import { directo, VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
 import { iniciarControladorCoop } from '../../src/signals/controlador-coop';
-import { coop, misRoles, propuestaCoop, votosCoop } from '../../src/signals/coop';
+import { coop, misRoles, propuestaCoop, senales, votosCoop } from '../../src/signals/coop';
 import { datosEncontrados, notas } from '../../src/signals/cuaderno';
 import { aviso, enfocado, panel, type AccionObjeto } from '../../src/signals/interfaz';
 import { etapa, mecanismo, pistas, pistasVistas, resultado } from '../../src/signals/mecanismo';
@@ -175,6 +175,27 @@ describe('partida cooperativa en este navegador', () => {
     await asentar();
     expect(pistasVistas.value).toEqual({ 's1-cooperativa': 1 });
     expect(pistas.value.vistas).toBe(1);
+  });
+
+  it('señales y frases rápidas: viaja el id y el punto del objeto enfocado (T91)', async () => {
+    const recibidas: unknown[] = [];
+    otro.t.escuchar('dir', (m) => recibidas.push(m.p));
+    enfocado.value = { id: 'porteria-reloj', nombre: 'Reloj de pared', accion: 'examinar' };
+    enviar({ t: 'senal', frase: 'mira' });
+    // Una por segundo: la segunda se ignora.
+    enviar({ t: 'senal', frase: 'ven' });
+    await asentar();
+    expect(recibidas).toEqual([
+      { s: 0, x: expect.any(Number), y: expect.any(Number), z: expect.any(Number), frase: 'mira' },
+    ]);
+    expect(senales.value.map((x) => x.frase)).toEqual(['mira']);
+
+    await otro.t.enviar(
+      'dir',
+      directo(otro.yo, { t: 'senal', p: { s: 0, x: 0, y: 0, z: 0, frase: 'aqui' } }),
+    );
+    await asentar();
+    expect(senales.value.at(-1)).toMatchObject({ jugador: otro.yo, frase: 'aqui' });
   });
 
   it('las notas del cuaderno se quedan en este navegador', async () => {

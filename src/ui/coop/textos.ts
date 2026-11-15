@@ -1,5 +1,5 @@
 import { salaPorId } from '../../content/salas';
-import type { JugadorCoop, VotoCoop } from '../../signals/coop';
+import type { Frase, JugadorCoop, VotoCoop } from '../../signals/coop';
 import { formatoReloj } from '../hud/formato';
 import { NOMBRE_ALIAS } from './nombres';
 
@@ -76,4 +76,20 @@ export function textoEsperaD(alias: string, restanteMs: number): string {
 export function textoEncargos(roles: readonly string[]): string {
   if (roles.length === 0) return '';
   return `${roles.length === 1 ? 'Tu encargo' : 'Tus encargos'}: ${lista(roles)}`;
+}
+
+/** Frases rápidas (T91): lo único que el grupo se puede «decir». No hay chat libre. */
+export const TEXTO_FRASE: Readonly<Record<Frase, string>> = {
+  aqui: '¡Aquí!',
+  mira: 'Mira esto',
+  ven: 'Ven',
+  listo: 'Listo',
+  espera: 'Espera',
+  no_se: 'No sé',
+};
+
+/** «Búho: ¡Aquí!» o «Búho señala algo». */
+export function textoSenal(alias: string, frase: Frase | null): string {
+  if (alias === 'tú') return frase ? `Dijiste: ${TEXTO_FRASE[frase]}` : 'Señalaste';
+  return frase ? `${alias}: ${TEXTO_FRASE[frase]}` : `${alias} señala algo`;
 }

@@ -3,9 +3,9 @@ import type { Puzzle } from '../content/esquema';
 import { fichasDeLugar } from '../content/fichas';
 import { grabacionDeObjeto, esObjetoSuelto } from '../content/grabaciones';
 import { puzzleDeSala } from '../content/puzzles';
-import { destinoDePuerta, nombreDeObjeto } from '../content/salas';
+import { destinoDePuerta, nombreDeObjeto, SALAS_3D } from '../content/salas';
 import { resumenDeAprendizaje } from '../game/aprendizaje';
-import type { Evento, Foto, Intencion } from '../game/coop/mensajes';
+import type { Directo, Evento, Foto, Intencion } from '../game/coop/mensajes';
 import { esRecogible, puzzlePorId, REQUIERE_HERRAMIENTA } from '../game/coop/mundo';
 import { repartoDeFoto } from '../game/coop/replica';
 import {
@@ -25,7 +25,18 @@ import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
 import { reglaDeIntento } from '../game/intentos';
 import { fichas, type Ficha } from './contenido';
-import { esperaD, misRoles, propuestaCoop, reparto, rolesDe, votosCoop } from './coop';
+import {
+  esperaD,
+  miPosicion,
+  misRoles,
+  propuestaCoop,
+  reparto,
+  rolesDe,
+  senales,
+  votosCoop,
+  type Frase,
+  type SenalCoop,
+} from './coop';
 import { cuadernoActivo, datosEncontrados, limpiarNota, MAX_NOTAS, notas } from './cuaderno';
 import {
   abrirInspeccion,
@@ -127,6 +138,23 @@ export function puedeIrA(p: Partida, destino: Lugar): boolean {
   return aplicar(enPorteria, { t: 'entrar', sala: destino }) !== enPorteria;
 }
 
+/** Una señal como máximo cada este tiempo (protocolo, `senal`). */
+export const SENAL_CADA_MS = 1000;
+/** Cuántas señales recientes se guardan para la interfaz y el motor. */
+const MAX_SENALES = 8;
+
+/** Centro de un objeto de la sala, en metros, o null si no existe. */
+export function centroDeObjeto(id: string): { x: number; y: number; z: number } | null {
+  for (const sala of SALAS_3D) {
+    const o = sala.objetos.find((x) => x.id === id);
+    if (o) return { x: o.pos[0], y: o.pos[1] + o.tam[1] / 2, z: o.pos[2] };
+  }
+  return null;
+}
+
+/** Metros a cm enteros dentro de lo que acepta el protocolo (±100 m). */
+const cm = (m: number): number => Math.max(-10_000, Math.min(10_000, Math.round(m * 100)));
+
 interface EtapaEnCurso {
   sala: SalaId;
   puzzle: Puzzle;
@@ -147,10 +175,51 @@ export class JuegoCoop {
   private readonly dichas = new Set<string>();
   private foto: Foto | null = null;
 
+  private ultimaSenal = -Infinity;
+  private contadorSenales = 0;
+
   constructor(
     readonly yo: string,
     private readonly enviarIntencion: (i: Intencion) => void,
+    private readonly enviarDirecto: (d: Directo) => void = () => undefined,
   ) {}
+
+  /** Llega una señal de otro jugador (ya validada por `net/`). */
+  alSenal(jugador: string, p: Extract<Directo, { t: 'senal' }>['p']): void {
+    const f = this.foto;
+    if (!f || f.fase !== 'jugando' || !f.orden.includes(jugador)) return;
+    this.guardarSenal(jugador, p);
+  }
+
+  private guardarSenal(jugador: string, p: Extract<Directo, { t: 'senal' }>['p']): void {
+    const nueva: SenalCoop = {
+      n: ++this.contadorSenales,
+      jugador,
+      ...p,
+      frase: p.frase as Frase | null,
+      en: performance.now(),
+    };
+    senales.value = [...senales.value, nueva].slice(-MAX_SENALES);
+  }
+
+  /** Señala el objeto enfocado (o el lugar del jugador) con una frase, o sin ella (T91). */
+  private senalar(f: Foto, frase: Frase | null): void {
+    const t = performance.now();
+    if (t - this.ultimaSenal < SENAL_CADA_MS) return;
+    this.ultimaSenal = t;
+    const objeto = enfocado.peek();
+    const punto = (objeto && centroDeObjeto(objeto.id)) ?? miPosicion.peek();
+    const s = f.lugar === 'porteria' ? 0 : numeroDeSala(f.lugar);
+    const p = {
+      s,
+      x: punto ? cm(punto.x) : 0,
+      y: punto ? cm(punto.y) : 0,
+      z: punto ? cm(punto.z) : 0,
+      frase,
+    };
+    this.enviarDirecto({ t: 'senal', p });
+    this.guardarSenal(this.yo, p);
+  }
 
   private decirUnaVez(id: string): void {
     if (this.dichas.has(id)) return;
@@ -392,6 +461,9 @@ export class JuegoCoop {
         if (actual) this.enviarIntencion({ t: 'pedir_pista', p: { puzzle: actual.puzzle.id } });
         return;
       }
+      case 'senal':
+        this.senalar(f, c.frase);
+        return;
       case 'nota':
         if (c.op === 'agregar') {
           const texto = limpiarNota(c.texto);
