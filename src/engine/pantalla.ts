@@ -1,4 +1,4 @@
-import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
+import { escalaResolucion, girarTelefono, pantalla, pixelRatioForzado } from '../signals/pantalla';
 
 /** Límite de resolución interna en celular (especificación, sección 0). */
 export const DPR_MAX = 1.25;
@@ -29,7 +29,9 @@ export function ajustarCanvas(canvas: HTMLCanvasElement, alCambiar: () => void):
     const ancho = canvas.clientWidth;
     const alto = canvas.clientHeight;
     const dprEquipo = window.devicePixelRatio || 1;
-    const dprUsado = Math.min(dprEquipo, DPR_MAX) * escalaResolucion.peek();
+    // La prueba de estrés (?debug=1) puede fijar el pixel ratio; si no, el del juego.
+    const dprUsado =
+      pixelRatioForzado.peek() ?? Math.min(dprEquipo, DPR_MAX) * escalaResolucion.peek();
     const w = Math.max(1, Math.round(ancho * dprUsado));
     const h = Math.max(1, Math.round(alto * dprUsado));
     if (canvas.width !== w || canvas.height !== h) {
@@ -49,11 +51,13 @@ export function ajustarCanvas(canvas: HTMLCanvasElement, alCambiar: () => void):
   // Cuando el motor cambia la escala, el búfer se rehace (el CSS del canvas no cambia).
   // `subscribe` llama una vez de entrada: así queda el primer ajuste.
   const dejarDeSeguirEscala = escalaResolucion.subscribe(actualizar);
+  const dejarDeSeguirForzado = pixelRatioForzado.subscribe(actualizar);
 
   return () => {
     observador.disconnect();
     window.removeEventListener('resize', actualizar);
     dejarDeSeguirEscala();
+    dejarDeSeguirForzado();
     girarTelefono.value = false;
   };
 }

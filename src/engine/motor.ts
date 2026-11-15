@@ -21,7 +21,12 @@ import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
 import { fase, modo, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { audioDesbloqueado } from '../signals/audio';
-import { depuracionAbierta, marcarInicioSala, marcarPrimerCuadro } from '../debug/metricas';
+import {
+  depuracionAbierta,
+  estresActivo,
+  marcarInicioSala,
+  marcarPrimerCuadro,
+} from '../debug/metricas';
 import type { MedidorMotor } from '../debug/medidor';
 import { iniciarAudio } from './audio/audio';
 import type { Companeros } from './coop/companeros';
@@ -101,7 +106,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const escala = crearEscalaDinamica(escalaResolucion.peek());
   canvas.dataset['escala'] = String(escala.valor);
   const depuracion = { mirada: '', posicion: '' };
-  // Panel ?debug=1 (T11m): el medidor existe solo con el panel abierto.
+  // Panel ?debug=1 (T11m y T11o): el medidor y la prueba de estrés existen solo con el panel
+  // abierto.
   let medidor: MedidorMotor | null = null;
   // Tiempo de carga de la sala: de `sala:inicio` al primer cuadro con la sala en la escena.
   let medirPrimerCuadro = false;
@@ -227,7 +233,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
 
   /** Solo cuentan los cuadros a velocidad normal: con un panel abierto se dibuja más lento. */
   const medirRendimiento = (dt: number): void => {
-    if (panel.peek() !== null) {
+    // Durante la prueba de estrés (?debug=1) el pixel ratio lo fija la prueba.
+    if (panel.peek() !== null || estresActivo.peek()) {
       escala.reiniciar();
       return;
     }
@@ -343,12 +350,15 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     medidor?.liberar();
     medidor = null;
     if (!abierta) return;
-    void import('../debug/medidor').then(({ crearMedidor }) => {
+    void import('../debug/herramientas').then(({ crearHerramientas }) => {
       if (detenido || este !== pedidoMedidor) return;
-      medidor = crearMedidor({
+      medidor = crearHerramientas({
         renderer,
         escena,
+        camara,
+        canvas,
         sala: () => mostrada,
+        raizSala: () => cargador.actual?.raiz ?? null,
         pixeles: () => {
           const p = pantalla.peek();
           return { equipo: p.dprEquipo, usado: p.dprUsado };
