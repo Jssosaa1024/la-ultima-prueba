@@ -556,6 +556,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   }
 
   function salir(): void {
+    // En cooperativo este controlador no tiene partida: no hay nada suyo que borrar, y la
+    // partida individual guardada sigue ahí.
+    const habia = partida !== null;
     clearTimeout(temporizador);
     temporizador = undefined;
     partida = null;
@@ -563,8 +566,10 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     marca = null;
     motivos.delete('orden');
     // Salir es abandonar la partida («Se pierde lo que llevas»): también se borra lo guardado.
-    if (almacen) borrarGuardado(almacen);
-    guardada.value = null;
+    if (almacen && habia) {
+      borrarGuardado(almacen);
+      guardada.value = null;
+    }
     batch(() => {
       fichas.value = {};
       reiniciarInterfaz();

@@ -1,0 +1,147 @@
+/* Cooperativo (T32, T81): crear, unirse y sala de espera. Mismo estilo que el menú. */
+.coop-formulario,
+.coop-espera {
+  display: grid;
+  gap: 1rem;
+}
+
+.coop-titulo {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #e8a33d;
+}
+
+.coop-titulo:focus {
+  outline: none;
+}
+
+.coop-campo {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.coop-codigo {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 1rem;
+  border: 2px solid #6b7785;
+  border-radius: 0.5rem;
+  background: #1c2229;
+  color: #f2f2f2;
+  font: inherit;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+
+.coop-codigo:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.coop-error-campo {
+  color: #f2a08b;
+  font-size: 0.875rem;
+}
+
+.coop-opciones {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.coop-opciones legend {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.coop-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Cada opción es un objetivo táctil de 48 px. */
+.coop-opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0 0.9rem;
+  border: 2px solid #6b7785;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.coop-opcion input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.coop-opcion-elegida {
+  border-color: #e8a33d;
+  background: rgb(232 163 61 / 18%);
+  font-weight: 600;
+}
+
+.coop-opcion:has(input:focus-visible) {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.coop-punto {
+  display: inline-block;
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+}
+
+.coop-codigo-grande {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0;
+}
+
+.coop-codigo-grande strong {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 2.5rem;
+  letter-spacing: 0.3em;
+  color: #e8a33d;
+}
+
+.coop-jugadores {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coop-jugador {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.coop-jugador-nombre {
+  flex: 1;
+  font-weight: 600;
+}
+
+.coop-jugador-estado {
+  color: #b8c2cc;
+  font-size: 0.875rem;
+}
+
+.coop-cuenta {
+  margin: 0;
+}
