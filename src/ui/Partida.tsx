@@ -6,6 +6,7 @@ import EleccionFinal from './finales/EleccionFinal';
 import PantallaFinal from './finales/PantallaFinal';
 import Anunciador from './Anunciador';
 import IndicadorCarga from './carga/IndicadorCarga';
+import BarraCoop from './coop/BarraCoop';
 import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
 import PanelGrabacion from './grabaciones/PanelGrabacion';
@@ -36,6 +37,8 @@ export default function Partida() {
         <div inert={abierto !== null} aria-hidden={abierto !== null || undefined}>
           <Controles />
           <Hud />
+          {/* En grupo (T85, T87): encargos, votos, propuesta abierta y espera de D. */}
+          {modo.value === 'cooperativo' && <BarraCoop />}
         </div>
         {abierto === 'inspeccion' && <Inspeccion />}
         {abierto === 'cuaderno' && <Cuaderno />}

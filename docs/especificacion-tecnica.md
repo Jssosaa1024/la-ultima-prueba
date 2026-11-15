@@ -854,9 +854,9 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T83** Avatares de bajo polígono con color y alias — 45 min
 - [x] **T84** Anfitrión: recoger, pasar y usar objetos — 55 min
 - [x] **T84b** (nueva) Controlador cooperativo del cliente (`src/signals/controlador-coop.ts` y `juego-coop.ts`): copia la foto y los eventos del anfitrión a los mismos signals del modo individual y convierte las órdenes de la interfaz en intenciones. Examinar anota el dato para todos (`usar` sin herramienta); la pizarra en penumbra pide la linterna a quien la lleve; cruzar una puerta abre el voto de sala; quien tiene D prueba los ajustes en su panel sin que viajen y la palanca los propone; elegir final y el intercomunicador son votos; las notas no salen del navegador; en grupo el cuaderno no pausa el reloj. El modo individual no cambia — 60 min
-- [x] **T85** Flujo de propuesta, confirmación y resultado — 55 min
+- [x] **T85** Flujo de propuesta, confirmación y resultado — 55 min. Pantallas (ola 4, sesión C): en el panel de la máquina solo quien tiene D mueve los controles y propone (la palanca o «Proponer al grupo»); los demás ven la propuesta con «Aceptar» y «Rechazar», quién falta y, fuera del panel, un aviso «Ver propuesta». Mientras se espera a quien tiene D, el panel y el HUD dicen a quién y cuánto falta
 - [ ] **T86** Pistas por rol y cuaderno compartido (datos encontrados y pistas; las notas son de cada jugador y no viajan) — 50 min
-- [x] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min
+- [x] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min. Pantallas (ola 4, sesión C): barra del grupo en el HUD con los encargos, «Pausar», «Reanudar» con el reloj en pausa y cada voto abierto con quién lo propuso, cuántos aceptaron y «Aceptar» o «Retirar mi voto». Cruzar una puerta, la puerta de salida y el intercomunicador abren su voto. No hay «rechazar» un voto: basta no aceptarlo
 - [x] **T88** Secuencia, foto periódica y resincronización — 50 min
 - [x] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
 - [x] **T90** Migración de anfitrión — 55 min

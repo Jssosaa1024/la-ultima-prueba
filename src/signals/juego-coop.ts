@@ -358,13 +358,16 @@ export class JuegoCoop {
         });
         return;
       case 'elegir_final':
+        // En grupo es un voto: el panel se cierra y la votación sigue en el HUD (T87).
         this.enviarIntencion({
           t: 'votar',
           p: { asunto: 'final', opcion: c.opcion, acepta: true },
         });
+        cerrarPanel();
         return;
       case 'pedir_ayuda':
         this.enviarIntencion({ t: 'votar', p: { asunto: 'ayuda', opcion: null, acepta: true } });
+        cerrarPanel();
         return;
       case 'ver_pista': {
         const actual = this.etapaEnCurso(f);
