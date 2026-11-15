@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 // Toque corto con duración fija, para que no dependa de la carga del equipo (T05b).
+import { continuarEn } from './escena';
 import { tocar } from './toque';
 
 // T31b: el controlador real de la partida, visto desde la portería. Se toca cada objeto donde
@@ -654,4 +655,58 @@ test('la urna se resuelve en tres etapas desde su panel y da el quinto sello (T7
   await expect(page.getByRole('img', { name: 'Sellos: 5 de 5' })).toBeVisible();
   // Con la sala resuelta, en la urna quedan las fichas con las que se abrió la caja.
   await expect(canvas).toHaveAttribute('data-maquina', '6,3');
+});
+
+// T76: volver a una sala ya resuelta. La máquina se ve como quedó y el sello sigue.
+
+/** La puerta de la rectoría hacia la portería, a la espalda del jugador cuando entra. */
+const PUERTA_DE_LA_RECTORIA: Punto3 = [0, 1.1, 2.46];
+
+test('al volver a la rectoría resuelta, la urna se ve como quedó y el sello sigue (T76)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  // Una partida guardada dentro de la rectoría, con las cinco salas resueltas.
+  const caja = await continuarEn(page, { sala: 's5-rectoria', etapas: 3 });
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(page.getByRole('img', { name: 'Sellos: 5 de 5' })).toBeVisible();
+  // En la escena, la urna conserva las fichas de la última etapa.
+  await expect(canvas).toHaveAttribute('data-maquina', '6,3');
+  // En una sala resuelta no se avisa de pistas.
+  await expect(page.getByRole('button', { name: /Pista/ })).toHaveCount(0);
+
+  await tocarObjeto(page, caja, URNA, conDedo, /Usar.*Urna/);
+  await page.getByRole('button', { name: /Usar.*Urna/ }).click();
+  const panel = page.getByRole('dialog', { name: 'El juego justo de La Voz' });
+  await expect(panel).toContainText('Esta máquina ya quedó resuelta');
+  await expect(
+    panel.getByRole('img', { name: 'En la urna hay 6 fichas azules y 3 fichas amarillas.' }),
+  ).toBeVisible();
+  // Se puede mirar, no cambiar: los dispensadores están bloqueados y no hay manija.
+  await expect(panel.getByRole('button', { name: 'Más: Fichas azules (redondas)' })).toBeDisabled();
+  await expect(panel.getByRole('button', { name: 'Tirar de la manija' })).toHaveCount(0);
+  await panel.getByRole('button', { name: 'Cerrar' }).click();
+
+  // Salir a la portería y volver a mirar: el sello y las fichas siguen igual.
+  await tocarObjeto(page, caja, PUERTA_DE_LA_RECTORIA, conDedo, /Usar.*Puerta a la portería/);
+  await page.getByRole('button', { name: /Usar.*Puerta a la portería/ }).click();
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria');
+  await expect(page.getByRole('img', { name: 'Sellos: 5 de 5' })).toBeVisible();
+});
+
+test('la máquina de una sala resuelta abre su panel sin etapa pendiente (T76)', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await continuarEn(page, { sala: 's1-cooperativa', etapas: 3 });
+  await expect(page.getByRole('img', { name: 'Sellos: 1 de 5' })).toBeVisible();
+
+  await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
+  await page.getByRole('button', { name: /Usar.*Etiquetadora/ }).click();
+  const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
+  await expect(panel).toContainText('Esta máquina ya quedó resuelta');
+  await expect(panel).not.toContainText('Etapa');
+  await expect(panel.getByRole('button', { name: 'Bajar la palanca' })).toHaveCount(0);
+  await panel.getByRole('button', { name: 'Cerrar' }).click();
+  await expect(page.getByRole('img', { name: 'Sellos: 1 de 5' })).toBeVisible();
 });

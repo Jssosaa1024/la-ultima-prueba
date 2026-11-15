@@ -13,6 +13,7 @@ import {
 import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
 import {
   etapa,
+  maquinaResuelta,
   mecanismo,
   reiniciarMecanismo,
   resultado,
@@ -116,6 +117,20 @@ describe('fichas en la urna', () => {
     mecanismo.value = null;
     expect(animacion?.fichas).toEqual({ azules: 6, amarillas: 3 });
     animacion?.liberar();
+  });
+
+  it('al volver a la sala ya resuelta, la urna tiene las fichas con las que quedó (T76)', () => {
+    const { raiz } = sala();
+    // Sin resultado en esta sesión (se continuó una partida guardada): vale lo conservado.
+    etapa.value = null;
+    mecanismo.value = null;
+    maquinaResuelta.value = { azules: 6, amarillas: 3 };
+    const animacion = animarUrna(raiz);
+    expect(animacion.fichas).toEqual({ azules: 6, amarillas: 3 });
+    expect(animacion.estado).toBe('6,3');
+    // La mano no juega sola al entrar.
+    expect(animacion.manoActiva).toBe(false);
+    animacion.liberar();
   });
 
   it('la urna queda translúcida, para ver las fichas', () => {

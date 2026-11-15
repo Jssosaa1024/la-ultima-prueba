@@ -63,6 +63,16 @@ export interface ResultadoMecanismo {
 
 export const resultado = signal<ResultadoMecanismo | null>(null);
 
+/**
+ * Cómo quedó la máquina de la sala actual, si la sala ya tiene su sello (T76): los ajustes
+ * con los que se resolvió la última etapa. Al volver a una sala resuelta, su máquina se ve
+ * como se dejó. `null` en la portería y en las salas con etapas pendientes.
+ *
+ * Después de recargar la página no se sabe con qué ajustes exactos se resolvió, así que vale
+ * la solución de ejemplo de la última etapa del puzzle.
+ */
+export const maquinaResuelta = signal<unknown>(null);
+
 export function reiniciarMecanismo(): void {
   batch(() => {
     etapa.value = null;
@@ -70,5 +80,6 @@ export function reiniciarMecanismo(): void {
     condiciones.value = {};
     pistas.value = { ofrecidas: 0, vistas: 0 };
     resultado.value = null;
+    maquinaResuelta.value = null;
   });
 }
