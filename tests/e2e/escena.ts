@@ -198,6 +198,41 @@ export async function mirarHacia(
 }
 
 /**
+ * Sube o baja la mirada hasta que el punto quede cerca del centro de la pantalla, arrastrando
+ * en vertical en la mitad derecha. Hace falta con lo que está muy abajo o muy arriba cuando
+ * el jugador queda cerca: si no, el objeto se sale de la pantalla.
+ */
+export async function inclinarHacia(
+  page: Page,
+  caja: Caja,
+  punto: Punto3,
+  conDedo: boolean,
+): Promise<void> {
+  const [cx, cz] = await leer(page, 'data-posicion');
+  const lejos = Math.hypot(punto[0] - cx, punto[2] - cz);
+  // Positivo mira hacia arriba. No se pide más que el límite de la cámara (80°), con margen.
+  const objetivo = Math.max(-1.2, Math.min(1.2, Math.atan2(punto[1] - ALTURA_OJOS, lejos)));
+  const x = caja.x + caja.width * 0.75;
+  let pxPorRadian = 1 / 0.0045;
+  for (let i = 0; i < 6; i++) {
+    const [, pitch] = await leer(page, 'data-mirada');
+    const falta = objetivo - pitch;
+    // Con 0,2 rad (11°) el objeto ya queda bien adentro de la pantalla.
+    if (Math.abs(falta) < 0.2) return;
+    // Arrastrar hacia abajo baja la mirada. Cada arrastre cabe en la pantalla.
+    const dy = Math.max(-caja.height * 0.3, Math.min(caja.height * 0.3, -falta * pxPorRadian));
+    const desde = { x, y: caja.y + caja.height * 0.5 - dy / 2 };
+    await arrastrar(page, desde, { x, y: desde.y + dy }, conDedo);
+    await expect
+      .poll(async () => Math.abs((await leer(page, 'data-mirada'))[1] - pitch))
+      .toBeGreaterThan(0.005);
+    const girado = (await leer(page, 'data-mirada'))[1] - pitch;
+    if (Math.abs(girado) > 0.01) pxPorRadian = Math.abs(dy / girado);
+  }
+  throw new Error('no se pudo inclinar la mirada hacia el punto');
+}
+
+/**
  * Dónde se ve en pantalla un punto 3D, con la posición y la mirada que publica el motor
  * (cámara a 1,6 m, campo de visión vertical de 70°).
  */
@@ -218,7 +253,8 @@ export async function enPantalla(page: Page, caja: Caja, punto: Punto3): Promise
 }
 
 /**
- * Mira hacia el objeto, lo toca donde se ve y espera su botón contextual. En celular, si el
+ * Mira hacia el objeto (gira y, si hace falta, sube o baja la mirada), lo toca donde se ve y
+ * espera su botón contextual. En celular, si el
  * botón no aparece, toca otra vez. En escritorio no se repite: un clic que no cae en un objeto
  * bloquea el ratón.
  */
@@ -230,6 +266,7 @@ export async function tocarObjeto(
   boton: RegExp,
 ): Promise<void> {
   await mirarHacia(page, caja, punto, conDedo);
+  await inclinarHacia(page, caja, punto, conDedo);
   const esperado = page.getByRole('button', { name: boton });
   for (let intento = 0; ; intento++) {
     await tocar(page, await enPantalla(page, caja, punto), conDedo);

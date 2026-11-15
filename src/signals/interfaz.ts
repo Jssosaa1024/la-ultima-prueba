@@ -16,7 +16,15 @@ import { fase } from './partida';
  * la máquina de la sala actual; y `pistas`, las pistas de esa máquina.
  */
 export type Panel =
-  'cuaderno' | 'inspeccion' | 'pausa' | 'salida' | 'ayuda' | 'mecanismo' | 'pistas';
+  | 'cuaderno'
+  | 'inspeccion'
+  | 'pausa'
+  | 'salida'
+  | 'ayuda'
+  | 'mecanismo'
+  | 'pistas'
+  /** La grabación escondida en la sala actual, recién recogida (T75). */
+  | 'grabacion';
 
 /** Lo que pasa al tocar el botón contextual sobre el objeto enfocado. */
 export type AccionObjeto = 'usar' | 'recoger' | 'examinar';
@@ -78,7 +86,7 @@ export function abrirCuaderno(): void {
 }
 
 /** Abre un panel que no necesita más datos (la puerta de salida, la máquina de la sala…). */
-export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas'): void {
+export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion'): void {
   batch(() => {
     inspeccionando.value = null;
     panel.value = cual;
