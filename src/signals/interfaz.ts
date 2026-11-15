@@ -1,4 +1,5 @@
 import { batch, computed, signal } from '@preact/signals';
+import { girarTelefono } from './pantalla';
 import { fase } from './partida';
 
 /**
@@ -66,8 +67,13 @@ export const resultadoVisto = signal(0);
 /** Último aviso sin leer. Lo escribe el controlador y lo borra el HUD al rato de mostrarlo. */
 export const aviso = signal<Aviso | null>(null);
 
-/** El motor solo mueve al jugador y lee toques cuando se está jugando y no hay panel abierto. */
-export const controlesActivos = computed(() => fase.value === 'jugando' && panel.value === null);
+/**
+ * El motor solo mueve al jugador y lee toques cuando se está jugando, no hay panel abierto y
+ * el celular no está en vertical (T41b).
+ */
+export const controlesActivos = computed(
+  () => fase.value === 'jugando' && panel.value === null && !girarTelefono.value,
+);
 
 /** Abre la vista de inspección de un objeto. */
 export function abrirInspeccion(objeto: string): void {

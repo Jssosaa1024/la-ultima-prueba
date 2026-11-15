@@ -60,6 +60,7 @@ import {
   sala,
   sellos,
 } from '../../src/signals/partida';
+import { girarTelefono } from '../../src/signals/pantalla';
 import { enviar, escuchar } from '../../src/signals/puente';
 
 /** Documento falso: deja ocultar y mostrar la pestaña desde la prueba. */
@@ -127,6 +128,7 @@ afterEach(() => {
   reiniciarCuaderno();
   reiniciarMecanismo();
   fichas.value = {};
+  girarTelefono.value = false;
 });
 
 describe('controlador: empezar, pausar y salir', () => {
@@ -236,6 +238,47 @@ describe('controlador: pestaña oculta', () => {
     detener();
     documento.ocultar(true);
     expect(reloj.value.pausado).toBe(false);
+  });
+});
+
+describe('controlador: celular en vertical (T41b)', () => {
+  it('con el aviso de girar el teléfono el reloj se pausa, y al girarlo sigue', () => {
+    jugar();
+    avanzar(10_000);
+    girarTelefono.value = true;
+    expect(reloj.value.pausado).toBe(true);
+    avanzar(60_000);
+    girarTelefono.value = false;
+    expect(reloj.value.pausado).toBe(false);
+    avanzar(5_000);
+    expect(restanteEn(reloj.value, ahora)).toBe(DURACION_MS - 15_000);
+  });
+
+  it('con el cuaderno abierto, girar a horizontal no reanuda el reloj', () => {
+    jugar();
+    enviar({ t: 'pausar' });
+    girarTelefono.value = true;
+    girarTelefono.value = false;
+    expect(reloj.value.pausado).toBe(true);
+    girarTelefono.value = true;
+    enviar({ t: 'reanudar' });
+    expect(reloj.value.pausado).toBe(true);
+    girarTelefono.value = false;
+    expect(reloj.value.pausado).toBe(false);
+  });
+
+  it('una partida que empieza en vertical arranca en pausa', () => {
+    girarTelefono.value = true;
+    jugar();
+    expect(reloj.value.pausado).toBe(true);
+    girarTelefono.value = false;
+    expect(reloj.value.pausado).toBe(false);
+  });
+
+  it('en el menú, girar el teléfono no hace nada', () => {
+    girarTelefono.value = true;
+    girarTelefono.value = false;
+    expect(fase.value).toBe('inicio');
   });
 });
 
