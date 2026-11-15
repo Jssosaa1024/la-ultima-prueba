@@ -184,6 +184,7 @@ describe('controlador: cuándo habla La Voz', () => {
       restanteMs: 30 * 60 * 1000,
       pistas: {},
       mecanismos: {},
+      resueltas: {},
       notas: [],
       datos: [],
       inventario: [],

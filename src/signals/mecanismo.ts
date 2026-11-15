@@ -68,8 +68,8 @@ export const resultado = signal<ResultadoMecanismo | null>(null);
  * con los que se resolvió la última etapa. Al volver a una sala resuelta, su máquina se ve
  * como se dejó. `null` en la portería y en las salas con etapas pendientes.
  *
- * Después de recargar la página no se sabe con qué ajustes exactos se resolvió, así que vale
- * la solución de ejemplo de la última etapa del puzzle.
+ * También después de recargar la página: el guardado conserva cómo quedó cada máquina
+ * resuelta (decisión 11 del hito 1). Solo un guardado de antes muestra la solución de ejemplo.
  */
 export const maquinaResuelta = signal<unknown>(null);
 

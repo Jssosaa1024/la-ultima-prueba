@@ -713,7 +713,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T11g** (v1.1) Esquema de `art/credits.json`, carpeta de evidencias y escritura de `asset.copyright` en cada GLB — 50 min. Esquema en `scripts/creditos/esquema.ts`; `optimize-models` escribe el crédito con `textoCopyright()` y no escribe en `public/assets/salas/` un modelo sin entrada
 - [x] **T11h** (v1.1) Script `check-credits` con todas las reglas de licencia y sus tests — 50 min. Reglas en `scripts/creditos/reglas.ts`; corre en `build` y `verify` antes de `astro build`. Además de las de la lista: CC BY exige el enlace a la licencia, lo generado con IA exige el prompt y la captura anotada debe existir
 - [ ] **T11i** (v1.1) Página `/creditos` generada desde el manifiesto y agrupada por sala — 45 min
-- [ ] **T11j** (v1.1) Script `check-audio`: sin `.ogg` en `public/` y −16 LUFS ± 1 LU — 35 min
+- [x] **T11j** (v1.1) Script `check-audio`: sin `.ogg` en `public/` y −16 LUFS ± 1 LU — 35 min
 - [ ] **T11k** (v1.1) Bandera `PUBLIC_LAB`, `build:lab` con originales y `noindex`, y exclusión total en producción — 45 min
 - [ ] **T11l** (v1.1) Modo `?lab=1`: alternar original y optimizado con la misma cámara, alambre y tabla de diferencias — 55 min
 - [ ] **T11m** (v1.1) Módulo `debug/metricas.ts`: tiempo de cuadro, `renderer.info`, memoria estimada, `transferSize` y carga — 55 min
@@ -787,7 +787,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 ### Fase 5 · Audio
 
-- [ ] **T42** Script `optimize-audio`: WAV a AAC mono normalizado a −16 LUFS (v1.1) — 40 min
+- [x] **T42** Script `optimize-audio`: WAV a AAC mono normalizado a −16 LUFS (v1.1) — 40 min
 - [ ] **T43** Desbloqueo de audio en iOS tras el primer toque y mezcla de voz y ambiente — 40 min
 
 ### Fase 6 · Recorte vertical: portería y sala 1

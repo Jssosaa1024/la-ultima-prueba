@@ -354,8 +354,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
   /**
    * Los ajustes con los que quedó la máquina de la sala actual, si ya tiene sello: los que
-   * se usaron al resolverla o, si no se saben (se continuó una partida guardada), la solución
-   * de ejemplo de su última etapa.
+   * se usaron al resolverla (también tras recargar) o, si no se saben (un guardado de antes
+   * de guardarlos, o uno que no pasó la revisión), la solución de ejemplo de su última etapa.
    */
   function estadoConservado(p: Partida): unknown {
     if (p.lugar === 'porteria' || !salaResuelta(p, p.lugar)) return null;
@@ -475,6 +475,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       restanteMs: restante(reloj.value, ahora()),
       pistas: pistasPorSala,
       mecanismos: ajustes,
+      resueltas: finales,
       notas: notas.value.map((n) => ({ id: n.id, texto: n.texto })),
       datos: [...datosEncontrados.value],
       inventario: inventario.value.map((o) => o.id),
@@ -517,7 +518,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       pistasPorSala = g ? { ...g.pistas } : {};
       ajustes = g ? { ...g.mecanismos } : {};
       reposos = {};
-      finales = {};
+      // Cómo quedó cada máquina resuelta, también tras recargar (decisión 11 del hito 1).
+      finales = g ? { ...g.resueltas } : {};
       msSinTocar = 0;
       esperas = new Set();
       dichas = lineasYaDichas(g);
