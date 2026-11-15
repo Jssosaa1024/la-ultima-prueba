@@ -1,7 +1,23 @@
-import { escalaResolucion, pantalla } from '../signals/pantalla';
+import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
 
 /** Límite de resolución interna en celular (especificación, sección 0). */
 export const DPR_MAX = 1.25;
+
+/** Lado corto, en píxeles CSS, por debajo del cual una pantalla táctil se trata como celular. */
+export const LADO_CORTO_CELULAR = 600;
+
+/**
+ * Si hay que pedir que se gire el teléfono (T41b): pantalla táctil (puntero grueso), más alta
+ * que ancha y con el lado corto de celular. Una tableta o un PC con la ventana angosta no.
+ */
+export function debeGirar(ancho: number, alto: number, tactil: boolean): boolean {
+  return tactil && alto > ancho && Math.min(ancho, alto) < LADO_CORTO_CELULAR;
+}
+
+/** Pantalla táctil sin ratón: celulares y tabletas. */
+function esTactil(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+}
 
 /**
  * Mantiene el buffer del canvas del tamaño de su caja en pantalla, con el DPR limitado y
@@ -21,6 +37,8 @@ export function ajustarCanvas(canvas: HTMLCanvasElement, alCambiar: () => void):
       canvas.height = h;
     }
     pantalla.value = { ancho, alto, dprEquipo, dprUsado };
+    const girar = debeGirar(ancho, alto, esTactil());
+    if (girarTelefono.peek() !== girar) girarTelefono.value = girar;
     alCambiar();
   };
 
@@ -36,5 +54,6 @@ export function ajustarCanvas(canvas: HTMLCanvasElement, alCambiar: () => void):
     observador.disconnect();
     window.removeEventListener('resize', actualizar);
     dejarDeSeguirEscala();
+    girarTelefono.value = false;
   };
 }

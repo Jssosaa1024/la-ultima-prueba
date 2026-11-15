@@ -40,6 +40,7 @@ import {
   verPista,
   type EstadoPistas,
 } from '../game/pistas';
+import { resumenDeAprendizaje } from '../game/aprendizaje';
 import type { Evaluacion } from '../game/puzzles';
 import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
@@ -81,12 +82,14 @@ import {
   inventario,
   modo,
   opcionesFinal,
+  aprendizaje,
   reiniciarPartida,
   reloj,
   sala,
   sellos,
   type ObjetoInventario,
 } from './partida';
+import { girarTelefono } from './pantalla';
 import { escuchar, type Comando } from './puente';
 
 /**
@@ -150,9 +153,10 @@ function objetoDeInventario(id: string): ObjetoInventario | null {
 /**
  * Por qué está detenido el reloj. Mientras quede algún motivo, no corre:
  * - `orden`: lo pidió la interfaz (el cuaderno abierto en modo individual);
- * - `oculta`: la pestaña no se ve (otra app, pantalla bloqueada).
+ * - `oculta`: la pestaña no se ve (otra app, pantalla bloqueada);
+ * - `vertical`: el celular está en vertical y se ve el aviso de girarlo (T41b).
  */
-type MotivoPausa = 'orden' | 'oculta';
+type MotivoPausa = 'orden' | 'oculta' | 'vertical';
 
 interface EtapaEnCurso {
   sala: SalaId;
@@ -340,6 +344,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
       if (p.fase === 'final') {
         cerrarPanel();
+        // Lo que aprendió en cada sala, con las pistas que abrió (punto 15 del hito 1).
+        aprendizaje.value = resumenDeAprendizaje(p, pistasPorSala);
         final.value = p.final;
         fase.value = 'final';
         // Un final borra el guardado (lo hace `guardar`): ya no hay nada que continuar.
@@ -456,6 +462,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       contadorNotas = g ? Math.max(0, ...g.notas.map((n) => Number(n.id.slice(1)))) : 0;
       motivos.clear();
       if (documento?.hidden) motivos.add('oculta');
+      if (girarTelefono.peek()) motivos.add('vertical');
       batch(() => {
         reiniciarInterfaz();
         reiniciarPartida();
@@ -670,9 +677,18 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
 
   const dejarDeEscuchar = escuchar(atender);
   documento?.addEventListener('visibilitychange', alCambiarVisibilidad);
+  // Con el celular en vertical el reloj se detiene mientras se ve el aviso de girarlo (T41b).
+  const dejarDeMirarOrientacion = girarTelefono.subscribe((vertical) => {
+    if (!partida) return;
+    cambiar(() => {
+      if (vertical) motivos.add('vertical');
+      else motivos.delete('vertical');
+    });
+  });
   mirarGuardado();
   return () => {
     dejarDeEscuchar();
+    dejarDeMirarOrientacion();
     documento?.removeEventListener('visibilitychange', alCambiarVisibilidad);
     clearTimeout(temporizador);
   };

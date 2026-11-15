@@ -1,0 +1,28 @@
+/* Panel de ajustes (T39). Los controles son los de los paneles de mecanismo (marco/). */
+.ajustes .control:first-child {
+  margin-top: 0;
+}
+
+.ajustes-nota {
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  color: #b8c2cc;
+}
+
+.ajustes-pausa {
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+  color: #b8c2cc;
+}
+
+/*
+ * Tamaño del texto: la interfaz mide sus letras en `rem`, así que basta con cambiar la letra
+ * de la raíz. Lo pone `aplicarTamanoTexto` en `<html data-texto>`.
+ */
+:root[data-texto='grande'] {
+  font-size: 112.5%;
+}
+
+:root[data-texto='muy-grande'] {
+  font-size: 125%;
+}
