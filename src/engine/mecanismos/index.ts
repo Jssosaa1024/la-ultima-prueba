@@ -1,6 +1,7 @@
 import type { Object3D } from 'three';
 import type { Lugar } from '../../content/esquema-salas';
 import { animarEtiquetadora } from './etiquetadora';
+import { animarReflector } from './reflector';
 import { animarTanques } from './tanques';
 import type { AnimacionSala } from './tipos';
 import { animarUrna } from './urna';
@@ -11,6 +12,7 @@ export type { AnimacionSala } from './tipos';
 const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   's1-cooperativa': animarEtiquetadora,
   's2-laboratorio': animarTanques,
+  's3-gimnasio': animarReflector,
   's5-rectoria': (raiz) => animarUrna(raiz),
 };
 

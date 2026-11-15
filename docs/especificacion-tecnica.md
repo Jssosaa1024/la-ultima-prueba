@@ -537,6 +537,20 @@ Ejemplo con la sala 4. La etapa «torcer» empieza con los libros repartidos par
 - **Tamaño:** como máximo 6 bloques por ficha, textos de 280 caracteres y tablas de 4 columnas y 8 filas, para que se lea en un celular sin perderse.
 - **Tests** (`tests/unit/fichas.test.ts`): todo objeto con acción `examinar` tiene ficha en los cuatro momentos; ninguna ficha usa las palabras del cuaderno ni signos de una cuenta hecha; y los números de las fichas coinciden con los de los puzzles (si cambia un precio en el puzzle y no en la ficha, el test falla).
 
+### Sala 3: el panel del reflector y su animación (T58)
+
+**Panel 2D** (`src/ui/mecanismos/reflector/`), dentro del marco de T37:
+
+- Tres controles discretos: la muesca del reflector (cinco botones en una fila), la distancia del poste que se desliza (de 1 en 1 m) y la cuerda de la polea (de 1 en 1 m).
+- Un dibujo de lado, a escala, con cada poste, su sombra, el rayo que pasa por su punta y el sensor. Con dos postes se ve que los triángulos tienen la misma forma. Es de apoyo: lo mismo se lee en las frases, y el lector de pantalla lo salta.
+- «Lo que se ve ahora»: una frase por poste («su sombra mide 4 m. La punta pasa de largo del sensor, que está a 2 m») y, en la etapa de la polea, hasta qué metro de la cinta llega la sombra del marcador. Cambia con cada toque.
+- La polea responde al soltarla: «el gancho subió 5 m. Quedó colgando por debajo del marcador». Dice de qué lado quedó, no cuánto falta.
+- Las etapas 1 y 2 se resuelven solas tras 5 s quietas (lo hace el controlador, T31d); la 3, con «Soltar la polea».
+
+Los cálculos están en `src/game/puzzles/reflector.ts` (`lecturaPostes`, `sombraMarcador`, `lecturaPolea`), con enteros, y los textos en `src/ui/mecanismos/reflector/textos.ts`. Los dos tienen tests.
+
+**Animación 3D.** Usa el enganche de T45 (`src/engine/mecanismos/`): cada sala registra su animación en `index.ts` y el motor la crea al entrar, la llama una vez por cuadro y la libera al salir. La del gimnasio (`reflector.ts`) lee los signals de `src/signals/mecanismo.ts`, crea sus mallas una sola vez colgadas de la sala y no reserva memoria por cuadro. Inclina el reflector, muestra solo los postes de la etapa, desliza el poste móvil, estira la sombra de cada poste, enciende un disco por sensor y sube el gancho de la polea. Agrega 8 mallas (la sala queda muy por debajo de las 40), que no reciben toques (`sinRayo`, en `comunes.ts`). Es un blockout: una sombra que no cabe en la cancha se corta en la pared.
+
 ## 3) Protocolo del modo cooperativo
 
 Cada partida usa un canal privado de Supabase Realtime (`partida:K7MP`) y un anfitrión autoritativo: quien crea la partida decide reloj, objetos, etapas resueltas y finales; los demás envían intenciones y reciben eventos numerados. Los mensajes llevan identificadores, nunca textos, porque cada cliente ya tiene el contenido.
@@ -777,7 +791,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T55** Sala 2: lightmap y exportación — 45 min
 - [ ] **T56** Sala 2: presupuesto y prueba en celular — 40 min
 - [ ] **T57** Sala 3: blockout del gimnasio con colisiones — 55 min
-- [ ] **T58** (v1.2) Sala 3: reflector con muescas, postes, sensores y polea, en tres etapas — 50 min
+- [x] **T58** (v1.2) Sala 3: reflector con muescas, postes, sensores y polea, en tres etapas — 50 min
 - [ ] **T59** Sala 3: props, lote 1 — 55 min
 - [ ] **T60** Sala 3: props, lote 2 — 55 min
 - [ ] **T61** Sala 3: lightmap y exportación — 45 min
