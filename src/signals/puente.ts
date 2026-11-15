@@ -1,6 +1,6 @@
 import type { AccionObjeto } from './interfaz';
 import type { OpcionFinal } from '../game/partida';
-import type { FinalId, Modo } from './partida';
+import type { Modo } from './partida';
 
 /**
  * Puente de órdenes entre capas (T31).
@@ -38,8 +38,6 @@ export type Comando =
   | { t: 'accionar'; objeto: string }
   /** Abrir la siguiente pista ofrecida del puzzle de la sala actual. */
   | { t: 'ver_pista' }
-  /** Solo con `/jugar?ejemplo=1`: datos de ejemplo y, si se pide, salto directo a un final. */
-  | { t: 'ejemplo'; final: FinalId | null }
   /** Notas del cuaderno: texto escrito por el propio jugador, de 280 caracteres o menos. */
   | { t: 'nota'; op: 'agregar'; texto: string }
   | { t: 'nota'; op: 'borrar'; id: string };

@@ -102,7 +102,7 @@ export default function PanelUrna({
 }
 
 function Ficha({ color }: { color: 'a' | 'm' }) {
-  return <span class={`ficha ${color === 'a' ? 'ficha-azul' : 'ficha-amarilla'}`} />;
+  return <span class={`urna-ficha ${color === 'a' ? 'urna-ficha-azul' : 'urna-ficha-amarilla'}`} />;
 }
 
 /** Todas las formas de sacar dos fichas: cada pareja, una vez. */

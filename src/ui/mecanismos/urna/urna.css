@@ -19,7 +19,7 @@
 }
 
 /* Azules redondas y amarillas cuadradas: se distinguen también por la forma. */
-.ficha {
+.urna-ficha {
   display: inline-block;
   width: 22px;
   height: 22px;
@@ -27,12 +27,12 @@
   border: 2px solid #111418;
 }
 
-.ficha-azul {
+.urna-ficha-azul {
   border-radius: 50%;
   background: #5aa9e6;
 }
 
-.ficha-amarilla {
+.urna-ficha-amarilla {
   border-radius: 3px;
   background: #f1c40f;
 }
@@ -72,7 +72,7 @@
   background: #252d36;
 }
 
-.pareja .ficha {
+.pareja .urna-ficha {
   width: 14px;
   height: 14px;
 }

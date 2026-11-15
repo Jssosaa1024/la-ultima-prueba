@@ -7,8 +7,7 @@ import {
   notas,
   reiniciarCuaderno,
 } from '../../src/signals/cuaderno';
-import { quitarEjemplo } from '../../src/signals/ejemplo';
-import { reiniciarInterfaz } from '../../src/signals/interfaz';
+import { enfocado, reiniciarInterfaz } from '../../src/signals/interfaz';
 import { reiniciarPartida } from '../../src/signals/partida';
 import { enviar } from '../../src/signals/puente';
 
@@ -21,7 +20,6 @@ beforeEach(() => {
 
 afterEach(() => {
   detener();
-  quitarEjemplo();
   reiniciarPartida();
   reiniciarInterfaz();
   reiniciarCuaderno();
@@ -64,8 +62,11 @@ describe('notas del cuaderno', () => {
 
 describe('datos encontrados', () => {
   it('examinar un objeto lo anota una sola vez', () => {
-    enviar({ t: 'ejemplo', final: null });
-    enviar({ t: 'accion', objeto: 's1-factura', accion: 'examinar' });
-    expect(datosEncontrados.value).toEqual(['s1-factura']);
+    // El motor enfoca el mural de la portería y el jugador toca «Examinar» dos veces.
+    for (let i = 0; i < 2; i++) {
+      enfocado.value = { id: 'porteria-mural', nombre: 'Mural de sellos', accion: 'examinar' };
+      enviar({ t: 'accion', objeto: 'porteria-mural', accion: 'examinar' });
+    }
+    expect(datosEncontrados.value).toEqual(['porteria-mural']);
   });
 });

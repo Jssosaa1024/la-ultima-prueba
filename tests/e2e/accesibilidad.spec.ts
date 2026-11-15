@@ -1,8 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
+import { continuarEn, tocarObjeto, type Punto3 } from './escena';
 
 // T41: objetivos táctiles de 44 px, nombres accesibles, foco visible y anuncios.
+// El anuncio «Recogiste: …» se prueba al recoger el cuaderno, en `partida.spec.ts`.
 
 const TOCABLES = 'button, a[href], summary, textarea, input, select';
+
+/** La caja de rodillos, sobre el mostrador de la cooperativa. */
+const CAJA_DE_RODILLOS: Punto3 = [1.55, 1.08, -0.6];
 
 /** Revisa que todo lo tocable que se ve mida al menos 44 × 44 px y tenga nombre. */
 async function revisarTocables(page: Page, donde: string): Promise<void> {
@@ -31,16 +36,26 @@ async function revisarTocables(page: Page, donde: string): Promise<void> {
   expect(problemas, donde).toEqual([]);
 }
 
-test('menú, HUD, inspección, cuaderno y final: objetivos de 44 px con nombre', async ({ page }) => {
-  await page.goto('/jugar?ejemplo=1');
+test('el menú de inicio: objetivos de 44 px con nombre', async ({ page }) => {
+  await page.goto('/jugar');
   await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
   await revisarTocables(page, 'menú');
+});
 
-  await page.getByRole('button', { name: 'Jugar solo' }).click();
+test('HUD, inspección, cuaderno y panel de la máquina: objetivos de 44 px con nombre', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const caja = await continuarEn(page, {
+    sala: 's1-cooperativa',
+    inventario: ['porteria-cuaderno', 'porteria-linterna'],
+  });
   await expect(page.getByRole('timer')).toBeVisible();
   await revisarTocables(page, 'HUD');
 
-  await page.getByRole('button', { name: /^Examinar/ }).click();
+  await tocarObjeto(page, caja, CAJA_DE_RODILLOS, conDedo, /Examinar.*Caja de rodillos/);
+  await revisarTocables(page, 'HUD con el botón contextual');
+  await page.getByRole('button', { name: /Examinar.*Caja de rodillos/ }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await revisarTocables(page, 'inspección');
   await page.getByRole('button', { name: 'Cerrar' }).click();
@@ -53,10 +68,12 @@ test('menú, HUD, inspección, cuaderno y final: objetivos de 44 px con nombre',
 });
 
 test('las pantallas de final cumplen los 44 px', async ({ page }) => {
-  await page.goto('/jugar?ejemplo=1&final=justo_a_tiempo');
-  await page.getByRole('button', { name: 'Jugar solo' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Justo a tiempo' })).toBeVisible();
+  // A la partida guardada le quedan pocos segundos: termina en «Tiempo cumplido».
+  await continuarEn(page, { sala: 's1-cooperativa', restanteMs: 3000 });
+  await expect(page.getByRole('heading', { level: 1, name: 'Tiempo cumplido' })).toBeVisible();
   await revisarTocables(page, 'final');
+  await page.getByRole('button', { name: 'Ver créditos' }).click();
+  await revisarTocables(page, 'créditos');
 });
 
 test('con el teclado, el foco se ve', async ({ page, browserName }, info) => {
@@ -77,18 +94,4 @@ test('el HUD tiene un encabezado para el lector de pantalla', async ({ page }) =
   await page.goto('/jugar');
   await page.getByRole('button', { name: 'Jugar solo' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Partida en curso' })).toHaveCount(1);
-});
-
-test('recoger un objeto se anuncia al lector de pantalla', async ({ page }) => {
-  await page.goto('/jugar?ejemplo=1');
-  await page.getByRole('button', { name: 'Jugar solo' }).click();
-  // Factura y menú se examinan; la tarjeta se recoge.
-  for (let i = 0; i < 2; i++) {
-    await page.getByRole('button', { name: /^Examinar/ }).click();
-    await page.getByRole('button', { name: 'Cerrar' }).click();
-  }
-  await page.getByRole('button', { name: /^Recoger/ }).click();
-  await expect(page.locator('[aria-live="polite"]')).toHaveText(
-    'Recogiste: Tarjeta de porcentajes.',
-  );
 });

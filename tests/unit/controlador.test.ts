@@ -25,7 +25,7 @@ import {
   notas,
   reiniciarCuaderno,
 } from '../../src/signals/cuaderno';
-import { quitarEjemplo } from '../../src/signals/ejemplo';
+import { fichas } from '../../src/signals/contenido';
 import {
   aviso,
   enfocado,
@@ -93,6 +93,18 @@ function accionar(objeto: string, accion: AccionObjeto): void {
 }
 
 const usar = (objeto: string): void => accionar(objeto, 'usar');
+
+/** Entra a la sala 1, la resuelve con las soluciones del JSON y vuelve a la portería. */
+function ganarElPrimerSello(): void {
+  const s1 = PUZZLES[0];
+  if (!s1) throw new Error('falta el puzzle de la sala 1');
+  usar('porteria-puerta-1');
+  for (const e of s1.etapas) {
+    enviar({ t: 'ajustar', estado: e.solucion });
+    if (e.intento.tipo === 'accionar') enviar({ t: 'accionar', objeto: e.intento.objeto });
+  }
+  usar('s1-puerta');
+}
 const jugar = (): void => enviar({ t: 'iniciar', modo: 'individual' });
 
 beforeEach(() => {
@@ -107,11 +119,11 @@ afterEach(() => {
   detener();
   vi.useRealTimers();
   vi.restoreAllMocks();
-  quitarEjemplo();
   reiniciarPartida();
   reiniciarInterfaz();
   reiniciarCuaderno();
   reiniciarMecanismo();
+  fichas.value = {};
 });
 
 describe('controlador: empezar, pausar y salir', () => {
@@ -306,7 +318,7 @@ describe('controlador: puertas en orden', () => {
 
   it('con la sala 1 resuelta se abre la puerta 2, pero no la 3', () => {
     jugar();
-    enviar({ t: 'ejemplo', final: null });
+    ganarElPrimerSello();
     expect(sellos.value).toEqual(['s1-cooperativa']);
     usar('porteria-puerta-3');
     expect(sala.value).toBe('porteria');
@@ -318,7 +330,7 @@ describe('controlador: puertas en orden', () => {
 
   it('no se pasa de una sala a otra sin volver a la portería', () => {
     jugar();
-    enviar({ t: 'ejemplo', final: null });
+    ganarElPrimerSello();
     usar('porteria-puerta-1');
     usar('porteria-puerta-2');
     expect(sala.value).toBe('s1-cooperativa');
@@ -367,21 +379,6 @@ describe('controlador: puerta de salida e intercomunicador', () => {
     avanzar(DURACION_MS);
     expect(final.value).toBe('pedir_ayuda');
   });
-
-  it.each([
-    ['justo_a_tiempo', 5, 3],
-    ['el_legado', 5, 3],
-    ['pedir_ayuda', 5, 3],
-    ['tiempo_cumplido', 5, 3],
-  ] as const)('con ?ejemplo=1&final=%s se llega a ese final', (id, nSellos, nGrabaciones) => {
-    jugar();
-    enviar({ t: 'ejemplo', final: id });
-    expect(fase.value).toBe('final');
-    expect(final.value).toBe(id);
-    expect(sellos.value).toHaveLength(nSellos);
-    expect(grabaciones.value).toHaveLength(nGrabaciones);
-    expect(reloj.value.pausado).toBe(true);
-  });
 });
 
 describe('controlador: signals del mecanismo y pistas', () => {
@@ -403,7 +400,7 @@ describe('controlador: signals del mecanismo y pistas', () => {
 
   it('una sala con sello ya no tiene etapa pendiente', () => {
     jugar();
-    enviar({ t: 'ejemplo', final: null });
+    ganarElPrimerSello();
     usar('porteria-puerta-1');
     expect(etapa.value).toBeNull();
   });
@@ -457,25 +454,57 @@ describe('controlador: signals del mecanismo y pistas', () => {
   });
 });
 
-describe('controlador: datos de ejemplo (?ejemplo=1)', () => {
-  it('examinar abre la inspección y recoger guarda el objeto', () => {
+describe('controlador: fichas de inspección (T35c)', () => {
+  it('al empezar publica las fichas de todas las salas, con el nombre del objeto de título', () => {
+    expect(fichas.value).toEqual({});
     jugar();
-    enviar({ t: 'ejemplo', final: null });
-    expect(cuadernoActivo.value).toBe(true);
-    expect(enfocado.value?.id).toBe('s1-factura');
-    enviar({ t: 'accion', objeto: 's1-factura', accion: 'examinar' });
-    expect(panel.value).toBe('inspeccion');
-    expect(inspeccionando.value).toBe('s1-factura');
-    expect(enfocado.value?.id).toBe('s1-menu');
-    enviar({ t: 'accion', objeto: 's1-menu', accion: 'examinar' });
-    enviar({ t: 'accion', objeto: 's1-tarjeta', accion: 'recoger' });
-    expect(inventario.value.map((o) => o.id)).toEqual(['s1-tarjeta']);
+    expect(fichas.value['porteria-mural']?.titulo).toBe(nombreDeObjeto('porteria-mural'));
+    expect(fichas.value['s1-pizarra']?.bloques[0]).toMatchObject({ tipo: 'tabla' });
+    // Los objetos que se usan (la máquina) no tienen ficha.
+    expect(fichas.value['s1-etiquetadora']).toBeUndefined();
   });
 
-  it('sin partida en marcha, la orden de ejemplo no hace nada', () => {
-    enviar({ t: 'ejemplo', final: 'el_legado' });
-    expect(fase.value).toBe('inicio');
-    expect(sellos.value).toEqual([]);
+  it('examinar un objeto real abre su ficha y lo anota en el cuaderno', () => {
+    jugar();
+    accionar('porteria-mural', 'examinar');
+    expect(panel.value).toBe('inspeccion');
+    expect(inspeccionando.value).toBe('porteria-mural');
+    expect(fichas.value[inspeccionando.value ?? '']).toBeDefined();
+    expect(datosEncontrados.value).toEqual(['porteria-mural']);
+  });
+
+  it('las fichas que dependen del avance cambian al resolver una etapa', () => {
+    const s1 = PUZZLES[0];
+    if (!s1) throw new Error('falta el puzzle de la sala 1');
+    jugar();
+    usar('porteria-puerta-1');
+    const antes = fichas.value['s1-productos'];
+    const pizarra = fichas.value['s1-pizarra'];
+    enviar({ t: 'ajustar', estado: s1.etapas[0]?.solucion });
+    enviar({ t: 'accionar', objeto: 's1-palanca' });
+    expect(etapa.value?.etapa).toBe(1);
+    expect(fichas.value['s1-productos']).not.toEqual(antes);
+    // Las que no dependen del avance siguen siendo el mismo objeto: no se redibujan.
+    expect(fichas.value['s1-pizarra']).toEqual(pizarra);
+  });
+
+  it('un papel que se recoge queda en los datos encontrados, para leerlo en el cuaderno', () => {
+    jugar();
+    ganarElPrimerSello();
+    usar('porteria-puerta-2');
+    accionar('s2-hoja-ayer', 'recoger');
+    expect(inventario.value.map((o) => o.id)).toEqual(['s2-hoja-ayer']);
+    expect(datosEncontrados.value).toEqual(['s2-hoja-ayer']);
+    // La linterna no tiene nada escrito: no es un dato.
+    usar('s2-puerta');
+    accionar('porteria-linterna', 'recoger');
+    expect(datosEncontrados.value).toEqual(['s2-hoja-ayer']);
+  });
+
+  it('al salir al menú no quedan fichas', () => {
+    jugar();
+    enviar({ t: 'salir' });
+    expect(fichas.value).toEqual({});
   });
 });
 
@@ -507,7 +536,6 @@ describe('controlador: guardar y continuar (T31c)', () => {
   /** Vuelve a arrancar el controlador, como al recargar la página, con ese almacén. */
   function recargar(almacen: Almacen | null): void {
     detener();
-    quitarEjemplo();
     reiniciarPartida();
     reiniciarInterfaz();
     reiniciarCuaderno();
@@ -705,15 +733,6 @@ describe('controlador: guardar y continuar (T31c)', () => {
     enviar({ t: 'continuar' });
     enviar({ t: 'salir' });
     expect(fase.value).toBe('inicio');
-  });
-
-  it('los datos de ejemplo no dejan una partida guardada', () => {
-    const almacen = memoria();
-    recargar(almacen);
-    jugar();
-    enviar({ t: 'ejemplo', final: null });
-    enviar({ t: 'accion', objeto: 's1-factura', accion: 'examinar' });
-    expect(almacen.datos.size).toBe(0);
   });
 
   it('no acepta más notas de las que caben en el guardado', () => {
