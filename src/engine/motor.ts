@@ -13,7 +13,8 @@ import { RADIO_JOYSTICK } from '../input/joystick';
 import { conectarEscritorio } from '../input/escritorio';
 import { conectarTactil } from '../input/tactil';
 import { joystick, punteroBloqueado } from '../signals/controles';
-import { controlesActivos, enfocado } from '../signals/interfaz';
+import { controlesActivos, enfocado, panel } from '../signals/interfaz';
+import { escalaResolucion } from '../signals/pantalla';
 import { estadoMotor } from '../signals/motor';
 import { fase, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
@@ -23,6 +24,7 @@ import { aplicarACamara, girar } from './jugador/camara';
 import type { Orientacion } from './jugador/camara';
 import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
+import { crearEscalaDinamica } from './escala';
 import { crearBucle } from './loop';
 import { animacionDeSala } from './mecanismos';
 import type { AnimacionSala } from './mecanismos';
@@ -82,6 +84,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   let mostrada: Lugar | null = null;
   let precarga: ReturnType<typeof setTimeout> | undefined;
   let detenido = false;
+  // Escala dinámica de resolución (T13): baja los píxeles si no se alcanzan los 30 fps.
+  const escala = crearEscalaDinamica(escalaResolucion.peek());
+  canvas.dataset['escala'] = String(escala.valor);
   const depuracion = { mirada: '', posicion: '' };
 
   /** Dibuja un cuadro. Lo llama el bucle y, con el bucle en pausa, quien cambie la escena. */
@@ -112,6 +117,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     animacion = null;
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
+    // Compilar y armar la sala da tirones que no dicen nada del rendimiento al jugar.
+    escala.reiniciar();
     const nueva = await cargador.entrar(lugar);
     // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
     if (!nueva || detenido || mostrada !== lugar) return;
@@ -179,6 +186,18 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   });
   let cuadro = 0;
 
+  /** Solo cuentan los cuadros a velocidad normal: con un panel abierto se dibuja más lento. */
+  const medirRendimiento = (dt: number): void => {
+    if (panel.peek() !== null) {
+      escala.reiniciar();
+      return;
+    }
+    const nueva = escala.registrar(dt);
+    if (nueva === null) return;
+    escalaResolucion.value = nueva;
+    canvas.dataset['escala'] = String(nueva);
+  };
+
   const bucle = crearBucle({
     programar: (cuadro) => renderer.setAnimationLoop(cuadro),
     alCuadro: (dt) => {
@@ -220,6 +239,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       }
       publicarJoystick(entrada);
       dibujar();
+      medirRendimiento(dt);
     },
     alCambiarEstado: (estado) => {
       estadoMotor.value = estado;
@@ -266,6 +286,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['mallas'];
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
+    delete canvas.dataset['escala'];
+    escalaResolucion.value = 1;
   };
 }
 
