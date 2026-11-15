@@ -18,7 +18,7 @@ import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado, panel } from '../signals/interfaz';
 import { estadoMotor } from '../signals/motor';
 import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
-import { fase, sala, sellos } from '../signals/partida';
+import { fase, modo, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { audioDesbloqueado } from '../signals/audio';
 import {
@@ -29,6 +29,7 @@ import {
 } from '../debug/metricas';
 import type { MedidorMotor } from '../debug/medidor';
 import { iniciarAudio } from './audio/audio';
+import type { Companeros } from './coop/companeros';
 import { crearInteraccion } from './interaccion/interaccion';
 import type { Interaccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
@@ -227,6 +228,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     },
   });
   let cuadro = 0;
+  // Cooperativo (T82): los demás jugadores y la pose propia. Solo existe en una partida en grupo.
+  let companeros: Companeros | null = null;
 
   /** Solo cuentan los cuadros a velocidad normal: con un panel abierto se dibuja más lento. */
   const medirRendimiento = (dt: number): void => {
@@ -270,6 +273,15 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       // Con el puntero bloqueado, la mira del centro apunta (unas 10 veces por segundo).
       if (punteroBloqueado.value && activos() && cuadro % 6 === 0) interaccion?.tocar(0, 0);
       interaccion?.actualizar();
+      if (companeros && mostrada) {
+        companeros.cuadro(
+          performance.now(),
+          mostrada,
+          camara.position.x,
+          camara.position.z,
+          orientacion.yaw,
+        );
+      }
       if (animacion) {
         // También con un panel abierto (a 10 cuadros por segundo): al cerrarlo, la máquina ya
         // terminó de moverse.
@@ -316,6 +328,20 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     bucle.permitir(jugando);
   });
 
+  // Los compañeros se cargan aparte (import dinámico) y solo en el modo cooperativo.
+  let pedidoCompaneros = 0;
+  const dejarDeSeguirModo = effect(() => {
+    const enGrupo = modo.value === 'cooperativo';
+    const este = ++pedidoCompaneros;
+    companeros?.liberar();
+    companeros = null;
+    if (!enGrupo) return;
+    void import('./coop/companeros').then(({ crearCompaneros }) => {
+      if (detenido || este !== pedidoCompaneros) return;
+      companeros = crearCompaneros(escena, canvas);
+    });
+  });
+
   // El medidor del panel ?debug=1 se carga aparte (import dinámico) y solo mientras se ve.
   let pedidoMedidor = 0;
   const dejarDeSeguirDepuracion = effect(() => {
@@ -343,6 +369,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
 
   return () => {
     bucle.detener();
+    dejarDeSeguirModo();
+    companeros?.liberar();
+    companeros = null;
     dejarDeSeguirDepuracion();
     medidor?.liberar();
     medidor = null;

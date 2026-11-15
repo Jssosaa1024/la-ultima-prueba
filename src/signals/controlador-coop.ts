@@ -1,4 +1,4 @@
-import { batch } from '@preact/signals';
+import { batch, effect } from '@preact/signals';
 import type { Evento } from '../game/coop/mensajes';
 import {
   ClienteCoop,
@@ -20,6 +20,7 @@ import { reiniciarInterfaz } from './interfaz';
 import { JuegoCoop } from './juego-coop';
 import { reiniciarMecanismo } from './mecanismo';
 import { fase, modo, reiniciarPartida } from './partida';
+import { poseParaEnviar, recibirPose, reiniciarPoses } from './poses';
 import { reiniciarVoz } from './voz';
 import { escuchar, type Comando } from './puente';
 
@@ -177,6 +178,13 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
         // Señales y frases rápidas de los demás (T91). Las propias ya se anotaron al enviarlas.
         t.escuchar('dir', (m) => {
           if (m.t === 'senal' && m.de !== c.yo) juego?.alSenal(m.de, m.p);
+          // Poses de los demás (T82): el motor las interpola.
+          else if (m.t === 'pose' && m.de !== c.yo) recibirPose(m.de, m.p);
+        }),
+        // La pose propia (T82): el motor decide cuándo (4 Hz en movimiento y al detenerse).
+        effect(() => {
+          const p = poseParaEnviar.value;
+          if (p && juego) void t.enviar('dir', directo(c.yo, { t: 'pose', p }));
         }),
         t.presencia(() => queueMicrotask(() => publicar())),
       );
@@ -203,6 +211,7 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
   function salir(): void {
     limpiar();
     reiniciarCoop();
+    reiniciarPoses();
     // El controlador individual también atiende `salir` y deja la partida y la interfaz en
     // cero; aquí basta con soltar la red. Si no había partida (sala de espera), se limpia igual.
     batch(() => {
