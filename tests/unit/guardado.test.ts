@@ -62,6 +62,9 @@ const enCurso = (): Guardado => ({
       b: { nivel: 50, caudal: -2, visible: true },
     },
   },
+  resueltas: {
+    's1-cooperativa': { producto: 'combo', precio: 4000, rodillos: [50, -50] },
+  },
   notas: [{ id: 'n1', texto: 'B baja 2 cm cada segundo' }],
   datos: ['s2-hoja-ayer'],
   inventario: ['porteria-linterna', 'porteria-cuaderno'],
@@ -189,6 +192,29 @@ describe('guardar y reanudar (T30)', () => {
       m['s1-cooperativa'] = { a: { caudal: 1 } };
     });
     expect(g?.mecanismos).toEqual({});
+    expect(g?.partida.lugar).toBe('s2-laboratorio');
+  });
+
+  it('conserva cómo quedó cada máquina resuelta (decisión 11 del hito 1)', () => {
+    expect(conCambio(() => {})?.resueltas).toEqual({
+      's1-cooperativa': { producto: 'combo', precio: 4000, rodillos: [50, -50] },
+    });
+  });
+
+  it('descarta la máquina resuelta de una sala sin sello o con ajustes que no valen', () => {
+    const g = conCambio((x) => {
+      const r = x['resueltas'] as Record<string, unknown>;
+      // La sala 2 sigue a mitad: no tiene máquina resuelta.
+      r['s2-laboratorio'] = { a: { nivel: 10, caudal: 4, visible: true } };
+      (r['s1-cooperativa'] as { rodillos: number[] }).rodillos = [99];
+    });
+    expect(g?.resueltas).toEqual({});
+    expect(g?.partida.lugar).toBe('s2-laboratorio');
+  });
+
+  it('un guardado de antes, sin máquinas resueltas, se sigue pudiendo continuar', () => {
+    const g = conCambio((x) => delete x['resueltas']);
+    expect(g?.resueltas).toEqual({});
     expect(g?.partida.lugar).toBe('s2-laboratorio');
   });
 

@@ -133,6 +133,7 @@ describe('controlador: recoger las grabaciones', () => {
       restanteMs: 20 * 60 * 1000,
       pistas: {},
       mecanismos: {},
+      resueltas: {},
       notas: [],
       datos: [],
       inventario: [],
