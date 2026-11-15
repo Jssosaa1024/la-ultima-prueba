@@ -788,7 +788,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 ### Fase 5 · Audio
 
 - [x] **T42** Script `optimize-audio`: WAV a AAC mono normalizado a −16 LUFS (v1.1) — 40 min
-- [ ] **T43** Desbloqueo de audio en iOS tras el primer toque y mezcla de voz y ambiente — 40 min
+- [x] **T43** Desbloqueo de audio en iOS tras el primer toque y mezcla de voz y ambiente — 40 min
 
 ### Fase 6 · Recorte vertical: portería y sala 1
 

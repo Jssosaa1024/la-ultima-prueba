@@ -26,6 +26,7 @@ import { duracionCorridaS, nivelEn } from '../../game/puzzles';
 import { etapa, mecanismo, resultado } from '../../signals/mecanismo';
 import { sellos } from '../../signals/partida';
 import { idaYVuelta, mezclar, suave } from './curvas';
+import { sonar } from '../audio/eventos';
 import type { AnimacionSala } from './tipos';
 
 const SALA = 's2-laboratorio';
@@ -143,6 +144,8 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
     duracion: number;
     alto: number;
     t: number;
+    /** Si esta corrida ganó el sello: suena con la campana (T43). */
+    sello: boolean;
   } | null = null;
   let conSello = sellos.peek().includes(SALA);
   let apertura = conSello ? 1 : 0;
@@ -178,7 +181,14 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
     const datos = r.puzzle === PUZZLE ? puzzle?.etapas[r.etapa] : undefined;
     if (!datos) return;
     const { a, b } = leerTanques(r.estado);
-    corrida = { a, b, duracion: duracionCorridaS(datos), alto: datos.controles.altura_cm, t: 0 };
+    corrida = {
+      a,
+      b,
+      duracion: duracionCorridaS(datos),
+      alto: datos.controles.altura_cm,
+      t: 0,
+      sello: r.sello,
+    };
   });
   // Al cambiar de etapa (o los ajustes), los tanques en reposo se ponen al día.
   const dejarEtapa = effect(() => {
@@ -197,7 +207,13 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
   return {
     actualizar(dt) {
       if (corrida) {
+        const antes = corrida.t;
         corrida.t += dt;
+        // La campana suena cuando la corrida llega a su tiempo (T43).
+        if (antes < corrida.duracion && corrida.t >= corrida.duracion) {
+          sonar('campana');
+          if (corrida.sello) sonar('sello');
+        }
         const { a, b, duracion, alto, t } = corrida;
         // El líquido corre hasta la campana y ahí se queda quieto.
         const s = Math.min(t, duracion);
