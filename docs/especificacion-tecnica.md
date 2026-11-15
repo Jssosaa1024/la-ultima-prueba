@@ -656,7 +656,7 @@ Las reglas están en `src/game/coop/sesion.ts` (puras, con las mismas funciones 
 
 ### Reglas de consistencia
 
-- **Orden:** los eventos llevan `n` creciente. Si un cliente detecta un hueco, envía `pedir_estado` y aplica la foto completa. Las intenciones repetidas con el mismo `cid` se ignoran.
+- **Orden:** los eventos llevan `n` creciente. Si un cliente detecta un hueco, envía `pedir_estado` y aplica la foto completa. Las intenciones repetidas con el mismo `cid` se ignoran. T88: mientras espera la foto, el cliente no aplica eventos (la foto ya los trae) y repite el pedido a los 2 s si no llega; un evento con `n` ya aplicado se ignora. El anfitrión responde un `pedir_estado` por jugador por segundo como máximo, recuerda los últimos 512 `cid` y difunde la foto cada 15 s aunque nadie la pida, para corregir a quien perdió el último evento sin notarlo. El reparto no viaja en la foto: cada cliente lo recalcula con `orden`, `lugar` y `ausentes`.
 - **Reloj:** el anfitrión guarda el tiempo restante; cada cliente descuenta con su reloj local desde que recibe `reloj` o `estado`, y cada `estado` corrige la deriva. La pausa exige que todos voten a favor.
 - **Avance en grupo:** todo el grupo está siempre en la misma sala. Para pasar a la siguiente, o volver a una anterior a buscar grabaciones, se vota `sala` por unanimidad; el anfitrión emite `roles` de la nueva sala y todos los clientes la cargan.
 - **Confirmar una etapa:** una propuesta solo se acciona cuando todos los conectados aceptan; un rechazo o una propuesta nueva la anula. Elegir final y usar el intercomunicador siguen la misma unanimidad, para que nadie termine la partida por los demás.
@@ -855,7 +855,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T85** Flujo de propuesta, confirmación y resultado — 55 min
 - [ ] **T86** Pistas por rol y cuaderno compartido (datos encontrados y pistas; las notas son de cada jugador y no viajan) — 50 min
 - [x] **T87** Votos de pausa, cambio de sala, final y ayuda, con reloj sincronizado — 45 min
-- [ ] **T88** Secuencia, foto periódica y resincronización — 50 min
+- [x] **T88** Secuencia, foto periódica y resincronización — 50 min
 - [ ] **T89** Reconexión del mismo jugador con rol y objetos — 45 min
 - [ ] **T90** Migración de anfitrión — 55 min
 - [ ] **T91** Señalar y frases rápidas — 40 min

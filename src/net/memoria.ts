@@ -10,8 +10,8 @@ import { Oyentes, revisarUnion, type Transporte } from './transporte';
 export interface OpcionesRed {
   /** Milisegundos que tarda cada mensaje (fijo o por par emisor → receptor). */
   retrasoMs?: number | ((de: string, a: string) => number);
-  /** Probabilidad de perder cada entrega, de 0 a 1. */
-  perdida?: number;
+  /** Probabilidad de perder cada entrega, de 0 a 1 (fija o por canal y par emisor → receptor). */
+  perdida?: number | ((canal: Canal, de: string, a: string) => number);
   /** Semilla del azar de la pérdida, para que las pruebas se repitan igual. */
   semilla?: number;
 }
@@ -102,7 +102,9 @@ export class RedEnMemoria {
     for (const a of this.salas.get(codigo) ?? []) {
       const propio = a === de;
       // Las entregas a uno mismo no se pierden ni se retrasan (no pasan por la red).
-      if (!propio && this.azar() < (this.opciones.perdida ?? 0)) continue;
+      const p = this.opciones.perdida ?? 0;
+      const perdida = typeof p === 'number' ? p : p(canal, de.yo, a.yo);
+      if (!propio && this.azar() < perdida) continue;
       const r = this.opciones.retrasoMs ?? 0;
       const retraso = propio ? 0 : typeof r === 'number' ? r : r(de.yo, a.yo);
       this.cola.push({
