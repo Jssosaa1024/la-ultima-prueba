@@ -347,3 +347,24 @@ describe('informe de la prueba (T11r)', () => {
     expect(informeEstres(ESTRES_INACTIVO)).toBeNull();
   });
 });
+
+describe('cuadros muy lentos durante la prueba (T11o)', () => {
+  it('un cuadro de 1,5 s cuenta como lento, no como pausa', () => {
+    let final: EstadoCiclo | null = null;
+    const ciclo = crearCiclo({
+      eje: 'draw-calls',
+      maxEscalones: 1,
+      aplicar: () => undefined,
+      describir: () => '+10 draw calls',
+      medir: () => ({ triangulos: 0, draw_calls: 10, mb_texturas: 0 }),
+      guardarMarca: () => undefined,
+      borrarMarca: () => undefined,
+      alTerminar: (e) => {
+        final = e;
+      },
+    });
+    ciclo.iniciar(0);
+    for (let t = 0; !final && t < 60_000; t += 1500) ciclo.cuadro(t);
+    expect(final).toMatchObject({ escalones: [{ p95_ms: 1500, estado: 'lento' }] });
+  });
+});

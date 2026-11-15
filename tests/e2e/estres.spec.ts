@@ -20,15 +20,17 @@ const marca = (page: Page) => page.evaluate(() => localStorage.getItem('lup-estr
 
 for (const eje of ['Draw calls', 'Texturas'] as const) {
   test(`eje ${eje}: mide un escalón, al detener libera todo y borra la marca`, async ({ page }) => {
+    // El transcodificador de KTX2 y cada escalón tardan con WebGL por software y el equipo ocupado.
+    test.setTimeout(4 * 60_000);
     await abrirEstres(page);
     const panel = page.getByRole('region', { name: 'Métricas de rendimiento' });
     const estado = panel.locator('.depuracion-estres');
     await panel.getByRole('button', { name: eje }).click();
     // La marca se escribe antes de subir el escalón.
     await expect.poll(() => marca(page)).toContain('"estado":"en-curso"');
-    await expect(estado).toHaveAttribute('data-fase', 'midiendo', { timeout: 30_000 });
+    await expect(estado).toHaveAttribute('data-fase', 'midiendo', { timeout: 90_000 });
     await expect(panel.locator('.depuracion-escalones li').first()).toContainText(/^1\. \+/, {
-      timeout: 30_000,
+      timeout: 90_000,
     });
     await panel.getByRole('button', { name: 'Detener prueba' }).click();
     await expect(estado).toHaveAttribute('data-fase', 'terminada');

@@ -12,7 +12,7 @@
  * Es lógica pura: el reloj son los tiempos de cuadro que le pasa el motor, y la carga, la
  * marca y las medidas extra llegan como funciones. Así se prueba con Vitest.
  */
-import { crearVentanaCuadros, HUECO_MAX_MS } from '../metricas';
+import { crearVentanaCuadros } from '../metricas';
 import type { EscalonInforme, EstadoEscalon } from '../informe';
 import type { Eje, Marca } from './marca';
 
@@ -21,6 +21,11 @@ export const MEDIR_MS = 5000;
 /** El p95 de 33 ms es el presupuesto: 30 fps sostenidos. */
 export const P95_LIMITE_MS = 33;
 export const LENTOS_SEGUIDOS_PARA_PARAR = 2;
+/**
+ * Durante la prueba un cuadro de 1 o 2 s es un resultado (el teléfono no da más), no una pausa:
+ * solo se descarta un hueco tan largo que tiene que ser la pestaña oculta.
+ */
+export const HUECO_ESTRES_MS = 10_000;
 
 export type FaseCiclo = 'preparando' | 'calentando' | 'midiendo' | 'terminada';
 export type MotivoFin = 'limite' | 'sin-escalones' | 'contexto-perdido' | 'detenida' | 'error';
@@ -134,7 +139,12 @@ export function crearCiclo(o: OpcionesCiclo): Ciclo {
   };
 
   const cerrarEscalon = (ahoraMs: number): void => {
-    const e = ventana.estadisticas(ahoraMs);
+    const medida = ventana.estadisticas(ahoraMs);
+    // Sin un solo cuadro en 5 s: tan lento que no hay nada que medir.
+    const e =
+      medida.cuadros > 0
+        ? medida
+        : { cuadros: 0, medianaMs: MEDIR_MS, p95Ms: MEDIR_MS, p1Ms: MEDIR_MS };
     const extra = o.medir();
     const lento = e.p95Ms > P95_LIMITE_MS;
     const resultado: EscalonInforme = {
@@ -176,7 +186,7 @@ export function crearCiclo(o: OpcionesCiclo): Ciclo {
       if (estado.fase !== 'midiendo') return;
       if (anterior !== null) {
         const ms = ahoraMs - anterior;
-        if (ms > 0 && ms < HUECO_MAX_MS) ventana.registrar(ms, ahoraMs);
+        if (ms > 0 && ms < HUECO_ESTRES_MS) ventana.registrar(ms, ahoraMs);
       }
       anterior = ahoraMs;
       if (ahoraMs - desde >= MEDIR_MS) cerrarEscalon(ahoraMs);
