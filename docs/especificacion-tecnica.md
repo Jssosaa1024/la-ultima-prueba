@@ -732,10 +732,10 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T11l** (v1.1) Modo `?lab=1`: alternar original y optimizado con la misma cámara, alambre y tabla de diferencias — 55 min
 - [x] **T11m** (v1.1) Módulo `debug/metricas.ts`: tiempo de cuadro, `renderer.info`, memoria estimada, `transferSize` y carga — 55 min. El motor carga el medidor (`src/debug/medidor.ts`) solo con el panel abierto; con el panel cerrado no hay nada por cuadro
 - [x] **T11n** (v1.1) Panel `?debug=1` y 3 toques: colores contra el presupuesto y exportación JSON — 50 min. Los toques sobre un botón no cuentan (en la esquina está «Salir»): en la partida se toca justo debajo de él. El JSON agrega `metricas.pixel_ratio_usado`
-- [ ] **T11o** (v1.1) Motor de estrés: marca en `localStorage`, calentamiento, medición de 5 s y criterio de parada — 55 min
-- [ ] **T11p** (v1.1) Ejes de estrés: triángulos y draw calls — 45 min
-- [ ] **T11q** (v1.1) Ejes de estrés: texturas y píxeles — 45 min
-- [ ] **T11r** (v1.1) Detección de recarga por memoria, `dispose()` al detener y verificación de `renderer.info.memory` — 40 min
+- [x] **T11o** (v1.1) Motor de estrés: marca en `localStorage`, calentamiento, medición de 5 s y criterio de parada — 55 min. En `src/debug/estres/`; durante la prueba el pixel ratio lo fija la prueba (signal `pixelRatioForzado`) y la escala dinámica no actúa. Incluye la prueba de calor (3 min al 70 %)
+- [x] **T11p** (v1.1) Ejes de estrés: triángulos y draw calls — 45 min
+- [x] **T11q** (v1.1) Ejes de estrés: texturas y píxeles — 45 min. Textura propia de 1024 px en KTX2 ETC1S: `npm run textura-estres` escribe `public/assets/pruebas/estres-1024.ktx2`
+- [x] **T11r** (v1.1) Detección de recarga por memoria, `dispose()` al detener y verificación de `renderer.info.memory` — 40 min
 - [ ] **T11s** (v1.1) Cooperativa: elegir packs de Kenney y registrarlos en el manifiesto — 30 min
 - [ ] **T11t** (v1.1) Laboratorio: generar instrumentos en Meshy (plan gratis, límite de caras) y registrarlos con evidencia — 50 min
 - [ ] **T11u** (v1.1) Gimnasio: elegir modelos CC BY de Sketchfab y guardar captura de su licencia — 45 min
