@@ -77,7 +77,7 @@ describe('animarPorteria', () => {
     const { raiz } = construirSala(salaPorId('porteria'));
     sellos.value = ['s1-cooperativa'];
     const anim = animarPorteria(raiz);
-    const luces = raiz.getObjectByName('porteria-luces') as InstancedMesh;
+    const luces = raiz.getObjectByName('luces-puertas') as InstancedMesh;
     expect(luces.count).toBe(7);
     const color = new Color();
     luces.getColorAt(0, color);

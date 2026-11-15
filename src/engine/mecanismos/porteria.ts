@@ -116,13 +116,13 @@ interface Porteria {
 
 /** Arma el mural y las luces la primera vez; en las visitas siguientes, los reutiliza. */
 function armar(raiz: Object3D, mural: Object3D): Porteria {
-  const previo = raiz.getObjectByName('porteria-mural-piezas');
+  const previo = raiz.getObjectByName('mural-piezas');
   if (previo?.userData['porteria']) return previo.userData['porteria'] as Porteria;
 
   // El grupo sigue al mural pero no cuelga de él: así el resaltado del mural (T18) no toca
   // los materiales de las piezas.
   const grupo = new Group();
-  grupo.name = 'porteria-mural-piezas';
+  grupo.name = 'mural-piezas';
   grupo.position.copy(mural.position);
   grupo.rotation.copy(mural.rotation);
 
@@ -178,7 +178,7 @@ function armarLuces(raiz: Object3D): InstancedMesh | null {
       sitios.length,
     ),
   );
-  luces.name = 'porteria-luces';
+  luces.name = 'luces-puertas';
   const desplazar = new Matrix4();
   const m = new Matrix4();
   sitios.forEach(({ puerta, x, y }, i) => {
