@@ -72,7 +72,7 @@ describe('animación de la etiquetadora en la sala 1', () => {
     const animacion = animacionDeSala('s1-cooperativa', cooperativa.raiz);
     expect(animacion?.estado).toBe('reposo');
     animacion?.liberar();
-    expect(animacionDeSala('porteria', new Group())).toBeNull();
+    expect(animacionDeSala('porteria', new Group())?.estado).toBe('sin-piezas');
     liberarObjeto(cooperativa.raiz);
   });
 

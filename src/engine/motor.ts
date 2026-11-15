@@ -5,6 +5,7 @@
  */
 import { effect } from '@preact/signals';
 import { PerspectiveCamera, Scene } from 'three';
+import type { Mesh, Object3D } from 'three';
 import type { Lugar } from '../content/esquema-salas';
 import { destinoDePuerta, salaPorId } from '../content/salas';
 import { consumirMirada, crearEntrada, movimiento, soltarTodo } from '../input/entrada';
@@ -131,8 +132,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
     canvas.dataset['sala'] = lugar;
-    // Mallas de la sala: las geometrías en la GPU no deben pasar de aquí (más las de la portería).
-    canvas.dataset['mallas'] = String(nueva.mallas);
+    // Mallas de la sala, con las que agregan sus animaciones: las geometrías en la GPU no deben
+    // pasar de aquí (más las de la portería).
+    canvas.dataset['mallas'] = String(contarMallas(nueva.raiz));
     dibujarSiEnPausa();
     // Con calma, se arma en la CPU la siguiente sala sin sello.
     precarga = setTimeout(() => {
@@ -282,6 +284,15 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
   };
+}
+
+/** Mallas que cuelgan de `raiz`: una draw call cada una. */
+function contarMallas(raiz: Object3D): number {
+  let n = 0;
+  raiz.traverse((o) => {
+    if ((o as Mesh).isMesh) n++;
+  });
+  return n;
 }
 
 /** Mirada y posición en atributos del canvas, para pruebas e2e. Solo escribe si cambian. */
