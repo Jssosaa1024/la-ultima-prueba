@@ -65,7 +65,7 @@ En GPU solo están la portería y la sala actual. La siguiente se descarga a la 
 - Eventos Broadcast: `int` (intenciones al anfitrión), `evt` (eventos numerados del anfitrión), `dir` (poses y señales).
 - Los mensajes llevan ids, nunca textos de contenido. Máximo 1 KB; `estado`, 8 KB.
 - El grupo avanza junto. Accionar el mecanismo que confirma una etapa, pausar, cambiar de sala, elegir final y pedir ayuda requieren unanimidad.
-- Poses a 4 Hz solo en movimiento. Por ahora el límite es 2 partidas simultáneas en el plan Free.
+- Poses a 2 Hz solo en movimiento (`POSES_POR_SEGUNDO`). Por ahora el límite es 2 partidas simultáneas en el plan Free.
 - Si cambias el protocolo, sube `v` y actualiza los tests de `net/`.
 
 ## Laboratorio de assets y licencias

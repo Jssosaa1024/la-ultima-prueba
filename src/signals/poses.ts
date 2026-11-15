@@ -5,7 +5,7 @@ import type { Directo } from '../game/coop/mensajes';
  * Poses del cooperativo (T82). El motor y el controlador cooperativo no se conocen: se pasan
  * las poses por aquí.
  *
- * - `poseParaEnviar` la escribe el motor (a 4 Hz en movimiento, más una al detenerse) y el
+ * - `poseParaEnviar` la escribe el motor (a 2 Hz en movimiento, más una al detenerse) y el
  *   controlador cooperativo la envía por `dir`.
  * - `poseRecibida` la escribe el controlador con cada pose válida de otro jugador (ya pasó por
  *   la validación de `net/protocolo.ts`); el motor la guarda para interpolar.

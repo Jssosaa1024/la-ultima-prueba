@@ -2,8 +2,9 @@ import { expect, test, type Page } from '@playwright/test';
 import { empezarCoop } from './coop';
 import { caminarHasta, leer } from './escena';
 
-// T82: cada jugador ve a los demás donde están. La pose viaja a 4 Hz en movimiento y una más
-// al detenerse; quien la recibe interpola con 150 ms de retraso.
+// T82 y T82b: cada jugador ve a los demás donde están. La pose viaja a 2 Hz en movimiento y
+// una más al detenerse; quien la recibe la dibuja con una curva suave, poco más de un
+// intervalo en el pasado.
 
 /** Dónde ve `p` al compañero `alias` (atributo `data-companeros` del canvas), o null. */
 async function companero(p: Page, alias: string): Promise<[number, number] | null> {

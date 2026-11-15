@@ -117,7 +117,7 @@ export class TransporteSupabase implements Transporte {
   async enviar<C extends Canal>(canal: C, mensaje: SobreDe<C>): Promise<boolean> {
     if (!this.canal || !this.unido || !validar(canal, mensaje).ok) return false;
     const envio = this.canal.send({ type: 'broadcast', event: canal, payload: mensaje });
-    // Las poses no esperan confirmación: van a 4 Hz y una perdida no importa.
+    // Las poses no esperan confirmación: van seguidas y una perdida no importa.
     if (canal === 'dir') {
       void envio.catch(() => undefined);
       return true;

@@ -640,7 +640,7 @@ T80: el sobre y la validación están en `src/net/protocolo.ts`; los tipos de `p
 
 | `t` | `p` | Frecuencia |
 | --- | --- | --- |
-| `pose` | `{ s: sala, x, y, z: cm enteros, yaw: centésimas de grado }` | 4 Hz solo en movimiento, más una al detenerse; los demás interpolan con 150 ms de retraso |
+| `pose` | `{ s: sala, x, y, z: cm enteros, yaw: centésimas de grado }` | 2 Hz solo en movimiento (T82b, `POSES_POR_SEGUNDO`), más una al detenerse; los demás interpolan con 620 ms de retraso y un suavizado de 120 ms |
 | `senal` | `{ s, x, y, z, frase \| null }` | Máximo 1 por segundo; `frase` es el id de una frase rápida predefinida |
 
 **Las notas del cuaderno no viajan por la red** (decisión de la ola 4): no hay intención ni evento `nota`, porque sería chat libre entre menores. Cada jugador escribe sus notas solo en su cuaderno. Lo que sí se comparte es lo que encuentra el grupo: los datos (`revelado`, que llega al cuaderno de todos), las pistas abiertas (`pista`), los resultados de la máquina y las grabaciones.
@@ -694,7 +694,7 @@ Supabase cuenta un evento por cada mensaje enviado o entregado, así que una pos
 | Pro | 500 | 500 | 15 |
 | Pro sin tope de gasto | 2.500 | 10.000 | 75 |
 
-Con el máximo previsto de 2 partidas simultáneas (unos 64 eventos/s), el plan Free alcanza con margen. Si Supabase desconecta por exceso (`tenant_events`), el cliente baja las poses a 2 Hz al reconectar. Fuente: [Realtime Limits, Supabase](https://supabase.com/docs/guides/realtime/limits), consultada el 5 de noviembre de 2026.
+Con el máximo previsto de 2 partidas simultáneas, el plan Free alcanza con las poses a 2 Hz (T82b): la prueba de carga da picos de 75 eventos/s. A 4 Hz los picos llegaban a 140 eventos/s, porque con `self: true` cada mensaje cuesta 1 + 4 eventos y los picos llegan cuando los 4 caminan a la vez. Fuente: [Realtime Limits, Supabase](https://supabase.com/docs/guides/realtime/limits), consultada el 5 de noviembre de 2026.
 
 ## 4) Lista de tareas en orden
 
@@ -851,6 +851,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T80** Sobre de mensajes y validación de versión, tipo y tamaño — 40 min
 - [x] **T81** Sala de espera: código, lista de jugadores, «listo» e iniciar — 50 min. Solo el anfitrión ve «Iniciar», activo con 2 o más conectados y todos los demás listos; iniciar es marcarse listo él también (la sesión empieza sola cuando todos lo están). Avisos de partida llena, otra versión, ya empezada, no encontrada (10 s sin foto) y sin conexión
 - [x] **T82** Poses a 4 Hz e interpolación de los demás jugadores — 55 min. Lógica pura en `src/engine/coop/poses.ts`; el motor escribe `poseParaEnviar` y `miPosicion`, y el controlador cooperativo envía y recibe por `dir` (`src/signals/poses.ts`). «Detenido» es sin cambios durante 120 ms; la propia sale de nuevo cuando alguien llega al grupo
+- [x] **T82b** (nueva, ola 5b) Poses a 2 Hz en una sola constante (`POSES_POR_SEGUNDO` en `src/engine/coop/poses.ts`; de ella salen el intervalo, el retraso y la prueba de carga). El compañero se dibuja 620 ms en el pasado (un intervalo más 120 ms de margen para la red), así nunca se frena entre poses, y lo dibujado persigue la pose interpolada con un suavizado de 120 ms que redondea las esquinas. `npm run prueba-carga`: 2 partidas de 4 con picos de 75 eventos/s, bajo los 100/s del plan Free — 45 min
 - [x] **T83** Avatares de bajo polígono con color y alias — 45 min. Cuerpo, cabeza y visera por código (unos 130 triángulos), los 3 en un `InstancedMesh` y el alias en un `Sprite` por compañero: 4 draw calls como máximo
 - [x] **T84** Anfitrión: recoger, pasar y usar objetos — 55 min
 - [x] **T84b** (nueva) Controlador cooperativo del cliente (`src/signals/controlador-coop.ts` y `juego-coop.ts`): copia la foto y los eventos del anfitrión a los mismos signals del modo individual y convierte las órdenes de la interfaz en intenciones. Examinar anota el dato para todos (`usar` sin herramienta); la pizarra en penumbra pide la linterna a quien la lleve; cruzar una puerta abre el voto de sala; quien tiene D prueba los ajustes en su panel sin que viajen y la palanca los propone; elegir final y el intercomunicador son votos; las notas no salen del navegador; en grupo el cuaderno no pausa el reloj. El modo individual no cambia — 60 min
