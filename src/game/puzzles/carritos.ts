@@ -64,3 +64,44 @@ export function esEstadoCarritos(etapa: Etapa, x: unknown): x is Estado {
     c.reduce((s: number, v: number) => s + v, 0) <= etapa.controles.libros
   );
 }
+
+// ---------- Mover libros (T64) ----------
+//
+// El panel mueve los libros de a uno: de la pila a un carrito, de un carrito a otro o de
+// vuelta a la pila. Cada movimiento es un solo cambio de estado, para que pasar un libro de
+// un día a otro no apague la lámpara de la media a medio camino.
+
+/** De dónde sale o a dónde va un libro: la pila o un carrito (0 es el del lunes). */
+export type LugarLibro = 'pila' | number;
+
+/** Libros que hay en un lugar; 0 si el carrito no existe. */
+export function librosEn(etapa: Etapa, estado: Estado, lugar: LugarLibro): number {
+  if (lugar === 'pila') return librosEnPila(etapa, estado);
+  return Number.isInteger(lugar) ? (estado.carritos[lugar] ?? 0) : 0;
+}
+
+const existe = (estado: Estado, lugar: LugarLibro): boolean =>
+  lugar === 'pila' || (Number.isInteger(lugar) && lugar >= 0 && lugar < estado.carritos.length);
+
+/**
+ * El estado después de pasar un libro de `de` a `a`. Devuelve null si no se puede: el lugar
+ * no existe, es el mismo o no tiene libros.
+ */
+export function moverLibro(
+  etapa: Etapa,
+  estado: Estado,
+  de: LugarLibro,
+  a: LugarLibro,
+): Estado | null {
+  if (de === a || !existe(estado, de) || !existe(estado, a)) return null;
+  if (librosEn(etapa, estado, de) <= 0) return null;
+  const carritos = [...estado.carritos];
+  if (de !== 'pila') carritos[de] = (carritos[de] ?? 0) - 1;
+  if (a !== 'pila') carritos[a] = (carritos[a] ?? 0) + 1;
+  return { carritos };
+}
+
+/** Todos los libros de vuelta a la pila. */
+export const vaciarCarritos = (estado: Estado): Estado => ({
+  carritos: estado.carritos.map(() => 0),
+});

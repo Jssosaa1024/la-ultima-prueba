@@ -1,0 +1,151 @@
+/* Sala 4 · Los carritos de préstamo (T64): pila, cinco carritos y lámparas en vivo. */
+
+/* Las lámparas se quedan arriba mientras se mueven los libros de abajo. */
+.carritos-lamparas {
+  position: sticky;
+  top: -8px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 -4px;
+  padding: 8px 4px;
+  background: #1c2229;
+}
+
+.carritos-lamparas .indicador,
+.lampara-tapada {
+  padding: 4px 10px;
+  font-size: 0.9375rem;
+}
+
+/* Una lámpara que todavía no cuenta en esta etapa: tapada con un paño. */
+.lampara-tapada {
+  display: inline-flex;
+  align-items: center;
+  border: 2px dashed #4a5563;
+  border-radius: 999px;
+  color: #8a96a3;
+}
+
+.carritos-instruccion {
+  min-height: 3em;
+  margin: 6px 0 8px;
+  font-size: 0.9375rem;
+  color: #d5dbe1;
+}
+
+/* Un lugar con libros: la pila o un carrito. Botones grandes, para el pulgar. */
+.lugar {
+  box-sizing: border-box;
+  border: 2px solid #6b7785;
+  border-radius: 10px;
+  background: transparent;
+  color: #f2f2f2;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.lugar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* De aquí salen los libros: borde y fondo, y además la palabra «sale». */
+.lugar-origen {
+  border-color: #e8a33d;
+  background: rgb(232 163 61 / 18%);
+}
+
+.lugar:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #111418;
+}
+
+.lugar-cuenta {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.lugar-marca {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e8a33d;
+}
+
+.pila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 6px 12px;
+}
+
+.pila-nombre {
+  font-weight: 600;
+}
+
+.pila-libros {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  height: 28px;
+  overflow: hidden;
+}
+
+.libro-de-pie {
+  flex: 0 1 6px;
+  min-width: 2px;
+  height: 100%;
+  border-radius: 1px;
+  background: #d98a5f;
+}
+
+.carritos-fila {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+}
+
+.carrito {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 150px;
+  padding: 6px 2px 4px;
+}
+
+.carrito-dia {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Los libros se apilan desde abajo: caben los 20 en un solo carrito. */
+.carrito-libros {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column-reverse;
+  gap: 1px;
+  width: 72%;
+  min-height: 82px;
+  border-bottom: 3px solid #6b7785;
+}
+
+.libro {
+  flex: 0 0 3px;
+  border-radius: 1px;
+  background: #d98a5f;
+}
+
+.carritos-vaciar {
+  width: 100%;
+  margin: 10px 0 0;
+}

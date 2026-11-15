@@ -1,5 +1,6 @@
 import type { Object3D } from 'three';
 import type { Lugar } from '../../content/esquema-salas';
+import { animarCarritos } from './carritos';
 import { animarEtiquetadora } from './etiquetadora';
 import { animarReflector } from './reflector';
 import { animarTanques } from './tanques';
@@ -12,6 +13,7 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   's1-cooperativa': animarEtiquetadora,
   's2-laboratorio': animarTanques,
   's3-gimnasio': animarReflector,
+  's4-biblioteca': animarCarritos,
 };
 
 /** Prepara la animación de la máquina de `lugar` sobre su sala ya construida, si la tiene. */
