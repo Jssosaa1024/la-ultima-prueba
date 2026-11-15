@@ -39,7 +39,15 @@ test('con los cinco sellos, «Salir» lleva al final «Justo a tiempo»', async 
   await expect(salida).toContainText('Faltan 3 grabaciones');
   await expect(salida).toContainText('El laboratorio, El gimnasio y La biblioteca');
 
-  await salida.getByRole('button', { name: 'Salir' }).click();
+  // Con grabaciones pendientes, «Salir» pide confirmar (hito 1, punto 2). «Seguir buscando»
+  // vuelve a las dos opciones sin terminar la partida.
+  await salida.getByRole('button', { name: 'Salir', exact: true }).click();
+  await expect(salida).toContainText('Todavía faltan 3 grabaciones');
+  await expect(salida).toBeFocused();
+  await salida.getByRole('button', { name: 'Seguir buscando' }).click();
+  await expect(salida.getByRole('button', { name: 'Restaurar archivo' })).toBeVisible();
+  await salida.getByRole('button', { name: 'Salir', exact: true }).click();
+  await salida.getByRole('button', { name: 'Salir de todos modos' }).click();
   const encabezado = page.getByRole('heading', { level: 1, name: 'Justo a tiempo' });
   await expect(encabezado).toBeVisible();
   await expect(encabezado).toBeFocused();
