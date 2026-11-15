@@ -55,6 +55,14 @@ export default function Hud() {
             </button>
           )}
           <BotonPistas />
+          <button
+            type="button"
+            class="hud-boton-redondo"
+            data-foco-retorno="ajustes"
+            onClick={() => abrirPanel('ajustes')}
+          >
+            Ajustes
+          </button>
         </div>
         <Reloj />
         <Sellos />

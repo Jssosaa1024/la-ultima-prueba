@@ -2,6 +2,7 @@
  * Controles táctiles sobre el canvas.
  * - Mitad derecha (T14): arrastrar para mirar.
  * - Mitad izquierda (T15): joystick flotante para caminar.
+ * - En modo zurdo (T39) los lados se invierten.
  * - En cualquier lado (T18): un toque corto, sin arrastrar, selecciona lo que está debajo.
  *
  * Cada dedo se sigue por su `pointerId`: se puede caminar y mirar a la vez con dos dedos.
@@ -16,6 +17,8 @@ export interface OpcionesTactil {
   activos: () => boolean;
   /** Toque corto en (x, y), en píxeles CSS desde la esquina superior izquierda del canvas. */
   alTocar?: (x: number, y: number) => void;
+  /** Modo zurdo (T39): joystick en la mitad derecha y mirada en la izquierda. */
+  zurdo?: () => boolean;
 }
 
 interface Dedo {
@@ -33,7 +36,7 @@ interface Dedo {
 export function conectarTactil(
   canvas: HTMLCanvasElement,
   entrada: Entrada,
-  { activos, alTocar }: OpcionesTactil,
+  { activos, alTocar, zurdo }: OpcionesTactil,
 ): () => void {
   let mirada: Dedo | null = null;
   let joystick: Dedo | null = null;
@@ -67,6 +70,8 @@ export function conectarTactil(
     // Con el puntero bloqueado (escritorio, T19), el ratón lo maneja input/escritorio.ts.
     if (e.pointerType === 'mouse' && document.pointerLockElement === canvas) return;
     const { x, y, derecha } = local(e);
+    // El lado de la mirada: la mitad derecha, o la izquierda en modo zurdo.
+    const ladoMirada = zurdo?.() ? !derecha : derecha;
     const dedo: Dedo = {
       id: e.pointerId,
       inicioX: x,
@@ -76,8 +81,8 @@ export function conectarTactil(
       tiempo: e.timeStamp,
       recorrido: 0,
     };
-    if (derecha && mirada === null) mirada = dedo;
-    else if (!derecha && joystick === null) {
+    if (ladoMirada && mirada === null) mirada = dedo;
+    else if (!ladoMirada && joystick === null) {
       joystick = dedo;
       actualizarJoystick(dedo);
     } else return;
