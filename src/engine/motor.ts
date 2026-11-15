@@ -150,7 +150,11 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     const nueva = await cargador.entrar(lugar);
     // Si mientras compilaba se pidió otra sala, o se cerró el juego, esta ya no se usa.
     if (!nueva || detenido || mostrada !== lugar) return;
-    interaccion = crearInteraccion(camara, nueva.raiz);
+    // Los objetos llevados que se ocultaron de esta sala, para las e2e (T84c).
+    interaccion = crearInteraccion(camara, nueva.raiz, (ids) => {
+      const texto = ids.join(',');
+      if (canvas.dataset['ocultos'] !== texto) canvas.dataset['ocultos'] = texto;
+    });
     animacion = animacionDeSala(lugar, nueva.raiz);
     // Se aparece frente a la puerta por la que se llegó (o en el inicio de la sala).
     const p = puntoDeEntrada(salaPorId(lugar), desde);

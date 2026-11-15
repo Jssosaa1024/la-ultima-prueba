@@ -121,6 +121,13 @@ export const senales = signal<readonly SenalCoop[]>([]);
  */
 export const miPosicion = signal<{ x: number; y: number; z: number } | null>(null);
 
+/**
+ * Objetos que no están donde los pone la sala (T84c): los que lleva algún jugador (también
+ * este) y los que quedaron en el piso de otro lugar. El motor los oculta de la escena y los
+ * vuelve a mostrar cuando regresan a su sitio sin portador. Vacío en el modo individual.
+ */
+export const objetosFuera = signal<readonly string[]>([]);
+
 /** Quién tiene cada encargo en la sala actual; `null` en la portería. */
 export const reparto = signal<Reparto | null>(null);
 /** Los encargos de este jugador en la sala actual. */
@@ -138,6 +145,7 @@ export function reiniciarCoop(): void {
     votosCoop.value = [];
     esperaD.value = null;
     senales.value = [];
+    objetosFuera.value = [];
   });
 }
 

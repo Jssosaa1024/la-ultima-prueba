@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { BoxGeometry, Group, Mesh, MeshLambertMaterial, PerspectiveCamera } from 'three';
 import { crearInteraccion, marcarInteractivo } from '../../src/engine/interaccion/interaccion';
+import { objetosFuera } from '../../src/signals/coop';
 import { enfocado } from '../../src/signals/interfaz';
 import { inventario } from '../../src/signals/partida';
 
@@ -26,6 +27,7 @@ function montar() {
 afterEach(() => {
   enfocado.value = null;
   inventario.value = [];
+  objetosFuera.value = [];
 });
 
 describe('interacción con objetos', () => {
@@ -103,6 +105,59 @@ describe('interacción con objetos', () => {
     expect(libro.visible).toBe(false);
     interaccion.tocar(0, 0);
     expect(enfocado.value).toBeNull();
+    interaccion.liberar();
+  });
+
+  it('en grupo, lo que lleva otro desaparece y vuelve cuando lo sueltan en su sitio (T84c)', () => {
+    const { camara, sala, libro } = montar();
+    const vistos: string[] = [];
+    const interaccion = crearInteraccion(camara, sala, (ids) => vistos.push(ids.join(',')));
+    expect(vistos.at(-1)).toBe('');
+
+    objetosFuera.value = ['libro'];
+    expect(libro.visible).toBe(false);
+    expect(vistos.at(-1)).toBe('libro');
+    interaccion.tocar(0, 0);
+    expect(enfocado.value).toBeNull();
+
+    objetosFuera.value = [];
+    expect(libro.visible).toBe(true);
+    expect(vistos.at(-1)).toBe('');
+    interaccion.tocar(0, 0);
+    expect(enfocado.value?.id).toBe('libro');
+    interaccion.liberar();
+  });
+
+  it('si el otro lo tenía enfocado, lo suelta cuando alguien lo recoge', () => {
+    const { camara, sala } = montar();
+    const interaccion = crearInteraccion(camara, sala);
+    interaccion.tocar(0, 0);
+    objetosFuera.value = ['libro'];
+    interaccion.actualizar();
+    expect(enfocado.value).toBeNull();
+    interaccion.liberar();
+  });
+
+  it('una sala guardada en caché recuerda lo que ocultó, aunque cambie la interacción', () => {
+    const { camara, sala, libro } = montar();
+    crearInteraccion(camara, sala).liberar();
+    objetosFuera.value = ['libro'];
+    const primera = crearInteraccion(camara, sala);
+    expect(libro.visible).toBe(false);
+    primera.liberar();
+    objetosFuera.value = [];
+    const segunda = crearInteraccion(camara, sala);
+    expect(libro.visible).toBe(true);
+    segunda.liberar();
+  });
+
+  it('no muestra lo que otro módulo había ocultado', () => {
+    const { camara, sala, libro } = montar();
+    libro.visible = false;
+    const interaccion = crearInteraccion(camara, sala);
+    objetosFuera.value = ['libro'];
+    objetosFuera.value = [];
+    expect(libro.visible).toBe(false);
     interaccion.liberar();
   });
 });
