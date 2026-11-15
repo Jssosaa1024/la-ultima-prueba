@@ -89,7 +89,8 @@ test('en la partida, «Ajustes» pausa el reloj y al cerrar vuelve a la escena',
   await page.getByRole('button', { name: 'Ajustes' }).click();
   const panel = page.getByRole('dialog', { name: 'Ajustes del juego' });
   await expect(panel).toContainText('El reloj está en pausa');
-  await expect(page.getByRole('timer')).toHaveAttribute('aria-label', /en pausa/);
+  // Con un panel abierto el HUD queda oculto al lector de pantalla: el reloj se busca por clase.
+  await expect(page.locator('.hud-reloj')).toHaveAttribute('aria-label', /en pausa/);
   await panel.getByRole('button', { name: 'Grande', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-texto', 'grande');
   await page.keyboard.press('Escape');
