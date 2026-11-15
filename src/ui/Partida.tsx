@@ -1,6 +1,7 @@
-import { panel } from '../signals/interfaz';
+import { cerrarPanel, panel } from '../signals/interfaz';
 import { girarTelefono } from '../signals/pantalla';
-import { fase } from '../signals/partida';
+import { fase, modo } from '../signals/partida';
+import PanelAjustes from './ajustes/Ajustes';
 import EleccionFinal from './finales/EleccionFinal';
 import PantallaFinal from './finales/PantallaFinal';
 import Anunciador from './Anunciador';
@@ -42,6 +43,9 @@ export default function Partida() {
         {abierto === 'mecanismo' && <PanelMecanismo />}
         {abierto === 'pistas' && <PanelPistas />}
         {abierto === 'grabacion' && <PanelGrabacion />}
+        {abierto === 'ajustes' && (
+          <PanelAjustes alCerrar={cerrarPanel} pausarReloj={modo.value === 'individual'} />
+        )}
         <IndicadorCarga />
         <Anunciador />
       </div>

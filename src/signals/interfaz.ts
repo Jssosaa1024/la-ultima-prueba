@@ -25,7 +25,9 @@ export type Panel =
   | 'mecanismo'
   | 'pistas'
   /** La grabación escondida en la sala actual, recién recogida (T75). */
-  | 'grabacion';
+  | 'grabacion'
+  /** Sensibilidad, modo zurdo, tamaño del texto y volumen (T39). */
+  | 'ajustes';
 
 /** Lo que pasa al tocar el botón contextual sobre el objeto enfocado. */
 export type AccionObjeto = 'usar' | 'recoger' | 'examinar';
@@ -92,7 +94,9 @@ export function abrirCuaderno(): void {
 }
 
 /** Abre un panel que no necesita más datos (la puerta de salida, la máquina de la sala…). */
-export function abrirPanel(cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion'): void {
+export function abrirPanel(
+  cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion' | 'ajustes',
+): void {
   batch(() => {
     inspeccionando.value = null;
     panel.value = cual;

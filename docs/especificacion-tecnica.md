@@ -778,7 +778,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
 - [x] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
 - [x] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
-- [ ] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
+- [x] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
 - [x] **T40** Pantallas de final, créditos y poscréditos — 45 min
 - [x] **T40b** (nueva) Resumen de aprendizaje de los finales, parte de contenido (punto 15 del hito 1): `src/content/resumenes.json` con el tema, la máquina y cómo funcionaba cada sala en una o dos frases, validado en build (colección `resumenes`), y `resumenDeAprendizaje()` en `src/game/aprendizaje.ts`, que a partir de la partida y las pistas dice qué salas se resolvieron y cuáles sin abrir pistas. Todo final muestra las cinco salas. Sin modo práctica por ahora; la pantalla es otra tarea — 40 min
 - [x] **T41** Accesibilidad: objetivos táctiles de 44 px, contraste, foco y lector de pantalla — 50 min
