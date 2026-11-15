@@ -4,6 +4,7 @@ import { animarBalones } from './balones';
 import { animarCarritos } from './carritos';
 import { animarEtiquetadora } from './etiquetadora';
 import { animarFlechas } from './flechas';
+import { animarPorteria } from './porteria';
 import { animarReflector } from './reflector';
 import { animarTanques } from './tanques';
 import type { AnimacionSala } from './tipos';
@@ -36,6 +37,8 @@ export function conDetalle(maquina: AnimacionSala, extra: AnimacionSala): Animac
 
 /** Lo que se anima en cada sala. Las salas que aún no tienen nada, no animan. */
 const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
+  // El mural con los sellos ganados y la luz sobre la puerta que toca abrir (hito 1, punto 16).
+  porteria: animarPorteria,
   's1-cooperativa': animarEtiquetadora,
   // Los tanques y, con la linterna, las flechas hacia la grabación 1 (T75).
   's2-laboratorio': (raiz) => conDetalle(animarTanques(raiz), animarFlechas(raiz)),

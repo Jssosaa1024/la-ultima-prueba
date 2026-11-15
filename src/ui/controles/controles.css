@@ -27,7 +27,13 @@
   justify-content: center;
 }
 
-.joystick-activo {
+/* Modo zurdo (T39): la guía en reposo va donde cae el pulgar derecho. */
+.controles-zurdo .joystick {
+  left: 78%;
+}
+
+.joystick-activo,
+.controles-zurdo .joystick-activo {
   left: 0;
   top: 0;
   margin: 0;
