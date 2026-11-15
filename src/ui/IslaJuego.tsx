@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { tieneWebGL2 } from '../engine/compatibilidad';
 import { ajustarCanvas } from '../engine/pantalla';
+import { cargarAjustes } from '../signals/ajustes';
 import { iniciarControlador } from '../signals/controlador';
 import { pantalla } from '../signals/pantalla';
 import { fase } from '../signals/partida';
 import { pruebaCarga } from '../signals/prueba-carga';
+import { aplicarTamanoTexto } from './ajustes/aplicar';
 import MenuInicio from './menus/MenuInicio';
 import NoCompatible from './NoCompatible';
 import Partida from './Partida';
@@ -56,6 +58,13 @@ function Escena() {
   // las reglas de game/. Este efecto va ANTES del que monta el motor: el controlador debe
   // escuchar el puente primero, para que el motor vea la sala ya cambiada.
   useEffect(() => iniciarControlador(), []);
+
+  // Ajustes del jugador (T39): se leen antes de arrancar el motor, que los consulta en cada
+  // cuadro, y el tamaño del texto se lleva a la raíz del documento.
+  useEffect(() => {
+    cargarAjustes();
+    return aplicarTamanoTexto();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;

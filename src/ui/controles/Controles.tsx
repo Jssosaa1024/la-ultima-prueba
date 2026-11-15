@@ -1,5 +1,6 @@
 import { effect } from '@preact/signals';
 import { useEffect, useRef } from 'preact/hooks';
+import { ajustes } from '../../signals/ajustes';
 import { joystick, punteroBloqueado } from '../../signals/controles';
 import { controlesActivos } from '../../signals/interfaz';
 import './controles.css';
@@ -43,7 +44,11 @@ export default function Controles() {
   );
 
   return (
-    <div class="controles" hidden={!controlesActivos.value}>
+    // Modo zurdo (T39): la guía del joystick pasa a la mitad derecha.
+    <div
+      class={`controles${ajustes.value.zurdo ? ' controles-zurdo' : ''}`}
+      hidden={!controlesActivos.value}
+    >
       <div ref={baseRef} class="joystick" aria-hidden="true">
         <div ref={perillaRef} class="joystick-perilla" />
       </div>
