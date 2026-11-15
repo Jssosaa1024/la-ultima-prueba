@@ -25,7 +25,7 @@ import {
 } from 'three';
 import type { Material, Object3D } from 'three';
 import { panel } from '../../signals/interfaz';
-import { etapa, mecanismo, resultado } from '../../signals/mecanismo';
+import { etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
 import type { AnimacionSala } from './tipos';
 
 const SALA = 's5-rectoria';
@@ -221,9 +221,10 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
     const actual = etapa.value;
     const r = resultado.value;
     const deEstaSala = r?.sala === SALA ? r : null;
-    // Con una etapa pendiente, lo que hay en la urna; con la sala resuelta, lo último que tuvo.
+    // Con una etapa pendiente, lo que hay en la urna. Con la sala resuelta, las fichas con las
+    // que quedó la máquina (T76): al volver, la urna se ve como se dejó.
     if (actual?.sala === SALA) poner(fichasDe(mecanismo.value));
-    else poner(fichasDe(deEstaSala?.estado));
+    else poner(fichasDe(deEstaSala?.estado ?? maquinaResuelta.value));
 
     if (deEstaSala && deEstaSala.n > animado) {
       animado = deEstaSala.n;

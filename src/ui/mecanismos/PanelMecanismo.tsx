@@ -2,9 +2,9 @@ import type { ComponentType } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { Mecanismo, Puzzle } from '../../content/esquema';
 import { PUZZLES, puzzleDeSala } from '../../content/puzzles';
-import { esEstadoValido } from '../../game/puzzles';
+import { esEstadoValido, evaluar } from '../../game/puzzles';
 import { cerrarPanel, resultadoVisto } from '../../signals/interfaz';
-import { condiciones, etapa, mecanismo, resultado } from '../../signals/mecanismo';
+import { condiciones, etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
 import { sala, SALAS_CON_SELLO } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import { anotacionDeEtapa } from '../cuaderno/descubrimientos';
@@ -44,10 +44,33 @@ export default function PanelMecanismo() {
     visto: resultadoVisto.value,
   });
 
+  // El panel de cada sala recibe los tipos de su mecanismo; aquí se tratan todos igual.
+  const Panel = PANELES[puzzle.mecanismo] as ComponentType<PropsPanel<Mecanismo>>;
+
   if (vista.tipo === 'terminada') {
+    // La sala ya tiene sello: la máquina se muestra como quedó, sin dejar cambiar nada (T76).
+    const ultima = puzzle.etapas.length - 1;
+    const final = maquinaResuelta.value;
+    const datosFinales = puzzle.etapas[ultima];
+    const evaluacion = evaluar(puzzle, ultima, final);
     return (
       <Dialogo antetitulo={`Sala ${puzzle.sala}`} titulo={puzzle.titulo} alCerrar={cerrarPanel}>
-        <p>{TEXTO_TERMINADA}</p>
+        <p class="mecanismo-resuelta">{TEXTO_TERMINADA}</p>
+        {datosFinales && evaluacion && (
+          <Panel
+            {...({
+              puzzle,
+              etapa: datosFinales,
+              numero: ultima,
+              estado: final,
+              condiciones: evaluacion.condiciones,
+              resultado: null,
+              bloqueado: true,
+              ajustar: () => undefined,
+              ocupar: () => undefined,
+            } as PropsPanel<Mecanismo>)}
+          />
+        )}
       </Dialogo>
     );
   }
@@ -65,8 +88,6 @@ export default function PanelMecanismo() {
     if (vista.sello) cerrarPanel();
   };
 
-  // El panel de cada sala recibe los tipos de su mecanismo; aquí se tratan todos igual.
-  const Panel = PANELES[puzzle.mecanismo] as ComponentType<PropsPanel<Mecanismo>>;
   const props = {
     puzzle,
     etapa: datos,

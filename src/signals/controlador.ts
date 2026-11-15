@@ -62,7 +62,15 @@ import {
   reiniciarInterfaz,
   type ObjetoEnfocado,
 } from './interfaz';
-import { condiciones, etapa, mecanismo, pistas, reiniciarMecanismo, resultado } from './mecanismo';
+import {
+  condiciones,
+  etapa,
+  maquinaResuelta,
+  mecanismo,
+  pistas,
+  reiniciarMecanismo,
+  resultado,
+} from './mecanismo';
 import {
   avance,
   DURACION_MS,
@@ -187,6 +195,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
   let pistasPorSala: Partial<Record<SalaId, EstadoPistas>> = {};
   /** Ajustes de cada mecanismo en su etapa actual: se conservan al salir y volver. */
   let ajustes: Partial<Record<SalaId, unknown>> = {};
+  /** Cómo quedó la máquina de cada sala resuelta en esta sesión de juego (T76). */
+  let finales: Partial<Record<SalaId, unknown>> = {};
   /** En las etapas que responden en vivo: cuánto llevan quietos los ajustes de cada sala. */
   let reposos: Partial<Record<SalaId, Reposo>> = {};
   let contadorResultados = 0;
@@ -216,6 +226,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       pistasPorSala[actual.sala] = nuevaEtapa(pistasPorSala[actual.sala] ?? PISTAS_INICIALES);
       ajustes = sinSala(ajustes, actual.sala);
       reposos = sinSala(reposos, actual.sala);
+      // Con el sello, la máquina se queda como estaba al resolverse.
+      if (salaResuelta(partida, actual.sala)) finales[actual.sala] = copiar(estado);
     }
     resultado.value = {
       n: ++contadorResultados,
@@ -280,6 +292,17 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     asignar(fichas, todas);
   }
 
+  /**
+   * Los ajustes con los que quedó la máquina de la sala actual, si ya tiene sello: los que
+   * se usaron al resolverla o, si no se saben (se continuó una partida guardada), la solución
+   * de ejemplo de su última etapa.
+   */
+  function estadoConservado(p: Partida): unknown {
+    if (p.lugar === 'porteria' || !salaResuelta(p, p.lugar)) return null;
+    const ultima = puzzleDeSala(numeroDeSala(p.lugar))?.etapas.at(-1);
+    return finales[p.lugar] ?? (ultima ? copiar(ultima.solucion) : null);
+  }
+
   /** Copia la partida a los signals. */
   function publicar(): void {
     const p = partida;
@@ -299,13 +322,21 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         asignar(etapa, { sala: actual.sala, puzzle: actual.puzzle.id, etapa: actual.etapa });
         asignar(mecanismo, estado);
         asignar(condiciones, evaluar(actual.puzzle, actual.etapa, estado)?.condiciones ?? {});
+        maquinaResuelta.value = null;
       } else {
+        asignar(maquinaResuelta, estadoConservado(p));
         etapa.value = null;
         mecanismo.value = null;
         asignar(condiciones, {});
       }
       const vistas = p.lugar === 'porteria' ? undefined : pistasPorSala[p.lugar];
-      asignar(pistas, { ofrecidas: vistas?.ofrecidas ?? 0, vistas: vistas?.vistas ?? 0 });
+      // En una sala ya resuelta se pueden releer las pistas abiertas, pero no se avisa de una
+      // «nueva»: ya no hay nada que resolver con ella.
+      const yaResuelta = p.lugar !== 'porteria' && salaResuelta(p, p.lugar);
+      asignar(pistas, {
+        ofrecidas: yaResuelta ? (vistas?.vistas ?? 0) : (vistas?.ofrecidas ?? 0),
+        vistas: vistas?.vistas ?? 0,
+      });
 
       if (p.fase === 'final') {
         cerrarPanel();
@@ -420,6 +451,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       pistasPorSala = g ? { ...g.pistas } : {};
       ajustes = g ? { ...g.mecanismos } : {};
       reposos = {};
+      finales = {};
       // Las notas nuevas siguen la numeración guardada, para no repetir ids.
       contadorNotas = g ? Math.max(0, ...g.notas.map((n) => Number(n.id.slice(1)))) : 0;
       motivos.clear();
@@ -615,6 +647,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         if (lugar === 'porteria') return;
         // Primero se cuenta el tiempo (puede ofrecer una pista nueva) y luego se abre.
         cambiar(() => {
+          // Con el sello ya no se abren pistas nuevas: no queda nada que resolver (T76).
+          if (!partida || salaResuelta(partida, lugar)) return;
           const e = pistasPorSala[lugar];
           if (e) pistasPorSala[lugar] = verPista(e);
         });

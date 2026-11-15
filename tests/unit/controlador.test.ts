@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Puzzle } from '../../src/content/esquema';
+import { GRABACIONES_ESCONDIDAS } from '../../src/content/grabaciones';
 import { PUZZLES } from '../../src/content/puzzles';
 import { nombreDeObjeto, SALAS_3D } from '../../src/content/salas';
 import {
@@ -37,12 +38,14 @@ import {
 import {
   condiciones,
   etapa,
+  maquinaResuelta,
   mecanismo,
   pistas,
   reiniciarMecanismo,
   resultado,
 } from '../../src/signals/mecanismo';
 import {
+  avance,
   DURACION_MS,
   fase,
   final,
@@ -1010,5 +1013,157 @@ describe('controlador: abrir el panel de la máquina (T37)', () => {
     usar('s1-puerta');
     expect(panel.value).toBeNull();
     expect(sala.value).toBe('porteria');
+  });
+});
+
+describe('controlador: volver a una sala ya resuelta (T76)', () => {
+  const puzzle = (n: number): Puzzle => {
+    const p = PUZZLES[n - 1];
+    if (!p) throw new Error('falta el puzzle ' + String(n));
+    return p;
+  };
+
+  /** Resuelve la etapa actual de la sala con la solución de ejemplo del JSON. */
+  function resolverEtapa(p: Puzzle, n: number, estado: unknown = p.etapas[n]?.solucion): void {
+    const e = p.etapas[n];
+    if (!e) throw new Error('falta la etapa');
+    enviar({ t: 'ajustar', estado });
+    if (e.intento.tipo === 'accionar') enviar({ t: 'accionar', objeto: e.intento.objeto });
+    else avanzar(e.intento.segundos * 1000);
+  }
+
+  it('conserva el sello, el avance y cómo quedó la máquina', () => {
+    const s1 = puzzle(1);
+    jugar();
+    ganarElPrimerSello();
+    expect(maquinaResuelta.value).toBeNull(); // en la portería no hay máquina
+
+    usar('porteria-puerta-1');
+    expect(sala.value).toBe('s1-cooperativa');
+    expect(sellos.value).toEqual(['s1-cooperativa']);
+    expect(avance.value['s1-cooperativa']).toBe(3);
+    // No queda etapa pendiente, pero la máquina se ve como se dejó.
+    expect(etapa.value).toBeNull();
+    expect(mecanismo.value).toBeNull();
+    expect(maquinaResuelta.value).toEqual(s1.etapas[2]?.solucion);
+
+    usar('s1-puerta');
+    expect(maquinaResuelta.value).toBeNull();
+    expect(sellos.value).toEqual(['s1-cooperativa']);
+  });
+
+  it('recuerda los ajustes con los que se resolvió, no solo la solución de ejemplo', () => {
+    const s1 = puzzle(1);
+    jugar();
+    usar('porteria-puerta-1');
+    resolverEtapa(s1, 0);
+    resolverEtapa(s1, 1);
+    // La última etapa también se resuelve con los rodillos en el otro orden.
+    const otroOrden = { producto: 'combo', precio: 4000, rodillos: [50, -50] };
+    resolverEtapa(s1, 2, otroOrden);
+    expect(sellos.value).toEqual(['s1-cooperativa']);
+    expect(maquinaResuelta.value).toEqual(otroOrden);
+    usar('s1-puerta');
+    usar('porteria-puerta-1');
+    expect(maquinaResuelta.value).toEqual(otroOrden);
+  });
+
+  it('la máquina resuelta ya no responde: ni ajustes ni palanca cambian nada', () => {
+    const s1 = puzzle(1);
+    jugar();
+    ganarElPrimerSello();
+    usar('porteria-puerta-1');
+    const antes = { resultado: resultado.value, maquina: maquinaResuelta.value };
+    enviar({ t: 'ajustar', estado: s1.etapas[0]?.estado_inicial });
+    enviar({ t: 'accionar', objeto: 's1-palanca' });
+    avanzar(60_000);
+    expect(resultado.value).toBe(antes.resultado);
+    expect(maquinaResuelta.value).toEqual(antes.maquina);
+    expect(avance.value['s1-cooperativa']).toBe(3);
+    expect(sellos.value).toEqual(['s1-cooperativa']);
+  });
+
+  it('usar la máquina de una sala resuelta abre su panel', () => {
+    jugar();
+    ganarElPrimerSello();
+    usar('porteria-puerta-1');
+    usar('s1-etiquetadora');
+    expect(panel.value).toBe('mecanismo');
+  });
+
+  it('las pistas abiertas se pueden releer; no se ofrecen más ni corre su tiempo', () => {
+    const s1 = puzzle(1);
+    jugar();
+    usar('porteria-puerta-1');
+    // Tres intentos: primera pista. Se abre. Otros tres: segunda pista, que queda sin abrir.
+    for (let i = 0; i < 3; i++) enviar({ t: 'accionar', objeto: 's1-palanca' });
+    enviar({ t: 'ver_pista' });
+    for (let i = 0; i < 3; i++) enviar({ t: 'accionar', objeto: 's1-palanca' });
+    expect(pistas.value).toEqual({ ofrecidas: 2, vistas: 1 });
+    for (const n of [0, 1, 2]) resolverEtapa(s1, n);
+    usar('s1-puerta');
+
+    usar('porteria-puerta-1');
+    // Con el sello ya no hay pista «nueva»: solo la que se abrió.
+    expect(pistas.value).toEqual({ ofrecidas: 1, vistas: 1 });
+    avanzar(10 * 60 * 1000);
+    enviar({ t: 'ver_pista' });
+    expect(pistas.value).toEqual({ ofrecidas: 1, vistas: 1 });
+  });
+
+  it('al continuar una partida guardada dentro de una sala resuelta, la máquina queda con la solución', () => {
+    const datos = new Map<string, string>();
+    const almacen: Almacen = {
+      getItem: (k) => datos.get(k) ?? null,
+      setItem: (k, v) => void datos.set(k, v),
+      removeItem: (k) => void datos.delete(k),
+    };
+    const s1 = puzzle(1);
+    detener();
+    detener = iniciarControlador({ documento, almacen });
+    jugar();
+    usar('porteria-puerta-1');
+    resolverEtapa(s1, 0);
+    resolverEtapa(s1, 1);
+    resolverEtapa(s1, 2, { producto: 'combo', precio: 4000, rodillos: [50, -50] });
+
+    // Recargar: se pierde con qué ajustes exactos se resolvió, no el sello ni el lugar.
+    detener();
+    reiniciarPartida();
+    reiniciarMecanismo();
+    detener = iniciarControlador({ documento, almacen });
+    enviar({ t: 'continuar' });
+    expect(sala.value).toBe('s1-cooperativa');
+    expect(sellos.value).toEqual(['s1-cooperativa']);
+    expect(etapa.value).toBeNull();
+    expect(maquinaResuelta.value).toEqual(s1.etapas[2]?.solucion);
+  });
+
+  it('se puede volver por las grabaciones después de los sellos y llegar a «El legado»', () => {
+    jugar();
+    for (const n of [1, 2, 3, 4, 5]) {
+      usar('porteria-puerta-' + String(n));
+      for (const e of [0, 1, 2]) resolverEtapa(puzzle(n), e);
+      usar('s' + String(n) + '-puerta');
+    }
+    expect(sellos.value).toHaveLength(5);
+    expect(opcionesFinal.value).toMatchObject({ salir: true, restaurar: false });
+
+    // Las tres salas con grabación ya tienen sello: se vuelve a cada una a buscarla.
+    for (const g of GRABACIONES_ESCONDIDAS) {
+      const n = g.sala.slice(1, 2);
+      usar('porteria-puerta-' + n);
+      expect(sala.value).toBe(g.sala);
+      usar(g.objeto);
+      expect(grabaciones.value).toContain(g.id);
+      enviar({ t: 'accion', objeto: 's' + n + '-puerta', accion: 'usar' });
+      usar('s' + n + '-puerta');
+      expect(sala.value).toBe('porteria');
+    }
+    expect(grabaciones.value).toHaveLength(3);
+    expect(sellos.value).toHaveLength(5);
+    expect(opcionesFinal.value).toMatchObject({ salir: true, restaurar: true });
+    enviar({ t: 'elegir_final', opcion: 'restaurar' });
+    expect(final.value).toBe('el_legado');
   });
 });
