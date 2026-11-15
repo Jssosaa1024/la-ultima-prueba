@@ -314,7 +314,8 @@ describe('asset.copyright (T11g)', () => {
   });
 });
 
-describe('npm run check-credits (T11h)', () => {
+// Cada caso lanza un proceso de Node: con el equipo ocupado tarda más de los 5 s por defecto.
+describe('npm run check-credits (T11h)', { timeout: 30_000 }, () => {
   const ejecutar = promisify(execFile);
   let raiz = '';
 
