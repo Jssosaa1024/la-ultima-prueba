@@ -5,8 +5,11 @@ import { PUZZLES, puzzleDeSala } from '../../content/puzzles';
 import { esEstadoValido, evaluar } from '../../game/puzzles';
 import { cerrarPanel, resultadoVisto } from '../../signals/interfaz';
 import { condiciones, etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
-import { sala, SALAS_CON_SELLO } from '../../signals/partida';
+import { coop, esperaD, misRoles, propuestaCoop, reparto } from '../../signals/coop';
+import { modo, sala, SALAS_CON_SELLO } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
+import { useRestanteEspera } from '../coop/BarraCoop';
+import { aliasDe, textoCuenta, textoEsperaD } from '../coop/textos';
 import { anotacionDeEtapa } from '../cuaderno/descubrimientos';
 import Dialogo from '../paneles/Dialogo';
 import { SeccionPistas } from '../pistas/Pistas';
@@ -26,6 +29,10 @@ import './mecanismos.css';
  */
 export default function PanelMecanismo() {
   const [ocupado, setOcupado] = useState(false);
+  // En grupo (T85) solo quien tiene D mueve los controles y propone; nadie mientras se le espera.
+  const enGrupo = modo.value === 'cooperativo';
+  const espera = esperaD.value;
+  const soyD = !enGrupo || (misRoles.value.includes('D') && espera === null);
   const numeroDeSala = SALAS_CON_SELLO.findIndex((s) => s === sala.value) + 1;
   const puzzle = puzzleDeSala(numeroDeSala);
 
@@ -95,7 +102,7 @@ export default function PanelMecanismo() {
     estado: vista.estado,
     condiciones: vista.condiciones,
     resultado: vista.resultado,
-    bloqueado: resuelta,
+    bloqueado: resuelta || !soyD,
     ajustar: (estado: unknown) => enviar({ t: 'ajustar', estado }),
     ocupar: setOcupado,
   } as PropsPanel<Mecanismo>;
@@ -112,6 +119,10 @@ export default function PanelMecanismo() {
           <button type="button" class="boton boton-principal" onClick={seguir}>
             {vista.sello ? 'Volver a la sala' : 'Seguir'}
           </button>
+        ) : enGrupo ? (
+          <AccionesGrupo soyD={soyD} accionar={regla.tipo === 'accionar' ? regla.objeto : null}>
+            {regla.tipo === 'accionar' ? TEXTO_ACCIONAR[puzzle.mecanismo] : 'Proponer al grupo'}
+          </AccionesGrupo>
         ) : (
           regla.tipo === 'accionar' && (
             <button
@@ -126,8 +137,9 @@ export default function PanelMecanismo() {
       }
     >
       <p class="mecanismo-situacion">{datos.situacion}</p>
+      {enGrupo && !resuelta && <EstadoGrupo soyD={soyD} />}
       <Panel {...props} />
-      {!resuelta && regla.tipo === 'reposo' && (
+      {!enGrupo && !resuelta && regla.tipo === 'reposo' && (
         <p class="mecanismo-nota">{textoReposo(regla.segundos)}</p>
       )}
       {resuelta && !ocupado && (
@@ -140,6 +152,88 @@ export default function PanelMecanismo() {
       )}
       {!resuelta && <SeccionPistas />}
     </Dialogo>
+  );
+}
+
+/**
+ * Botones de la máquina en grupo (T85): quien tiene D propone (con la palanca, si la máquina
+ * la tiene); los demás aceptan o rechazan la propuesta abierta.
+ */
+function AccionesGrupo({
+  soyD,
+  accionar,
+  children,
+}: {
+  soyD: boolean;
+  accionar: string | null;
+  children: string;
+}) {
+  const propuesta = propuestaCoop.value;
+  const yo = coop.value.jugadores.find((j) => j.yo)?.jugador ?? '';
+  if (esperaD.value) return null;
+  if (soyD) {
+    return (
+      <button
+        type="button"
+        class="boton boton-principal"
+        onClick={() =>
+          enviar(accionar === null ? { t: 'proponer' } : { t: 'accionar', objeto: accionar })
+        }
+      >
+        {children}
+      </button>
+    );
+  }
+  if (!propuesta || propuesta.aceptan.includes(yo)) return null;
+  return (
+    <>
+      <button
+        type="button"
+        class="boton boton-principal"
+        onClick={() => enviar({ t: 'confirmar', acepta: true })}
+      >
+        Aceptar
+      </button>
+      <button
+        type="button"
+        class="boton boton-secundario"
+        onClick={() => enviar({ t: 'confirmar', acepta: false })}
+      >
+        Rechazar
+      </button>
+    </>
+  );
+}
+
+/** Quién acciona la máquina, qué se propuso y quién falta por aceptar (T85, T89). */
+function EstadoGrupo({ soyD }: { soyD: boolean }) {
+  const jugadores = coop.value.jugadores;
+  const espera = esperaD.value;
+  const restante = useRestanteEspera(espera);
+  const propuesta = propuestaCoop.value;
+  const yo = jugadores.find((j) => j.yo)?.jugador ?? '';
+  let texto: string;
+  if (espera) {
+    texto = `${textoEsperaD(aliasDe(jugadores, espera.jugador), restante)} Mientras tanto nadie acciona la máquina.`;
+  } else if (propuesta) {
+    const quien = aliasDe(jugadores, propuesta.por);
+    const inicio =
+      quien === 'tú'
+        ? 'Propusiste estos ajustes.'
+        : `${quien} propone estos ajustes.${propuesta.aceptan.includes(yo) ? ' Ya aceptaste.' : ''}`;
+    texto = `${inicio} ${textoCuenta(propuesta.aceptan, jugadores)} La máquina responde cuando todos acepten.`;
+  } else if (soyD) {
+    texto =
+      'Tienes el encargo D: prueba los ajustes y propónselos al grupo. La máquina responde cuando todos acepten.';
+  } else {
+    const d = reparto.value?.D;
+    const quien = d ? aliasDe(jugadores, d) : 'Quien tiene el encargo D';
+    texto = `${quien} tiene el encargo D: prueba los ajustes y los propone. Cuando lo haga, aquí podrás aceptarlos o rechazarlos.`;
+  }
+  return (
+    <p class="coop-propuesta" role="status">
+      {texto}
+    </p>
   );
 }
 

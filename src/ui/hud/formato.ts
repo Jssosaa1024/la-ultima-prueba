@@ -1,3 +1,4 @@
+import { nombreDeObjeto } from '../../content/salas';
 import type { Aviso } from '../../signals/interfaz';
 
 /** Formatos del HUD. Puros: se prueban sin navegador. */
@@ -27,5 +28,10 @@ export function textoDeAviso(aviso: Aviso): string {
   switch (aviso.t) {
     case 'puerta_cerrada':
       return `La puerta ${aviso.sala} está cerrada. Se abre cuando consigas el sello de la sala ${aviso.sala - 1}.`;
+    case 'necesita_herramienta': {
+      const objeto = nombreDeObjeto(aviso.objeto) ?? 'Esto';
+      const herramienta = (nombreDeObjeto(aviso.herramienta) ?? 'una herramienta').toLowerCase();
+      return `${objeto}: está muy oscuro para leer. Hace falta que quien tenga la ${herramienta} la use aquí.`;
+    }
   }
 }

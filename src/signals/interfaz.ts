@@ -43,11 +43,14 @@ export interface ObjetoEnfocado {
  * texto: el HUD lo convierte en una frase. Cada aviso es un objeto nuevo, para que se vuelva
  * a mostrar aunque sea igual al anterior.
  */
-export interface Aviso {
-  t: 'puerta_cerrada';
-  /** Número de la sala (2 a 5) cuya puerta sigue cerrada. */
-  sala: number;
-}
+export type Aviso =
+  | {
+      t: 'puerta_cerrada';
+      /** Número de la sala (2 a 5) cuya puerta sigue cerrada. */
+      sala: number;
+    }
+  /** Cooperativo: ese dato solo se lee con una herramienta que este jugador no lleva. */
+  | { t: 'necesita_herramienta'; objeto: string; herramienta: string };
 
 export interface Carga {
   estado: 'inactiva' | 'cargando' | 'lista' | 'error';

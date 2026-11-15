@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test';
 
-// T32: menú de inicio con solo «Jugar solo» (crear y unirse quedan ocultos por ahora).
+// T32: menú de inicio: jugar solo, crear partida y unirse con código.
 
-test('/jugar abre el menú de inicio con solo «Jugar solo»', async ({ page }) => {
+test('/jugar abre el menú de inicio con «Jugar solo», «Crear partida» y «Unirse con código»', async ({
+  page,
+}) => {
   const errores: string[] = [];
   page.on('pageerror', (e) => errores.push(e.message));
   await page.goto('/jugar');
@@ -10,8 +12,8 @@ test('/jugar abre el menú de inicio con solo «Jugar solo»', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'La Última Prueba' })).toBeVisible();
   const jugar = page.getByRole('button', { name: 'Jugar solo' });
   await expect(jugar).toBeVisible();
-  await expect(page.getByRole('button', { name: /crear/i })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /unirse/i })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Crear partida' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Unirse con código' })).toBeVisible();
 
   // Objetivo táctil de al menos 44 px de alto.
   const caja = await jugar.boundingBox();

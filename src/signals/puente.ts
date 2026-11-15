@@ -1,5 +1,7 @@
 import type { AccionObjeto } from './interfaz';
+import type { Asunto, FRASES, OpcionVoto } from '../game/coop/mensajes';
 import type { OpcionFinal } from '../game/partida';
+import type { Alias, Color } from '../net/protocolo';
 import type { Modo } from './partida';
 
 /**
@@ -18,8 +20,28 @@ export type Comando =
   | { t: 'iniciar'; modo: Modo }
   /** Seguir la partida guardada en este equipo (T31c). */
   | { t: 'continuar' }
-  /** Abandonar la partida y volver al menú. */
+  /** Abandonar la partida (o la sala de espera del cooperativo) y volver al menú. */
   | { t: 'salir' }
+  /** Cooperativo (T32): crear una partida con el alias y el color elegidos de la lista. */
+  | { t: 'crear_partida'; alias: Alias; color: Color }
+  /** Cooperativo (T32): unirse con el código de 4 caracteres (se valida antes de usarlo). */
+  | { t: 'unirse'; codigo: string; alias: Alias; color: Color }
+  /** Sala de espera (T81): marcarse listo. El anfitrión inicia marcándose listo él también. */
+  | { t: 'listo'; listo: boolean }
+  /**
+   * Cooperativo (T85): quien tiene D propone los ajustes de su panel al grupo. En las máquinas
+   * con palanca, `accionar` hace lo mismo.
+   */
+  | { t: 'proponer' }
+  /** Cooperativo (T85): aceptar o rechazar la propuesta abierta. */
+  | { t: 'confirmar'; acepta: boolean }
+  /** Cooperativo (T87): votar (o retirar el voto) por pausar, reanudar, ir a otra sala, el final o la ayuda. */
+  | { t: 'votar'; asunto: Asunto; opcion: OpcionVoto | null; acepta: boolean }
+  /**
+   * Cooperativo (T91): señalar el objeto enfocado (o donde está el jugador) con una frase
+   * rápida de la lista, o sin frase. Máximo una por segundo.
+   */
+  | { t: 'senal'; frase: (typeof FRASES)[number] | null }
   /** Botón contextual sobre el objeto enfocado. */
   | { t: 'accion'; objeto: string; accion: AccionObjeto }
   /** Pausar el reloj (el cuaderno lo pausa en modo individual). */
