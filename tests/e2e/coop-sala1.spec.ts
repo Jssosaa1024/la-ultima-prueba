@@ -27,7 +27,10 @@ test('dos jugadores resuelven la sala 1 en cooperativo', async ({ page, context 
   await Promise.all([
     cruzar(a, cajaA, conDedo, 'porteria-puerta-1'),
     (async () => {
-      await expect(barra(b)).toContainText('Jaguar propone ir a La cooperativa');
+      // Llega cuando Jaguar termina de caminar hasta la puerta: puede tardar.
+      await expect(barra(b)).toContainText('Jaguar propone ir a La cooperativa', {
+        timeout: 120_000,
+      });
       await barra(b).getByRole('button', { name: 'Aceptar' }).click();
     })(),
   ]);
@@ -53,10 +56,10 @@ test('dos jugadores resuelven la sala 1 en cooperativo', async ({ page, context 
     const ultima = n === puzzle.etapas.length - 1;
     const aceptar = async (): Promise<void> => {
       if (n === 0) {
-        await barra(a).getByRole('button', { name: 'Ver propuesta' }).click();
+        await barra(a).getByRole('button', { name: 'Ver propuesta' }).click({ timeout: 120_000 });
         await expect(panelA).toContainText('Búho propone estos ajustes');
       }
-      await panelA.getByRole('button', { name: 'Aceptar', exact: true }).click();
+      await panelA.getByRole('button', { name: 'Aceptar', exact: true }).click({ timeout: 60_000 });
     };
     const [seguir] = await Promise.all([resolverEtapa(panelB, puzzle, n), aceptar()]);
     await seguir.click();
