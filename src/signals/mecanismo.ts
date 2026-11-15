@@ -39,6 +39,12 @@ export const condiciones = signal<Readonly<Record<string, boolean>>>({});
 export const pistas = signal<PistasDeSala>({ ofrecidas: 0, vistas: 0 });
 
 /**
+ * Cuántas pistas se abrieron en cada sala (T86), para el cuaderno. En cooperativo son las del
+ * grupo: la pista que abre uno la ven todos.
+ */
+export const pistasVistas = signal<Readonly<Partial<Record<SalaConSello, number>>>>({});
+
+/**
  * Lo último que respondió una máquina (T31d): al accionarla (palanca, polea, manija) o, en las
  * máquinas que responden en vivo, al quedar resuelta. El panel lo usa para mostrar lo que pasó
  * con esos ajustes; la máquina nunca dice «incorrecto».
@@ -79,6 +85,7 @@ export function reiniciarMecanismo(): void {
     mecanismo.value = null;
     condiciones.value = {};
     pistas.value = { ofrecidas: 0, vistas: 0 };
+    pistasVistas.value = {};
     resultado.value = null;
     maquinaResuelta.value = null;
   });

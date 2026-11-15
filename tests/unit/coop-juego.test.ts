@@ -7,7 +7,7 @@ import { iniciarControladorCoop } from '../../src/signals/controlador-coop';
 import { coop, misRoles, propuestaCoop, votosCoop } from '../../src/signals/coop';
 import { datosEncontrados, notas } from '../../src/signals/cuaderno';
 import { aviso, enfocado, panel, type AccionObjeto } from '../../src/signals/interfaz';
-import { etapa, mecanismo, resultado } from '../../src/signals/mecanismo';
+import { etapa, mecanismo, pistas, pistasVistas, resultado } from '../../src/signals/mecanismo';
 import { avance, fase, inventario, modo, reloj, sala } from '../../src/signals/partida';
 import { enviar } from '../../src/signals/puente';
 import type { Foto } from '../../src/game/coop/mensajes';
@@ -157,6 +157,24 @@ describe('partida cooperativa en este navegador', () => {
     expect(avance.value['s1-cooperativa']).toBe(1);
     expect(etapa.value).toMatchObject({ etapa: 1 });
     expect(propuestaCoop.value).toBeNull();
+  });
+
+  it('una pista que abre uno queda en el cuaderno de todos (T86)', async () => {
+    await otro.enviar({
+      t: 'votar',
+      p: { asunto: 'sala', opcion: 's1-cooperativa', acepta: true },
+    });
+    enviar({ t: 'votar', asunto: 'sala', opcion: 's1-cooperativa', acepta: true });
+    await asentar();
+    // Pasa el tiempo de la primera pista; el anfitrión la ofrece y lo cuenta en su foto.
+    red.avanzar(200_000);
+    otro.tick();
+    await asentar();
+    expect(pistas.value.ofrecidas).toBeGreaterThan(0);
+    await otro.enviar({ t: 'pedir_pista', p: { puzzle: 's1-etiquetadora' } });
+    await asentar();
+    expect(pistasVistas.value).toEqual({ 's1-cooperativa': 1 });
+    expect(pistas.value.vistas).toBe(1);
   });
 
   it('las notas del cuaderno se quedan en este navegador', async () => {

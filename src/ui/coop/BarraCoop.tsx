@@ -8,7 +8,7 @@ import {
   type EsperaD,
   type VotoCoop,
 } from '../../signals/coop';
-import { abrirPanel, panel } from '../../signals/interfaz';
+import { abrirCuaderno, abrirPanel, panel } from '../../signals/interfaz';
 import { reloj } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import { aliasDe, textoCuenta, textoEncargos, textoEsperaD, textoVoto } from './textos';
@@ -46,7 +46,12 @@ export default function BarraCoop() {
   return (
     <section class="coop-barra" aria-label="Grupo">
       <div class="coop-barra-fila">
-        {roles.length > 0 && <p class="coop-encargos">{textoEncargos(roles)}</p>}
+        {/* T86: la pista de cada encargo está en el cuaderno. */}
+        {roles.length > 0 && (
+          <button type="button" class="hud-boton-redondo" onClick={abrirCuaderno}>
+            {textoEncargos(roles)}
+          </button>
+        )}
         {!pausado && !hayVoto('pausa') && (
           <button
             type="button"

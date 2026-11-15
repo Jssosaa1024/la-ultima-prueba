@@ -3,8 +3,10 @@ import { fichas } from '../../signals/contenido';
 import { datosEncontrados, MAX_NOTA, MAX_NOTAS, notas } from '../../signals/cuaderno';
 import { PUZZLES } from '../../content/puzzles';
 import { cerrarPanel } from '../../signals/interfaz';
-import { avance, modo } from '../../signals/partida';
+import { pistasVistas } from '../../signals/mecanismo';
+import { avance, modo, SALAS_CON_SELLO } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
+import Encargos from '../coop/Encargos';
 import GrabacionesCuaderno from '../grabaciones/GrabacionesCuaderno';
 import ContenidoFicha from '../inspeccion/ContenidoFicha';
 import Dialogo from '../paneles/Dialogo';
@@ -31,10 +33,13 @@ export default function Cuaderno() {
           El reloj está en pausa mientras tienes el cuaderno abierto.
         </p>
       )}
+      {/* En grupo (T86): la pista del encargo de este jugador en la sala actual. */}
+      {!individual && <Encargos />}
       <Descubrimientos />
       <DatosEncontrados />
+      <PistasAbiertas grupo={!individual} />
       <GrabacionesCuaderno />
-      <Notas />
+      <Notas grupo={!individual} />
     </Dialogo>
   );
 }
@@ -106,7 +111,40 @@ function DatosEncontrados() {
   );
 }
 
-function Notas() {
+/**
+ * Las pistas abiertas de cada máquina (T86). En grupo son las de todos: la que abre uno la
+ * leen los demás aquí.
+ */
+function PistasAbiertas({ grupo }: { grupo: boolean }) {
+  const vistas = pistasVistas.value;
+  const salas = SALAS_CON_SELLO.flatMap((s, i) => {
+    const n = vistas[s] ?? 0;
+    const puzzle = PUZZLES.find((p) => p.sala === i + 1);
+    return n > 0 && puzzle ? [{ s, puzzle, n }] : [];
+  });
+  if (salas.length === 0) return null;
+  return (
+    <section class="cuaderno-seccion" aria-labelledby="cuaderno-pistas">
+      <h3 id="cuaderno-pistas" class="cuaderno-subtitulo">
+        {grupo ? 'Pistas que abrió el grupo' : 'Pistas abiertas'}
+      </h3>
+      {salas.map(({ s, puzzle, n }) => (
+        <article key={s}>
+          <h4 class="cuaderno-maquina">
+            Sala {puzzle.sala} · {puzzle.titulo}
+          </h4>
+          <ol class="cuaderno-etapas">
+            {puzzle.pistas.slice(0, n).map((p) => (
+              <li key={p.nivel}>{p.texto}</li>
+            ))}
+          </ol>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function Notas({ grupo }: { grupo: boolean }) {
   const id = useId();
   const [texto, setTexto] = useState('');
   const lista = notas.value;
@@ -126,6 +164,8 @@ function Notas() {
       <h3 id="cuaderno-notas" class="cuaderno-subtitulo">
         Notas y cálculos
       </h3>
+      {/* T86: las notas no viajan por la red (sin chat libre entre menores). */}
+      {grupo && <p class="cuaderno-vacio">Tus notas solo las ves tú: no se envían al grupo.</p>}
       {lista.length > 0 && (
         <ul class="cuaderno-notas">
           {lista.map((n) => (

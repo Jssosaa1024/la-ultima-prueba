@@ -2,7 +2,8 @@ import { batch, signal } from '@preact/signals';
 
 /**
  * Cuaderno del jugador (T36). En individual lo escribe el controlador de la partida; en
- * cooperativo lo escribirá el anfitrión con los eventos `nota` (T86).
+ * cooperativo, el controlador cooperativo: los datos encontrados son los del grupo
+ * (`revelado`) y las notas son solo de este navegador, no viajan por la red (T86).
  */
 
 /** Máximo de caracteres por nota (igual que la intención `nota` del protocolo). */
