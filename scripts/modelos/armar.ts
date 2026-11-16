@@ -10,7 +10,7 @@ import type { Node, NodeIO } from '@gltf-transform/core';
 import { mergeDocuments, unpartition } from '@gltf-transform/functions';
 import type { Credito } from '../creditos/esquema.ts';
 import { creditoDe, textoCopyright } from '../creditos/reglas.ts';
-import { aplicarPerfilKenney, escalaDe } from '../perfiles/kenney.ts';
+import { aplicarPerfilKenney, escalaDe, texturaMaximaDe } from '../perfiles/kenney.ts';
 import type { PiezaColocada } from '../perfiles/kenney.ts';
 import { texturaAmbientcg } from '../perfiles/ambientcg.ts';
 import { perfilDe, PRODUCE } from '../perfiles/index.ts';
@@ -113,7 +113,11 @@ export async function armarModelo(
     number,
   ];
 
-  await aplicarEtapaComun(documento, { copyright: textoCopyright(credito) });
+  const tamanoMaximo = texturaMaximaDe(entrada);
+  await aplicarEtapaComun(documento, {
+    copyright: textoCopyright(credito),
+    ...(tamanoMaximo ? { ktx2: { tamanoMaximo } } : {}),
+  });
   const destino = path.join(raiz, entrada.archivo);
   await mkdir(path.dirname(destino), { recursive: true });
   await io.write(destino, documento);

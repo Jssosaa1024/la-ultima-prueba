@@ -1,5 +1,8 @@
-import { SRGBColorSpace, Vector2, WebGLRenderer } from 'three';
+import { NeutralToneMapping, SRGBColorSpace, Vector2, WebGLRenderer } from 'three';
 import type { PerspectiveCamera } from 'three';
+
+/** Exposición del tono neutro (T19i). */
+export const EXPOSICION = 1.1;
 
 /**
  * Renderer WebGL2 del juego (T12).
@@ -17,6 +20,10 @@ export function crearRenderer(canvas: HTMLCanvasElement): WebGLRenderer {
     stencil: false,
   });
   renderer.outputColorSpace = SRGBColorSpace;
+  // T19i: el tono neutro de Khronos comprime los claros sin lavar los colores; con la luz un
+  // poco más fuerte, los muebles ganan volumen. Es una cuenta más por píxel, en el mismo pase.
+  renderer.toneMapping = NeutralToneMapping;
+  renderer.toneMappingExposure = EXPOSICION;
   renderer.setClearColor(0x111418, 1);
   renderer.setPixelRatio(1);
   // Las métricas (panel ?debug=1) leen info.render por cuadro; se reinicia a mano.

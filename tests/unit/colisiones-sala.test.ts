@@ -32,8 +32,8 @@ describe('cajas de colisión generadas por código', () => {
 
   it('en la portería el jugador no sale del pasillo ni atraviesa el escritorio', () => {
     const { cajas } = construirSala(salaPorId('porteria'));
-    // 4 paredes, el casillero, el escritorio y la silla.
-    expect(cajas).toHaveLength(7);
+    // 4 paredes, el casillero, el escritorio, la silla, y la lámpara y el cactus (T19i).
+    expect(cajas).toHaveLength(9);
 
     // Caminar de frente desde la entrada: se detiene contra la pared del fondo (z = −5).
     const frente = moverConColision(0, 4.2, 0, -20, 0, cajas);

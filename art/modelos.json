@@ -3,123 +3,169 @@
     "archivo": "public/assets/salas/porteria/puerta-salida.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/doorwayFront.glb"
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_B.gltf"
       }
     ],
-    "caja": [1.6, 2.4, null],
-    "nota": "Puerta con vidrio; se estira a lo ancho para la salida de 1,6 m"
+    "caja": [1.6, 2.4, 0.12],
+    "nota": "Fondo de 12 cm: el modelo trae 57 cm y se metía en la sala."
   },
   {
     "archivo": "public/assets/salas/porteria/puerta.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/doorway.glb"
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_A.gltf"
       }
     ],
-    "caja": [1.1, 2.2, null],
-    "nota": "Las cinco puertas de sala; el motor las instancia"
+    "caja": [1.1, 2.2, 0.12],
+    "nota": "Las cinco puertas de sala; el motor las instancia Fondo de 12 cm: el modelo trae 57 cm y se metía en la sala."
   },
   {
     "archivo": "public/assets/salas/porteria/casillero.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/bookcaseClosedDoors.glb"
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf"
       }
     ],
-    "caja": [1, 1.8, 0.5]
-  },
-  {
-    "archivo": "public/assets/salas/porteria/intercomunicador.glb",
-    "piezas": [
-      {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/speakerSmall.glb"
-      }
-    ],
-    "caja": [0.3, 0.4, null],
-    "nota": "Parlante pequeño de pared: Factory Kit solo tiene paneles de piso"
+    "caja": [1, 1.8, 0.5],
+    "nota": "Alacena blanca de dos puertas como casillero"
   },
   {
     "archivo": "public/assets/salas/porteria/escritorio.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/desk.glb"
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf"
       }
     ],
-    "caja": [1.2, 0.75, 0.6]
+    "caja": [1.2, 0.75, 0.6],
+    "nota": "Mueble con cajones como mesa de recepción"
   },
   {
     "archivo": "public/assets/salas/porteria/silla.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/chairDesk.glb"
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_A.gltf"
       }
     ],
     "caja": [0.45, 0.9, 0.45]
   },
   {
+    "archivo": "public/assets/salas/porteria/alfombra.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/rug_rectangle_stripes_A.gltf"
+      }
+    ],
+    "caja": [2.4, 0.02, 1.6]
+  },
+  {
+    "archivo": "public/assets/salas/porteria/lampara.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/lamp_standing.gltf"
+      }
+    ],
+    "caja": [0.45, 1.7, 0.45]
+  },
+  {
+    "archivo": "public/assets/salas/porteria/cactus.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cactus_medium_A.gltf"
+      }
+    ],
+    "caja": [0.5, 0.5, 0.5]
+  },
+  {
+    "archivo": "public/assets/salas/porteria/cuadro.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/pictureframe_large_A.gltf"
+      }
+    ],
+    "caja": [0.8, 0.96, null]
+  },
+  {
+    "archivo": "public/assets/salas/porteria/libros.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf"
+      }
+    ],
+    "caja": [0.3, 0.2, 0.14]
+  },
+  {
     "archivo": "public/assets/salas/s1-cooperativa/puerta.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/doorway.glb"
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_A.gltf"
       }
     ],
-    "caja": [1.1, 2.2, null]
+    "caja": [1.1, 2.2, 0.12],
+    "nota": "Fondo de 12 cm: el modelo trae 57 cm y se metía en la sala."
   },
   {
-    "archivo": "public/assets/salas/s1-cooperativa/estante-cajas.glb",
+    "archivo": "public/assets/salas/s1-cooperativa/estante-pared.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-mini-shop/kenney_mini-shop_2.1.zip#Models/GLB format/shelf-boxes.glb"
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [0, 1.082, -0.5]
       }
     ],
     "caja": [0.5, 1.8, 1.4],
     "giro": 90,
-    "nota": "Estante de isla de Mini Shop contra la pared: queda delgado de fondo"
+    "nota": "Mueble con cajones y repisa con productos, de lado contra la pared oeste"
   },
   {
-    "archivo": "public/assets/salas/s1-cooperativa/estante-bolsas.glb",
+    "archivo": "public/assets/salas/s1-cooperativa/estante-fondo.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-mini-shop/kenney_mini-shop_2.1.zip#Models/GLB format/shelf-bags.glb"
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [0, 1.082, -0.5]
       }
     ],
     "caja": [1.6, 1.8, 0.5],
-    "nota": "Sin el remate shelf-end: el estante va de pared a pared"
+    "nota": "El mismo estante contra la pared norte; la repisa empieza a 1 m, donde van los productos"
   },
   {
     "archivo": "public/assets/salas/s1-cooperativa/mostrador.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenBar.glb",
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencounter_straight_A.gltf",
+        "pos": [-2, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencounter_straight_A.gltf",
         "pos": [0, 0, 0]
       },
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenBar.glb",
-        "pos": [0.43, 0, 0]
-      },
-      {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenBar.glb",
-        "pos": [0.86, 0, 0]
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencounter_straight_A.gltf",
+        "pos": [2, 0, 0]
       }
     ],
     "caja": [2.6, 1, 0.7],
-    "nota": "Tres tramos de barra unidos"
+    "nota": "Tres tramos de mostrador de cocina"
   },
   {
     "archivo": "public/assets/salas/s1-cooperativa/etiquetadora.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenMicrowave.glb"
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/oven.gltf"
       }
     ],
     "caja": [0.45, 0.3, 0.35],
-    "nota": "Caja con puerta y botones del tamaño justo; la máquina de Factory Kit es de piso (1,3 m)"
+    "nota": "El horno rojo con ventana, como máquina"
   },
   {
     "archivo": "public/assets/salas/s1-cooperativa/caja-abierta.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/cardboardBoxOpen.glb"
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/crate.gltf"
       }
     ],
     "caja": [0.35, 0.15, 0.25]
@@ -131,16 +177,80 @@
         "original": "art/compartido/originales/kenney-mini-shop/kenney_mini-shop_2.1.zip#Models/GLB format/cash-register.glb"
       }
     ],
-    "caja": [0.45, 0.35, 0.4]
+    "caja": [0.45, 0.35, 0.4],
+    "nota": "KayKit no tiene registradora: queda la de Kenney Mini Shop"
   },
   {
     "archivo": "public/assets/salas/s1-cooperativa/mesa.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/table.glb"
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/table_medium_long.gltf"
       }
     ],
     "caja": [1, 0.75, 0.7]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/huacal-zanahorias.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/crate_carrots.gltf"
+      }
+    ],
+    "caja": [0.6, 0.3, 0.6]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/huacal-tomates.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/crate_tomatoes.gltf"
+      }
+    ],
+    "caja": [0.6, 0.3, 0.6]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/frascos.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/jar_A_large.gltf"
+      }
+    ],
+    "caja": [0.14, 0.2, 0.14]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/menu.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/menu.gltf"
+      }
+    ],
+    "caja": [0.2, 0.32, 0.12]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/cactus.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cactus_small_A.gltf"
+      }
+    ],
+    "caja": [0.2, 0.2, 0.2]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/lampara.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/lamp_standing.gltf"
+      }
+    ],
+    "caja": [0.45, 1.7, 0.45]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/cuadro.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/pictureframe_large_B.gltf"
+      }
+    ],
+    "caja": [0.8, 0.6, null]
   },
   {
     "archivo": "public/assets/salas/compartido/piso-baldosa.ktx2",

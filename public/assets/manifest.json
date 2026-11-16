@@ -61,104 +61,172 @@
     "porteria": {
       "archivos": [
         {
-          "archivo": "salas/porteria/casillero.5fd345af.glb",
-          "sha256": "5fd345af788dd7c16d0b3f1805ce4415086effb1ffc2755d3623f2339e2ab396",
-          "bytes": 6608,
-          "triangulos": 296,
+          "archivo": "salas/porteria/alfombra.2e2ef758.glb",
+          "sha256": "2e2ef7582f371763c3f8a3aef60e952fa778ddb54524bb3451fd4eb4ee490a5d",
+          "bytes": 10992,
+          "triangulos": 68,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 21
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/porteria/escritorio.c3ab8ca6.glb",
-          "sha256": "c3ab8ca60b25455dd1f5ac3b3d02598dd61aac3794e1b23d4b1275a76be2418c",
-          "bytes": 5496,
-          "triangulos": 198,
+          "archivo": "salas/porteria/cactus.3eb9606e.glb",
+          "sha256": "3eb9606e43f5580abe9d5de6451ce6e11a8c0dfb98d472656380ad182309911e",
+          "bytes": 17324,
+          "triangulos": 448,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 21
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/porteria/intercomunicador.bcd07a96.glb",
-          "sha256": "bcd07a96e1761c46649c1357a2a96567c972febdce11ac9e0abd46b91ba26ace",
-          "bytes": 5372,
-          "triangulos": 220,
-          "drawCalls": 1,
-          "texturas": [
-            {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
-              "formato": "etc1s",
-              "alfa": false,
-              "bytesGpu": 21
-            }
-          ]
-        },
-        {
-          "archivo": "salas/porteria/puerta-salida.4dbe5624.glb",
-          "sha256": "4dbe56245b9aaa412155074371a9b139a1fa49a8c23af00ac9ec74763b4bd2cf",
-          "bytes": 6928,
+          "archivo": "salas/porteria/casillero.0deb422c.glb",
+          "sha256": "0deb422c51dcf9d7d9e6a39d9b09366340e2428a07c3816c4386ff32ef10e4ca",
+          "bytes": 14164,
           "triangulos": 156,
-          "drawCalls": 2,
+          "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 16,
-              "alto": 4,
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
-              "alfa": true,
-              "bytesGpu": 85
+              "alfa": false,
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/porteria/puerta.ad0ee4e3.glb",
-          "sha256": "ad0ee4e30890e0a362b4fdf84815fe32f2622f1c6f2796958b67c909ae3b0ae7",
-          "bytes": 5668,
+          "archivo": "salas/porteria/cuadro.84c78ae0.glb",
+          "sha256": "84c78ae0c2aa031ae17c704cec9f5640b3e36105863a1cac2e879b5b44dc8b61",
+          "bytes": 11276,
+          "triangulos": 60,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/porteria/escritorio.7facd406.glb",
+          "sha256": "7facd40658fc2ae8f14ab0c971643076ac314149b19bc373ed51b12c1b3c0fd0",
+          "bytes": 18864,
+          "triangulos": 428,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/porteria/lampara.6ad3a858.glb",
+          "sha256": "6ad3a8587f02f274063202bf674e3937201acb31d12ffe8d0c509648a0e46b1b",
+          "bytes": 14432,
+          "triangulos": 320,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/porteria/libros.a96cf76f.glb",
+          "sha256": "a96cf76fc9f2bfe582f998b9fed31c98ec0231d251533dccfffa463337a4dc6a",
+          "bytes": 14460,
+          "triangulos": 196,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/porteria/puerta-salida.c3ee4416.glb",
+          "sha256": "c3ee4416e4a94417951ca6e2e64fca74731443b0dbb6dbaf7e5b4ba0b9cef1f2",
+          "bytes": 15276,
           "triangulos": 188,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 21
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/porteria/silla.13ffaccb.glb",
-          "sha256": "13ffaccb2f5f69068867c0227eccd57de5e414c4be1bee388e41f0dc4b82bb22",
-          "bytes": 9048,
-          "triangulos": 588,
+          "archivo": "salas/porteria/puerta.3adb0fcd.glb",
+          "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
+          "bytes": 15276,
+          "triangulos": 188,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 21
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/porteria/silla.a358d2a7.glb",
+          "sha256": "a358d2a754c27d2f03c623cebf314f74920479b01cebb7a6be43dc87f17d9c17",
+          "bytes": 16440,
+          "triangulos": 308,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
             }
           ]
         },
@@ -182,122 +250,250 @@
       ],
       "audio": [],
       "totales": {
-        "bytes": 44728,
+        "bytes": 154112,
         "bytesAudio": 0,
-        "triangulos": 1902,
-        "drawCalls": 8,
-        "bytesGpu": 5638
+        "triangulos": 2616,
+        "drawCalls": 11,
+        "bytesGpu": 441258
       }
     },
     "s1-cooperativa": {
       "archivos": [
         {
-          "archivo": "salas/s1-cooperativa/caja-abierta.e0347e3d.glb",
-          "sha256": "e0347e3d06ecf113ee81c48a71a31bd7c08fe689fcdeafe9904f9685ce5ef6f6",
-          "bytes": 3996,
+          "archivo": "salas/s1-cooperativa/cactus.43ebf427.glb",
+          "sha256": "43ebf427f90dd6f2a6b35fe099032a2979338f09ed1f67b84e5dbe6686fb769f",
+          "bytes": 13632,
+          "triangulos": 252,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/caja-abierta.c871fb13.glb",
+          "sha256": "c871fb13c0b4ea6e7b08d6fef8654cb20b591c8d2ab975d917d2c7c8bbf28795",
+          "bytes": 14060,
+          "triangulos": 132,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/cuadro.3dff37c6.glb",
+          "sha256": "3dff37c6624ff932dd0100ed6ef264861b842d08e94bf178d44375e2bac1e8cf",
+          "bytes": 11228,
           "triangulos": 60,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 21
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/s1-cooperativa/estante-bolsas.bd72802e.glb",
-          "sha256": "bd72802e77c7bcff5c35e4edf1115623caeb96291886ff9aaddba9e3f428aa60",
-          "bytes": 34152,
-          "triangulos": 1116,
+          "archivo": "salas/s1-cooperativa/estante-fondo.1550540a.glb",
+          "sha256": "1550540a245382954712ef1718d48a170d2f25089ef0326b232c804ef86abc86",
+          "bytes": 28688,
+          "triangulos": 910,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "colormap",
-              "ancho": 512,
-              "alto": 512,
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 174326
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/s1-cooperativa/estante-cajas.53ef2bf6.glb",
-          "sha256": "53ef2bf6d244e35ae3cfaa4d1546f55d2f3be0aa4fe01d23d483502af1398e4a",
-          "bytes": 29172,
-          "triangulos": 724,
+          "archivo": "salas/s1-cooperativa/estante-pared.06610204.glb",
+          "sha256": "06610204a2509806d1d6a4e58bf4cd7c29419274b197e5cb476cdf47ac7f2235",
+          "bytes": 28496,
+          "triangulos": 910,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "colormap",
-              "ancho": 512,
-              "alto": 512,
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 174326
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/s1-cooperativa/etiquetadora.34d61a57.glb",
-          "sha256": "34d61a5767ac09ff148ed02830df0751a0631e104f0bf054fe6d8dd2e58bb62c",
-          "bytes": 6700,
-          "triangulos": 152,
-          "drawCalls": 2,
-          "texturas": [
-            {
-              "nombre": "PaletteBaseColor",
-              "ancho": 16,
-              "alto": 4,
-              "formato": "etc1s",
-              "alfa": true,
-              "bytesGpu": 85
-            }
-          ]
-        },
-        {
-          "archivo": "salas/s1-cooperativa/mesa.b72f11fc.glb",
-          "sha256": "b72f11fc1c4c03a56a44ef542243fa0e509a553bc7710e7ecd015df44dc3daef",
-          "bytes": 3152,
-          "triangulos": 120,
-          "drawCalls": 1,
-          "texturas": []
-        },
-        {
-          "archivo": "salas/s1-cooperativa/mostrador.78f83e5a.glb",
-          "sha256": "78f83e5a52daf7639120359253c1190951dec767521d1ef6a1326f26eddc4f66",
-          "bytes": 5432,
-          "triangulos": 228,
+          "archivo": "salas/s1-cooperativa/etiquetadora.4212e480.glb",
+          "sha256": "4212e48040fc7c841ee18b7319e20eb15ff48d232c845d3ec85a38af483327e4",
+          "bytes": 22584,
+          "triangulos": 542,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 16,
-              "alto": 4,
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 43
+              "bytesGpu": 43581
             }
           ]
         },
         {
-          "archivo": "salas/s1-cooperativa/puerta.ad0ee4e3.glb",
-          "sha256": "ad0ee4e30890e0a362b4fdf84815fe32f2622f1c6f2796958b67c909ae3b0ae7",
-          "bytes": 5668,
+          "archivo": "salas/s1-cooperativa/frascos.acaff8a1.glb",
+          "sha256": "acaff8a1f2bb7e60c848661db1f521a51787fe9742fb9b7ad59f9c604a9026e3",
+          "bytes": 13928,
+          "triangulos": 168,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/huacal-tomates.faf52788.glb",
+          "sha256": "faf527884aade2a7af42bba57147b38a947e6146c664049ab825715913f37ac4",
+          "bytes": 43748,
+          "triangulos": 2072,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/huacal-zanahorias.600885ba.glb",
+          "sha256": "600885ba30185c9d72d621f806cf1fd55b2712a6c9983a96c3c772189abf6dd6",
+          "bytes": 37104,
+          "triangulos": 1752,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/lampara.6ad3a858.glb",
+          "sha256": "6ad3a8587f02f274063202bf674e3937201acb31d12ffe8d0c509648a0e46b1b",
+          "bytes": 14432,
+          "triangulos": 320,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/menu.fcf47ae6.glb",
+          "sha256": "fcf47ae69a582085cb82565fa10144bf89cac7c84aa6ae3604a37bd0b0abe4da",
+          "bytes": 13480,
+          "triangulos": 108,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/mesa.7cd90922.glb",
+          "sha256": "7cd909224b541f278ca6aafde6fcf4ed9891ac263053130f5f64e27388c7dde0",
+          "bytes": 13504,
+          "triangulos": 168,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/mostrador.98fbaf9d.glb",
+          "sha256": "98fbaf9d6b87e95b75a403081bcb1db70a7342ef5e4eb01507fcb9f4f543322e",
+          "bytes": 20288,
+          "triangulos": 504,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s1-cooperativa/puerta.3adb0fcd.glb",
+          "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
+          "bytes": 15276,
           "triangulos": 188,
           "drawCalls": 1,
           "texturas": [
             {
-              "nombre": "PaletteBaseColor",
-              "ancho": 8,
-              "alto": 4,
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
               "formato": "etc1s",
               "alfa": false,
-              "bytesGpu": 21
+              "bytesGpu": 43581
             }
           ]
         },
@@ -321,11 +517,11 @@
       ],
       "audio": [],
       "totales": {
-        "bytes": 110284,
+        "bytes": 312460,
         "bytesAudio": 0,
-        "triangulos": 2928,
-        "drawCalls": 9,
-        "bytesGpu": 523148
+        "triangulos": 8426,
+        "drawCalls": 15,
+        "bytesGpu": 784460
       }
     }
   }

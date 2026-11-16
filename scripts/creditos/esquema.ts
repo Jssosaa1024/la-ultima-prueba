@@ -15,11 +15,12 @@ export const TIPOS = ['modelo', 'textura', 'imagen', 'audio', 'voz'] as const;
 
 /**
  * De dónde sale el asset. Elige el perfil de limpieza de `optimize-models` (T11a).
- * Desde la ola 6 los modelos salen solo de `kenney` (CC0) y las texturas de `ambientcg`; las
+ * Desde la ola 6 los modelos salen de `kaykit` y `kenney` (CC0) y las texturas de `ambientcg`; las
  * demás se quedan para el audio y para rechazar con un mensaje claro lo que no se debe publicar
  * (por ejemplo, `tripo` en plan gratis o cualquier entrada de `quaternius`).
  */
 export const FUENTES = [
+  'kaykit',
   'kenney',
   'quaternius',
   'meshy',

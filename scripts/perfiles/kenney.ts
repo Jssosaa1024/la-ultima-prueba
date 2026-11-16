@@ -31,12 +31,26 @@ import type { EntradaModelo } from '../modelos/lista.ts';
  * Metros por unidad de cada paquete, medidos sobre un objeto de tamaño conocido:
  * el escritorio de Furniture Kit mide 0,384 (0,77 m) y la puerta 1,01 (2 m); el estante de
  * Mini Shop, 0,85 (1,8 m).
- * Factory Kit ya viene en metros (la máquina mide 1,3).
+ * Factory Kit ya viene en metros (la máquina mide 1,3). KayKit usa una cuadrícula de 1: la mesa
+ * mide 1 (0,75 m) y la puerta 2,8 (2,1 m). Sirve igual para KayKit (T19i): un solo material
+ * con una textura de degradado, y las piezas se unen igual.
  */
 export const ESCALA_PAQUETE: Readonly<Record<string, number>> = {
+  'kaykit-furniture-bits': 0.75,
+  'kaykit-restaurant-bits': 0.75,
   'kenney-furniture-kit': 2,
   'kenney-mini-shop': 2.1,
   'kenney-factory-kit': 1,
+};
+
+/**
+ * Lado máximo de la textura de cada paquete. KayKit pinta con una textura de degradado de 1024
+ * que se puede bajar hasta 128 sin que se note (lo dice su página), y cada GLB lleva su copia:
+ * a 1024 serían 0,7 MB de GPU por modelo. Los demás paquetes usan el máximo general.
+ */
+export const TEXTURA_PAQUETE: Readonly<Record<string, number>> = {
+  'kaykit-furniture-bits': 256,
+  'kaykit-restaurant-bits': 256,
 };
 
 /** El paquete de un original: la carpeta que sigue a `originales/`. */
@@ -59,6 +73,13 @@ export function escalaDe(entrada: Pick<EntradaModelo, 'archivo' | 'piezas'>): nu
     );
   }
   return escala;
+}
+
+/** Lado máximo de las texturas de un modelo (el de su paquete, o `undefined` = el general). */
+export function texturaMaximaDe(entrada: Pick<EntradaModelo, 'piezas'>): number | undefined {
+  const lados = entrada.piezas.map((p) => TEXTURA_PAQUETE[paqueteDe(p.original) ?? ''] ?? Infinity);
+  const lado = Math.min(...lados);
+  return Number.isFinite(lado) ? lado : undefined;
 }
 
 /** Cuaternión de un giro alrededor del eje vertical, en grados. */
