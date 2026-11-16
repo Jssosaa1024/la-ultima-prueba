@@ -6,10 +6,17 @@
     "fondo": 10,
     "alto": 3.2,
     "colores": { "piso": "#7d7468", "paredes": "#d8d2c4", "techo": "#eceae4" },
+    "texturas": {
+      "piso": "compartido/piso-baldosa",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2
+    },
     "inicio": { "x": 0, "z": 4.2, "giro": 0 },
     "objetos": [
       {
         "id": "porteria-salida",
+        "modelo": "puerta-salida",
         "nombre": "Puerta de salida",
         "forma": "plano",
         "tam": [1.6, 2.4, 0],
@@ -37,6 +44,7 @@
       },
       {
         "id": "porteria-casillero",
+        "modelo": "casillero",
         "nombre": "Casillero de objetos perdidos",
         "forma": "caja",
         "tam": [1, 1.8, 0.5],
@@ -47,6 +55,7 @@
       },
       {
         "id": "porteria-intercomunicador",
+        "modelo": "intercomunicador",
         "nombre": "Intercomunicador de emergencia",
         "forma": "plano",
         "tam": [0.3, 0.4, 0],
@@ -57,6 +66,7 @@
       },
       {
         "id": "porteria-puerta-1",
+        "modelo": "puerta",
         "nombre": "Puerta 1 · La cooperativa",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
@@ -68,6 +78,7 @@
       },
       {
         "id": "porteria-puerta-2",
+        "modelo": "puerta",
         "nombre": "Puerta 2 · El laboratorio",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
@@ -79,6 +90,7 @@
       },
       {
         "id": "porteria-puerta-3",
+        "modelo": "puerta",
         "nombre": "Puerta 3 · El gimnasio",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
@@ -90,6 +102,7 @@
       },
       {
         "id": "porteria-puerta-4",
+        "modelo": "puerta",
         "nombre": "Puerta 4 · La biblioteca",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
@@ -101,6 +114,7 @@
       },
       {
         "id": "porteria-puerta-5",
+        "modelo": "puerta",
         "nombre": "Puerta 5 · La rectoría",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
@@ -112,6 +126,7 @@
       },
       {
         "id": "porteria-escritorio",
+        "modelo": "escritorio",
         "forma": "caja",
         "tam": [1.2, 0.75, 0.6],
         "pos": [2.2, 0, 3.4],
@@ -129,6 +144,7 @@
       },
       {
         "id": "porteria-silla",
+        "modelo": "silla",
         "forma": "grupo",
         "tam": [0.45, 0.9, 0.45],
         "pos": [-2.3, 0, 3.6],
@@ -157,10 +173,17 @@
     "fondo": 5,
     "alto": 3,
     "colores": { "piso": "#8e7f6a", "paredes": "#efe3c8", "techo": "#f4f1ea" },
+    "texturas": {
+      "piso": "compartido/piso-baldosa",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2
+    },
     "inicio": { "x": 0, "z": 1.9, "giro": 0 },
     "objetos": [
       {
         "id": "s1-puerta",
+        "modelo": "puerta",
         "nombre": "Puerta a la portería",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
@@ -172,6 +195,7 @@
       },
       {
         "id": "s1-estante-1",
+        "modelo": "estante-cajas",
         "forma": "caja",
         "tam": [0.5, 1.8, 1.4],
         "pos": [-3.2, 0, -1.2],
@@ -180,6 +204,7 @@
       },
       {
         "id": "s1-estante-2",
+        "modelo": "estante-cajas",
         "forma": "caja",
         "tam": [0.5, 1.8, 1.4],
         "pos": [-3.2, 0, 0.6],
@@ -188,6 +213,7 @@
       },
       {
         "id": "s1-estante-3",
+        "modelo": "estante-bolsas",
         "forma": "caja",
         "tam": [1.6, 1.8, 0.5],
         "pos": [-1.6, 0, -2.2],
@@ -210,6 +236,7 @@
       },
       {
         "id": "s1-mostrador",
+        "modelo": "mostrador",
         "forma": "caja",
         "tam": [2.6, 1, 0.7],
         "pos": [1.2, 0, -0.6],
@@ -218,6 +245,7 @@
       },
       {
         "id": "s1-etiquetadora",
+        "modelo": "etiquetadora",
         "nombre": "Etiquetadora",
         "forma": "caja",
         "tam": [0.45, 0.3, 0.35],
@@ -236,6 +264,7 @@
       },
       {
         "id": "s1-caja-rodillos",
+        "modelo": "caja-abierta",
         "nombre": "Caja de rodillos",
         "forma": "caja",
         "tam": [0.35, 0.15, 0.25],
@@ -245,6 +274,7 @@
       },
       {
         "id": "s1-registradora",
+        "modelo": "registradora",
         "nombre": "Registradora",
         "forma": "caja",
         "tam": [0.45, 0.35, 0.4],
@@ -273,6 +303,7 @@
       },
       {
         "id": "s1-mesa",
+        "modelo": "mesa",
         "forma": "caja",
         "tam": [1, 0.75, 0.7],
         "pos": [2, 0, 1.4],
