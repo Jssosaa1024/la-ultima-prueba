@@ -41,8 +41,13 @@ import { crearBucle } from './loop';
 import { animacionDeSala } from './mecanismos';
 import type { AnimacionSala } from './mecanismos';
 import { crearRenderer, seguirTamano } from './renderer';
+import type { Cargador } from './carga/cargador';
+import { pedirIndice } from './carga/manifiesto';
+import type { IndiceAssets } from './carga/manifiesto';
 import { crearCargadorSalas } from './salas/cargador';
 import { construirSala } from './salas/construir';
+import { necesitaVestir, urlsDeSala, vestirSala } from './salas/vestir';
+import type { FuentesAssets } from './salas/vestir';
 import { puntoDeEntrada, siguienteSala } from './salas/recorrido';
 import { salaDeLaUrl } from './salas/url';
 
@@ -86,6 +91,19 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   const camara = new PerspectiveCamera(70, 1, 0.05, 50);
   let orientacion: Orientacion = { yaw: 0, pitch: PITCH_INICIAL };
 
+  // Lo que se descarga (T19g): el manifiesto y el cargador KTX2 (T10) se piden solo la primera
+  // vez que una sala los necesita, con import dinámico, para no pesar en la primera carga.
+  let indice: Promise<IndiceAssets> | null = null;
+  let cargadorAssets: Cargador | null = null;
+  const pedirIndiceUnaVez = (): Promise<IndiceAssets> => (indice ??= pedirIndice());
+  let fuentes: Promise<FuentesAssets> | null = null;
+  const fuentesAssets = (): Promise<FuentesAssets> =>
+    (fuentes ??= import('./carga/cargador').then(({ crearCargador }) => {
+      const c = crearCargador(renderer);
+      cargadorAssets = c;
+      return { indice: pedirIndiceUnaVez, textura: (url) => c.cargarTextura(url) };
+    }));
+
   // Salas por código (src/content/salas.json) con el cargador de salas (T20): compila antes
   // de mostrar, deja en la GPU solo la portería y la sala actual, y prepara la siguiente.
   const cargador = crearCargadorSalas({
@@ -94,6 +112,16 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     camara,
     distribucion: salaPorId,
     construir: construirSala,
+    vestir: async (construida, datos) => {
+      if (!necesitaVestir(datos) || detenido) return;
+      await vestirSala(construida.raiz, datos, await fuentesAssets());
+    },
+    precalentar: (datos) => {
+      if (!necesitaVestir(datos)) return;
+      void pedirIndiceUnaVez().then((i) => {
+        for (const url of urlsDeSala(datos, i)) void fetch(url).catch(() => undefined);
+      });
+    },
   });
   // Tocar un objeto lo enfoca y el HUD muestra su botón contextual (T18).
   let interaccion: Interaccion | null = null;
@@ -393,6 +421,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     animacion?.liberar();
     joystick.value = null;
     cargador.liberar();
+    cargadorAssets?.liberar();
     renderer.dispose();
     delete canvas.dataset['motor'];
     delete canvas.dataset['mirada'];

@@ -148,6 +148,10 @@ export function crearMedidor({ renderer, escena, sala, pixeles }: OpcionesMedido
       if (anterior !== null) {
         const ms = ahoraMs - anterior;
         if (ms > 0 && ms < HUECO_MAX_MS) ventana.registrar(ms, ahoraMs);
+      } else if (ultimaPublicacion === 0) {
+        // Primer cuadro: se mide medio segundo antes de publicar. Si no, el panel quedaba
+        // «listo» con 0 cuadros y un JSON exportado enseguida decía p95 = 0 (ola 6).
+        ultimaPublicacion = ahoraMs;
       }
       anterior = ahoraMs;
       if (ahoraMs - ultimaPublicacion >= MS_ENTRE_PUBLICACIONES) {

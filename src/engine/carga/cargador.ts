@@ -1,4 +1,4 @@
-import { LoadingManager, type WebGLRenderer } from 'three';
+import { LoadingManager, type Texture, type WebGLRenderer } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
@@ -8,6 +8,8 @@ import transcodificadorSinEval from './basis/basis_transcoder_sin_eval.js?url';
 export interface Cargador {
   /** Descarga y decodifica un GLB con meshopt y texturas KTX2. */
   cargar(url: string): Promise<GLTF>;
+  /** Descarga y transcodifica una textura .ktx2 suelta (piso, paredes y techo, T19g). */
+  cargarTextura(url: string): Promise<Texture>;
   /** Detiene los workers del transcodificador. Llamar al salir del juego. */
   liberar(): void;
 }
@@ -37,6 +39,7 @@ export function crearCargador(renderer: WebGLRenderer): Cargador {
 
   return {
     cargar: (url) => gltf.loadAsync(url),
+    cargarTextura: (url) => ktx2.loadAsync(url),
     liberar: () => ktx2.dispose(),
   };
 }

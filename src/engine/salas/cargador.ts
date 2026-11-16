@@ -8,8 +8,9 @@
  * - **Precarga**: la siguiente sala se arma en la CPU en un momento libre, sin subirla a la
  *   GPU; al entrar solo falta compilar y dibujar.
  *
- * Las salas son geometría por código (`construir.ts`): no hay archivos que descargar.
- * Cuando lleguen los GLB de cada sala (Fase 6 y 7), la precarga los dejará en la caché.
+ * Las salas son geometría por código (`construir.ts`). Lo que se descarga (texturas, T19g) se
+ * pone después con `vestir`, una sola vez por sala armada, antes de compilar; la precarga solo
+ * deja esos archivos en la caché, sin decodificarlos (`precalentar`).
  */
 import type { Camera, Object3D, Scene } from 'three';
 import type { Lugar, Sala } from '../../content/esquema-salas';
@@ -29,6 +30,10 @@ export interface OpcionesCargador {
   /** Busca la distribución de un lugar. */
   distribucion: (lugar: Lugar) => Sala;
   construir: (sala: Sala) => SalaConstruida;
+  /** Descarga y pone lo que la sala usa (T19g). No debe fallar: lo que no carga queda como está. */
+  vestir?: (construida: SalaConstruida, sala: Sala) => Promise<void>;
+  /** Deja en la caché los archivos de la sala, sin decodificarlos. */
+  precalentar?: (sala: Sala) => void;
 }
 
 export interface CargadorSalas {
@@ -54,8 +59,12 @@ export function crearCargadorSalas({
   camara,
   distribucion,
   construir,
+  vestir,
+  precalentar,
 }: OpcionesCargador): CargadorSalas {
   const espera = new Map<Lugar, SalaConstruida>();
+  /** Las salas armadas que ya se vistieron (la portería se viste una sola vez). */
+  const vestidas = new WeakSet<SalaConstruida>();
   let actual: SalaConstruida | null = null;
   let pedido = 0;
 
@@ -82,6 +91,13 @@ export function crearCargadorSalas({
       carga.value = { estado: 'cargando', progreso: 0 };
       try {
         const nueva = tomar(lugar);
+        carga.value = { estado: 'cargando', progreso: 0.3 };
+        if (vestir && !vestidas.has(nueva)) {
+          vestidas.add(nueva);
+          await vestir(nueva, distribucion(lugar)).catch((error: unknown) => {
+            console.warn(`No se pudo vestir ${lugar}`, error);
+          });
+        }
         carga.value = { estado: 'cargando', progreso: 0.5 };
         await renderer.compileAsync(nueva.raiz, camara, escena);
         if (este !== pedido) {
@@ -101,7 +117,9 @@ export function crearCargadorSalas({
     },
     precargar(lugar) {
       if (lugar === actual?.id || espera.has(lugar)) return;
-      espera.set(lugar, construir(distribucion(lugar)));
+      const datos = distribucion(lugar);
+      espera.set(lugar, construir(datos));
+      precalentar?.(datos);
       // Solo una sala precargada además de la portería: la memoria es poca.
       for (const [id, sala] of espera) {
         if (id !== lugar && id !== SE_CONSERVA) {

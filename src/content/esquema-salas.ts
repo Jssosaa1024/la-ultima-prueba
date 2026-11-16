@@ -74,6 +74,20 @@ export const esquemaObjeto = z.strictObject({
   modelo: idModelo.optional(),
 });
 
+/**
+ * Id de una textura de color en el manifiesto (T19g): `<carpeta>/<nombre>`, el archivo
+ * `public/assets/salas/<carpeta>/<nombre>.<hash>.ktx2` sin el hash ni la extensión. La carpeta
+ * es un lugar o `compartido` (las de ambientCG sirven para todas las salas).
+ */
+export const ID_TEXTURA = /^(compartido|porteria|s[1-5]-[a-z]+)\/[a-z0-9]+(-[a-z0-9]+)*$/;
+
+const idTextura = z
+  .string()
+  .regex(ID_TEXTURA, 'Id del manifiesto: <carpeta>/<nombre>, por ejemplo compartido/piso-madera');
+
+/** Lo que cubre una repetición de la textura, en metros, si la sala no dice otra cosa. */
+export const METROS_POR_REPETICION = 2;
+
 export const esquemaSala = z.strictObject({
   id: z.enum(LUGARES),
   nombre: z.string().trim().min(1).max(40),
@@ -81,6 +95,19 @@ export const esquemaSala = z.strictObject({
   fondo: positivo,
   alto: positivo,
   colores: z.strictObject({ piso: color, paredes: color, techo: color }),
+  /**
+   * Opcional (T19g): textura de color (KTX2 de 1024, repetida) para el piso, las paredes y el
+   * techo. Sin textura, o si no se puede cargar, queda el color de `colores`.
+   */
+  texturas: z
+    .strictObject({
+      piso: idTextura.optional(),
+      paredes: idTextura.optional(),
+      techo: idTextura.optional(),
+      /** Metros que cubre una repetición (por defecto, `METROS_POR_REPETICION`). */
+      metros: positivo.optional(),
+    })
+    .optional(),
   /** Dónde aparece el jugador al entrar y hacia dónde mira (grados, 0 = hacia −Z). */
   inicio: z.strictObject({ x: metros, z: metros, giro: metros }),
   objetos: z.array(esquemaObjeto).min(1),
