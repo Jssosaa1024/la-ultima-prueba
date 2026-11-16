@@ -86,6 +86,7 @@ test('la pista ofrecida llega a todos a la vez', async ({ page, context }, info)
     ['+25 %', '+50 %', '$3.000'],
   ];
   let hayPista: Promise<[number, number]> | null = null;
+  let vioResultado = 0;
   for (const [n, [quitar, poner, precio]] of intentos.entries()) {
     if (quitar) await rodillo(quitar).click();
     await rodillo(poner).click();
@@ -102,11 +103,14 @@ test('la pista ofrecida llega a todos a la vez', async ({ page, context }, info)
     }
     await panelA.getByRole('button', { name: 'Aceptar', exact: true }).click({ timeout: 60_000 });
     await expect(panelB.locator('.respuesta')).toContainText(precio, { timeout: 60_000 });
+    vioResultado = await b.evaluate(() => performance.timeOrigin + performance.now());
   }
   if (!hayPista) throw new Error('sin intentos');
   const [enA, enB] = await hayPista;
-  // Antes de T88b, quien no es anfitrión la veía hasta 15 s después.
+  // Los dos la ven a la vez y apenas Búho ve el resultado. Antes de T88b la pista llegaba a
+  // todos (también a la pestaña del anfitrión) con la foto de cada 15 s.
   expect(Math.abs(enB - enA), 'diferencia entre las dos pestañas (ms)').toBeLessThan(4000);
+  expect(enB - vioResultado, 'desde el resultado hasta la pista (ms)').toBeLessThan(4000);
   // A Búho la pista le llegó con una foto pegada al resultado que la abrió, no con la periódica.
   const eventos = await b.evaluate(() => (window as unknown as ConEventos).__eventos ?? []);
   const resultados = eventos.filter((e) => e.t === 'resultado');
