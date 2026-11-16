@@ -29,6 +29,11 @@ test('la guía para docentes muestra las cinco salas con proceso y grado', async
   await expect(salas.nth(4)).toContainText('Probabilidad sin reemplazo');
   await expect(salas.nth(4)).toContainText('10°');
 
+  // T99b: el cooperativo ya no figura como «en construcción».
+  await expect(page.locator('body')).toContainText('de 2 a 4 estudiantes en el mismo salón');
+  await expect(page.locator('body')).toContainText('«Unirse con código»');
+  await expect(page.locator('body')).not.toContainText(/en construcción/i);
+
   await expect(page.getByText('Ningún dato personal.')).toBeVisible();
   expect(errores).toEqual([]);
 });
