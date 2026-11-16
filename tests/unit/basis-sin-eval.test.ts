@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -131,5 +131,16 @@ describe('T02b · transcodificador Basis sin eval', () => {
       '/_astro/basis_transcoder.VXdx5NbI.wasm',
     );
     expect(g.resolveURL('/assets/pruebas/cubo.glb')).toBe('/assets/pruebas/cubo.glb');
+  });
+
+  it('todo KTX2Loader del juego usa la copia sin eval', () => {
+    const archivos = readdirSync('src', { recursive: true, encoding: 'utf8' })
+      .filter((f) => /\.(ts|tsx)$/.test(f))
+      .map((f) => path.join('src', f));
+    const usos = archivos.flatMap((f) =>
+      [...readFileSync(f, 'utf8').matchAll(/new KTX2Loader\(([^)]*\)?)\)/g)].map((m) => [f, m[1]]),
+    );
+    expect(usos.length).toBeGreaterThanOrEqual(2);
+    for (const [archivo, argumento] of usos) expect(argumento, archivo).toBe('gestorSinEval()');
   });
 });
