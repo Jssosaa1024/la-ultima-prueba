@@ -28,6 +28,8 @@ export type Comando =
   | { t: 'unirse'; codigo: string; alias: Alias; color: Color }
   /** Sala de espera (T81): marcarse listo. El anfitrión inicia marcándose listo él también. */
   | { t: 'listo'; listo: boolean }
+  /** Sala de espera (T81b): pedir otro alias y color. Lo que ya tiene otro no se acepta. */
+  | { t: 'elegir'; alias: Alias; color: Color }
   /**
    * Cooperativo (T85): quien tiene D propone los ajustes de su panel al grupo. En las máquinas
    * con palanca, `accionar` hace lo mismo.

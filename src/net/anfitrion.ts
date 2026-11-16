@@ -1,3 +1,4 @@
+import type { Eleccion } from '../game/coop/apariencia';
 import type { Evento, Intencion } from '../game/coop/mensajes';
 import {
   alIntencion,
@@ -121,14 +122,16 @@ export class Anfitrion {
 
   protected alPresencia(presentes: readonly Identidad[]): void {
     const conectados: string[] = [];
+    const elecciones = new Map<string, Eleccion>();
     for (const id of presentes) {
       if (id.version_contenido === VERSION_CONTENIDO) {
         conectados.push(id.jugador);
+        elecciones.set(id.jugador, { alias: id.alias, color: id.color });
       } else if (!this.rechazados.has(id.jugador)) {
         this.rechazados.add(id.jugador);
         this.emitir({ t: 'rechazo', p: { a: id.jugador, motivo: 'version' } });
       }
     }
-    this.aplicar(alPresencia(this.s, conectados, this.ahora()));
+    this.aplicar(alPresencia(this.s, conectados, this.ahora(), elecciones));
   }
 }

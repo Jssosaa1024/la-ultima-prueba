@@ -1,5 +1,6 @@
 import type { FinalId, GrabacionId, Lugar, OpcionFinal } from '../partida';
 import type { Reparto } from '../reparto';
+import type { Apariencia, Eleccion } from './apariencia';
 
 /**
  * Contenido de los mensajes del modo cooperativo (especificación, sección 3).
@@ -42,7 +43,9 @@ export type Intencion =
   | { t: 'pedir_pista'; p: { puzzle: string } }
   /** `acepta: false` retira el voto propio. `opcion` solo en `sala` y `final`. */
   | { t: 'votar'; p: { asunto: Asunto; opcion: OpcionVoto | null; acepta: boolean } }
-  | { t: 'pedir_estado'; p: { desde_n: number } };
+  | { t: 'pedir_estado'; p: { desde_n: number } }
+  /** Sala de espera (T81b): pedir otro alias y color. El anfitrión atiende por orden de llegada. */
+  | { t: 'elegir'; p: Eleccion };
 
 export type TipoIntencion = Intencion['t'];
 export const TIPOS_INTENCION = [
@@ -55,6 +58,7 @@ export const TIPOS_INTENCION = [
   'pedir_pista',
   'votar',
   'pedir_estado',
+  'elegir',
 ] as const satisfies readonly TipoIntencion[];
 
 /** Dónde está un objeto que se movió de su lugar inicial. */
@@ -112,6 +116,8 @@ export interface Foto {
   votos: VotoAbierto[];
   /** Jugadores fuera de Presence y cuántos ms llevan fuera. */
   ausentes: { jugador: string; ms: number }[];
+  /** Alias y color que el anfitrión aceptó a cada jugador (T81b): nunca dos iguales. */
+  apariencias: Apariencia[];
 }
 
 /** Eventos: anfitrión → todos (evento Broadcast `evt`), numerados con `n`. */

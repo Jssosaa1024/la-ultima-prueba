@@ -21,6 +21,7 @@ const j = (jugador: string, alias: JugadorCoop['alias'], extra: Partial<JugadorC
     conectado: true,
     anfitrion: false,
     yo: false,
+    eligiendo: false,
     ...extra,
   }) satisfies JugadorCoop;
 

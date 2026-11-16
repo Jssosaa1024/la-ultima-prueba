@@ -1,5 +1,6 @@
 import { batch, effect } from '@preact/signals';
-import type { Evento } from '../game/coop/mensajes';
+import { completa, resultadoDeEleccion, type Eleccion } from '../game/coop/apariencia';
+import type { Evento, Foto } from '../game/coop/mensajes';
 import {
   ClienteCoop,
   crearCodigo,
@@ -14,7 +15,15 @@ import {
   type Transporte,
 } from '../net';
 import { fichas } from './contenido';
-import { coop, jugadoresDeFoto, reiniciarCoop, soloEntrePestanas, type ErrorCoop } from './coop';
+import {
+  coop,
+  jugadoresDeFoto,
+  ocupadosDeFoto,
+  reiniciarCoop,
+  soloEntrePestanas,
+  type EleccionCoop,
+  type ErrorCoop,
+} from './coop';
 import { reiniciarCuaderno } from './cuaderno';
 import { reiniciarInterfaz } from './interfaz';
 import { JuegoCoop } from './juego-coop';
@@ -78,6 +87,25 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
   let esperaUnion: ReturnType<typeof setTimeout> | undefined;
   /** Sube con cada conexión: lo que termina tarde de una conexión vieja se descarta. */
   let generacion = 0;
+  /** T81b: alias y color pedidos que el anfitrión todavía no atiende (al unirse o al cambiar). */
+  let pedido: Eleccion | null = null;
+  /** El pedido es el del formulario, con el que se unió (no uno de la sala de espera). */
+  let pedidoInicial = false;
+  /** T81b: lo último pedido que ya tenía otro. */
+  let ocupado: EleccionCoop['ocupado'] = null;
+
+  /** T81b: resuelve el pedido con lo que decidió el anfitrión. */
+  function eleccionDe(foto: Foto, yo: string): EleccionCoop {
+    if (pedido) {
+      const r = resultadoDeEleccion(foto.apariencias, yo, pedido, pedidoInicial);
+      if (r.estado === 'listo') {
+        pedido = null;
+        ocupado = r.ocupado;
+      }
+    }
+    if (pedido) return { estado: 'esperando', ocupado: null };
+    return { estado: completa(foto.apariencias, yo) ? 'ok' : 'elige', ocupado };
+  }
 
   function limpiar(): void {
     generacion++;
@@ -90,6 +118,8 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
     cliente = null;
     juego = null;
     conocidos.clear();
+    pedido = null;
+    ocupado = null;
     if (viejo) void viejo.salir().catch(() => undefined);
   }
 
@@ -122,6 +152,8 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
         error: null,
         jugadores,
         soyAnfitrion: foto.anfitrion === c.yo,
+        ocupados: ocupadosDeFoto(foto, c.yo),
+        eleccion: foto.fase === 'espera' ? eleccionDe(foto, c.yo) : { estado: 'ok', ocupado: null },
       };
       if (estado === 'jugando') {
         if (fase.peek() === 'inicio') {
@@ -168,6 +200,9 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
       soyAnfitrion: crear,
       soloPestanas: soloEntrePestanas(busqueda),
     };
+    // Lo elegido en el formulario es el primer pedido: el anfitrión lo atiende al verlo llegar.
+    pedido = { alias: identidad.alias, color: identidad.color };
+    pedidoInicial = true;
     try {
       const t = await nuevoTransporte();
       if (mia !== generacion) return;
@@ -241,6 +276,15 @@ export function iniciarControladorCoop(opciones: OpcionesCoop = {}): () => void 
       case 'listo':
         if (cliente?.foto?.fase === 'espera') {
           void cliente.enviar({ t: 'listo', p: { listo: comando.listo } });
+        }
+        return;
+      case 'elegir':
+        if (cliente?.foto?.fase === 'espera') {
+          pedido = { alias: comando.alias, color: comando.color };
+          pedidoInicial = false;
+          ocupado = null;
+          void cliente.enviar({ t: 'elegir', p: pedido });
+          publicar();
         }
         return;
       case 'salir':

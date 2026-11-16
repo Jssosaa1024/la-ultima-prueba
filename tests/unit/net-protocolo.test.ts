@@ -46,6 +46,10 @@ const fotoBase = (): Foto => ({
   pistas: Array.from({ length: 5 }, () => ({ ofrecidas: 0, vistas: 0, ms: 0, intentos: 0 })),
   votos: [{ asunto: 'sala', opcion: 'porteria', votos: [J1] }],
   ausentes: [],
+  apariencias: [
+    { jugador: J1, alias: 'zorro', color: 'ambar' },
+    { jugador: J2, alias: null, color: 'coral' },
+  ],
 });
 
 describe('código de partida', () => {
@@ -94,7 +98,7 @@ describe('identidad de Presence', () => {
 });
 
 describe('sobre de intenciones (int)', () => {
-  const ok = (t: object) => validar('int', { v: 1, de: J1, cid: `${J1}-1`, n: null, ...t });
+  const ok = (t: object) => validar('int', { v: 2, de: J1, cid: `${J1}-1`, n: null, ...t });
 
   it('acepta cada tipo de la especificación con contenido válido', () => {
     const validas = [
@@ -155,9 +159,9 @@ describe('sobre de intenciones (int)', () => {
   });
 
   it('rechaza versión, campos de más o de menos, y cid de otro jugador', () => {
-    const base = { v: 1, t: 'listo', de: J1, cid: `${J1}-1`, n: null, p: { listo: true } };
+    const base = { v: 2, t: 'listo', de: J1, cid: `${J1}-1`, n: null, p: { listo: true } };
     expect(validar('int', base)).toMatchObject({ ok: true });
-    expect(validar('int', { ...base, v: 2 })).toEqual({ ok: false, motivo: 'version' });
+    expect(validar('int', { ...base, v: 1 })).toEqual({ ok: false, motivo: 'version' });
     expect(validar('int', { ...base, extra: 1 })).toEqual({ ok: false, motivo: 'forma' });
     expect(validar('int', { ...base, p: { listo: true, x: 1 } })).toEqual({
       ok: false,
@@ -228,7 +232,7 @@ describe('sobre de eventos (evt)', () => {
   });
 
   it('no existe el evento nota', () => {
-    expect(validar('evt', { v: 1, t: 'nota', de: J1, cid: null, n: 1, p: {} })).toEqual({
+    expect(validar('evt', { v: 2, t: 'nota', de: J1, cid: null, n: 1, p: {} })).toEqual({
       ok: false,
       motivo: 'tipo',
     });
@@ -289,9 +293,9 @@ describe('sobre de directos (dir)', () => {
 
 describe('tamaño', () => {
   it('rechaza mensajes de más de 1 KB y fotos de más de 8 KB', () => {
-    expect(VERSION_PROTOCOLO).toBe(1);
+    expect(VERSION_PROTOCOLO).toBe(2);
     const grande = {
-      v: 1,
+      v: 2,
       t: 'listo',
       de: J1,
       cid: `${J1}-1`,
