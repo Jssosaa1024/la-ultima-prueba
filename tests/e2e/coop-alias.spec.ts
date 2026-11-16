@@ -108,7 +108,9 @@ test('si los dos piden lo mismo a la vez, uno se lo queda y el otro elige de nue
 
   // Exactamente uno quedó con Oso y Violeta; al otro se le avisa y sigue con lo suyo.
   const aviso = 'Otro jugador eligió el alias Oso y el color Violeta antes que tú. Elige otros.';
-  await expect(a.getByText(aviso).or(b.getByText(aviso))).toBeVisible();
+  const conAviso = async (): Promise<number[]> =>
+    Promise.all([a, b].map((p) => p.getByText(aviso).count()));
+  await expect.poll(async () => (await conAviso()).reduce((x, y) => x + y)).toBe(1);
   const perdioA = (await a.getByText(aviso).count()) > 0;
   const [gano, perdio] = perdioA ? [b, a] : [a, b];
   await expect(perdio.getByText(aviso)).toBeVisible();
