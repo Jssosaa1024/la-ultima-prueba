@@ -58,6 +58,7 @@ const cruzan = (a: Caja, b: Caja) =>
 async function revisar(p: Page, cuando: string): Promise<void> {
   const tam = p.viewportSize();
   if (!tam) throw new Error('sin tamaño');
+  await p.screenshot({ path: test.info().outputPath(`${tam.width}-${cuando}.png`) });
   const m = await medir(p);
   expect(m.texto, `${cuando}: texto que no se lee`).toEqual([]);
   const choques = m.barra.flatMap((b) =>
@@ -105,7 +106,6 @@ for (const tam of [
     await revisar(a, 'con las frases abiertas');
     await barra(a).getByRole('button', { name: 'Pasar objeto' }).click();
     await revisar(a, 'con «Pasar objeto» abierto');
-    await a.screenshot({ path: info.outputPath(`barra-${tam.width}.png`) });
 
     // Los botones de los avisos se siguen tocando.
     await barra(a).getByRole('button', { name: 'Aceptar' }).click();

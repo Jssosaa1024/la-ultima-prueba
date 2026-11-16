@@ -310,7 +310,7 @@
     right: calc(8px + env(safe-area-inset-right));
     width: auto;
     transform: none;
-    grid-template-columns: minmax(0, 42fr) minmax(0, 16fr) minmax(0, 42fr);
+    grid-template-columns: minmax(0, 40fr) minmax(0, 20fr) minmax(0, 40fr);
     grid-template-areas:
       'fila fila fila'
       'listas . avisos';
