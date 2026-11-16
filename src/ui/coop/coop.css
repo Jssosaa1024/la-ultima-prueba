@@ -164,6 +164,12 @@
   pointer-events: auto;
 }
 
+.coop-barra-listas,
+.coop-barra-avisos {
+  display: grid;
+  gap: 6px;
+}
+
 .coop-barra-fila {
   display: flex;
   align-items: center;
@@ -289,4 +295,98 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/*
+ * T87b: celular en horizontal (500 px de alto o menos, como 740 × 360). La fila de botones va
+ * debajo del HUD; la lista abierta, a un lado, y los avisos, al otro, para dejar libre el centro
+ * de la escena (donde se apunta). Nada baja hasta el aviso del HUD, el botón de acción ni la
+ * guía del joystick: si hay muchos avisos, su columna se desliza.
+ */
+@media (max-height: 500px) {
+  .coop-barra {
+    top: calc(60px + env(safe-area-inset-top));
+    left: calc(8px + env(safe-area-inset-left));
+    right: calc(8px + env(safe-area-inset-right));
+    width: auto;
+    transform: none;
+    grid-template-columns: minmax(0, 42fr) minmax(0, 16fr) minmax(0, 42fr);
+    grid-template-areas:
+      'fila fila fila'
+      'listas . avisos';
+    align-items: start;
+    gap: 4px;
+  }
+
+  /* Zurdo: el joystick va a la derecha, así que los avisos (la columna larga) van a la izquierda. */
+  .partida-capas:has(.controles-zurdo) .coop-barra {
+    grid-template-areas:
+      'fila fila fila'
+      'avisos . listas';
+  }
+
+  .coop-barra-fila {
+    grid-area: fila;
+  }
+
+  .coop-barra-listas {
+    grid-area: listas;
+  }
+
+  .coop-barra-avisos {
+    grid-area: avisos;
+    gap: 4px;
+    max-height: calc(100dvh - 272px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    pointer-events: auto;
+    touch-action: pan-y;
+  }
+
+  .coop-barra .hud-boton-redondo {
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: 0.875rem;
+  }
+
+  /* Las listas de botones van en una sola línea que se desliza con el dedo. */
+  .coop-desliza,
+  .coop-desliza .coop-pasar-fila {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .coop-desliza {
+    overflow-x: auto;
+    overscroll-behavior: contain;
+    pointer-events: auto;
+    touch-action: pan-x;
+    scrollbar-width: thin;
+  }
+
+  .coop-desliza > *,
+  .coop-desliza .coop-pasar-fila > * {
+    flex: none;
+  }
+
+  .coop-pasar-que {
+    white-space: nowrap;
+  }
+
+  .coop-aviso {
+    padding: 4px 8px;
+    line-height: 1.25;
+  }
+
+  .coop-aviso .boton {
+    min-height: 44px;
+    padding: 0 0.75rem;
+  }
+
+  .coop-senales {
+    justify-items: stretch;
+  }
 }
