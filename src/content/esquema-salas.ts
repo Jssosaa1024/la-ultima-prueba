@@ -85,9 +85,6 @@ const idTextura = z
   .string()
   .regex(ID_TEXTURA, 'Id del manifiesto: <carpeta>/<nombre>, por ejemplo compartido/piso-madera');
 
-/** Lo que cubre una repetición de la textura, en metros, si la sala no dice otra cosa. */
-export const METROS_POR_REPETICION = 2;
-
 export const esquemaSala = z.strictObject({
   id: z.enum(LUGARES),
   nombre: z.string().trim().min(1).max(40),
@@ -104,7 +101,7 @@ export const esquemaSala = z.strictObject({
       piso: idTextura.optional(),
       paredes: idTextura.optional(),
       techo: idTextura.optional(),
-      /** Metros que cubre una repetición (por defecto, `METROS_POR_REPETICION`). */
+      /** Metros que cubre una repetición (por defecto, 2: `METROS_POR_REPETICION` en el motor). */
       metros: positivo.optional(),
     })
     .optional(),
