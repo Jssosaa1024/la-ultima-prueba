@@ -56,7 +56,7 @@ for (const [sala, url, objetos] of [
     await expect(canvas).toHaveAttribute('data-modelos', objetos.join(','), { timeout: 30_000 });
     const esperadas = texturasDe(sala);
     expect(esperadas).toHaveLength(3);
-    // La sala puede dejar en la caché las de la portería (la puerta de vuelta): se miran las suyas.
+    // La precarga puede pedir también las de otra sala: se miran solo las de esta.
     await expect
       .poll(() => [...texturas].filter((t) => esperadas.includes(t)).sort())
       .toEqual(esperadas);

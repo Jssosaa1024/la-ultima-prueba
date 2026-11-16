@@ -11,8 +11,10 @@
  * - Rincones oscurecidos (oclusión falsa): franjas de sombra junto a las paredes, en el piso y el
  *   techo, y en las esquinas. Van en la malla de las sombras de contacto (`sombras.ts`).
  *
- * Lo de color plano se une a la malla fija de la sala (`construir.ts`): ninguna draw call más.
- * Las lámparas suman dos. Nada de esto choca, y el rayo del toque atraviesa lo que brilla.
+ * Lo de color plano se une a la malla fija de la sala (`construir.ts`). Si la sala no tenía
+ * malla fija (todo lo fijo con textura o modelo, como la portería y la sala 1), esa malla es
+ * una draw call nueva. Las lámparas suman dos: hasta tres en total. Nada de esto choca, y el
+ * rayo del toque atraviesa lo que brilla.
  */
 import {
   AdditiveBlending,

@@ -140,6 +140,12 @@ describe('acabados de sala (T19j)', () => {
       expect(normal.dot(centro.clone().sub(medio))).toBeGreaterThan(0);
       // El borde junto a la pared es el oscuro; el de adentro se desvanece.
       expect(c.uvs.map(([, v]) => v).filter((v) => v === 0)).toHaveLength(2);
+      const lejania = (oscuros: boolean): number => {
+        const lado = c.esquinas.filter((_, i) => (c.uvs[i]?.[1] ?? 0) > 0 === oscuros);
+        expect(lado).toHaveLength(2);
+        return lado.reduce((s, [x, , z]) => s + Math.hypot(x, z), 0) / lado.length;
+      };
+      expect(lejania(true)).toBeGreaterThan(lejania(false));
     }
   });
 

@@ -17,8 +17,9 @@
  *   se une en su propia malla, con UV en metros, para que `vestir.ts` le ponga el mapa al
  *   cargarlo. Mientras tanto (o si no carga) se ve con su color.
  * - Acabados (T19j): si la sala los pide, zócalo, rodapié, cornisa, marcos y carcasas de
- *   lámparas se unen con lo fijo; los difusores y brillos de las lámparas son dos mallas más, y
- *   la oclusión falsa va en la malla de las sombras (`acabados.ts`).
+ *   lámparas se unen con lo fijo (una malla más si la sala no tenía nada fijo de color plano);
+ *   los difusores y brillos de las lámparas son dos mallas más, y la oclusión falsa va en la
+ *   malla de las sombras (`acabados.ts`).
  */
 import {
   BoxGeometry,

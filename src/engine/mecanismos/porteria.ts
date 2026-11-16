@@ -166,10 +166,11 @@ function armarLuces(raiz: Object3D): InstancedMesh | null {
   if (!salida || puertas.some((p) => !p)) return null;
 
   // Sobre el marco: las puertas miden 2,2 m y la de salida 2,4 m (el reloj va en su centro).
+  // Desde T19j las puertas llevan dintel de 8 cm: cada luz empieza 2 cm por encima de él.
   const sitios: { puerta: Object3D; x: number; y: number }[] = [
     ...puertas.map((p) => ({ puerta: p as Object3D, x: 0, y: 2.35 })),
-    { puerta: salida, x: -0.6, y: 2.52 },
-    { puerta: salida, x: 0.6, y: 2.52 },
+    { puerta: salida, x: -0.6, y: 2.55 },
+    { puerta: salida, x: 0.6, y: 2.55 },
   ];
   const luces = sinRayo(
     new InstancedMesh(
