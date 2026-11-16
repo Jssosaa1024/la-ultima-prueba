@@ -106,6 +106,20 @@ describe('esquema de art/credits.json (T11g)', () => {
     }
   });
 
+  it('acepta KayKit como fuente CC0 (T19i)', () => {
+    const kaykit: Credito = {
+      ...kenney,
+      archivo: 'public/assets/salas/porteria/silla.glb',
+      titulo: 'chair_A (Furniture Bits)',
+      autor: 'Kay Lousberg',
+      fuente: 'kaykit',
+      url: 'https://kaylousberg.itch.io/furniture-bits',
+    };
+    expect(FUENTES).toContain('kaykit');
+    expect(esquemaCredito.safeParse(kaykit).success).toBe(true);
+    expect(problemas(kaykit)).toEqual([]);
+  });
+
   it('rechaza Quaternius con un mensaje claro, aunque diga CC0 (ola 6)', () => {
     expect(FUENTES).toContain('quaternius');
     expect(esquemaCredito.safeParse(quaternius).success).toBe(true);

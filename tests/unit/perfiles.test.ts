@@ -23,6 +23,7 @@ import {
   escalaDe,
   ESCALA_PAQUETE,
   paqueteDe,
+  texturaMaximaDe,
 } from '../../scripts/perfiles/kenney.ts';
 
 const FURNITURE = 'art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip';
@@ -143,6 +144,7 @@ describe('perfiles por fuente (T11a)', () => {
 
   it('kenney arma modelos, ambientcg texturas y las demás fuentes no tienen perfil', () => {
     expect(perfilDe('kenney')).toBe('kenney');
+    expect(perfilDe('kaykit')).toBe('kaykit');
     expect(perfilDe('ambientcg')).toBe('ambientcg');
     for (const f of ['codigo', 'propio', 'quaternius', 'meshy', 'ia-imagen'] as const) {
       expect(perfilDe(f), f).toBeNull();
@@ -302,6 +304,8 @@ describe('perfil kenney (T11b)', () => {
   it('conoce la escala de los tres paquetes y la saca de la ruta del original', () => {
     expect(paqueteDe(`${FURNITURE}#Models/GLTF format/desk.glb`)).toBe('kenney-furniture-kit');
     expect(Object.keys(ESCALA_PAQUETE).sort()).toEqual([
+      'kaykit-furniture-bits',
+      'kaykit-restaurant-bits',
       'kenney-factory-kit',
       'kenney-furniture-kit',
       'kenney-mini-shop',
@@ -317,6 +321,12 @@ describe('perfil kenney (T11b)', () => {
     expect(() => escalaDe(entrada(['art/compartido/originales/otro/x.zip#a.glb']))).toThrow(
       /ESCALA_PAQUETE/,
     );
+  });
+
+  it('baja la textura de KayKit a 256 px y deja las demás con el máximo general', () => {
+    const kk = 'art/compartido/originales/kaykit-furniture-bits/x.zip#a.gltf';
+    expect(texturaMaximaDe({ piezas: [{ original: kk }] })).toBe(256);
+    expect(texturaMaximaDe({ piezas: [{ original: `${FURNITURE}#a.glb` }] })).toBeUndefined();
   });
 
   it('une piezas de colores planos en una malla, un material con paleta y base en y = 0', async () => {

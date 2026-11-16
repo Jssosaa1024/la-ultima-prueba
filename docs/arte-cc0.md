@@ -79,6 +79,21 @@ Por otro lado, Quaternius casi no aporta. No tiene nada para el gimnasio (grader
 
 **Decisión de Alex (16 de noviembre de 2026):** no se usa Quaternius. Lo que Kenney no tiene se queda como primitiva, y `check-credits` rechaza la fuente `quaternius`.
 
+## KayKit (T19i)
+
+Alex vio la portería y la sala 1 con Kenney y dijo que se veían muy simples. Se agregó **KayKit** de Kay Lousberg, que tiene el mismo estilo low-poly pero más pulido, también CC0:
+
+| Paquete | Página | Zip (versión Free) | Captura |
+| --- | --- | --- | --- |
+| Furniture Bits | <https://kaylousberg.itch.io/furniture-bits> | `art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip` (3,6 MB) | `art/evidencia/kaykit-furniture-bits.png` |
+| Restaurant Bits | <https://kaylousberg.itch.io/restaurant-bits> | `art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip` (10 MB) | `art/evidencia/kaykit-restaurant-bits.png` |
+
+- Los `License.txt` dicen «Creative Commons Zero, CC0». La página pide no revender copias sin modificar; no es parte de la licencia, y aquí no se venden.
+- Cada modelo trae una textura de degradado de 1024 px: el perfil la baja a 256 (`TEXTURA_PAQUETE`), como permite KayKit.
+- **Portería:** puertas `door_A` y `door_B` (salida), casillero `kitchencabinet`, escritorio `cabinet_medium`, silla `chair_A`. De ambiente: alfombra, lámpara de pie, cactus, dos cuadros y libros sobre el escritorio. El intercomunicador vuelve a ser primitiva.
+- **Sala 1:** estantes = `cabinet_medium` + `shelf_B_large_decorated`, mostrador = 3 × `kitchencounter_straight_A`, etiquetadora `oven`, caja `crate`, mesa `table_medium_long`. La registradora sigue siendo la de Kenney Mini Shop. De ambiente: dos huacales con verduras, frascos, menú, cactus, lámpara y dos cuadros.
+- **Medidas:** portería 2.616 triángulos, 151 KB; sala 1, 8.426 triángulos, 305 KB. Cada modelo, una draw call.
+
 ## Portería y sala 1: cómo quedaron (T19h)
 
 Ya se ven en el juego. Lo que cambió frente a las tablas de abajo, al verlo armado:

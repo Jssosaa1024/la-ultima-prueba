@@ -80,9 +80,15 @@ describe('luz sin horneado (T19f)', () => {
     raiz.traverse((o) => expect(o.castShadow).toBe(false));
   });
 
-  it('la portería lleva sombra bajo el casillero, el escritorio y la silla', () => {
+  it('la portería lleva sombra bajo el casillero, el escritorio, la silla, la lámpara y el cactus', () => {
     const ids = objetosConSombra(salaPorId('porteria').objetos).map((o) => o.id);
-    expect(ids).toEqual(['porteria-casillero', 'porteria-escritorio', 'porteria-silla']);
+    expect(ids).toEqual([
+      'porteria-casillero',
+      'porteria-escritorio',
+      'porteria-silla',
+      'porteria-lampara',
+      'porteria-cactus',
+    ]);
   });
 
   it('no hay sombra bajo lo que se recoge, los planos ni los grupos que se animan', () => {

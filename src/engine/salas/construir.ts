@@ -271,10 +271,12 @@ function unirFijas(raiz: Group, sala: Sala): void {
  * suelo» ilumina lo que mira hacia abajo (el techo): claro, para que no quede negro.
  */
 function crearLuces(sala: Sala): Object3D[] {
-  const cielo = new HemisphereLight(0xf4f1ff, 0xa89c8a, 1.7);
-  const sol = new DirectionalLight(0xfff2dd, 1.1);
+  // T19i: cielo cálido y suelo más oscuro, y una direccional más fuerte de lado: cada cara de
+  // un mueble queda con su tono y las formas se leen mejor.
+  const cielo = new HemisphereLight(0xfff6ea, 0x8f8377, 1.45);
+  const sol = new DirectionalLight(0xffe9cc, 1.7);
   sol.castShadow = false;
-  sol.position.set(sala.ancho * 0.3, sala.alto * 1.5, sala.fondo * 0.4);
+  sol.position.set(sala.ancho * 0.6, sala.alto * 1.4, sala.fondo * 0.25);
   return [cielo, sol];
 }
 
