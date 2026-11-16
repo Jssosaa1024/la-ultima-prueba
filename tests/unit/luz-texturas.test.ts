@@ -17,7 +17,12 @@ import { LIMITES_PANEL } from '../../src/debug/metricas';
 import { indiceDeManifiesto, pedirIndice, urlDeAsset } from '../../src/engine/carga/manifiesto';
 import { crearCargadorSalas } from '../../src/engine/salas/cargador';
 import { construirSala, TEXTURA, uvEnMetros } from '../../src/engine/salas/construir';
-import { crearSombras, objetosConSombra } from '../../src/engine/salas/sombras';
+import {
+  crearSombras,
+  MARGEN_SOMBRA,
+  objetosConSombra,
+  texturaSombra,
+} from '../../src/engine/salas/sombras';
 import { necesitaVestir, urlsDeSala, vestirSala } from '../../src/engine/salas/vestir';
 import type { FuentesAssets } from '../../src/engine/salas/vestir';
 import { carga } from '../../src/signals/interfaz';
@@ -98,7 +103,7 @@ describe('luz sin horneado (T19f)', () => {
     const { raiz } = construirSala(salaPorId('s2-laboratorio'));
     const sombras = nombrada(raiz, 'sombras');
     const n = objetosConSombra(salaPorId('s2-laboratorio').objetos).length;
-    expect(sombras.geometry.getAttribute('position').count).toBe(4 * n);
+    expect(sombras.geometry.getAttribute('position').count).toBe(16 * n);
     const material = sombras.material as MeshBasicMaterial;
     expect(material.transparent).toBe(true);
     expect(material.depthWrite).toBe(false);
@@ -116,8 +121,8 @@ describe('luz sin horneado (T19f)', () => {
     sombras.geometry.computeBoundingBox();
     const caja = sombras.geometry.boundingBox;
     // Girada 90°: el ancho (2 m) queda en z.
-    expect(caja?.max.x).toBeCloseTo(1 + 0.5 + 0.12);
-    expect(caja?.max.z).toBeCloseTo(-1 + 1 + 0.12);
+    expect(caja?.max.x).toBeCloseTo(1 + 0.5 + MARGEN_SOMBRA);
+    expect(caja?.max.z).toBeCloseTo(-1 + 1 + MARGEN_SOMBRA);
     const rayo = new Raycaster(new Vector3(1, 2, -1), new Vector3(0, -1, 0));
     expect(rayo.intersectObject(sombras)).toHaveLength(0);
     // Mira hacia arriba: la normal de la primera cara apunta a +y.
@@ -127,6 +132,15 @@ describe('luz sin horneado (T19f)', () => {
     const [a, b, c] = [0, 1, 2].map((k) => new Vector3().fromBufferAttribute(p, i.getX(k)));
     if (!a || !b || !c) throw new Error('sin cara');
     expect(b.clone().sub(a).cross(c.clone().sub(a)).y).toBeGreaterThan(0);
+  });
+
+  it('la textura es oscura en el centro y transparente en el borde', () => {
+    const t = texturaSombra();
+    const { data, width } = t.image as { data: Uint8Array; width: number };
+    const alfa = (x: number, y: number) => data[(y * width + x) * 4 + 3] ?? -1;
+    expect(alfa(width / 2, width / 2)).toBeGreaterThan(240);
+    expect(alfa(0, width / 2)).toBeLessThan(10);
+    expect(alfa(0, 0)).toBeLessThan(alfa(0, width / 2) + 1);
   });
 
   it('sin muebles apoyados no hay malla de sombras', () => {
