@@ -16,9 +16,21 @@ interface Caja {
 /** Cajas visibles de la barra y del resto de lo que se toca en la pantalla. */
 async function medir(p: Page): Promise<{ barra: Caja[]; hud: Caja[]; texto: string[] }> {
   return p.evaluate(() => {
+    // Lo que queda fuera de una lista que se desliza no se ve: se recorta con la lista.
     const caja = (el: Element, que: string) => {
       const r = el.getBoundingClientRect();
-      return { x: r.x, y: r.y, w: r.width, h: r.height, que };
+      let [x1, y1, x2, y2] = [r.left, r.top, r.right, r.bottom];
+      const lista = el.parentElement?.closest('.coop-desliza, .coop-barra-avisos');
+      if (lista) {
+        const l = lista.getBoundingClientRect();
+        [x1, y1, x2, y2] = [
+          Math.max(x1, l.left),
+          Math.max(y1, l.top),
+          Math.min(x2, l.right),
+          Math.min(y2, l.bottom),
+        ];
+      }
+      return { x: x1, y: y1, w: Math.max(0, x2 - x1), h: Math.max(0, y2 - y1), que };
     };
     const visibles = (sel: string) =>
       [...document.querySelectorAll(sel)].filter((el) => {
@@ -45,7 +57,7 @@ async function medir(p: Page): Promise<{ barra: Caja[]; hud: Caja[]; texto: stri
       }
     }
     return {
-      barra: enBarra.map((el) => caja(el, nombre(el))),
+      barra: enBarra.map((el) => caja(el, nombre(el))).filter((c) => c.w > 0 && c.h > 0),
       hud: hud.map((el) => caja(el, nombre(el))),
       texto,
     };
