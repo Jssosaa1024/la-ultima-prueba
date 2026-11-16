@@ -4,9 +4,9 @@ Decisión de Alex del 16 de noviembre de 2026: el arte final usa solo modelos CC
 
 Este documento es la lista de compras. Dice qué bajar, dónde guardarlo y qué objeto de `src/content/salas.json` reemplaza cada modelo, y estima si cada sala cabe en el presupuesto. Nada de esto está descargado todavía.
 
-## Para Alex: qué bajar
+## Qué se bajó
 
-Son **3 paquetes de Kenney y 5 texturas de ambientCG**. De Quaternius no se baja nada (ver «Quaternius, fuera»).
+Son **3 paquetes de Kenney y 5 texturas de ambientCG**, ya descargados (ver «Ya descargado», abajo). De Quaternius no se baja nada (ver «Quaternius, fuera»).
 
 | # | Qué | Página de descarga | Botón | Carpeta en el repo |
 | --- | --- | --- | --- | --- |
@@ -38,11 +38,24 @@ Son **3 paquetes de Kenney y 5 texturas de ambientCG**. De Quaternius no se baja
 
 Cada zip de Kenney trae además un `License.txt` con la licencia CC0. Queda dentro del zip; no hay que copiarlo aparte.
 
-**Antes de bajar, mira las vistas previas** (necesita ojos, no código):
+### Ya descargado (16 de noviembre de 2026, T11sa)
 
-- Furniture Kit (2018) usa colores planos por material. Mini Shop y Factory Kit (2024–2026) usan una paleta en textura (`colormap.png`) y se ven más gruesos. Si juntos se ven disparejos, dímelo y busco reemplazos dentro de un solo kit.
-- Revisa si `doorway.glb` y `doorwayFront.glb` del Furniture Kit traen la hoja de la puerta o solo el marco.
-- Revisa si `cash-register.glb` de Mini Shop es solo la registradora o también el mostrador.
+Los 8 zips están en `art/compartido/originales/` (Git LFS) y las 9 capturas en `art/evidencia/`, cada una con una franja amarilla que dice la fecha y la URL. Llegaron con estos nombres:
+
+| Carpeta | Zip | Versión | Tamaño |
+| --- | --- | --- | --- |
+| `kenney-furniture-kit/` | `kenney_furniture-kit.zip` | 1.0 (2018) | 5,1 MB |
+| `kenney-mini-shop/` | `kenney_mini-shop_2.1.zip` | 2.1 | 3,7 MB |
+| `kenney-factory-kit/` | `kenney_factory-kit_3.0.zip` | 3.0 | 4,5 MB |
+| `ambientcg/` | `<Id>_1K-JPG.zip` (las 5 texturas) | — | 27,8 MB en total |
+
+Los tres `License.txt` dicen «Creative Commons Zero, CC0». Los 33 modelos que nombran las tablas de abajo están en los zips.
+
+**Lo que mostraron las vistas previas de los zips:**
+
+- `doorway.glb` y `doorwayFront.glb` del Furniture Kit **traen la hoja de la puerta** (`doorwayOpen.glb` es solo el marco).
+- `cash-register.glb` de Mini Shop es la registradora sobre una base baja, no un mostrador.
+- **Los estilos sí se notan distintos.** Furniture Kit es delgado, de colores planos y claros (madera naranja, rojo, blanco). Mini Shop y Factory Kit son gruesos, con bordes redondeados, en azul y morado con detalles naranja, más de juguete. `palette` puede igualar los colores, pero no las formas. Se mezclan en la cooperativa (4 + 4 + 2 modelos), el laboratorio (4 de Furniture y 3 de Factory), la rectoría (4 + 1 + 2), el gimnasio (3 + 1) y la portería (5 + 1); la biblioteca es solo Furniture Kit. Alex decide, al ver la primera sala armada, si se queda así o se buscan reemplazos dentro de un solo kit.
 
 ## Licencias verificadas
 
@@ -72,7 +85,7 @@ Por otro lado, Quaternius casi no aporta. No tiene nada para el gimnasio (grader
 - **Modelo:** paquete y nombre exacto del archivo dentro del zip.
   - Furniture Kit: `Models/GLTF format/<nombre>.glb`, en camelCase.
   - Mini Shop y Factory Kit: `Models/GLB format/<nombre>.glb`, en minúsculas con guiones, más `Textures/colormap.png`.
-  - Los nombres salen de listados públicos de los paquetes. La vista previa de cada modelo no se pudo ver.
+  - Los nombres se comprobaron en los zips descargados. Cada zip trae vistas previas por modelo (`Side/` e `Isometric/` en Furniture Kit; `Previews/` en Mini Shop y Factory Kit).
 - **Tris:** triángulos del modelo según poly.pizza (paquetes de 2022). «s/d» quiere decir sin dato; ahí va el peso del GLB original como guía.
 - **`modelo`:** id propuesto para el campo `modelo` de `salas.json` (T19d). Es el nombre del GLB optimizado en `public/assets/salas/<sala>/`.
 - **Primitiva** quiere decir que el objeto sigue como está, creado por código. Pasa en tres casos:
@@ -193,7 +206,7 @@ Solo se usa el mapa de color de cada zip, por ejemplo `Tiles040_1K-JPG_Color.jpg
 | Paredes | PaintedPlaster017 (pañete pintado blanco) | `compartido/paredes` | Todas; el color de cada sala se da con el tinte del material |
 | Techo | OfficeCeiling001 (cielo raso de oficina) | `compartido/techo` | Todas menos el gimnasio, que tiene 9 m de alto (ahí basta un color) |
 
-Las escogí por sus etiquetas y sus fichas, no por la imagen: Alex debe mirar la vista previa antes de bajarlas. Alternativas, si alguna no convence:
+Las escogí por sus etiquetas y sus fichas; ya están bajadas y sus capturas muestran la esfera de muestra de cada una. Alternativas, si alguna no convence en la sala:
 
 | Para | Alternativas |
 | --- | --- |
