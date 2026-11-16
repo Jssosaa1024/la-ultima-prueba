@@ -15,6 +15,35 @@ async function cajaDe(p: Page): Promise<Caja> {
   return caja;
 }
 
+interface EventoVisto {
+  t: string;
+  n: number;
+  en: number;
+}
+type ConEventos = { __eventos?: EventoVisto[] };
+
+/**
+ * Anota cada evento del anfitrión que llega por el canal de prueba entre pestañas (tipo, número
+ * y cuándo). Así se ve si la foto con la pista salió justo después del resultado o fue la de
+ * cada 15 s.
+ */
+function anotarEventos(): void {
+  const Original = window.BroadcastChannel;
+  const lista: EventoVisto[] = [];
+  (window as unknown as ConEventos).__eventos = lista;
+  window.BroadcastChannel = class extends Original {
+    constructor(nombre: string) {
+      super(nombre);
+      this.addEventListener('message', (e: MessageEvent) => {
+        const d = e.data as { k?: string; canal?: string; m?: { t?: string; n?: number } };
+        if (d.k === 'msg' && d.canal === 'evt' && d.m?.t && typeof d.m.n === 'number') {
+          lista.push({ t: d.m.t, n: d.m.n, en: performance.now() });
+        }
+      });
+    }
+  };
+}
+
 /** Cuándo (ms desde el inicio de la página) aparece el aviso «Pista nueva» en el HUD. */
 async function cuandoHayPista(p: Page): Promise<number> {
   // Con el panel abierto el HUD queda oculto al lector de pantalla: se busca por su clase.
@@ -26,6 +55,7 @@ test('la pista ofrecida llega a todos a la vez', async ({ page, context }, info)
   test.skip(info.project.name === 'escritorio', 'El cooperativo se juega en celular');
   test.setTimeout(6 * 60_000);
   const conDedo = info.project.use.hasTouch === true;
+  await context.addInitScript(anotarEventos);
   const { a, b } = await empezarCoop(context, page);
   const [cajaA, cajaB] = [await cajaDe(a), await cajaDe(b)];
 
@@ -77,6 +107,14 @@ test('la pista ofrecida llega a todos a la vez', async ({ page, context }, info)
   const [enA, enB] = await hayPista;
   // Antes de T88b, quien no es anfitrión la veía hasta 15 s después.
   expect(Math.abs(enB - enA), 'diferencia entre las dos pestañas (ms)').toBeLessThan(4000);
+  // A Búho la pista le llegó con una foto pegada al resultado que la abrió, no con la periódica.
+  const eventos = await b.evaluate(() => (window as unknown as ConEventos).__eventos ?? []);
+  const resultados = eventos.filter((e) => e.t === 'resultado');
+  const ultimo = resultados.at(-1);
+  expect(resultados).toHaveLength(3);
+  const foto = eventos.find((e) => e.t === 'estado' && ultimo && e.n === ultimo.n + 1);
+  expect(foto, 'la foto sale justo después del tercer resultado').toBeTruthy();
+  expect((foto?.en ?? Infinity) - (ultimo?.en ?? 0)).toBeLessThan(500);
 
   // Búho la abre y la pista queda vista para los dos.
   await panelB.getByRole('button', { name: 'Cerrar', exact: true }).click();
