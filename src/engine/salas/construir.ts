@@ -8,6 +8,12 @@
  * - Todo lo fijo que no se toca se une en UNA sola malla con colores por vértice: una
  *   draw call para casi toda la sala. Lo que se toca queda aparte, con su propio material,
  *   para poder resaltarlo (T18).
+ * - Luz sin horneado (T19f): una hemisférica y una direccional, sin sombras en tiempo real, y
+ *   una sombra de contacto falsa bajo cada mueble que se apoya en el piso (`sombras.ts`), todas
+ *   en UNA malla.
+ * - Texturas de piso, paredes y techo (T19g): la superficie que tiene textura en `salas.json`
+ *   se une en su propia malla, con UV en metros, para que `vestir.ts` le ponga el mapa al
+ *   cargarlo. Mientras tanto (o si no carga) se ve con su color.
  */
 import {
   BoxGeometry,
@@ -24,10 +30,12 @@ import {
 } from 'three';
 import type { Object3D } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { METROS_POR_REPETICION } from '../../content/esquema-salas';
 import type { ObjetoSala, Sala } from '../../content/esquema-salas';
 import { marcarInteractivo } from '../interaccion/interaccion';
 import type { Caja } from '../jugador/colision';
 import { cajasDeColision, marcarSolido } from './colisiones';
+import { crearSombras, objetosConSombra } from './sombras';
 
 /** Grosor de las paredes, por fuera del piso. */
 const GROSOR_PARED = 0.2;
@@ -37,6 +45,14 @@ const LADOS_CILINDRO = 16;
 /** Gajos de una esfera (y la mitad de anillos): unos 140 triángulos, que alcanzan para un balón. */
 const LADOS_ESFERA = 12;
 const GRADOS = Math.PI / 180;
+
+/** Las superficies del cascarón que pueden llevar textura (T19g). */
+export const SUPERFICIES = ['piso', 'paredes', 'techo'] as const;
+export type Superficie = (typeof SUPERFICIES)[number];
+/** En `userData`: a qué superficie pertenece una malla del cascarón. */
+const SUPERFICIE = 'superficie';
+/** En `userData` de la malla de una superficie con textura: el id de la textura en el manifiesto. */
+export const TEXTURA = 'textura';
 
 export interface SalaConstruida {
   id: Sala['id'];
@@ -93,6 +109,12 @@ function crearObjeto(o: ObjetoSala): Object3D {
   return objeto;
 }
 
+/** Marca una malla del cascarón con su superficie. */
+function superficie<T extends Object3D>(o: T, cual: Superficie): T {
+  o.userData[SUPERFICIE] = cual;
+  return o;
+}
+
 /** Piso, techo y paredes. Las paredes quedan por fuera del rectángulo de la sala. */
 function crearCascaron(sala: Sala): Object3D[] {
   const { ancho, fondo, alto, colores } = sala;
@@ -113,11 +135,11 @@ function crearCascaron(sala: Sala): Object3D[] {
       material(colores.paredes),
     );
     m.position.set(x, 0, z);
-    return marcarSolido(m);
+    return superficie(marcarSolido(m), 'paredes');
   };
   return [
-    piso,
-    techo,
+    superficie(piso, 'piso'),
+    superficie(techo, 'techo'),
     pared(ancho + 2 * g, g, 0, -(fondo + g) / 2),
     pared(ancho + 2 * g, g, 0, (fondo + g) / 2),
     pared(g, fondo, -(ancho + g) / 2, 0),
@@ -134,11 +156,47 @@ function esInteractivo(o: Object3D): boolean {
 }
 
 /**
- * Une en una sola malla todas las mallas fijas que no se tocan, con su color en los vértices.
- * Las originales se quitan de la escena y se liberan.
+ * UV planas en metros según hacia dónde mira cada cara (T19g): el piso y el techo usan x y z;
+ * las paredes, su lado horizontal y la altura. Así la textura se repite igual en toda la sala.
  */
-function unirFijas(raiz: Group): void {
+export function uvEnMetros(g: BufferGeometry, metros: number): void {
+  const p = g.getAttribute('position');
+  const n = g.getAttribute('normal');
+  const uv = new Float32Array(p.count * 2);
+  for (let i = 0; i < p.count; i++) {
+    const nx = Math.abs(n.getX(i));
+    const ny = Math.abs(n.getY(i));
+    const nz = Math.abs(n.getZ(i));
+    let u = p.getX(i);
+    let v = p.getY(i);
+    if (ny >= nx && ny >= nz) v = p.getZ(i);
+    else if (nx >= nz) u = p.getZ(i);
+    uv[i * 2] = u / metros;
+    uv[i * 2 + 1] = v / metros;
+  }
+  g.setAttribute('uv', new Float32BufferAttribute(uv, 2));
+}
+
+/** Une geometrías ya puestas en el mundo y libera las partes. */
+function unir(partes: BufferGeometry[]): BufferGeometry {
+  const unida = mergeGeometries(partes);
+  partes.forEach((g) => g.dispose());
+  if (!unida) throw new Error('No se pudo unir la geometría fija de la sala');
+  return unida;
+}
+
+/**
+ * Une en una sola malla todas las mallas fijas que no se tocan, con su color en los vértices.
+ * Las superficies con textura (T19g) se unen aparte, una malla por superficie, con UV en
+ * metros. Las originales se quitan de la escena y se liberan.
+ */
+function unirFijas(raiz: Group, sala: Sala): void {
   raiz.updateMatrixWorld(true);
+  const texturas = sala.texturas ?? {};
+  const conTextura = (o: Object3D): Superficie | null => {
+    const cual = o.userData[SUPERFICIE] as Superficie | undefined;
+    return cual && texturas[cual] ? cual : null;
+  };
   const fijas: Mesh[] = [];
   raiz.traverse((o) => {
     const malla = o as Mesh;
@@ -146,18 +204,33 @@ function unirFijas(raiz: Group): void {
   });
   if (fijas.length === 0) return;
 
-  const partes = fijas.map((malla) => {
-    const g = malla.geometry.clone().applyMatrix4(malla.matrixWorld);
-    const c = (malla.material as MeshLambertMaterial).color;
-    const n = g.getAttribute('position').count;
-    const colores = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) colores.set([c.r, c.g, c.b], i * 3);
-    g.setAttribute('color', new Float32BufferAttribute(colores, 3));
-    return g;
-  });
-  const unida = mergeGeometries(partes);
-  partes.forEach((g) => g.dispose());
-  if (!unida) throw new Error('No se pudo unir la geometría fija de la sala');
+  const enMundo = (malla: Mesh): BufferGeometry =>
+    malla.geometry.clone().applyMatrix4(malla.matrixWorld);
+  const partes = fijas
+    .filter((m) => !conTextura(m))
+    .map((malla) => {
+      const g = enMundo(malla);
+      const c = (malla.material as MeshLambertMaterial).color;
+      const n = g.getAttribute('position').count;
+      const colores = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) colores.set([c.r, c.g, c.b], i * 3);
+      g.setAttribute('color', new Float32BufferAttribute(colores, 3));
+      return g;
+    });
+
+  const metros = texturas.metros ?? METROS_POR_REPETICION;
+  const aparte: Mesh[] = [];
+  for (const cual of SUPERFICIES) {
+    const id = texturas[cual];
+    const mallas = fijas.filter((m) => conTextura(m) === cual);
+    if (!id || mallas.length === 0) continue;
+    const g = unir(mallas.map(enMundo));
+    uvEnMetros(g, metros);
+    const m = new Mesh(g, material(sala.colores[cual]));
+    m.name = cual;
+    m.userData[TEXTURA] = id;
+    aparte.push(m);
+  }
 
   for (const malla of fijas) {
     malla.removeFromParent();
@@ -171,9 +244,25 @@ function unirFijas(raiz: Group): void {
   });
   vacios.forEach((o) => o.removeFromParent());
 
-  const fija = new Mesh(unida, new MeshLambertMaterial({ vertexColors: true }));
-  fija.name = 'fija';
-  raiz.add(fija);
+  if (partes.length > 0) {
+    const fija = new Mesh(unir(partes), new MeshLambertMaterial({ vertexColors: true }));
+    fija.name = 'fija';
+    raiz.add(fija);
+  }
+  if (aparte.length > 0) raiz.add(...aparte);
+}
+
+/**
+ * Luz sin horneado (T19f). Dos luces dinámicas como máximo (presupuesto) y ninguna sombra en
+ * tiempo real: el cielo y una direccional suave que da volumen a los muebles. El tono «de
+ * suelo» ilumina lo que mira hacia abajo (el techo): claro, para que no quede negro.
+ */
+function crearLuces(sala: Sala): Object3D[] {
+  const cielo = new HemisphereLight(0xf4f1ff, 0xa89c8a, 1.7);
+  const sol = new DirectionalLight(0xfff2dd, 1.1);
+  sol.castShadow = false;
+  sol.position.set(sala.ancho * 0.3, sala.alto * 1.5, sala.fondo * 0.4);
+  return [cielo, sol];
 }
 
 export function construirSala(sala: Sala): SalaConstruida {
@@ -183,14 +272,10 @@ export function construirSala(sala: Sala): SalaConstruida {
 
   // Primero las colisiones, con cada objeto por separado; después se une la geometría.
   const cajas = cajasDeColision(raiz);
-  unirFijas(raiz);
-
-  // Dos luces dinámicas como máximo (presupuesto): cielo y una luz direccional suave.
-  // El tono «de suelo» ilumina lo que mira hacia abajo (el techo): claro, para que no quede negro.
-  const cielo = new HemisphereLight(0xf4f1ff, 0xa89c8a, 1.7);
-  const sol = new DirectionalLight(0xfff2dd, 1.1);
-  sol.position.set(sala.ancho * 0.3, sala.alto * 1.5, sala.fondo * 0.4);
-  raiz.add(cielo, sol);
+  unirFijas(raiz, sala);
+  const sombras = crearSombras(objetosConSombra(sala.objetos));
+  if (sombras) raiz.add(sombras);
+  raiz.add(...crearLuces(sala));
 
   let triangulos = 0;
   let mallas = 0;
