@@ -31,7 +31,7 @@ src/net/       Supabase: canal, protocolo, anfitrión, reconexión. Solo habla c
 src/input/     táctil (joystick, mirada, toque), teclado y ratón.
 src/content/   puzzles, salas, diálogos y finales en JSON validado en build (colecciones en src/content.config.ts).
 src/debug/     métricas, panel ?debug=1, prueba de estrés y modo ?lab=1. Fuera del bundle de producción salvo el panel.
-art/           fuentes .blend, originales descargados y WAV (Git LFS). Nunca se publican.
+art/           paquetes CC0 descargados (zip, modelos, imágenes) y WAV (Git LFS). Nunca se publican.
 art/credits.json  una entrada por archivo publicado; capturas de licencia en art/evidencia/.
 public/assets/ SALIDA del pipeline. No se edita a mano.
 scripts/       optimize-models (+ perfiles/), optimize-audio, build-manifest, check-budget,
@@ -50,11 +50,11 @@ supabase/      config y migraciones de políticas RLS.
 | Triángulos visibles por cuadro | 60.000 |
 | Draw calls | 40 |
 | Triángulos por sala | 90.000 (objetos interactivos máx. 6k c/u) |
-| Texturas en GPU por sala | 16 MB; nada mayor de 1024², salvo lightmap 2048² en calidad alta |
+| Texturas en GPU por sala | 16 MB; nada mayor de 1024² |
 | Descarga por sala | 2 MB de modelos + 0,6 MB de audio |
 | Primera sala jugable | 3 MB en total |
 | Memoria de la pestaña | 180 MB |
-| Luces dinámicas | 2; sin sombras en tiempo real (todo horneado) |
+| Luces dinámicas | 2 (hemisférica + linterna); sin sombras en tiempo real ni luz horneada |
 | DPR | máx. 1,25 con escala dinámica 0,5–1,0 |
 
 En GPU solo están la portería y la sala actual. La siguiente se descarga a la caché sin decodificar.
@@ -70,32 +70,32 @@ En GPU solo están la portería y la sala actual. La siguiente se descarga a la 
 
 ## Laboratorio de assets y licencias
 
-Base: `docs/investigacion-assets.md` y la sección v1.1 de la especificación.
+Base: `docs/arte-cc0.md` (qué modelo reemplaza a cada objeto) y la sección «Laboratorio de assets» de la especificación.
 
-**Una fuente por sala.** No mezcles fuentes de modelos en una sala sin decidirlo antes.
+**Solo CC0 ya hecho, un solo estilo low-poly** (decisión de Alex, 16 de noviembre de 2026). Kenney primero; Quaternius solo para lo que Kenney no tiene, y anotado en `docs/arte-cc0.md`. Sin Meshy, Sketchfab ni Poly Haven, sin Blender y sin luz horneada. Antes de agregar un paquete nuevo, decídelo con Alex.
 
-| Sala | Fuente | Regla clave |
+**Quaternius, en pausa.** Desde el 28 de agosto de 2026, quaternius.com publica su propia licencia (QAL v1.0), que no es CC0 y prohíbe redistribuir los assets sueltos; el repositorio es público y `art/` guarda los originales. Hasta que Alex decida, no se baja nada de Quaternius. Lo que Kenney no tiene se queda como primitiva (`docs/arte-cc0.md`).
+
+| Sala | Modelos | Regla clave |
 | --- | --- | --- |
-| s1-cooperativa | Kenney (CC0) | `join`, `instance` y `palette`: el problema son las draw calls |
-| s2-laboratorio | Meshy, plan gratis (CC BY 4.0) | Crédito a Meshy obligatorio; límite de caras al generar; revisar luz horneada |
-| s3-gimnasio | Sketchfab, solo CC BY | Nada NC ni ND; captura de licencia en `art/evidencia/`; casi siempre `simplify` |
-| s4-biblioteca | Poly Haven (CC0) | Descarga manual en la web. **Nunca su API** (requiere licencia comercial) |
-| s5-rectoria | Geometría por código + imágenes de IA + audio | Urna, fichas y mano mecánica creadas en Three.js; imágenes a KTX2 1024; efectos con Web Audio |
+| Todas | Kenney (CC0); Quaternius (CC0) donde Kenney no alcanza | Escala a metros y pivote en la base; `join`, `instance` y `palette`: el problema son las draw calls |
+| s5-rectoria | Lo mismo, más geometría por código | Urna, fichas y mano mecánica siguen creadas en Three.js; efectos con Web Audio |
 
-Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo canal de color.
+Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo canal de color. Los carteles y paneles planos que muestran datos siguen siendo primitivas: su texto se lee en la vista 2D.
 
 **Pipeline de modelos.**
 
-1. El original va sin tocar a `art/<sala>/originales/` y se registra en `art/credits.json` antes de cualquier cambio.
-2. `optimize-models --etapa limpieza` aplica el perfil de su `fuente` (`scripts/perfiles/`) y escribe en `art/<sala>/limpios/`. Aquí, y solo aquí, se usa `simplify`.
-3. Se rehornea en Blender con `art/plantilla-horneado.blend`: segunda capa de UV, lightmap de la sala con Cycles y exportación. Los objetos que se mueven y los props instanciados no van en el lightmap.
-4. La etapa común: `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` (1024 px) → `asset.copyright`. Nunca `simplify` después de hornear.
+1. El paquete va sin tocar a `art/<sala>/originales/` (Git LFS) con la captura de su licencia en `art/evidencia/`, y cada modelo publicado se registra en `art/credits.json`.
+2. `optimize-models --etapa limpieza` aplica el perfil de su `fuente` (`kenney`, `quaternius` o `ambientcg`, en `scripts/perfiles/`) y escribe en `art/<sala>/limpios/`. Aquí, y solo aquí, se usa `simplify`, si un modelo se pasa de 6k triángulos.
+3. La etapa común: `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` (1024 px) → `asset.copyright`.
+
+Sin Blender ni lightmap: los materiales son Lambert y los ilumina la luz hemisférica de la sala, más la linterna. Las colisiones salen de las primitivas de `src/content/salas.json`; el campo `modelo` de cada objeto dice qué GLB se ve en su lugar.
 
 **Modo `?lab=1`.** Compara el original con el optimizado, con la misma cámara. Existe solo en `astro dev` y en la rama `lab` (`npm run build:lab`, `noindex`). En producción `PUBLIC_LAB` es falso, el módulo se elimina y los originales no se publican. En lab, `check-budget` solo informa sobre los originales; los optimizados cumplen igual que en producción.
 
 **Panel `?debug=1` y prueba de estrés.** Las métricas se escriben en signals cada 500 ms como máximo, sin asignaciones por cuadro con el panel cerrado. La prueba de estrés recorre 4 ejes: triángulos, draw calls, texturas y píxeles. Antes de cada escalón guarda una marca en `localStorage` (con `try/catch`). Los resultados se exportan en JSON. **No crees tablas en Supabase para esto.**
 
-**Créditos.** Cada archivo bajo `public/assets/salas/` y `public/assets/audio/` necesita una entrada con título, autor, fuente, URL, licencia, cambios, fecha, `plan` (obligatorio para Meshy, Tripo y ElevenLabs) y `evidencia`. `check-credits` hace fallar el build si:
+**Créditos.** Cada archivo bajo `public/assets/salas/` y `public/assets/audio/` necesita una entrada con título, autor, fuente, URL, licencia, cambios, fecha, `plan` (obligatorio para Tripo y ElevenLabs, y para Meshy si volviera) y `evidencia`. `check-credits` hace fallar el build si:
 
 - falta una entrada;
 - la licencia es NC o ND, o es Freesound con Sampling+;

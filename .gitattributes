@@ -1,1 +1,21 @@
 * text=auto eol=lf
+
+# Git LFS para art/ (ola 6): paquetes CC0, modelos, imágenes y audio originales.
+# Nunca se publican y Cloudflare no los descarga. Solo bajo art/: public/ sigue fuera de LFS.
+# Los corchetes aceptan la extensión en mayúsculas o minúsculas (algunos paquetes traen .PNG o .ZIP).
+art/**/*.[zZ][iI][pP] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[gG][lL][bB] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[gG][lL][tT][fF] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[bB][iI][nN] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[fF][bB][xX] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[oO][bB][jJ] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[bB][lL][eE][nN][dD] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[pP][nN][gG] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[jJ][pP][gG] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[jJ][pP][eE][gG] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[wW][eE][bB][pP] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[tT][gG][aA] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[eE][xX][rR] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[kK][tT][xX]2 filter=lfs diff=lfs merge=lfs -text
+art/**/*.[wW][aA][vV] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[fF][lL][aA][cC] filter=lfs diff=lfs merge=lfs -text
