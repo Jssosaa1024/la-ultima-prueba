@@ -884,8 +884,10 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T98** Analítica sin cookies ni datos personales — 30 min. Contadores agregados por día en Supabase (`supabase/migrations/20261116120000_analitica.sql`): una tabla que nadie lee desde el juego y la función `contar_evento`, que solo suma 1 si el evento está en la lista cerrada: `partida_iniciada`, `sala_resuelta` (con la sala) y `partida_terminada` (con el rango de minutos), cada uno en modo `solo` o `grupo`. Sin id de jugador, código de partida, IP ni texto libre; en grupo cuenta solo el anfitrión y continuar una partida guardada no cuenta otro inicio. `src/signals/analitica.ts` lo observa desde los signals; sin variables de Supabase no envía nada. Pasos en `docs/supabase.md` (paso 9) y datos en `/docentes`
 - [x] **T99** Página de guía para docentes — 45 min. `/docentes`: qué es, para quién, cuánto dura, qué matemática trabaja cada sala (concepto, proceso y grado salen de los puzzles), cómo usarlo en clase y qué datos guarda
 - [ ] **T100** Piloto con un grupo de grado 10 (y algunos de grado 9) — 55 min
+  - [x] **T100a** (nueva, ola 5b) Guía para correr el piloto: `docs/piloto.md` (antes, durante, hoja de observación y preguntas de cierre sin datos personales). El piloto mismo lo hace Alex con el colegio
 - [ ] **T101** Convertir los hallazgos del piloto en tareas de menos de una hora — 40 min
 - [ ] **T102** Publicación: dominio, versión de contenido y etiqueta en git — 30 min
+  - [x] **T102a** (nueva, ola 5b) Guía de lanzamiento: `docs/lanzamiento.md` (dominio, versión de contenido, etiqueta `v1.0.0` y qué revisar en producción). La publicación la hace Alex después del piloto
 
 ## Riesgos y decisiones abiertas
 
