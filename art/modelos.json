@@ -1,1 +1,157 @@
-[]
+[
+  {
+    "archivo": "public/assets/salas/porteria/puerta-salida.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/doorwayFront.glb"
+      }
+    ],
+    "caja": [1.6, 2.4, null],
+    "nota": "Puerta con vidrio; se estira a lo ancho para la salida de 1,6 m"
+  },
+  {
+    "archivo": "public/assets/salas/porteria/puerta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/doorway.glb"
+      }
+    ],
+    "caja": [1.1, 2.2, null],
+    "nota": "Las cinco puertas de sala; el motor las instancia"
+  },
+  {
+    "archivo": "public/assets/salas/porteria/casillero.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/bookcaseClosedDoors.glb"
+      }
+    ],
+    "caja": [1, 1.8, 0.5]
+  },
+  {
+    "archivo": "public/assets/salas/porteria/intercomunicador.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/speakerSmall.glb"
+      }
+    ],
+    "caja": [0.3, 0.4, null],
+    "nota": "Parlante pequeño de pared: Factory Kit solo tiene paneles de piso"
+  },
+  {
+    "archivo": "public/assets/salas/porteria/escritorio.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/desk.glb"
+      }
+    ],
+    "caja": [1.2, 0.75, 0.6]
+  },
+  {
+    "archivo": "public/assets/salas/porteria/silla.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/chairDesk.glb"
+      }
+    ],
+    "caja": [0.45, 0.9, 0.45]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/puerta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/doorway.glb"
+      }
+    ],
+    "caja": [1.1, 2.2, null]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/estante-cajas.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-shop/kenney_mini-shop_2.1.zip#Models/GLB format/shelf-boxes.glb"
+      }
+    ],
+    "caja": [0.5, 1.8, 1.4],
+    "giro": 90,
+    "nota": "Estante de isla de Mini Shop contra la pared: queda delgado de fondo"
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/estante-bolsas.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-shop/kenney_mini-shop_2.1.zip#Models/GLB format/shelf-bags.glb"
+      }
+    ],
+    "caja": [1.6, 1.8, 0.5],
+    "nota": "Sin el remate shelf-end: el estante va de pared a pared"
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/mostrador.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenBar.glb",
+        "pos": [0, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenBar.glb",
+        "pos": [0.43, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenBar.glb",
+        "pos": [0.86, 0, 0]
+      }
+    ],
+    "caja": [2.6, 1, 0.7],
+    "nota": "Tres tramos de barra unidos"
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/etiquetadora.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/kitchenMicrowave.glb"
+      }
+    ],
+    "caja": [0.45, 0.3, 0.35],
+    "nota": "Caja con puerta y botones del tamaño justo; la máquina de Factory Kit es de piso (1,3 m)"
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/caja-abierta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/cardboardBoxOpen.glb"
+      }
+    ],
+    "caja": [0.35, 0.15, 0.25]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/registradora.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-shop/kenney_mini-shop_2.1.zip#Models/GLB format/cash-register.glb"
+      }
+    ],
+    "caja": [0.45, 0.35, 0.4]
+  },
+  {
+    "archivo": "public/assets/salas/s1-cooperativa/mesa.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/table.glb"
+      }
+    ],
+    "caja": [1, 0.75, 0.7]
+  },
+  {
+    "archivo": "public/assets/salas/compartido/piso-baldosa.ktx2",
+    "original": "art/compartido/originales/ambientcg/Tiles040_1K-JPG.zip#Tiles040_1K-JPG_Color.jpg"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/paredes.ktx2",
+    "original": "art/compartido/originales/ambientcg/PaintedPlaster017_1K-JPG.zip#PaintedPlaster017_1K-JPG_Color.jpg"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/techo.ktx2",
+    "original": "art/compartido/originales/ambientcg/OfficeCeiling001_1K-JPG.zip#OfficeCeiling001_1K-JPG_Color.jpg"
+  }
+]

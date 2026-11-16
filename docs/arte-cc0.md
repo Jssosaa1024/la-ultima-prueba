@@ -79,6 +79,19 @@ Por otro lado, Quaternius casi no aporta. No tiene nada para el gimnasio (grader
 
 **Decisión de Alex (16 de noviembre de 2026):** no se usa Quaternius. Lo que Kenney no tiene se queda como primitiva, y `check-credits` rechaza la fuente `quaternius`.
 
+## Portería y sala 1: cómo quedaron (T19h)
+
+Ya se ven en el juego. Lo que cambió frente a las tablas de abajo, al verlo armado:
+
+- **Intercomunicador:** `speakerSmall.glb` de Furniture Kit. `screen-panel-small.glb` de Factory Kit es un panel de piso de 1 m.
+- **Etiquetadora:** `kitchenMicrowave.glb` de Furniture Kit, que tiene el tamaño justo (0,45 × 0,3 × 0,35 m). `machine.glb` de Factory Kit es una máquina de piso de 1,3 m.
+- **Palanca y productos:** siguen como primitivas. La palanca de Factory Kit trae una base ancha que no cabe en un palo de 6 cm; los productos son tres piezas que se examinan.
+- **Mostrador:** tres tramos de `kitchenBar.glb`, sin el remate. **Estante de bolsas:** `shelf-bags.glb` solo, sin `shelf-end.glb`.
+- **Estantes de Mini Shop:** son de isla (dos caras); contra la pared quedan delgados de fondo. De frente no se nota.
+- Cada modelo se estira para calzar justo en el `tam` de su objeto (`caja` en `art/modelos.json`): lo que va encima, como la linterna o la registradora, no flota.
+- **Medidas:** portería 1.902 triángulos y 8 draw calls de modelos; sala 1, 2.928 y 9. Descarga: 44 KB y 108 KB de modelos, más 284 KB de texturas compartidas.
+- **Estilo:** en la sala 1 se nota la diferencia entre Mini Shop (azul y morado, formas gruesas) y Furniture Kit (colores claros). Alex decide antes de las salas 2 a 5.
+
 ## Cómo leer las tablas
 
 - **Objeto:** el `id` de `src/content/salas.json` y lo que es.

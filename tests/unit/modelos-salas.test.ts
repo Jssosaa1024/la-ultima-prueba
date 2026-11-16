@@ -29,6 +29,7 @@ import {
   ponerModelos,
 } from '../../src/engine/salas/modelos';
 import { necesitaVestir, urlsDeSala, vestirSala } from '../../src/engine/salas/vestir';
+import { sinArte } from './sin-arte';
 import type { FuentesAssets } from '../../src/engine/salas/vestir';
 
 // T19e: si un objeto de salas.json trae `modelo`, el motor pone ese GLB encima de su primitiva.
@@ -44,7 +45,7 @@ function modeloFalso(color = 0x336699): Group {
 
 /** La portería con modelos: el casillero (se toca) y el escritorio (fijo). */
 function porteriaConModelos(): Sala {
-  const sala = salaPorId('porteria');
+  const sala = sinArte(salaPorId('porteria'));
   return {
     ...sala,
     objetos: sala.objetos.map((o) =>
@@ -144,12 +145,14 @@ describe('ajuste del modelo a tam (T19e)', () => {
 
 describe('modelos en la sala (T19e)', () => {
   it('sin modelos no hay nada que descargar', () => {
-    expect(necesitaVestir(salaPorId('porteria'))).toBe(false);
+    expect(necesitaVestir(sinArte(salaPorId('porteria')))).toBe(false);
     expect(necesitaVestir(porteriaConModelos())).toBe(true);
+    // Desde T19h la portería trae sus modelos de Kenney.
+    expect(necesitaVestir(salaPorId('porteria'))).toBe(true);
   });
 
   it('un objeto con modelo no se une a la malla fija y sus colisiones no cambian', () => {
-    const sin = construirSala(salaPorId('porteria'));
+    const sin = construirSala(sinArte(salaPorId('porteria')));
     const con = construirSala(porteriaConModelos());
     expect(con.cajas).toEqual(sin.cajas);
     expect(con.raiz.getObjectByName('porteria-escritorio')).toBeDefined();

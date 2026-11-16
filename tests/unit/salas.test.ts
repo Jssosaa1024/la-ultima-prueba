@@ -15,6 +15,7 @@ import type { Sala } from '../../src/content/esquema-salas';
 import { SALAS_3D, destinoDePuerta, nombreDeObjeto, salaPorId } from '../../src/content/salas';
 import { CAPSULA_JUGADOR, resolverSolapes } from '../../src/engine/jugador/colision';
 import { construirSala } from '../../src/engine/salas/construir';
+import { sinArte } from './sin-arte';
 
 /** Presupuesto por sala (AGENTS.md): 90.000 triángulos y 40 draw calls. */
 const MAX_TRIANGULOS = 90_000;
@@ -173,9 +174,13 @@ describe('salas armadas por código', () => {
       const esperados = sala.objetos.filter((o) => o.accion).map((o) => o.id);
       expect([...interactivos].sort()).toEqual(esperados.sort());
 
-      // Lo fijo quedó unido en una sola malla con colores por vértice.
-      const fija = construida.raiz.getObjectByName('fija') as Mesh | undefined;
-      expect(fija?.geometry.getAttribute('color')).toBeDefined();
+      // Lo fijo quedó unido en una sola malla con colores por vértice. Con arte CC0 (T19h),
+      // los muebles con modelo y las superficies con textura van aparte y puede no quedar nada.
+      const base = construirSala(sinArte(sala)).raiz.getObjectByName('fija') as Mesh | undefined;
+      expect(base?.geometry.getAttribute('color')).toBeDefined();
+      const fijas = construida.raiz.children.filter((o) => o.name === 'fija') as Mesh[];
+      expect(fijas.length).toBeLessThanOrEqual(1);
+      for (const f of fijas) expect(f.geometry.getAttribute('color')).toBeDefined();
     });
   }
 

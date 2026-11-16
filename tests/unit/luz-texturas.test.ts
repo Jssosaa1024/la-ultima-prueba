@@ -26,6 +26,7 @@ import {
 import { necesitaVestir, urlsDeSala, vestirSala } from '../../src/engine/salas/vestir';
 import type { FuentesAssets } from '../../src/engine/salas/vestir';
 import { carga } from '../../src/signals/interfaz';
+import { sinArte, sinTexturas } from './sin-arte';
 
 // T19f (luz sin horneado y sombras de contacto) y T19g (texturas de piso, paredes y techo).
 
@@ -150,10 +151,11 @@ describe('luz sin horneado (T19f)', () => {
 
 describe('texturas de piso, paredes y techo (T19g)', () => {
   it('sin texturas, el cascarón sigue unido a la malla fija', () => {
-    const { raiz } = construirSala(salaPorId('porteria'));
+    const sala = sinArte(salaPorId('porteria'));
+    const { raiz } = construirSala(sala);
     expect(raiz.getObjectByName('piso')).toBeUndefined();
     expect(raiz.getObjectByName('paredes')).toBeUndefined();
-    expect(necesitaVestir(salaPorId('porteria'))).toBe(false);
+    expect(necesitaVestir(sala)).toBe(false);
   });
 
   it('con textura, cada superficie queda en su malla, con su color y el id', () => {
@@ -206,9 +208,13 @@ describe('texturas de piso, paredes y techo (T19g)', () => {
 
   it('con texturas en las tres superficies, ninguna sala pasa de 40 draw calls', () => {
     for (const l of LUGARES) {
-      const sin = construirSala(salaPorId(l));
-      const con = construirSala(conTexturas(salaPorId(l)));
+      // Sin modelos, las tres superficies salen de la malla fija: tres mallas más.
+      const sin = construirSala(sinArte(salaPorId(l)));
+      const con = construirSala(conTexturas(sinArte(salaPorId(l))));
       expect(con.mallas).toBe(sin.mallas + 3);
+      // Con sus modelos (T19h), la sala tal como está tampoco pasa del límite.
+      const real = construirSala(conTexturas(sinTexturas(salaPorId(l))));
+      expect(real.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
       // Los 5 del cooperativo con 4 jugadores (T83b).
       expect(con.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
     }
