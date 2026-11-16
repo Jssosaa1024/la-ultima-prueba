@@ -80,13 +80,14 @@ test('con 4 jugadores y sus señales, los draw calls siguen dentro del presupues
   // T05d: cada señal se ve 5 s desde que LLEGA a la pestaña de Jaguar. Primero habla uno a la
   // vez: se espera a que la escena quede sin señales, ese jugador dice «¡Aquí!», su marcador
   // tiene que aparecer y el panel se lee mientras se ve. Así no depende de cuánto tarden los
-  // toques con el equipo ocupado.
+  // toques con el equipo ocupado. Con cuatro pestañas de WebGL por software, la de Jaguar puede
+  // dibujar un cuadro cada pocos segundos: las esperas son largas.
   for (const p of [a, ...otros]) await abrirFrases(p);
   let conSenales = 0;
   for (const p of [a, ...otros]) {
-    await expect(canvas).toHaveAttribute('data-senales', '0', { timeout: 15_000 });
+    await expect(canvas).toHaveAttribute('data-senales', '0', { timeout: 45_000 });
     await decirAqui(p);
-    await expect(canvas).toHaveAttribute('data-senales', '1');
+    await expect(canvas).toHaveAttribute('data-senales', '1', { timeout: 45_000 });
     // El panel escribe cada 500 ms: esta lectura ya ve el marcador.
     await a.waitForTimeout(1000);
     conSenales = Math.max(conSenales, await dibujos());
@@ -95,7 +96,7 @@ test('con 4 jugadores y sus señales, los draw calls siguen dentro del presupues
   // Después, los cuatro a la vez. Los marcadores son una sola malla instanciada (lo vigila
   // `presupuesto-coop.test.ts` con las 8 señales posibles), así que aquí no se exige que los
   // cuatro toques quepan en 5 s: se anota cuántos se vieron juntos y se mide igual.
-  await expect(canvas).toHaveAttribute('data-senales', '0', { timeout: 15_000 });
+  await expect(canvas).toHaveAttribute('data-senales', '0', { timeout: 45_000 });
   await Promise.all([a, ...otros].map(decirAqui));
   let juntas = 0;
   for (let i = 0; i < 6; i++) {
