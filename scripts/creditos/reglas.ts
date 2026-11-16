@@ -6,6 +6,7 @@
  *
  * - un archivo bajo `public/assets/salas/` o `public/assets/audio/` no tiene entrada;
  * - la licencia es NC o ND, es Freesound con Sampling+ o no está en la lista permitida;
+ * - es de Quaternius (su licencia QAL prohíbe redistribuir los assets; ola 6);
  * - es Tripo o ElevenLabs con plan gratis (o les falta el plan, igual que a Meshy);
  * - es CC BY sin autor, URL, cambios o enlace a la licencia;
  * - es Meshy con plan gratis y el autor no es «Meshy»;
@@ -61,6 +62,11 @@ export function problemasDeCredito(c: Credito, evidencias: ReadonlySet<string>):
   }
   if (c.fuente === 'freesound' && permitida && !(c.licencia === 'CC0-1.0' || esCcBy(c.licencia))) {
     decir('de Freesound solo se publica CC0 o CC BY');
+  }
+  if (c.fuente === 'quaternius') {
+    decir(
+      'Quaternius no se usa (decisión del 16-11-2026): su licencia QAL prohíbe redistribuir los assets y el repositorio es público',
+    );
   }
 
   // Plan
