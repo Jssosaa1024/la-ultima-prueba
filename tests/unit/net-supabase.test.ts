@@ -106,7 +106,7 @@ describe('T79 · transporte de Supabase', () => {
     expect(f.opciones).toEqual({
       config: {
         private: true,
-        broadcast: { self: true, ack: true },
+        broadcast: { self: false, ack: true },
         presence: { key: 'j_supa0001', enabled: true },
       },
     });
@@ -135,6 +135,34 @@ describe('T79 · transporte de Supabase', () => {
     // Un mensaje inválido nunca sale.
     expect(await t.enviar('int', { ...m, cid: 'otro-1' })).toBe(false);
     expect(f.enviados).toHaveLength(2);
+  });
+
+  it('T92b: int y evt vuelven a quien los envía al confirmarse; dir no vuelve', async () => {
+    const f = falso();
+    const t = nuevo(f);
+    await t.unirse('K7MP', yo);
+    const propios: string[] = [];
+    t.escuchar('int', (m) => propios.push(`int:${m.cid}`));
+    t.escuchar('dir', (m) => propios.push(`dir:${m.de}`));
+    const m = intencion(yo.jugador, `${yo.jugador}-1`, { t: 'listo', p: { listo: true } });
+    expect(await t.enviar('int', m)).toBe(true);
+    await t.enviar(
+      'dir',
+      directo(yo.jugador, { t: 'pose', p: { s: 1, x: 0, y: 0, z: 0, yaw: 0 } }),
+    );
+    await new Promise((r) => setTimeout(r, 0));
+    expect(propios).toEqual([`int:${yo.jugador}-1`]);
+  });
+
+  it('T92b: si el servidor no confirma, la intención propia no vuelve', async () => {
+    const f = falso({ respuesta: 'timed out' });
+    const t = nuevo(f);
+    await t.unirse('K7MP', yo);
+    let n = 0;
+    t.escuchar('int', () => n++);
+    const m = intencion(yo.jugador, `${yo.jugador}-1`, { t: 'listo', p: { listo: true } });
+    await t.enviar('int', m);
+    expect(n).toBe(0);
   });
 
   it('si el servidor no confirma, enviar devuelve falso', async () => {
