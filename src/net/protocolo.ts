@@ -1,4 +1,5 @@
 import { PUZZLES } from '../content/puzzles';
+import { ALIAS, COLORES, type Alias, type Color } from '../game/coop/apariencia';
 import { SALAS_3D } from '../content/salas';
 import {
   ASUNTOS,
@@ -27,7 +28,8 @@ import { MAX_JUGADORES, ROLES } from '../game/reparto';
  * descarta completo.
  */
 
-export const VERSION_PROTOCOLO = 1;
+/** v2 (T81b): intención `elegir` y `apariencias` en la foto. */
+export const VERSION_PROTOCOLO = 2;
 
 /** Versión del contenido: si no coincide, la unión se rechaza («Actualiza la página»). */
 export const VERSION_CONTENIDO = PUZZLES.map((p) => p.version).join('.');
@@ -70,26 +72,8 @@ export function leerCodigo(valor: string | null | undefined): string | null {
 
 // ——— Identidad (Presence) ———
 
-/** Alias que se eligen de una lista, sin nombres reales. Viaja el id. */
-export const ALIAS = [
-  'zorro',
-  'buho',
-  'colibri',
-  'tortuga',
-  'jaguar',
-  'condor',
-  'delfin',
-  'oso',
-  'rana',
-  'tucan',
-  'ardilla',
-  'mono',
-] as const;
-export type Alias = (typeof ALIAS)[number];
-
-/** Colores de los avatares, uno por jugador. */
-export const COLORES = ['ambar', 'turquesa', 'violeta', 'coral'] as const;
-export type Color = (typeof COLORES)[number];
+/** Alias y colores: listas cerradas de `game/coop/apariencia.ts`. Viaja el id. */
+export { ALIAS, COLORES, type Alias, type Color };
 
 /** Lo único que se guarda en Presence. Se escribe una vez al unirse. */
 export interface Identidad {
@@ -214,6 +198,7 @@ const INTENCIONES: Record<Intencion['t'], (p: unknown) => boolean> = {
       acepta: esBool,
     }),
   pedir_estado: (p) => con(p, { desde_n: (v) => esEntero(v, 0, 1_000_000_000) }),
+  elegir: (p) => con(p, { alias: (v) => enLista(ALIAS, v), color: (v) => enLista(COLORES, v) }),
 };
 
 const esUbicacion = (u: unknown): boolean =>
@@ -243,6 +228,13 @@ const esPropuestaAbierta = (x: unknown): boolean =>
       esListaDe(v, MAX_JUGADORES, (w) => con(w, { jugador: esJugador, acepta: esBool })),
   });
 
+const esApariencia = (x: unknown): boolean =>
+  con(x, {
+    jugador: esJugador,
+    alias: (v) => v === null || enLista(ALIAS, v),
+    color: (v) => v === null || enLista(COLORES, v),
+  });
+
 const esVotoAbierto = (x: unknown): boolean =>
   con(x, {
     asunto: (v) => enLista(ASUNTOS, v),
@@ -270,6 +262,7 @@ export const esFoto = (p: unknown): p is Foto =>
     pistas: (v) => Array.isArray(v) && v.length === SALAS.length && v.every(esPistasFoto),
     votos: (v) => esListaDe(v, ASUNTOS.length, esVotoAbierto),
     ausentes: (v) => esListaDe(v, MAX_JUGADORES, (a) => con(a, { jugador: esJugador, ms: esMs })),
+    apariencias: (v) => esListaDe(v, MAX_JUGADORES, esApariencia),
   });
 
 const EVENTOS: Record<Evento['t'], (p: unknown) => boolean> = {

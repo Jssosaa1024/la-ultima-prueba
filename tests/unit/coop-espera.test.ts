@@ -19,16 +19,42 @@ const id = (jugador: string, alias: Identidad['alias'], unido_en: number): Ident
 });
 
 describe('jugadores de la sala de espera', () => {
-  const foto = { orden: ['j_aaaa', 'j_bbbb'], listos: ['j_bbbb'], anfitrion: 'j_aaaa' } as Foto;
+  const foto = {
+    orden: ['j_aaaa', 'j_bbbb'],
+    listos: ['j_bbbb'],
+    anfitrion: 'j_aaaa',
+    apariencias: [{ jugador: 'j_aaaa', alias: 'zorro', color: 'turquesa' }],
+  } as Foto;
 
   it('junta el orden de la partida con el alias de Presence y marca quién falta', () => {
     const a = id('j_aaaa', 'zorro', 1);
     const b = id('j_bbbb', 'buho', 2);
     const lista = jugadoresDeFoto(foto, [a], new Map([['j_bbbb', b]]), 'j_bbbb');
     expect(lista).toEqual([
-      { ...pick(a), listo: false, conectado: true, anfitrion: true, yo: false },
-      { ...pick(b), listo: true, conectado: false, anfitrion: false, yo: true },
+      { ...pick(a), listo: false, conectado: true, anfitrion: true, yo: false, eligiendo: false },
+      // T81b: el anfitrión aún no le acepta nada: muestra lo que pidió y queda «eligiendo».
+      { ...pick(b), listo: true, conectado: false, anfitrion: false, yo: true, eligiendo: true },
     ]);
+  });
+
+  it('T81b: el alias y el color aceptados por el anfitrión mandan sobre Presence', () => {
+    const a = id('j_aaaa', 'oso', 1);
+    const [j] = jugadoresDeFoto(foto, [a], new Map(), 'j_bbbb');
+    expect(j).toMatchObject({ alias: 'zorro', color: 'turquesa', eligiendo: false });
+  });
+
+  it('T81b: nadie inicia mientras alguien elige alias o color', () => {
+    const base = {
+      jugador: 'j_x',
+      alias: 'oso',
+      color: 'coral',
+      conectado: true,
+      yo: false,
+    } as const;
+    const anf: JugadorCoop = { ...base, listo: false, anfitrion: true, eligiendo: false };
+    const otro: JugadorCoop = { ...base, listo: true, anfitrion: false, eligiendo: true };
+    expect(puedeIniciar([anf, otro])).toBe(false);
+    expect(puedeIniciar([anf, { ...otro, eligiendo: false }])).toBe(true);
   });
 
   it('el anfitrión inicia con dos o más conectados y todos los demás listos', () => {
@@ -40,6 +66,7 @@ describe('jugadores de la sala de espera', () => {
       conectado,
       anfitrion,
       yo: false,
+      eligiendo: false,
     });
     expect(puedeIniciar([j(false, true)])).toBe(false);
     expect(puedeIniciar([j(false, true), j(false)])).toBe(false);

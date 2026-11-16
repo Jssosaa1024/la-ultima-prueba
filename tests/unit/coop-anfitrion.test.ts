@@ -158,7 +158,7 @@ describe('espera y unión', () => {
     m.red.vaciar();
     const antes = m.eventos.length;
     await ajeno.enviar('int', {
-      v: 1,
+      v: 2,
       t: 'listo',
       de: 'j_ajeno001',
       cid: 'j_ajeno001-1',

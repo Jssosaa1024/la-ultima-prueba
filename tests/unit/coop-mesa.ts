@@ -5,7 +5,7 @@ import { fotoEn } from '../../src/game/coop/sesion';
 import type { Rol } from '../../src/game/reparto';
 import { ClienteCoop } from '../../src/net/cliente';
 import { RedEnMemoria, type OpcionesRed } from '../../src/net/memoria';
-import { VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
+import { ALIAS, COLORES, VERSION_CONTENIDO, type Identidad } from '../../src/net/protocolo';
 
 /** Ayudas comunes de las pruebas del cooperativo: una mesa de N clientes en la red en memoria. */
 
@@ -16,14 +16,18 @@ function puzzleSala1() {
 }
 export const S1 = puzzleSala1();
 
+/**
+ * Identidad de prueba. El alias y el color salen de `unido_en`: cuatro seguidos nunca se
+ * repiten (T81b no deja empezar con dos iguales).
+ */
 export const identidad = (
   jugador: string,
   unido_en: number,
   version = VERSION_CONTENIDO,
 ): Identidad => ({
   jugador,
-  alias: 'zorro',
-  color: 'ambar',
+  alias: ALIAS[unido_en % ALIAS.length] ?? 'zorro',
+  color: COLORES[unido_en % COLORES.length] ?? 'ambar',
   unido_en,
   version_contenido: version,
 });

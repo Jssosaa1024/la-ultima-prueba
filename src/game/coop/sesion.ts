@@ -48,6 +48,7 @@ import type {
   UbicacionObjeto,
   VotoAbierto,
 } from './mensajes';
+import { completa, elegir, type Apariencia, type Eleccion } from './apariencia';
 import { efectoDeUsar, esRecogible, lugarInicial, puzzleDeLugar, puzzlePorId } from './mundo';
 
 /**
@@ -92,6 +93,8 @@ export interface Sesion {
   ausentesDesde: Record<string, number>;
   /** Último reparto emitido para el lugar actual (null en la portería). */
   roles: Reparto | null;
+  /** Alias y color aceptados de cada jugador de `orden` (T81b). */
+  apariencias: readonly Apariencia[];
 }
 
 export interface Paso {
@@ -119,6 +122,7 @@ export function crearSesion(anfitrion: string, ahora: number): Sesion {
     conectados: [anfitrion],
     ausentesDesde: {},
     roles: null,
+    apariencias: [],
   };
 }
 
@@ -156,6 +160,7 @@ export function fotoEn(s: Sesion, ahora: number): Foto {
       jugador,
       ms: entero(ahora - desde),
     })),
+    apariencias: s.apariencias.map((a) => ({ ...a })),
   };
 }
 
@@ -206,6 +211,7 @@ export function sesionDesdeFoto(
     conectados: [...conectados],
     ausentesDesde: Object.fromEntries(foto.ausentes.map((a) => [a.jugador, ahora - a.ms])),
     roles: null,
+    apariencias: foto.apariencias.map((a) => ({ ...a })),
   };
   // Quien no está conectado ahora cuenta como ausente desde este momento.
   for (const j of s.orden) {
@@ -282,7 +288,16 @@ function alDia(s: Sesion, ahora: number): Sesion {
  * Cambió la lista de Presence. `conectados` va por orden de llegada (`unido_en`) y solo trae
  * identidades válidas y de la misma versión (el filtro lo hace `net/`).
  */
-export function alPresencia(s0: Sesion, conectados: readonly string[], ahora: number): Paso {
+/**
+ * Cambió Presence. `elecciones` trae el alias y el color con que cada jugador se unió (la
+ * identidad de Presence): T81b los atiende al verlo llegar, en el orden de llegada.
+ */
+export function alPresencia(
+  s0: Sesion,
+  conectados: readonly string[],
+  ahora: number,
+  elecciones: ReadonlyMap<string, Eleccion> = new Map(),
+): Paso {
   let s = alDia(s0, ahora);
   const eventos: Evento[] = [];
   const nuevos = conectados.filter((j) => !s.conectados.includes(j));
@@ -296,8 +311,10 @@ export function alPresencia(s0: Sesion, conectados: readonly string[], ahora: nu
       if (!orden.includes(j)) eventos.push({ t: 'rechazo', p: { a: j, motivo: 'llena' } });
     }
     const listos = s.listos.filter((j) => orden.includes(j) && lista.includes(j));
-    const cambio = !iguales(orden, s.orden) || !iguales(listos, s.listos);
-    s = { ...s, orden, listos, conectados: lista };
+    const apariencias = aparienciasDe(s.apariencias, orden, elecciones);
+    const cambio =
+      !iguales(orden, s.orden) || !iguales(listos, s.listos) || apariencias !== s.apariencias;
+    s = { ...s, orden, listos, conectados: lista, apariencias };
     const inicio = intentarEmpezar(s, ahora);
     if (inicio) return { s: inicio.s, eventos: [...eventos, ...inicio.eventos] };
     // Quien llega recibe la foto para ponerse al día.
@@ -323,11 +340,32 @@ export function alPresencia(s0: Sesion, conectados: readonly string[], ahora: nu
   return { s: r.s, eventos };
 }
 
+/**
+ * T81b · En la espera: quien sale de la partida suelta su alias y su color; quien llega pide
+ * los de Presence, en el orden de `orden` (el anfitrión primero y luego por llegada).
+ * Devuelve la MISMA lista si no cambia nada.
+ */
+function aparienciasDe(
+  antes: readonly Apariencia[],
+  orden: readonly string[],
+  elecciones: ReadonlyMap<string, Eleccion>,
+): readonly Apariencia[] {
+  let lista = antes.filter((a) => orden.includes(a.jugador));
+  if (lista.length === antes.length) lista = antes as Apariencia[];
+  for (const j of orden) {
+    const pedido = elecciones.get(j);
+    if (pedido && !lista.some((a) => a.jugador === j)) lista = [...elegir(lista, j, pedido)];
+  }
+  return lista;
+}
+
 function intentarEmpezar(s: Sesion, ahora: number): Paso | null {
   const p = presentes(s);
   if (s.fase !== 'espera' || p.length < MIN_JUGADORES || !p.every((j) => s.listos.includes(j))) {
     return null;
   }
+  // T81b: nadie empieza sin alias y color propios.
+  if (!p.every((j) => completa(s.apariencias, j))) return null;
   const reloj = reanudar(s.reloj, ahora);
   const iniciada: Sesion = {
     ...s,
@@ -419,6 +457,8 @@ export function alIntencion(s0: Sesion, de: string, i: Intencion, ahora: number)
       return listo(s, de, i.p.listo, ahora);
     case 'pedir_estado':
       return { s, eventos: [{ t: 'estado', p: fotoEn(s, ahora) }] };
+    case 'elegir':
+      return elegirApariencia(s, de, i.p, ahora) ?? quieto(s0);
     default:
       if (s.fase !== 'jugando') return quieto(s0);
   }
@@ -444,6 +484,18 @@ function listo(s: Sesion, de: string, valor: boolean, ahora: number): Paso {
   if (s.fase !== 'espera' || s.listos.includes(de) === valor) return quieto(s);
   const listos = valor ? [...s.listos, de] : s.listos.filter((j) => j !== de);
   const s2 = { ...s, listos };
+  return intentarEmpezar(s2, ahora) ?? { s: s2, eventos: [{ t: 'estado', p: fotoEn(s2, ahora) }] };
+}
+
+/**
+ * T81b · Otro alias y color en la sala de espera. Las intenciones llegan una por una, así que
+ * si dos piden lo mismo se lo queda la primera. Siempre responde con la foto, aunque no haya
+ * aceptado nada: así quien perdió ve que alguien más lo tiene y elige de nuevo.
+ */
+function elegirApariencia(s: Sesion, de: string, pedido: Eleccion, ahora: number): Paso | null {
+  if (s.fase !== 'espera') return null;
+  const apariencias = elegir(s.apariencias, de, pedido);
+  const s2 = apariencias === s.apariencias ? s : { ...s, apariencias };
   return intentarEmpezar(s2, ahora) ?? { s: s2, eventos: [{ t: 'estado', p: fotoEn(s2, ahora) }] };
 }
 

@@ -1,15 +1,13 @@
 import { useState } from 'preact/hooks';
 import {
-  ALIAS,
   AVISO_SIN_SUPABASE,
-  COLORES,
   esCodigo,
   soloEntrePestanas,
   type Alias,
   type Color,
 } from '../../signals/coop';
 import { enviar } from '../../signals/puente';
-import { COLOR, NOMBRE_ALIAS } from './nombres';
+import ListasApariencia from './ListasApariencia';
 import '../botones.css';
 import './coop.css';
 
@@ -71,41 +69,7 @@ export default function FormularioCoop({ modo, codigoInicial = null, alVolver }:
           )}
         </label>
       )}
-      <fieldset class="coop-opciones">
-        <legend>Tu alias</legend>
-        <div class="coop-lista">
-          {ALIAS.map((a) => (
-            <label key={a} class={`coop-opcion${alias === a ? ' coop-opcion-elegida' : ''}`}>
-              <input
-                type="radio"
-                name="alias"
-                value={a}
-                checked={alias === a}
-                onChange={() => setAlias(a)}
-              />
-              {NOMBRE_ALIAS[a]}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <fieldset class="coop-opciones">
-        <legend>Tu color</legend>
-        <div class="coop-lista">
-          {COLORES.map((c) => (
-            <label key={c} class={`coop-opcion${color === c ? ' coop-opcion-elegida' : ''}`}>
-              <input
-                type="radio"
-                name="color"
-                value={c}
-                checked={color === c}
-                onChange={() => setColor(c)}
-              />
-              <span class="coop-punto" style={{ background: COLOR[c].css }} aria-hidden="true" />
-              {COLOR[c].nombre}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <ListasApariencia alias={alias} color={color} alAlias={setAlias} alColor={setColor} />
       {soloPestanas && <p class="menu-nota">{AVISO_SIN_SUPABASE}</p>}
       <div class="menu-acciones">
         <button type="submit" class="boton boton-principal" disabled={!crear && !codigoValido}>

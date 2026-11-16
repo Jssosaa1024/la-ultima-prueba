@@ -1,4 +1,5 @@
 import { batch, signal } from '@preact/signals';
+import { ocupados } from '../game/coop/apariencia';
 import { FRASES, type Asunto, type Foto, type OpcionVoto } from '../game/coop/mensajes';
 import type { Reparto, Rol } from '../game/reparto';
 import { elegirRed, entornoDelBuild } from '../net';
@@ -38,6 +39,26 @@ export interface JugadorCoop {
   anfitrion: boolean;
   /** Es este navegador. */
   yo: boolean;
+  /**
+   * T81b: el anfitrión todavía no le aceptó alias o color (lo que pidió ya lo tenía otro).
+   * Mientras tanto, `alias` y `color` son los que pidió y no se muestran como suyos.
+   */
+  eligiendo: boolean;
+}
+
+/** T81b: cómo va la elección de alias y color de este jugador. */
+export interface EleccionCoop {
+  /**
+   * - `ok`: tiene alias y color propios.
+   * - `esperando`: pidió unos y el anfitrión todavía no responde.
+   * - `elige`: le falta alias o color (lo que pidió al unirse ya lo tenía otro).
+   */
+  estado: 'ok' | 'esperando' | 'elige';
+  /**
+   * Lo último que pidió y ya tenía otro (o null). Con `ok` también puede venir: pidió cambiar,
+   * perdió y se quedó con lo de antes. Se borra al pedir otra vez.
+   */
+  ocupado: { alias: Alias | null; color: Color | null } | null;
 }
 
 export interface Coop {
@@ -49,6 +70,9 @@ export interface Coop {
   soyAnfitrion: boolean;
   /** Sin Supabase: el cooperativo solo funciona entre pestañas de este navegador. */
   soloPestanas: boolean;
+  /** T81b: alias y colores que ya tienen los demás jugadores de la partida. */
+  ocupados: { alias: readonly Alias[]; colores: readonly Color[] };
+  eleccion: EleccionCoop;
 }
 
 export const COOP_INICIAL: Coop = {
@@ -58,6 +82,8 @@ export const COOP_INICIAL: Coop = {
   jugadores: [],
   soyAnfitrion: false,
   soloPestanas: false,
+  ocupados: { alias: [], colores: [] },
+  eleccion: { estado: 'ok', ocupado: null },
 };
 
 export const coop = signal<Coop>(COOP_INICIAL);
@@ -159,9 +185,10 @@ export function rolesDe(r: Reparto | null, jugador: string): Rol[] {
 export const MIN_JUGADORES_COOP = 2;
 
 /**
- * Los jugadores que muestra la sala de espera y el HUD: los de la partida (`orden`) con su
- * alias y color de Presence. Quien no está en Presence se muestra como desconectado, con el
- * alias que tenía (o el primero de la lista si nunca se vio).
+ * Los jugadores que muestra la sala de espera y el HUD: los de la partida (`orden`) con el
+ * alias y el color que les aceptó el anfitrión (T81b). Si todavía no tiene uno, se usa el de
+ * Presence (lo que pidió) y queda `eligiendo`. Quien no está en Presence se muestra como
+ * desconectado, con el alias que tenía (o el primero de la lista si nunca se vio).
  */
 export function jugadoresDeFoto(
   foto: Foto,
@@ -171,10 +198,12 @@ export function jugadoresDeFoto(
 ): JugadorCoop[] {
   return foto.orden.map((jugador) => {
     const id = presentes.find((p) => p.jugador === jugador) ?? conocidos.get(jugador);
+    const aceptada = foto.apariencias.find((a) => a.jugador === jugador);
     return {
       jugador,
-      alias: id?.alias ?? 'zorro',
-      color: id?.color ?? 'ambar',
+      alias: aceptada?.alias ?? id?.alias ?? 'zorro',
+      color: aceptada?.color ?? id?.color ?? 'ambar',
+      eligiendo: !aceptada?.alias || !aceptada.color,
       listo: foto.listos.includes(jugador),
       conectado: presentes.some((p) => p.jugador === jugador),
       anfitrion: foto.anfitrion === jugador,
@@ -190,7 +219,15 @@ export function jugadoresDeFoto(
  */
 export function puedeIniciar(jugadores: readonly JugadorCoop[]): boolean {
   const conectados = jugadores.filter((j) => j.conectado);
-  return conectados.length >= MIN_JUGADORES_COOP && conectados.every((j) => j.anfitrion || j.listo);
+  return (
+    conectados.length >= MIN_JUGADORES_COOP &&
+    conectados.every((j) => (j.anfitrion || j.listo) && !j.eligiendo)
+  );
+}
+
+/** T81b: alias y colores que ya tienen los demás, según la foto del anfitrión. */
+export function ocupadosDeFoto(foto: Foto, yo: string): Coop['ocupados'] {
+  return ocupados(foto.apariencias, yo);
 }
 
 // La interfaz no importa de `net/`: lo que necesita del protocolo pasa por aquí.

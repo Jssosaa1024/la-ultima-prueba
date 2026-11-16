@@ -390,3 +390,36 @@
     justify-items: stretch;
   }
 }
+
+/* T81b: lo que ya eligió otro jugador se ve, pero no se puede tocar. */
+.coop-opcion-ocupada {
+  border-style: dashed;
+  color: #8a96a3;
+  cursor: not-allowed;
+}
+
+.coop-ocupado {
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: lowercase;
+}
+
+.coop-punto-vacio {
+  border: 2px dashed #8a96a3;
+  box-sizing: border-box;
+}
+
+.coop-cambiar {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.coop-aviso-eleccion {
+  margin: 0;
+  color: #f2c48b;
+  font-weight: 600;
+}
+
+.coop-aviso-eleccion:empty {
+  display: none;
+}
