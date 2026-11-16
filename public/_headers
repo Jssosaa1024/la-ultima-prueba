@@ -2,10 +2,15 @@
 # Solo los archivos con hash en el nombre van "immutable" (un año).
 # Lo demás se revalida en cada visita para ver siempre la versión nueva.
 
-# Seguridad básica para todo el sitio
+# Seguridad básica para todo el sitio.
+# CSP (T02b): sin 'unsafe-inline'. Al terminar el build, scripts/csp/integracion.ts agrega a
+# script-src y style-src los hashes de lo que Astro deja en línea (dist/_headers).
+# 'wasm-unsafe-eval': decodificadores meshopt y Basis (WebAssembly). blob: en worker-src: el
+# transcodificador KTX2 corre en un worker creado desde un blob. Supabase solo para el cooperativo.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; worker-src 'self' blob:; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
 
 # JS y CSS que genera Astro (llevan hash en el nombre)
 /_astro/*

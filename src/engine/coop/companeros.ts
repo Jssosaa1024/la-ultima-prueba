@@ -9,7 +9,7 @@
  */
 import { effect } from '@preact/signals';
 import type { Object3D } from 'three';
-import { LUGARES } from '../../content/esquema-salas';
+import { LUGARES } from '../../content/lugares';
 import type { Lugar } from '../../content/esquema-salas';
 import { coop, miPosicion, senales } from '../../signals/coop';
 import type { Color } from '../../signals/coop';

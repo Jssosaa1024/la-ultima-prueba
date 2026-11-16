@@ -1,4 +1,5 @@
 import { z } from 'astro/zod';
+import { LUGARES, type Lugar } from './lugares';
 
 /**
  * Esquema de la distribución de las salas (tarea «salas por código»).
@@ -20,15 +21,7 @@ import { z } from 'astro/zod';
  * - `giro` es en grados alrededor del eje vertical: 90 mira hacia +X, −90 hacia −X, 180 hacia −Z.
  */
 
-export const LUGARES = [
-  'porteria',
-  's1-cooperativa',
-  's2-laboratorio',
-  's3-gimnasio',
-  's4-biblioteca',
-  's5-rectoria',
-] as const;
-export type Lugar = (typeof LUGARES)[number];
+export { LUGARES, type Lugar };
 
 export const FORMAS = ['caja', 'cilindro', 'esfera', 'plano', 'grupo'] as const;
 export const ACCIONES = ['usar', 'recoger', 'examinar'] as const;

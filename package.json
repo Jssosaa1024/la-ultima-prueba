@@ -28,7 +28,8 @@
     "exportar-guion": "node scripts/exportar-guion.ts",
     "iconos-pwa": "node scripts/iconos-pwa.ts",
     "prueba-carga": "node scripts/prueba-carga.ts",
-    "textura-estres": "node scripts/textura-estres.ts"
+    "textura-estres": "node scripts/textura-estres.ts",
+    "basis-sin-eval": "node scripts/csp/basis-sin-eval.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.2",
