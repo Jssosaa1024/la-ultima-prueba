@@ -5,6 +5,7 @@ import datos from '../../src/content/salas.json';
 import { PUZZLES } from '../../src/content/puzzles';
 import {
   LUGARES,
+  esquemaObjeto,
   esquemaSala,
   esquemaSalas,
   problemasDeSala,
@@ -101,6 +102,52 @@ describe('distribución de las salas (salas.json)', () => {
     expect(esquemaSala.safeParse({ ...s1, colores: { ...s1.colores, piso: 'rojo' } }).success).toBe(
       false,
     );
+  });
+});
+
+describe('campo modelo (T19d)', () => {
+  const base = {
+    id: 's1-mostrador',
+    forma: 'caja',
+    tam: [1, 1, 1],
+    pos: [0, 0, 0],
+    color: '#000000',
+  } as const;
+
+  it('es opcional y acepta el id de un modelo del manifiesto', () => {
+    expect(esquemaObjeto.safeParse(base).success).toBe(true);
+    for (const modelo of ['mostrador', 'estante-alto', 'caja-2']) {
+      const r = esquemaObjeto.safeParse({ ...base, modelo });
+      expect(r.success, modelo).toBe(true);
+      expect(r.data?.modelo).toBe(modelo);
+    }
+  });
+
+  it('rechaza rutas, extensiones, hashes y mayúsculas', () => {
+    for (const modelo of [
+      '',
+      'Mostrador',
+      'mostrador.glb',
+      'mostrador.1a2b3c4d',
+      'salas/s1-cooperativa/mostrador',
+      '../mostrador',
+      'estante_alto',
+      '-mostrador',
+      'mostrador-',
+      'estante--alto',
+    ]) {
+      expect(esquemaObjeto.safeParse({ ...base, modelo }).success, modelo).toBe(false);
+    }
+    expect(esquemaObjeto.safeParse({ ...base, modelo: 7 }).success).toBe(false);
+  });
+
+  it('una sala con modelos sigue cumpliendo el esquema completo', () => {
+    const salas = copia();
+    const s1 = salas[1];
+    const primero = s1?.objetos[0];
+    if (!primero) throw new Error('falta s1');
+    primero.modelo = 'mostrador';
+    expect(esquemaSalas.safeParse(salas).success).toBe(true);
   });
 });
 

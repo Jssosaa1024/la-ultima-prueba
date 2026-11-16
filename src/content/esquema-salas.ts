@@ -19,6 +19,10 @@ import { LUGARES, type Lugar } from './lugares';
  *   En una esfera, [diámetro, diámetro, —].
  *   En un plano (cartel, puerta, pizarra), [ancho, alto, —]: mira hacia +Z sin girar.
  * - `giro` es en grados alrededor del eje vertical: 90 mira hacia +X, −90 hacia −X, 180 hacia −Z.
+ * - `modelo` (opcional, T19d) es el id de un modelo del manifiesto (`public/assets/manifest.json`):
+ *   el nombre del GLB en `salas/<sala>/` sin el hash ni la extensión (`mostrador` →
+ *   `salas/s1-cooperativa/mostrador.<hash>.glb`). Si está, el motor muestra ese modelo; la forma,
+ *   `tam` y `pos` siguen siendo la caja que choca y la que se usa si el modelo no carga.
  */
 
 export { LUGARES, type Lugar };
@@ -31,6 +35,13 @@ const metros = z.number().finite();
 const positivo = z.number().finite().positive();
 const vec3 = z.tuple([metros, metros, metros]);
 const tam3 = z.tuple([positivo, positivo, z.number().finite().min(0)]);
+/** Id de un modelo del manifiesto: minúsculas, números y guiones, sin hash ni extensión. */
+const idModelo = z
+  .string()
+  .regex(
+    /^[a-z0-9]+(-[a-z0-9]+)*$/,
+    'Id de modelo: minúsculas, números y guiones, sin hash ni «.glb»',
+  );
 /** `porteria-…` o `s1-…` a `s5-…`: minúsculas, números y guiones. */
 const idObjeto = z.string().regex(/^(porteria|s[1-5])-[a-z0-9]+(-[a-z0-9]+)*$/);
 
@@ -59,6 +70,8 @@ export const esquemaObjeto = z.strictObject({
   puerta: z.enum(LUGARES).optional(),
   /** Piezas de un grupo (por ejemplo, los cinco carritos). */
   partes: z.array(pieza).min(1).optional(),
+  /** Modelo CC0 del manifiesto que reemplaza a la primitiva (T19d). */
+  modelo: idModelo.optional(),
 });
 
 export const esquemaSala = z.strictObject({
