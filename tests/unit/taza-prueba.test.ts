@@ -54,9 +54,12 @@ describe('taza de prueba (T10b)', () => {
     const io = await crearIO();
     const glb = await io.writeBinary(documento);
     const leido = await io.readBinary(glb);
-    expect(leido.getRoot().listExtensionsUsed().map((e) => e.extensionName)).toEqual(
-      expect.arrayContaining(['EXT_meshopt_compression', 'KHR_texture_basisu']),
-    );
+    expect(
+      leido
+        .getRoot()
+        .listExtensionsUsed()
+        .map((e) => e.extensionName),
+    ).toEqual(expect.arrayContaining(['EXT_meshopt_compression', 'KHR_texture_basisu']));
     expect(leido.getRoot().getAsset().copyright).toContain('La Última Prueba');
   }, 60_000);
 
