@@ -21,6 +21,7 @@ import {
 } from 'three';
 import type { BufferGeometry, Camera, Object3D, Texture, WebGLRenderer } from 'three';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+import { gestorSinEval } from '../../engine/carga/cargador';
 import {
   MALLAS_POR_ESCALON,
   MAX_ESCALONES,
@@ -171,7 +172,10 @@ export function crearCarga(eje: Eje, ctx: ContextoCarga): CargaEstres {
       ctx.fijarPixelRatio(dprJuego);
       const plano = new PlaneGeometry(0.35, 0.35);
       geometrias.add(plano);
-      const cargador = new KTX2Loader().setWorkerLimit(1).detectSupport(ctx.renderer);
+      // Con la copia del transcodificador sin eval (T02b): la CSP no permite 'unsafe-eval'.
+      const cargador = new KTX2Loader(gestorSinEval())
+        .setWorkerLimit(1)
+        .detectSupport(ctx.renderer);
       ktx2 = cargador;
       aplicar = async (escalon) => {
         const meta = escalon * TEXTURAS_POR_ESCALON;

@@ -15,6 +15,8 @@ export default defineConfig(
       'public/',
       'test-results/',
       'playwright-report/',
+      // Copia generada del transcodificador Basis de three (T02b, `npm run basis-sin-eval`).
+      'src/engine/carga/basis/',
     ],
   },
   js.configs.recommended,

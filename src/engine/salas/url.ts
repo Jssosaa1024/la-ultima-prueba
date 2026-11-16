@@ -1,4 +1,4 @@
-import { LUGARES } from '../../content/esquema-salas';
+import { LUGARES } from '../../content/lugares';
 import type { Lugar } from '../../content/esquema-salas';
 
 /**

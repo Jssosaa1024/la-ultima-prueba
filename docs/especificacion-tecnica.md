@@ -704,6 +704,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 - [ ] **T01** Crear el repositorio con Astro, TypeScript estricto, Preact, Signals, ESLint y Prettier — 40 min
 - [ ] **T02** Conectar Cloudflare Pages con vistas previas por rama y `_headers` de caché — 30 min
+- [x] **T02b** (nueva, ola 5b) CSP en `public/_headers` sin `'unsafe-inline'` ni `'unsafe-eval'` (`'wasm-unsafe-eval'` para los decodificadores, `blob:` para el worker de KTX2, Supabase en `connect-src`). La integración `scripts/csp/` agrega al terminar el build los hashes de los scripts y estilos que Astro deja en línea (`dist/_headers`), falla si hay algo en línea que un hash no cubre y hace que `astro preview` envíe la misma cabecera, así todas las e2e corren con ella (`csp.spec.ts`). El transcodificador Basis de three crea funciones con `new Function`: se usa una copia sin eso (`npm run basis-sin-eval`, probada contra el original). `LUGARES` pasa a `src/content/lugares.ts` para que zod no entre al bundle — 60 min
 - [ ] **T03** Página `/jugar` con isla `client:only`, canvas a pantalla completa, viewport y safe-area — 45 min
 - [x] **T03b** (nueva) La portada `/` deja de ser la demo de T01: título, la historia en una frase, botón grande «Jugar» que lleva a `/jugar` y enlace a `/docentes`. Pensada para celular en horizontal: todo cabe sin desplazarse. Se borran `src/ui/Contador.tsx` y `src/signals/demo.ts` — 30 min
 - [ ] **T04** Detectar WebGL2 y mostrar la pantalla de equipo no compatible — 20 min
