@@ -32,7 +32,6 @@ import {
 } from 'three';
 import type { Object3D } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { METROS_POR_REPETICION } from '../../content/esquema-salas';
 import type { ObjetoSala, Sala } from '../../content/esquema-salas';
 import { marcarInteractivo } from '../interaccion/interaccion';
 import type { Caja } from '../jugador/colision';
@@ -51,6 +50,12 @@ const GRADOS = Math.PI / 180;
 /** Las superficies del cascarón que pueden llevar textura (T19g). */
 export const SUPERFICIES = ['piso', 'paredes', 'techo'] as const;
 export type Superficie = (typeof SUPERFICIES)[number];
+/**
+ * Lo que cubre una repetición de la textura, en metros, si la sala no dice otra cosa (T19g).
+ * Va aquí y no en `esquema-salas.ts`: el motor solo importa TIPOS de los esquemas, para no meter
+ * zod en el bundle del juego (zod prueba `Function('')` y la CSP lo bloquea).
+ */
+export const METROS_POR_REPETICION = 2;
 /** En `userData`: a qué superficie pertenece una malla del cascarón. */
 const SUPERFICIE = 'superficie';
 /** En `userData` de la malla de una superficie con textura: el id de la textura en el manifiesto. */
