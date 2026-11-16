@@ -37,9 +37,9 @@ Cada sala cabe en 60.000 triángulos visibles, 40 draw calls, 16 MB de texturas 
 | --- | --- | --- | --- |
 | Triángulos visibles | 60.000 | 40.000 | Salas cerradas, LOD en props, sin geometría fuera de cámara |
 | Draw calls | 40 | 30 | Atlas de materiales, `InstancedMesh` para sillas, libros y fichas |
-| Luces dinámicas | 2 | 2 | Hemisférica + linterna (`SpotLight`); el resto, horneado en lightmap |
-| Sombras en tiempo real | 0 | 0 | Sombras horneadas; las «sombras misteriosas» son planos con textura alfa animada |
-| Materiales | Lambert + lightmap en entorno; Standard solo en objetos interactivos | — | Menos costo de shader en GPU móvil |
+| Luces dinámicas | 2 | 2 | Hemisférica + linterna (`SpotLight`); sin luz horneada (ola 6) |
+| Sombras en tiempo real | 0 | 0 | Sin sombras horneadas: si hace falta, un plano oscuro bajo los muebles grandes; las «sombras misteriosas» son planos con textura alfa animada |
+| Materiales | Lambert en entorno; Standard solo en objetos interactivos | — | Menos costo de shader en GPU móvil |
 | Resolución interna | DPR máx. 1,25; escala dinámica 0,5–1,0 | 30 fps sostenidos | Se ajusta según los fps medidos cada 2 s |
 | Post-proceso | Ninguno en calidad baja y media | — | FXAA solo en calidad alta |
 
@@ -48,8 +48,8 @@ Cada sala cabe en 60.000 triángulos visibles, 40 draw calls, 16 MB de texturas 
 | Recurso | Límite | Notas |
 | --- | --- | --- |
 | Triángulos en escena | 90.000 | Arquitectura 15k · ambientación 35k · objetos interactivos 20k (máx. 6k c/u) · avatares 4 × 2k · margen 12k |
-| Texturas (cantidad) | 1 lightmap 1024² + hasta 2 atlas 1024² + texturas de objetos 512² | Lightmap de 2048² solo en calidad alta |
-| Texturas en GPU | 16 MB con mipmaps | KTX2: ETC1S para color y lightmap; UASTC solo para mapas normales de objetos clave, que se omiten en calidad baja |
+| Texturas (cantidad) | Hasta 2 atlas 1024² + texturas de objetos 512² + las texturas de ambientCG (piso, paredes y techo) | Los kits de Kenney comparten una paleta pequeña (`colormap`) |
+| Texturas en GPU | 16 MB con mipmaps | KTX2: ETC1S para color; UASTC solo para mapas normales de objetos clave, que se omiten en calidad baja |
 | Peso descargado | 2 MB | GLB con `EXT_meshopt_compression` + KTX2; audio aparte |
 | Audio de la sala | 0,6 MB | AAC mono 48 kbps para voz, 64 kbps para ambiente en bucle |
 
@@ -67,19 +67,20 @@ Cada sala cabe en 60.000 triángulos visibles, 40 draw calls, 16 MB de texturas 
 
 Memoria: la pestaña no debe superar unos 180 MB entre JavaScript y GPU. En GPU solo quedan la portería y la sala actual; la siguiente espera descargada en la caché, sin decodificar. Al volver a una sala anterior se recarga desde la caché local, sin red.
 
-Pipeline de compresión (glTF-Transform + meshoptimizer), ajustado en v1.1: perfil de limpieza por fuente, con `simplify` si hace falta → rehorneado en Blender → `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` (requiere KTX-Software 4.4.0 o superior en la máquina de build) → `asset.copyright` → informe de triángulos, draw calls estimados y bytes por sala. `instance` y el LOD al 50 % se aplican solo a props instanciados, que no usan lightmap. El detalle está en «Laboratorio de assets».
+Pipeline de compresión (glTF-Transform + meshoptimizer), ajustado en v1.1: perfil de limpieza por fuente, con `simplify` si hace falta → `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` (requiere KTX-Software 4.4.0 o superior en la máquina de build) → `asset.copyright` → informe de triángulos, draw calls estimados y bytes por sala. `instance` y el LOD al 50 % se aplican solo a props instanciados. Desde la ola 6 no hay rehorneado en Blender ni lightmap. El detalle está en «Laboratorio de assets».
 
 ## Laboratorio de assets (v1.1)
 
-Cada sala prueba una fuente de modelos distinta. Todas terminan en el mismo GLB con meshopt y KTX2 de 1024 px y cumplen el mismo presupuesto; lo que cambia es la limpieza previa y el registro de licencia. Paredes, piso y techo usan las mismas texturas CC0 de ambientCG en todas las salas, como control: cualquier diferencia entre salas viene de los modelos.
+**Ola 6 (16 de noviembre de 2026): el arte final usa solo modelos CC0 ya hechos, en un solo estilo low-poly.** Kenney primero y Quaternius para lo que falte; texturas de ambientCG para piso, paredes y techo. Sin Meshy, Sketchfab ni Poly Haven, sin Blender y sin luz horneada. Qué modelo reemplaza a cada objeto, de qué paquete y cuánto pesa cada sala está en `docs/arte-cc0.md`. **Quaternius queda en pausa** hasta que Alex decida: desde el 28 de agosto de 2026 su sitio publica una licencia propia (QAL v1.0) que no es CC0 y prohíbe redistribuir los assets sueltos, y este repositorio es público. Mientras tanto, lo que Kenney no tiene se queda como primitiva. La comparación entre fuentes de la v1.1 queda descartada; el modo `?lab=1` sigue comparando cada original con su versión optimizada.
+
+Todas las salas terminan en GLB con meshopt y KTX2 de 1024 px y cumplen el mismo presupuesto. Paredes, piso y techo usan texturas CC0 de ambientCG, solo canal de color.
 
 | Sala | Fuente | Qué aporta | Qué medimos sobre todo |
 | --- | --- | --- | --- |
-| 1 · Cooperativa | Kenney (CC0) | Mostrador, estanterías, cajas, registradora modular | Draw calls antes y después de `join`, `instance` y `palette` |
-| 2 · Laboratorio | Meshy, plan gratis (CC BY 4.0 con crédito a Meshy) | Termómetro, mesones, instrumentos | Triángulos tras el límite de caras; luz horneada que choca con la de la sala |
-| 3 · Gimnasio | Sketchfab, solo CC BY | Graderas, maqueta, tablero | Cuánto hay que simplificar; tiempo de carga |
-| 4 · Biblioteca | Poly Haven (CC0), descarga manual en la web; nunca su API | Muebles, lámpara, globo terráqueo | Memoria de texturas: varios mapas por material |
-| 5 · Rectoría | Geometría por código + imágenes de IA + audio | Urna, fichas y ruedas generadas en Three.js; cuadros y carteles generados con IA; efectos con Web Audio | Costo cero de descarga en geometría; calidad de imágenes de IA tras KTX2 |
+| Portería y salas 1 a 4 | Kenney (CC0); Quaternius (CC0) donde Kenney no alcanza | Muebles, estanterías, puertas, máquinas y ambientación | Draw calls antes y después de `join`, `instance` y `palette` |
+| 5 · Rectoría | Lo mismo, más geometría por código | Muebles CC0; urna, fichas y mano mecánica generadas en Three.js; efectos con Web Audio | Costo cero de descarga en la geometría por código |
+
+Los objetos planos que muestran datos (pizarras, carteles, el graficador, el marcador) siguen siendo primitivas: su contenido se lee en la vista 2D de inspección.
 
 El presupuesto de la sección 0 manda sobre las cifras de la investigación (100.000 triángulos, 15 MB, \~100 draw calls), que quedan descartadas para este juego.
 
@@ -90,26 +91,16 @@ El script lee la `fuente` de cada archivo en `art/credits.json` y aplica su perf
 | Perfil | Pasos específicos | Trampa principal |
 | --- | --- | --- |
 | `kenney` | Factor de escala por pack a metros; `join` de piezas que comparten material; `instance` de repetidos; `palette` para fundir materiales planos en una textura | Muchas piezas sueltas = muchas draw calls |
-| `meshy` | Límite de caras pedido al generar (6k por objeto); pivote en el centro de la base; escala a metros; `simplify` si aún se pasa; texturas 2048 → 1024; revisar luz horneada y regenerar con PBR si la trae | Geometría densa y desordenada; iluminación falsa en la textura |
-| `sketchfab` | Descargar el GLB con texturas de 1k; quitar cámaras, luces y nodos vacíos (`prune`, `flatten`); corregir eje +Y, escala y pivote; `simplify` hasta 6k por objeto | Modelos sobredimensionados; materiales que glTF no soporta se pierden |
-| `polyhaven` | Versión glTF de 1k bajada a mano; en el entorno solo se conserva el color (Lambert + lightmap); normal y rugosidad solo en objetos interactivos | Peso de texturas: 4 o más mapas por material |
-| `ambientcg` | Material a 1K; solo color para paredes y piso; `repeat` ajustado en Three.js | Repetición visible de la textura |
-| `ia-imagen` | Redimensionar a potencia de 2 (1024² máx.); KTX2 ETC1S | Logos, texto o caras que no deben aparecer |
+| `quaternius` | Escala a metros y pivote en el centro de la base; quitar animaciones, cámaras y luces; colores de material a la paleta de la sala (`palette`); `simplify` solo si pasa de 6k triángulos | Estilo distinto al de Kenney: si no encaja, se busca otro modelo |
+| `ambientcg` | Material a 1K; solo color para paredes, piso y techo; `repeat` ajustado en Three.js | Repetición visible de la textura |
+| `ia-imagen` | Redimensionar a potencia de 2 (1024² máx.); KTX2 ETC1S. Sin uso planeado desde la ola 6 | Logos, texto o caras que no deben aparecer |
 | `codigo` | Sin archivo: la geometría se crea al cargar la sala y se mide en el panel de métricas | Triángulos que no ve `check-budget` |
 
 Después del perfil, la etapa común es la misma para todos: `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` → escribir `asset.copyright` → informe.
 
-### Rehorneado en Blender con el lightmap de la sala
+### Luz sin hornear (ola 6)
 
-Los modelos externos traen iluminación propia o ninguna; para que encajen, se rehornean con la luz de su sala. El orden importa: simplificar después de hornear deforma las UV del lightmap.
-
-1. `optimize-models --etapa limpieza` produce un GLB limpio sin comprimir en `art/<sala>/limpios/`.
-2. La plantilla `art/plantilla-horneado.blend` lo importa como colección enlazada dentro de `escena.blend` de la sala.
-3. Se genera una segunda capa de UV (Lightmap Pack) y se ubica en el atlas de lightmap de la sala (1024²).
-4. Se hornea con Cycles la luz difusa (directa + indirecta, sin color) de toda la sala en un solo lightmap.
-5. Se exporta el GLB de la sala con las dos capas de UV y se pasa por la etapa común, sin `simplify`.
-
-Los objetos que se recogen o se mueven (linterna, fichas, lupa) y los props instanciados (sillas, libros) no van en el lightmap: usan luz hemisférica, la linterna y una sombra falsa bajo su base. Las tareas de lightmap ya existentes (T48, T55, T61, T67, T73) hornean con los assets externos incluidos.
+Ya no hay rehorneado en Blender ni lightmap: los modelos de Kenney y Quaternius no traen luz propia y sus colores planos se ven bien con la luz de la sala. Los materiales son Lambert y los iluminan la luz hemisférica de la sala y la linterna; si un mueble grande parece flotar, lleva una sombra falsa (un plano oscuro) bajo su base. Las colisiones salen de las primitivas de `src/content/salas.json`, y el campo `modelo` de cada objeto (T19d) dice qué GLB se ve en su lugar. Las tareas de Blender (T11f, T16) y de lightmap (T48, T55, T61, T67, T73) quedan canceladas.
 
 ### Modo `?lab=1`
 
@@ -197,26 +188,26 @@ Una entrada por archivo publicado, más una captura de la página de licencia de
 
 ```json
 {
-  "archivo": "public/assets/salas/s3-gimnasio/graderia.glb",
-  "sala": "s3-gimnasio",
+  "archivo": "public/assets/salas/s1-cooperativa/mostrador.glb",
+  "sala": "s1-cooperativa",
   "tipo": "modelo",
-  "titulo": "Bleachers",
-  "autor": "nombre_del_autor",
-  "fuente": "sketchfab",
-  "url": "https://sketchfab.com/3d-models/…",
-  "licencia": "CC-BY-4.0",
-  "licencia_url": "https://creativecommons.org/licenses/by/4.0/",
-  "cambios": "simplificado a 6k triángulos, rehorneado con la luz de la sala, texturas KTX2 1024, meshopt",
-  "fecha": "2026-11-05",
+  "titulo": "Furniture Kit: kitchenBar",
+  "autor": "Kenney",
+  "fuente": "kenney",
+  "url": "https://kenney.nl/assets/furniture-kit",
+  "licencia": "CC0-1.0",
+  "licencia_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "cambios": "escalado a metros, unido con la paleta de la sala, texturas KTX2 1024, meshopt",
+  "fecha": "2026-11-17",
   "plan": null,
-  "evidencia": "art/evidencia/graderia.png"
+  "evidencia": "art/evidencia/kenney-furniture-kit.png"
 }
 ```
 
 - `tipo`: `modelo`, `textura`, `imagen`, `audio` o `voz`.
-- `fuente`: `kenney`, `meshy`, `sketchfab`, `polyhaven`, `ambientcg`, `ia-imagen`, `freesound`, `elevenlabs`, `codigo` o `propio`. Elige el perfil de limpieza de `optimize-models`.
+- `fuente`: `kenney`, `quaternius`, `ambientcg`, `meshy`, `tripo`, `sketchfab`, `polyhaven`, `ia-imagen`, `freesound`, `elevenlabs`, `codigo` o `propio`. Elige el perfil de limpieza de `optimize-models`. Desde la ola 6, los modelos solo vienen de `kenney` y `quaternius`, y las texturas de `ambientcg`; las demás quedan en el esquema para el audio y para rechazar con un mensaje claro lo que no se debe publicar.
 - `plan`: obligatorio (`gratis` o `pago`) para Meshy, Tripo y ElevenLabs, porque la licencia depende del plan activo el día de la generación, no del plan actual. Para la IA se anota también el prompt.
-- `evidencia`: obligatoria para Sketchfab, Meshy y ElevenLabs. Sketchfab cambió de dueño este año; la captura prueba la licencia que tenía el modelo al bajarlo.
+- `evidencia`: obligatoria para Sketchfab, Meshy y ElevenLabs. Sketchfab cambió de dueño este año; la captura prueba la licencia que tenía el modelo al bajarlo. Para los paquetes de Kenney, Quaternius y ambientCG también se guarda una captura de la página del paquete con su licencia el día de la descarga (lista en `docs/arte-cc0.md`), aunque el script no la exija.
 
 ### `check-credits` en cada build
 
@@ -270,19 +261,16 @@ la-ultima-prueba/
 ├─ art/                          # fuentes de arte (Git LFS), nunca se publican
 │  ├─ credits.json               # v1.1: una entrada por archivo publicado
 │  ├─ evidencia/                 # v1.1: capturas de licencia del día de descarga
-│  ├─ plantilla-horneado.blend   # v1.1: rehorneado de assets externos
 │  ├─ porteria/
 │  ├─ s1-cooperativa/  s2-laboratorio/  s3-gimnasio/  s4-biblioteca/  s5-rectoria/
-│  │  ├─ originales/              # v1.1: descargas sin tocar (Kenney, Meshy, Sketchfab, Poly Haven)
+│  │  ├─ originales/              # paquetes CC0 sin tocar (Kenney, Quaternius, ambientCG)
 │  │  ├─ limpios/                 # v1.1: salida de la etapa de limpieza, sin comprimir
-│  │  ├─ escena.blend
-│  │  ├─ colliders.blend          # cajas de colisión exportadas aparte
 │  │  └─ texturas/
-│  ├─ props-compartidos/         # sillas, puertas, linterna, avatares
+│  ├─ compartido/originales/     # ola 6: paquetes CC0 y texturas que usan varias salas
 │  └─ audio/                     # WAV originales de La Voz y ambientes
 ├─ scripts/
 │  ├─ optimize-models.ts         # limpieza por fuente + etapa común + asset.copyright
-│  ├─ perfiles/                  # v1.1: kenney, meshy, sketchfab, polyhaven, ambientcg, ia-imagen
+│  ├─ perfiles/                  # kenney, quaternius, ambientcg, ia-imagen (ola 6)
 │  ├─ optimize-audio.ts          # WAV → AAC mono a −16 LUFS
 │  ├─ build-manifest.ts          # hash, bytes y triángulos por sala
 │  ├─ check-budget.ts            # falla el build si se excede el presupuesto (informa en lab)
@@ -723,10 +711,10 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T11** Medir una escena de estrés (60k triángulos, 40 draw calls) en el celular de referencia — 45 min
 - [ ] **T11a** (v1.1) `optimize-models` lee la `fuente` en `art/credits.json` y aplica su perfil de limpieza — 45 min
 - [ ] **T11b** (v1.1) Perfil Kenney: escala por pack, `join`, `instance` y `palette` — 45 min
-- [ ] **T11c** (v1.1) Perfil Sketchfab: quitar cámaras, luces y nodos vacíos; eje +Y, escala, pivote y `simplify` a 6k — 50 min
-- [ ] **T11d** (v1.1) Perfil Meshy: pivote en la base, escala a metros, `simplify` y revisión de luz horneada — 40 min
-- [ ] **T11e** (v1.1) Perfiles Poly Haven, ambientCG e imágenes de IA: 1024 px, solo color en entorno, mapas extra solo en interactivos — 45 min
-- [ ] **T11f** (v1.1) Plantilla de Blender para rehornear assets externos con el lightmap de la sala (UV2, Cycles, exportación) — 55 min
+- [ ] ~~**T11c** (v1.1) Perfil Sketchfab: quitar cámaras, luces y nodos vacíos; eje +Y, escala, pivote y `simplify` a 6k — 50 min~~ Cancelada en la ola 6: sin Sketchfab
+- [ ] ~~**T11d** (v1.1) Perfil Meshy: pivote en la base, escala a metros, `simplify` y revisión de luz horneada — 40 min~~ Cancelada en la ola 6: sin Meshy
+- [ ] **T11e** (ola 6) Perfiles Quaternius y ambientCG: escala a metros, pivote en la base, quitar animaciones, cámaras y luces, colores a la paleta de la sala; texturas a 1024 px, solo color — 45 min
+- [ ] ~~**T11f** (v1.1) Plantilla de Blender para rehornear assets externos con el lightmap de la sala (UV2, Cycles, exportación) — 55 min~~ Cancelada en la ola 6: sin Blender ni luz horneada
 - [x] **T11g** (v1.1) Esquema de `art/credits.json`, carpeta de evidencias y escritura de `asset.copyright` en cada GLB — 50 min. Esquema en `scripts/creditos/esquema.ts`; `optimize-models` escribe el crédito con `textoCopyright()` y no escribe en `public/assets/salas/` un modelo sin entrada
 - [x] **T11h** (v1.1) Script `check-credits` con todas las reglas de licencia y sus tests — 50 min. Reglas en `scripts/creditos/reglas.ts`; corre en `build` y `verify` antes de `astro build`. Además de las de la lista: CC BY exige el enlace a la licencia, lo generado con IA exige el prompt y la captura anotada debe existir
 - [ ] **T11i** (v1.1) Página `/creditos` generada desde el manifiesto y agrupada por sala — 45 min
@@ -739,10 +727,12 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T11p** (v1.1) Ejes de estrés: triángulos y draw calls — 45 min
 - [x] **T11q** (v1.1) Ejes de estrés: texturas y píxeles — 45 min. Textura propia de 1024 px en KTX2 ETC1S: `npm run textura-estres` escribe `public/assets/pruebas/estres-1024.ktx2`
 - [x] **T11r** (v1.1) Detección de recarga por memoria, `dispose()` al detener y verificación de `renderer.info.memory` — 40 min
-- [ ] **T11s** (v1.1) Cooperativa: elegir packs de Kenney y registrarlos en el manifiesto — 30 min
-- [ ] **T11t** (v1.1) Laboratorio: generar instrumentos en Meshy (plan gratis, límite de caras) y registrarlos con evidencia — 50 min
-- [ ] **T11u** (v1.1) Gimnasio: elegir modelos CC BY de Sketchfab y guardar captura de su licencia — 45 min
-- [ ] **T11v** (v1.1) Biblioteca: descargar a mano modelos de Poly Haven en 1k y registrarlos — 40 min
+- [x] **T11s** (ola 6) Elegir los modelos CC0: `docs/arte-cc0.md` lista cada objeto visible de la portería y las cinco salas con su modelo de Kenney (paquete y archivo exacto) o «primitiva», las texturas de ambientCG, la estimación de presupuesto por sala y qué bajar. Quaternius queda en pausa por su licencia QAL — 30 min
+- [ ] **T11sa** (ola 6) Descargar los 3 paquetes de Kenney y las 5 texturas de ambientCG a `art/compartido/originales/`, con su captura en `art/evidencia/` (lista en `docs/arte-cc0.md`) — 30 min. Lo hace Alex
+- [x] **T11sb** (ola 6) Reglas al día con el arte CC0: tabla de fuentes y pipeline sin Blender ni lightmap en `AGENTS.md` y en esta especificación, perfil `quaternius` en lugar de `meshy`, `sketchfab` y `polyhaven`, fuente `quaternius` en `scripts/creditos/esquema.ts`, y Git LFS para los zips, modelos, imágenes y audio de `art/` en `.gitattributes`, con su prueba (`tests/unit/gitattributes.test.ts`) — 40 min
+- [ ] ~~**T11t** (v1.1) Laboratorio: generar instrumentos en Meshy (plan gratis, límite de caras) y registrarlos con evidencia — 50 min~~ Cancelada en la ola 6: el laboratorio usa modelos CC0 de `docs/arte-cc0.md`
+- [ ] ~~**T11u** (v1.1) Gimnasio: elegir modelos CC BY de Sketchfab y guardar captura de su licencia — 45 min~~ Cancelada en la ola 6: el gimnasio usa modelos CC0 de `docs/arte-cc0.md`
+- [ ] ~~**T11v** (v1.1) Biblioteca: descargar a mano modelos de Poly Haven en 1k y registrarlos — 40 min~~ Cancelada en la ola 6: la biblioteca usa modelos CC0 de `docs/arte-cc0.md`
 - [ ] **T11w** (v1.1) Rectoría: urna, fichas y mano mecánica generadas por código dentro del presupuesto — 50 min
 - [ ] **T11x** (v1.1) Rectoría: imágenes de IA a KTX2 y efectos con Web Audio, registrados en el manifiesto — 45 min
 - [ ] **T11y** (v1.1) Correr el estrés en un Android de 2 GB y un iPhone reales; fijar perfiles bajo, medio y alto — 55 min
@@ -755,7 +745,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T14** Cámara en primera persona y mirada por arrastre en la mitad derecha — 50 min
 - [x] **T15** Joystick virtual multitáctil en la mitad izquierda — 50 min
 - [x] **T15b** (nueva) Dibujar el joystick (signal `joystick`) y la mira con el aviso «Esc para soltar el ratón» (signal `punteroBloqueado`), en `src/ui/controles/` — 40 min
-- [ ] **T16** Exportar cajas de colisión desde Blender y cargarlas — 30 min
+- [ ] ~~**T16** Exportar cajas de colisión desde Blender y cargarlas — 30 min~~ Cancelada en la ola 6: las colisiones salen de las primitivas de `salas.json`
 - [x] **T17** Colisión de cápsula contra cajas, sin atravesar paredes — 50 min
 - [x] **T18** Toque sobre objetos: raycast, resaltado y botón «Usar» — 50 min
 - [x] **T19** Teclado y ratón con bloqueo de puntero en escritorio — 30 min
@@ -814,7 +804,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T45** (v1.2) Sala 1: etiquetadora con rodillos y palanca, pizarra de precios y registradora, en tres etapas — 50 min
 - [ ] **T46** Props de la sala 1, lote 1: caja, registradora, menú — 55 min
 - [ ] **T47** Props de la sala 1, lote 2: estanterías y ambientación — 55 min
-- [ ] **T48** Hornear el lightmap de la sala 1 y exportar — 45 min
+- [ ] ~~**T48** Hornear el lightmap de la sala 1 y exportar — 45 min~~ Cancelada en la ola 6: sin luz horneada
 - [ ] **T49** Pasar el pipeline, verificar presupuesto y probar en el celular de referencia — 40 min
 - [ ] **T50** Prueba de juego de portería + sala 1 con dos estudiantes — 45 min
 
@@ -824,25 +814,25 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T52** (v1.2) Sala 2: tanques con perillas, graficador, campana y hoja de ayer, en tres etapas — 50 min
 - [ ] **T53** Sala 2: props, lote 1 — 55 min
 - [ ] **T54** Sala 2: props, lote 2 — 55 min
-- [ ] **T55** Sala 2: lightmap y exportación — 45 min
+- [ ] ~~**T55** Sala 2: lightmap y exportación — 45 min~~ Cancelada en la ola 6: sin luz horneada
 - [ ] **T56** Sala 2: presupuesto y prueba en celular — 40 min
 - [ ] **T57** Sala 3: blockout del gimnasio con colisiones — 55 min
 - [x] **T58** (v1.2) Sala 3: reflector con muescas, postes, sensores y polea, en tres etapas — 50 min
 - [ ] **T59** Sala 3: props, lote 1 — 55 min
 - [ ] **T60** Sala 3: props, lote 2 — 55 min
-- [ ] **T61** Sala 3: lightmap y exportación — 45 min
+- [ ] ~~**T61** Sala 3: lightmap y exportación — 45 min~~ Cancelada en la ola 6: sin luz horneada
 - [ ] **T62** Sala 3: presupuesto y prueba en celular — 40 min
 - [ ] **T63** Sala 4: blockout de la biblioteca con colisiones — 55 min
 - [x] **T64** (v1.2) Sala 4: carritos, pila de 20 libros y lámparas en vivo, en tres etapas — 50 min
 - [ ] **T65** Sala 4: props, lote 1 — 55 min
 - [ ] **T66** Sala 4: props, lote 2 — 55 min
-- [ ] **T67** Sala 4: lightmap y exportación — 45 min
+- [ ] ~~**T67** Sala 4: lightmap y exportación — 45 min~~ Cancelada en la ola 6: sin luz horneada
 - [ ] **T68** Sala 4: presupuesto y prueba en celular — 40 min
 - [ ] **T69** Sala 5: blockout de la rectoría con colisiones — 55 min
 - [x] **T70** (v1.2) Sala 5: urna, simulador de 100 extracciones y «ver parejas», en tres etapas — 50 min
 - [ ] **T71** Sala 5: props, lote 1 — 55 min
 - [ ] **T72** Sala 5: props, lote 2 — 55 min
-- [ ] **T73** Sala 5: lightmap y exportación — 45 min
+- [ ] ~~**T73** Sala 5: lightmap y exportación — 45 min~~ Cancelada en la ola 6: sin luz horneada
 - [ ] **T74** Sala 5: presupuesto y prueba en celular — 40 min
 - [x] **T75** Esconder las tres grabaciones en las salas 2, 3 y 4 (escondites de `docs/salas-y-puzzles.md`): se recogen con `recoger_grabacion` y su texto queda en el cuaderno. El audio queda para la Ola 3 — 45 min
 - [x] **T76** Volver a salas anteriores: recarga desde caché y estado conservado. Al volver a una sala con sello, la máquina se ve como quedó (signal `maquinaResuelta`), el sello y el avance no cambian y ya no se ofrecen pistas nuevas — 45 min
@@ -904,8 +894,10 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 | Guion y voz de La Voz | Sin audio final no se cierran subtítulos ni tiempos | Producción de contenido fuera de esta lista; usar voz temporal desde T34 |
 | Tripo en plan gratis (v1.1) | Su página de precios habla de CC BY 4.0, pero su ayuda oficial dice que Tripo conserva los derechos de lo generado en plan gratis | No usar Tripo en plan gratis; check-credits lo rechaza (T11h) |
 | ElevenLabs en plan gratis (v1.1) | Sin licencia comercial; exige mencionar elevenlabs.io en el título, y la licencia sigue al archivo aunque se suba de plan después | Voz solo con plan de pago activo; regenerar todo lo hecho en plan gratis |
-| Meshy en plan gratis (v1.1) | CC BY 4.0: uso comercial solo con crédito a Meshy | Crédito obligatorio vía check-credits; plan de pago para la versión final |
-| Sketchfab: licencia por modelo (v1.1) | Conviven CC BY, NC y ND; KitBash compró Sketchfab en agosto de 2026 y los términos pueden cambiar | Solo CC BY; captura de la licencia al descargar (art/evidencia/) |
+| Meshy en plan gratis (v1.1) | CC BY 4.0: uso comercial solo con crédito a Meshy | Ya no se usa (ola 6); si volviera, crédito obligatorio vía check-credits |
+| Sketchfab: licencia por modelo (v1.1) | Conviven CC BY, NC y ND; KitBash compró Sketchfab en agosto de 2026 y los términos pueden cambiar | Ya no se usa (ola 6): solo CC0 de Kenney y Quaternius |
+| Estilos que no casan (ola 6) | Kenney y Quaternius son low-poly pero no idénticos: una sala mezclada puede verse dispareja | Kenney primero; Quaternius solo donde Kenney no tiene, con los colores llevados a la paleta de la sala (perfil `quaternius`) |
+| Cuota de Git LFS (ola 6) | Los paquetes de `art/` cuentan contra el almacenamiento y la descarga gratis de LFS en GitHub | Subir solo los paquetes que se usan; Cloudflare no los descarga, porque `art/` no se publica |
 | API de Poly Haven (v1.1) | Los assets son CC0, pero la API es solo para uso no comercial salvo licencia aparte | Descarga manual desde la web; ningún script llama a la API |
 | Freesound con licencias mezcladas (v1.1) | Conviven CC0, CC BY, CC BY-NC y Sampling+ antiguo | Solo CC0 y CC BY; Sampling+ se trata como no comercial |
 | Salidas de IA sin copyright (v1.1) | En EE. UU., el material generado totalmente por IA no tiene copyright: otros pueden copiarlo | Lo protegible es la selección, la edición y el juego completo; no depender de la exclusividad de esos assets |

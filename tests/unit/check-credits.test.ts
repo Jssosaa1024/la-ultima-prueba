@@ -5,7 +5,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Document } from '@gltf-transform/core';
-import { esquemaCredito, type Credito } from '../../scripts/creditos/esquema.ts';
+import { esquemaCredito, FUENTES, type Credito } from '../../scripts/creditos/esquema.ts';
 import {
   listarEvidencias,
   listarPublicados,
@@ -59,6 +59,23 @@ const kenney: Credito = {
   evidencia: null,
 };
 
+/** Ola 6: Quaternius para lo que Kenney no tiene. CC0, igual que Kenney. */
+const quaternius: Credito = {
+  archivo: 'public/assets/salas/s3-gimnasio/graderia.glb',
+  sala: 's3-gimnasio',
+  tipo: 'modelo',
+  titulo: 'Bleachers',
+  autor: 'Quaternius',
+  fuente: 'quaternius',
+  url: 'https://quaternius.com/',
+  licencia: 'CC0-1.0',
+  licencia_url: 'https://creativecommons.org/publicdomain/zero/1.0/',
+  cambios: 'escala a metros, colores a la paleta de la sala',
+  fecha: '2026-11-17',
+  plan: null,
+  evidencia: null,
+};
+
 const meshyGratis: Credito = {
   archivo: 'public/assets/salas/s2-laboratorio/probeta.glb',
   sala: 's2-laboratorio',
@@ -84,9 +101,14 @@ const problemas = (c: Credito, evidencias = EVIDENCIAS): string[] =>
 
 describe('esquema de art/credits.json (T11g)', () => {
   it('acepta las entradas bien anotadas', () => {
-    for (const c of [graderia, kenney, meshyGratis]) {
+    for (const c of [graderia, kenney, quaternius, meshyGratis]) {
       expect(esquemaCredito.safeParse(c).success, c.archivo).toBe(true);
     }
+  });
+
+  it('acepta Quaternius como fuente, CC0 y sin captura obligatoria (ola 6)', () => {
+    expect(FUENTES).toContain('quaternius');
+    expect(problemas(quaternius)).toEqual([]);
   });
 
   it('el art/credits.json del repositorio cumple el esquema y las reglas', async () => {

@@ -1,0 +1,239 @@
+# Arte CC0: qué modelo reemplaza a cada objeto
+
+Decisión de Alex del 16 de noviembre de 2026: el arte final usa solo modelos CC0 ya hechos, en un solo estilo low-poly. Kenney va primero y Quaternius se usa si falta algo; piso, paredes y techo llevan texturas de ambientCG. No se usan Blender, luz horneada, Meshy ni Sketchfab.
+
+Este documento es la lista de compras. Dice qué bajar, dónde guardarlo y qué objeto de `src/content/salas.json` reemplaza cada modelo, y estima si cada sala cabe en el presupuesto. Nada de esto está descargado todavía.
+
+## Para Alex: qué bajar
+
+Son **3 paquetes de Kenney y 5 texturas de ambientCG**. De Quaternius no hay que bajar nada por ahora (ver «Quaternius, en pausa»).
+
+| # | Qué | Página de descarga | Botón | Carpeta en el repo |
+| --- | --- | --- | --- | --- |
+| 1 | Kenney · Furniture Kit | <https://kenney.nl/assets/furniture-kit> | «Download» (gratis; Kenney pide una donación opcional) | `art/compartido/originales/kenney-furniture-kit/` |
+| 2 | Kenney · Mini Shop | <https://kenney.nl/assets/mini-shop> | «Download» | `art/compartido/originales/kenney-mini-shop/` |
+| 3 | Kenney · Factory Kit | <https://kenney.nl/assets/factory-kit> | «Download» | `art/compartido/originales/kenney-factory-kit/` |
+| 4 | ambientCG · Tiles040 | <https://ambientcg.com/view?id=Tiles040> | «1K-JPG» (6,5 MB) | `art/compartido/originales/ambientcg/` |
+| 5 | ambientCG · WoodFloor051 | <https://ambientcg.com/view?id=WoodFloor051> | «1K-JPG» (5,1 MB) | `art/compartido/originales/ambientcg/` |
+| 6 | ambientCG · WoodFloor071 | <https://ambientcg.com/view?id=WoodFloor071> | «1K-JPG» (4,3 MB) | `art/compartido/originales/ambientcg/` |
+| 7 | ambientCG · PaintedPlaster017 | <https://ambientcg.com/view?id=PaintedPlaster017> | «1K-JPG» (4,7 MB) | `art/compartido/originales/ambientcg/` |
+| 8 | ambientCG · OfficeCeiling001 | <https://ambientcg.com/view?id=OfficeCeiling001> | «1K-JPG» (7,2 MB) | `art/compartido/originales/ambientcg/` |
+
+**Por qué `compartido/` y no `art/<sala>/originales/`:** cada paquete sirve a varias salas. El Furniture Kit, por ejemplo, se usa en todas. Si se guardara una copia por sala, el mismo zip quedaría varias veces en Git LFS. `compartido` es el mismo nombre que ya usan `art/credits.json` (campo `sala`) y la sesión A para las texturas.
+
+**Cómo guardarlo:**
+
+1. Deja el zip tal como llega, sin abrir ni renombrar, dentro de su carpeta. El script de optimización lo lee desde ahí.
+2. Antes de subirlo, revisa que Git LFS esté instalado (`git lfs install`, una sola vez por computador). `.gitattributes` ya manda por LFS todo zip, modelo e imagen bajo `art/`.
+
+**Capturas de licencia** (en `art/evidencia/`, con la fecha visible en la barra de tareas o en el nombre):
+
+| Archivo | Qué debe verse |
+| --- | --- |
+| `kenney-furniture-kit.png` | La página del paquete con la línea «License: Creative Commons CC0» |
+| `kenney-mini-shop.png` | Lo mismo para Mini Shop |
+| `kenney-factory-kit.png` | Lo mismo para Factory Kit |
+| `ambientcg-licencia.png` | <https://docs.ambientcg.com/license/> con la frase «All ambientCG assets are provided under the Creative Commons CC0 1.0 Universal License» |
+| `ambientcg-<Id>.png` (una por textura) | La página de la textura, con su nombre y la licencia CC0 |
+
+Cada zip de Kenney trae además un `License.txt` con la licencia CC0. Queda dentro del zip; no hay que copiarlo aparte.
+
+**Antes de bajar, mira las vistas previas** (necesita ojos, no código):
+
+- Furniture Kit (2018) usa colores planos por material. Mini Shop y Factory Kit (2024–2026) usan una paleta en textura (`colormap.png`) y se ven más gruesos. Si juntos se ven disparejos, dímelo y busco reemplazos dentro de un solo kit.
+- Revisa si `doorway.glb` y `doorwayFront.glb` del Furniture Kit traen la hoja de la puerta o solo el marco.
+- Revisa si `cash-register.glb` de Mini Shop es solo la registradora o también el mostrador.
+
+## Licencias verificadas
+
+| Fuente | Licencia | Dónde se lee | Notas |
+| --- | --- | --- | --- |
+| Kenney | CC0 1.0 | Cada página de paquete dice «License: Creative Commons CC0» (revisado el 16-11-2026 en las tres); `License.txt` en el zip | Crédito opcional. En `art/credits.json`: `fuente: "kenney"`, `licencia: "CC0-1.0"`, `autor: "Kenney"` |
+| ambientCG | CC0 1.0 | <https://docs.ambientcg.com/license/> | Permite incluir los archivos en un juego. No pide crédito, pero no se puede dar a entender que ambientCG respalda el juego. La descarga es a mano, sin API: la API está permitida, pero no hace falta |
+| Quaternius | **En duda** | Las páginas de los paquetes dicen CC0; <https://quaternius.com/license.html> dice otra cosa | Ver la sección siguiente |
+
+### Quaternius, en pausa
+
+Desde el 28 de agosto de 2026, la página de licencia de quaternius.com publica la **Quaternius Asset License (QAL) v1.0**. Esa licencia no es CC0:
+
+- deja usar los assets gratis en juegos comerciales y sin crédito;
+- prohíbe redistribuir los assets como assets, «regardless of the specific site or platform through which they were obtained»;
+- Quaternius conserva los derechos.
+
+Las páginas de los paquetes viejos siguen diciendo «License: CC0», y poly.pizza e itch.io también. Este repositorio es público y `art/` guarda los originales, así que subir allí un zip de Quaternius podría contar como redistribuirlo. Además, QAL no está en la lista de licencias que acepta `check-credits`.
+
+Por otro lado, Quaternius casi no aporta. No tiene nada para el gimnasio (graderías, red, balones, marcador), ni caja fuerte, taza, registradora, casilleros, reloj, polea o linterna. Lo poco que tiene (un frasco, una palanca, una consola) ya lo cubren Kenney o una primitiva.
+
+**Recomendación:** no usar Quaternius. Si Alex quiere usarlo igual, hay que decidir antes:
+
+1. si basta la etiqueta CC0 de la página del paquete del día de la descarga (con captura);
+2. si sus originales se guardan fuera del repositorio público.
+
+## Cómo leer las tablas
+
+- **Objeto:** el `id` de `src/content/salas.json` y lo que es.
+- **Modelo:** paquete y nombre exacto del archivo dentro del zip.
+  - Furniture Kit: `Models/GLTF format/<nombre>.glb`, en camelCase.
+  - Mini Shop y Factory Kit: `Models/GLB format/<nombre>.glb`, en minúsculas con guiones, más `Textures/colormap.png`.
+  - Los nombres salen de listados públicos de los paquetes. La vista previa de cada modelo no se pudo ver.
+- **Tris:** triángulos del modelo según poly.pizza (paquetes de 2022). «s/d» quiere decir sin dato; ahí va el peso del GLB original como guía.
+- **`modelo`:** id propuesto para el campo `modelo` de `salas.json` (T19d). Es el nombre del GLB optimizado en `public/assets/salas/<sala>/`.
+- **Primitiva** quiere decir que el objeto sigue como está, creado por código. Pasa en tres casos:
+  - Kenney no tiene nada que sirva.
+  - Es un plano cuyo contenido se lee en la vista 2D (pizarras, carteles, marcador).
+  - Una máquina de `src/engine/mecanismos/` lo anima con su forma actual: tanques, caja fuerte, urna, carritos y balones.
+
+Los objetos con mecanismo que sí reciben modelo deben caber en la caja de `salas.json`, porque la animación se cuelga de esa caja.
+
+## Portería
+
+| Objeto | Modelo | Tris | `modelo` | Nota |
+| --- | --- | --- | --- | --- |
+| `porteria-salida` · puerta de salida 1,6 × 2,4 | Furniture · `doorwayFront.glb` | 184 | `puerta-salida` | Escalar a 1,6 × 2,4; dos luces encima (mecanismo de la portería) |
+| `porteria-puerta-1` a `-5` · puertas 1,1 × 2,2 | Furniture · `doorway.glb` | 216 | `puerta` | Un solo GLB para las cinco; revisar si trae la hoja |
+| `porteria-reloj` · reloj de pared | Primitiva | — | — | Kenney no tiene reloj |
+| `porteria-mural` · mural de sellos | Primitiva | — | — | Plano con los huecos de los sellos (mecanismo de la portería) |
+| `porteria-casillero` · casillero 1 × 1,8 × 0,5 | Furniture · `bookcaseClosedDoors.glb` | 536 | `casillero` | Estante con puertas como casillero |
+| `porteria-intercomunicador` · intercomunicador | Factory · `screen-panel-small.glb` | s/d (13 KB) | `intercomunicador` | Panel de pared pequeño |
+| `porteria-escritorio` · escritorio 1,2 × 0,75 × 0,6 | Furniture · `desk.glb` | 352 | `escritorio` | — |
+| `porteria-silla` · silla | Furniture · `chairDesk.glb` | 656 | `silla` | La primitiva es un grupo; el modelo la reemplaza entera |
+| `porteria-linterna` · linterna | Primitiva | — | — | Kenney no tiene linterna; es pequeña y se recoge |
+| `porteria-cuaderno` · cuaderno | Primitiva | — | — | `books.glb` es una pila; un cuaderno solo es una caja |
+
+## Sala 1 · La cooperativa
+
+| Objeto | Modelo | Tris | `modelo` | Nota |
+| --- | --- | --- | --- | --- |
+| `s1-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | El mismo de la portería |
+| `s1-estante-1`, `s1-estante-2` · estantes 0,5 × 1,8 × 1,4 | Mini Shop · `shelf-boxes.glb` | s/d (76 KB) | `estante-cajas` | Ya trae productos |
+| `s1-estante-3` · estante 1,6 × 1,8 × 0,5 | Mini Shop · `shelf-bags.glb` + `shelf-end.glb` | s/d (95 + 53 KB) | `estante-bolsas` | El remate cierra la punta |
+| `s1-productos` · productos con etiqueta | Mini Shop · `display-cans.glb` | s/d (120 KB) | `productos` | Se examinan: el dato va en la vista 2D |
+| `s1-mostrador` · mostrador 2,6 × 1 × 0,7 | Furniture · `kitchenBar.glb` + `kitchenBarEnd.glb` | 152 + s/d | `mostrador` | Tramos unidos con `join` |
+| `s1-etiquetadora` · etiquetadora | Factory · `machine.glb` | s/d (25 KB) | `etiquetadora` | Debe caber en 0,45 × 0,3 × 0,35; la etiqueta que sale es del mecanismo |
+| `s1-palanca` · palanca | Factory · `lever-single.glb` | s/d (17 KB) | `palanca` | La anima `etiquetadora.ts` |
+| `s1-caja-rodillos` · caja de rodillos | Furniture · `cardboardBoxOpen.glb` | 120 | `caja-abierta` | — |
+| `s1-registradora` · registradora | Mini Shop · `cash-register.glb` | s/d (31 KB) | `registradora` | El cajón que se abre sigue siendo del mecanismo |
+| `s1-pizarra` · pizarra de precios | Primitiva | — | — | Plano; los precios se leen en 2D |
+| `s1-corcho` · tablero de corcho | Primitiva | — | — | Plano |
+| `s1-mesa` · mesa 1 × 0,75 × 0,7 | Furniture · `table.glb` | 240 | `mesa` | — |
+
+## Sala 2 · El laboratorio
+
+| Objeto | Modelo | Tris | `modelo` | Nota |
+| --- | --- | --- | --- | --- |
+| `s2-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
+| `s2-tanque-a`, `s2-tanque-b` · tanques de vidrio | Primitiva | — | — | `tanques.ts` pone el líquido dentro del cilindro; Kenney no tiene tanques de vidrio |
+| `s2-panel` · tablero de los tanques 2 × 0,9 × 0,3 | Factory · `screen-panel-wide.glb` | s/d (15 KB) | `tablero` | — |
+| `s2-perilla-verde`, `s2-perilla-morada` · perillas | Primitiva | — | — | Pequeñas y de colores que dan pistas |
+| `s2-palanca` · palanca | Factory · `lever-double.glb` | s/d (17 KB) | `palanca-doble` | — |
+| `s2-graficador` · graficador 2,4 × 1,4 | Primitiva | — | — | Plano; la gráfica se lee en 2D |
+| `s2-incubadora` · incubadora 1 × 1,2 × 0,8 | Factory · `machine-window.glb` | s/d (37 KB) | `incubadora` | La bandeja y la gota son del mecanismo |
+| `s2-campana` · campana con temporizador | Primitiva | — | — | Kenney no tiene campana; `tanques.ts` la sacude |
+| `s2-meson-1` · mesón 2,4 × 0,9 × 0,8 | Furniture · `kitchenCabinet.glb` × 3 | 396 c/u | `meson` | Tres módulos unidos con `join` |
+| `s2-meson-2` · mesón 2 × 0,9 × 0,8 | Furniture · `kitchenCabinet.glb` × 3 | 396 c/u | `meson` | El mismo GLB, escalado |
+| `s2-taza` · taza «T. R.» | Primitiva | — | — | Solo el Food Kit tiene taza (`mug.glb`): no vale bajar un paquete por un objeto de 9 cm |
+| `s2-hoja-ayer` · hoja | Primitiva | — | — | Papel; se lee en 2D |
+| `s2-gabinete` · gabinete 0,6 × 1,8 × 0,8 | Furniture · `bookcaseClosedDoors.glb` | 536 | `casillero` | El mismo de la portería |
+
+## Sala 3 · El gimnasio
+
+| Objeto | Modelo | Tris | `modelo` | Nota |
+| --- | --- | --- | --- | --- |
+| `s3-puerta` · puerta 1,4 × 2,4 | Furniture · `doorwayFront.glb` | 184 | `puerta-salida` | — |
+| `s3-grada-1` a `-3` · graderías de 8 m | Primitiva | — | — | Solo el Racing Kit trae graderías (`grandStand.glb`): no vale un paquete más. Tres cajas con la textura de madera del piso |
+| `s3-reflector` · reflector | Furniture · `lampSquareFloor.glb` | 120 | `reflector` | `reflector.ts` lo inclina; debe caber en Ø0,5 × 0,6 |
+| `s3-postes` · postes de voleibol | Primitiva | — | — | Kenney no tiene; `reflector.ts` los mueve uno por uno |
+| `s3-sensores` · sensores de luz | Primitiva | — | — | Franja en el piso; los discos se encienden (mecanismo) |
+| `s3-cinta-metrica` · cinta del piso | Primitiva | — | — | Franja pintada en el piso |
+| `s3-marcador` · marcador 2 × 1 | Primitiva | — | — | Plano |
+| `s3-polea` · polea del marcador | Primitiva | — | — | Kenney no tiene polea |
+| `s3-banca` · banca 3 × 0,45 × 0,5 | Furniture · `bench.glb` | s/d | `banca` | Estirar en x |
+| `s3-planilla` · planilla | Primitiva | — | — | Papel; se lee en 2D |
+| `s3-carro-balones` · carro de balones | Mini Shop · `shopping-cart.glb` | s/d (43 KB) | `carro` | Parecido débil: si no convence, primitiva |
+| `s3-balon-1` a `-4` · balones | Primitiva | — | — | Esferas; `balones.ts` las hace rebotar |
+
+## Sala 4 · La biblioteca
+
+| Objeto | Modelo | Tris | `modelo` | Nota |
+| --- | --- | --- | --- | --- |
+| `s4-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
+| `s4-estante-1` · estante 0,5 × 2,2 × 2,5 | Furniture · `bookcaseClosedWide.glb` | 744 | `estante-ancho` | Escalar a 2,2 m de alto |
+| `s4-estante-m` · estante M 0,5 × 2,2 × 2 | Furniture · `bookcaseOpen.glb` | 640 | `estante-abierto` | — |
+| `s4-libro-m` · libro que sobresale | Primitiva | — | — | Un solo libro; se usa |
+| `s4-casilleros` · pared de casilleros 4 × 2 × 0,5 | Furniture · `bookcaseClosedDoors.glb` × 4 | 536 c/u | `casillero` | Kenney no tiene casilleros; con `instance` son una draw call |
+| `s4-lamparas` · resumen semanal (cuatro lámparas) | Furniture · `lampWall.glb` × 4 | 84 c/u | `lampara-pared` | El panel sigue siendo un plano; las luces son del mecanismo |
+| `s4-mostrador` · mostrador 2,4 × 1 × 0,7 | Furniture · `kitchenBar.glb` + `kitchenBarEnd.glb` | 152 + s/d | `mostrador` | El mismo de la sala 1 |
+| `s4-caja-devoluciones` · caja de devoluciones | Furniture · `cardboardBoxClosed.glb` | 120 | `caja-cerrada` | — |
+| `s4-ficha-rota` · ficha rota | Primitiva | — | — | Papel |
+| `s4-carritos` · cinco carritos | Primitiva | — | — | Kenney no tiene carritos de libros; `carritos.ts` apila libros encima |
+| `s4-pila-libros` · pila de 20 libros | Furniture · `books.glb` | 124 | `libros` | Con `instance` para la altura |
+| `s4-mesa-lectura` · mesa 1,6 × 0,75 × 0,8 | Furniture · `table.glb` | 240 | `mesa` | — |
+
+## Sala 5 · La rectoría
+
+| Objeto | Modelo | Tris | `modelo` | Nota |
+| --- | --- | --- | --- | --- |
+| `s5-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
+| `s5-mesa` · mesa 2 × 0,75 × 1 | Furniture · `table.glb` | 240 | `mesa` | — |
+| `s5-urna` · urna transparente | Primitiva | — | — | Por código (AGENTS.md); `urna.ts` pone fichas y mano |
+| `s5-dispensadores` · dispensadores de fichas | Mini Shop · `gacha-machine.glb` | s/d (70 KB) | `dispensador` | Dos copias con `instance` |
+| `s5-simulador` · simulador | Factory · `machine.glb` | s/d (25 KB) | `etiquetadora` | El mismo GLB de la sala 1, más pequeño |
+| `s5-ver-parejas` · botón | Factory · `button-floor-round-small.glb` | s/d (14 KB) | `boton` | Es un botón de piso: va de pie |
+| `s5-caja-fuerte` · caja fuerte | Primitiva | — | — | Kenney no tiene; `caja-fuerte.ts` le pone puerta y llave |
+| `s5-escritorio` · escritorio 1,4 × 0,75 × 0,7 | Furniture · `desk.glb` | 352 | `escritorio` | — |
+| `s5-computador` · computador | Furniture · `computerScreen.glb` + `computerKeyboard.glb` | 144 + 64 | `computador` | — |
+| `s5-carta` · carta | Primitiva | — | — | Papel; se lee en 2D |
+
+## Texturas de piso, paredes y techo
+
+Solo se usa el mapa de color de cada zip, por ejemplo `Tiles040_1K-JPG_Color.jpg`. ambientCG avisó en octubre de 2025 que reempaquetaría sus assets y que a veces cambiaría los nombres de archivo, así que hay que confirmar el nombre al abrir el zip. Los ids siguen el formato de la sesión A (T19g): `<carpeta>/<nombre>`. Cada una se publica como `public/assets/salas/compartido/<nombre>.<hash>.ktx2`, con su entrada en `art/credits.json` (`sala: "compartido"`, `fuente: "ambientcg"`), y en `salas.json` se pide así: `"texturas": { "piso": "compartido/piso-baldosa", "paredes": "compartido/paredes", "techo": "compartido/techo", "metros": 2 }`.
+
+| Uso | Textura | Id propuesto | Salas |
+| --- | --- | --- | --- |
+| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería, cooperativa, laboratorio, rectoría |
+| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio, y las graderías |
+| Piso de la biblioteca | WoodFloor071 (parqué claro) | `compartido/piso-biblioteca` | Biblioteca |
+| Paredes | PaintedPlaster017 (pañete pintado blanco) | `compartido/paredes` | Todas; el color de cada sala se da con el tinte del material |
+| Techo | OfficeCeiling001 (cielo raso de oficina) | `compartido/techo` | Todas menos el gimnasio, que tiene 9 m de alto (ahí basta un color) |
+
+Las escogí por sus etiquetas y sus fichas, no por la imagen: Alex debe mirar la vista previa antes de bajarlas. Alternativas, si alguna no convence:
+
+| Para | Alternativas |
+| --- | --- |
+| Baldosa | Tiles043 |
+| Gimnasio | WoodFloor068 |
+| Biblioteca | Carpet012 (alfombra azul) o Carpet016 (beige) |
+| Paredes | Plaster001 |
+| Techo | OfficeCeiling002 a 006 |
+
+## Presupuesto estimado por sala
+
+El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 draw calls por cuadro. Las cifras salen de la tabla de arriba:
+
+- **Triángulos:** donde no hay dato se estimaron unos 1.500 por cada 50 KB de GLB.
+- **Peso:** los GLB de Kenney bajan a menos de la mitad con meshopt.
+- **Texturas:** cada textura de ambientCG queda en unos 150–250 KB como KTX2 ETC1S de 1024 px. Se cuentan en cada sala, aunque la caché del service worker las baja una sola vez.
+
+| Sala | Modelos | Triángulos (estimados) | Descarga (estimada) | ¿Cabe? |
+| --- | --- | --- | --- | --- |
+| Portería | 6 GLB | ~3.000 | ~0,1 MB de modelos + ~0,6 MB de texturas | Sí |
+| Cooperativa | 9 GLB | ~12.000 | ~0,3 MB + ~0,6 MB | Sí |
+| Laboratorio | 6 GLB | ~6.000 | ~0,1 MB + ~0,6 MB | Sí |
+| Gimnasio | 4 GLB | ~3.000 | ~0,05 MB + ~0,4 MB (sin techo) | Sí |
+| Biblioteca | 8 GLB | ~5.500 | ~0,1 MB + ~0,6 MB | Sí |
+| Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
+
+Ninguna sala pasa de 1 MB ni de 15.000 triángulos. Lo que sí puede pasarse son las **draw calls**:
+
+- Los modelos del Furniture Kit traen un material por color, de 2 a 5 cada uno. En una sala con 10 modelos son 20 a 50 llamadas, más las paredes y los mecanismos.
+- Por eso el perfil `kenney` aplica `join`, `instance` y `palette` antes de la etapa común. `check-budget` lo comprueba con los archivos reales.
+
+Estas cifras se miden de verdad cuando los paquetes estén en `art/` y pasen por `optimize-models` (T06, T11a, T11b).
+
+## Lo que falta para usarlos
+
+1. Alex baja los paquetes y las capturas (T11s).
+2. `optimize-models` con los perfiles `kenney` y `ambientcg` (T06, T11a, T11b y T11e).
+3. Se llena `art/credits.json`, uno por GLB publicado.
+4. Se pone `modelo` en cada objeto de `salas.json`.
+5. El motor carga los modelos (T19e, sesión A).
