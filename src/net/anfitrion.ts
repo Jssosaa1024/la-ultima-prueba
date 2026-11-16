@@ -93,8 +93,14 @@ export class Anfitrion {
   }
 
   protected aplicar(paso: Paso): void {
+    const antes = this.s.pistas;
     this.s = paso.s;
     for (const e of paso.eventos) this.emitir(e);
+    // T88b: una pista nueva (por tiempo o por intentos) se difunde en ese momento con la foto,
+    // sin esperar la de cada 15 s. Así todos ven el aviso a la vez que el anfitrión.
+    if (this.s.pistas.some((p, k) => p.ofrecidas > (antes[k]?.ofrecidas ?? 0))) {
+      this.emitirFoto();
+    }
   }
 
   protected alIntencion(m: SobreInt): void {
