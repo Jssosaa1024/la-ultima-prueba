@@ -4,10 +4,11 @@
  * segundo le cobraría Supabase Realtime y compararlos con los límites de cada plan
  * (especificación, «Costo frente a los límites de Supabase»).
  *
- * Supabase cuenta un evento por cada mensaje enviado y uno por cada entrega. El canal usa
- * `self: true`, así que cada mensaje también se entrega a quien lo envía: con 4 jugadores, un
- * mensaje cuesta 1 + 4 = 5 eventos. La especificación estima 4 (sin la entrega propia); el
- * informe da las dos cuentas.
+ * Supabase cuenta un evento por cada mensaje enviado y uno por cada entrega. Desde T92b el
+ * canal usa `self: false`: el servidor no le devuelve nada a quien envía (`int` y `evt` se
+ * entregan a uno mismo en el navegador, sin pasar por Supabase, y `dir` no vuelve). Con 4
+ * jugadores, un mensaje cuesta 1 + 3 = 4 eventos. El informe da también la cuenta de antes
+ * (`self: true`, 1 + 4 = 5) para comparar.
  *
  * Este módulo importa código de `src/` sin extensiones: lo carga `scripts/prueba-carga.ts`
  * con el cargador de Vite, y Vitest lo prueba directo.
@@ -62,10 +63,12 @@ export interface Resultado {
   escenario: Escenario;
   /** Mensajes enviados por canal en todo el tiempo medido. */
   mensajes: Record<Canal, number>;
-  /** Eventos que cobra Supabase (envío + entregas, con la propia). */
+  /** Eventos que cobra Supabase (envío + entregas a los demás, `self: false`). */
   eventosPorSegundo: { promedio: number; pico: number };
-  /** La cuenta de la especificación: sin la entrega a uno mismo. */
-  eventosPorSegundoSinPropia: { promedio: number; pico: number };
+  /** La cuenta de antes de T92b (`self: true`): también la entrega a uno mismo. */
+  eventosPorSegundoConEco: { promedio: number; pico: number };
+  /** Poses y señales que volvieron a quien las envió (siempre 0 desde T92b). */
+  ecosDir: number;
   conexiones: number;
   planes: { plan: string; cabe: boolean; uso: number }[];
 }
@@ -84,14 +87,24 @@ function azar(semilla: number): () => number {
 /** Envuelve un transporte para contar cada mensaje que sale, con su hora. */
 class Contador {
   readonly porSegundo = new Map<number, { con: number; sin: number }>();
+  /** Entregas que la red en memoria hizo a quien envió `dir` (deben ser 0, T92b). */
+  ecosDir = 0;
   readonly mensajes: Record<Canal, number> = { int: 0, evt: 0, dir: 0 };
   medir = false;
 
   constructor(private readonly ahora: () => number) {}
 
   envolver(t: Transporte, enSala: () => number): Transporte {
+    // Cuenta las poses propias que vuelvan (no debería volver ninguna: T92b).
+    let yo = '';
+    t.escuchar('dir', (m) => {
+      if (this.medir && m.de === yo) this.ecosDir++;
+    });
     return {
-      unirse: (codigo, identidad) => t.unirse(codigo, identidad),
+      unirse: (codigo, identidad) => {
+        yo = identidad.jugador;
+        return t.unirse(codigo, identidad);
+      },
       enviar: async <C extends Canal>(canal: C, mensaje: SobreDe<C>) => {
         // La hora y si se mide, al llamar: la promesa se resuelve después del cuadro.
         const medir = this.medir;
@@ -230,22 +243,20 @@ export async function simular(e: Escenario): Promise<Resultado> {
   const total = (k: 'con' | 'sin') => segundos.reduce((a, v) => a + v[k], 0);
   const pico = (k: 'con' | 'sin') => Math.max(0, ...segundos.map((v) => v[k]));
   const redondear = (x: number) => Math.round(x * 10) / 10;
-  const promedio = redondear(total('con') / e.segundos);
-  const picoCon = pico('con');
+  const promedio = redondear(total('sin') / e.segundos);
+  const picoSin = pico('sin');
   const conexiones = e.partidas * e.jugadores;
   return {
     escenario: e,
     mensajes: { ...contador.mensajes },
-    eventosPorSegundo: { promedio, pico: picoCon },
-    eventosPorSegundoSinPropia: {
-      promedio: redondear(total('sin') / e.segundos),
-      pico: pico('sin'),
-    },
+    eventosPorSegundo: { promedio, pico: picoSin },
+    eventosPorSegundoConEco: { promedio: redondear(total('con') / e.segundos), pico: pico('con') },
+    ecosDir: contador.ecosDir,
     conexiones,
     planes: PLANES.map((p) => ({
       plan: p.plan,
-      cabe: picoCon <= p.eventosPorSegundo && conexiones <= p.conexiones,
-      uso: Math.round((picoCon / p.eventosPorSegundo) * 100),
+      cabe: picoSin <= p.eventosPorSegundo && conexiones <= p.conexiones,
+      uso: Math.round((picoSin / p.eventosPorSegundo) * 100),
     })),
   };
 }
@@ -255,13 +266,13 @@ const n = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1 });
 /** Tabla para la terminal y para el reporte (Markdown). */
 export function tabla(resultados: readonly Resultado[]): string {
   const filas = [
-    '| Partidas de 4 | Conexiones | Eventos/s (promedio) | Eventos/s (pico) | Sin la entrega propia (pico) | Free (100/s) | Pro (500/s) | Pro sin tope (2.500/s) |',
+    '| Partidas de 4 | Conexiones | Eventos/s (promedio) | Eventos/s (pico) | Antes, con eco (pico) | Free (100/s) | Pro (500/s) | Pro sin tope (2.500/s) |',
     '| --- | --- | --- | --- | --- | --- | --- | --- |',
   ];
   for (const r of resultados) {
     const planes = r.planes.map((p) => `${p.cabe ? 'cabe' : 'no cabe'} (${p.uso} %)`);
     filas.push(
-      `| ${r.escenario.partidas} | ${r.conexiones} | ${n.format(r.eventosPorSegundo.promedio)} | ${n.format(r.eventosPorSegundo.pico)} | ${n.format(r.eventosPorSegundoSinPropia.pico)} | ${planes.join(' | ')} |`,
+      `| ${r.escenario.partidas} | ${r.conexiones} | ${n.format(r.eventosPorSegundo.promedio)} | ${n.format(r.eventosPorSegundo.pico)} | ${n.format(r.eventosPorSegundoConEco.pico)} | ${planes.join(' | ')} |`,
     );
   }
   return filas.join('\n');

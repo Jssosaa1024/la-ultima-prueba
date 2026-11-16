@@ -98,5 +98,5 @@ Si en el panel de Supabase, en **Realtime** → **Inspector**, aparece un canal 
 
 - `src/net/supabase.ts`: el transporte. Se carga con `import()` solo en el cooperativo.
 - `src/net/index.ts`: `elegirRed()` usa Supabase si las dos variables están y tienen la forma esperada, salvo con `?red=pestanas`. Sin ellas usa BroadcastChannel y la interfaz debe mostrar `AVISO_SIN_SUPABASE`.
-- Canal: `private: true`, `broadcast: { self: true, ack: true }` y `presence: { key: jugador }`. Presence se escribe una vez por unión, porque Supabase permite 5 llamadas de Presence cada 30 s.
+- Canal: `private: true`, `broadcast: { self: false, ack: true }` (T92b: Supabase no devuelve nada a quien envía; `int` y `evt` se entregan a uno mismo en el navegador al confirmarse y las poses no vuelven) y `presence: { key: jugador }`. Presence se escribe una vez por unión, porque Supabase permite 5 llamadas de Presence cada 30 s.
 - Si el canal se vuelve a unir solo tras una caída, el transporte avisa con `alReconectar` y `ClienteCoop` aplica las reglas de T89 y T90.

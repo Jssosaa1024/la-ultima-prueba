@@ -2,11 +2,15 @@ import { batch, signal } from '@preact/signals';
 
 /**
  * Cuaderno del jugador (T36). En individual lo escribe el controlador de la partida; en
- * cooperativo, el controlador cooperativo: los datos encontrados son los del grupo
- * (`revelado`) y las notas son solo de este navegador, no viajan por la red (T86).
+ * cooperativo, el controlador cooperativo.
+ *
+ * El cuaderno no se comparte por la red (decisión de la ola 4): no hay intención ni evento
+ * `nota`, porque sería chat libre entre menores. En grupo, cada jugador tiene el suyo; lo que
+ * coincide es lo que el anfitrión ya difunde por sus propios eventos: los datos encontrados
+ * (`revelado`) y las pistas abiertas (`pista`). Las notas se quedan en este navegador (T86).
  */
 
-/** Máximo de caracteres por nota (igual que la intención `nota` del protocolo). */
+/** Máximo de caracteres por nota (el mismo `MAX_NOTA` del guardado, `game/guardado.ts`). */
 export const MAX_NOTA = 280;
 /** Máximo de notas: es lo que acepta el guardado (`MAX_NOTAS` de `game/guardado.ts`). */
 export const MAX_NOTAS = 50;
