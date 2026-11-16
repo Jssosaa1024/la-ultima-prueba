@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { PUZZLES } from '../../src/content/puzzles';
 import { SALAS_3D } from '../../src/content/salas';
 import type { Sala } from '../../src/content/esquema-salas';
+import { ID_TAZA } from '../../src/engine/salas/prueba-asset';
 
 /**
  * T19c · Los ids de los objetos son los mismos en todas las capas.
@@ -80,6 +81,8 @@ describe('ids de objetos: código del juego contra salas.json (T19c)', () => {
     ...SALAS_3D.map((s) => s.id),
     ...SALAS_3D.flatMap((s) => s.objetos.map((o) => o.id)),
     ...PUZZLES.map((p) => p.id),
+    // T10b: la taza de `?prueba=asset` no está en salas.json; la agrega el motor por código.
+    ID_TAZA,
   ]);
 
   function archivosDeCodigo(carpeta: string): string[] {
