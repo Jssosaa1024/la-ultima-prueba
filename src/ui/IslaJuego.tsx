@@ -4,6 +4,7 @@ import { ajustarCanvas } from '../engine/pantalla';
 import { cargarAjustes } from '../signals/ajustes';
 import { iniciarControlador } from '../signals/controlador';
 import { iniciarControladorCoop } from '../signals/controlador-coop';
+import { iniciarAnalitica } from '../signals/analitica';
 import { pantalla } from '../signals/pantalla';
 import { fase } from '../signals/partida';
 import { pruebaCarga } from '../signals/prueba-carga';
@@ -62,6 +63,8 @@ function Escena() {
   useEffect(() => iniciarControlador(), []);
   // El del cooperativo (T32): sin partida en grupo no hace nada.
   useEffect(() => iniciarControladorCoop(), []);
+  // Contadores de uso sin datos personales (T98): sin variables de Supabase no envían nada.
+  useEffect(() => iniciarAnalitica(), []);
 
   // Ajustes del jugador (T39): se leen antes de arrancar el motor, que los consulta en cada
   // cuadro, y el tamaño del texto se lleva a la raíz del documento.

@@ -220,7 +220,9 @@ describe('T78 · políticas del canal privado', () => {
     const { readFileSync, readdirSync } = await import('node:fs');
     const { ALFABETO_CODIGO } = await import('../../src/net/protocolo');
     const dir = 'supabase/migrations';
+    // Solo las del canal: los contadores de T98 tienen su tabla y sus pruebas (analitica.test.ts).
     const sql = readdirSync(dir)
+      .filter((f) => f.endsWith('_canal_partida.sql'))
       .map((f) => readFileSync(`${dir}/${f}`, 'utf8'))
       .join('\n');
     const patrones = [...sql.matchAll(/~ '(\^partida:\[([^\]]+)\]\{4\}\$)'/g)];
