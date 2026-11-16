@@ -5,7 +5,7 @@ import { grabacionDeObjeto, esObjetoSuelto } from '../content/grabaciones';
 import { puzzleDeSala } from '../content/puzzles';
 import { destinoDePuerta, nombreDeObjeto, SALAS_3D } from '../content/salas';
 import { resumenDeAprendizaje } from '../game/aprendizaje';
-import type { Directo, Evento, Foto, Intencion } from '../game/coop/mensajes';
+import type { Directo, Evento, Foto, Intencion, UbicacionObjeto } from '../game/coop/mensajes';
 import { esRecogible, lugarInicial, puzzlePorId, REQUIERE_HERRAMIENTA } from '../game/coop/mundo';
 import { repartoDeFoto } from '../game/coop/replica';
 import {
@@ -26,6 +26,7 @@ import { iguales } from '../game/puzzles/tipos';
 import { reglaDeIntento } from '../game/intentos';
 import { fichas, type Ficha } from './contenido';
 import {
+  coop,
   esperaD,
   miPosicion,
   misRoles,
@@ -261,6 +262,7 @@ export class JuegoCoop {
     const p = partidaDeFoto(f);
     batch(() => {
       if (e?.t === 'resultado') this.alResultado(e.p, p);
+      if (e?.t === 'objeto') this.alPasar(e.p, antes);
       sala.value = f.lugar;
       this.publicarFichas(p);
       asignar(sellos, sellosDe(p));
@@ -304,6 +306,20 @@ export class JuegoCoop {
         fase.value = 'final';
       }
     });
+  }
+
+  /**
+   * Un objeto pasó de un jugador a otro (T84d): se le avisa a quien lo recibe y a quien lo
+   * dio. Recoger (sin portador antes) o soltar (sin portador después) no avisa.
+   */
+  private alPasar(u: UbicacionObjeto, antes: Foto | null): void {
+    const de = antes?.objetos.find((o) => o.objeto === u.objeto)?.portador ?? null;
+    const a = u.portador;
+    if (de === null || a === null || de === a) return;
+    const alias = (jugador: string) =>
+      coop.peek().jugadores.find((j) => j.jugador === jugador)?.alias ?? null;
+    if (a === this.yo) avisar({ t: 'objeto_recibido', objeto: u.objeto, de: alias(de) });
+    else if (de === this.yo) avisar({ t: 'objeto_pasado', objeto: u.objeto, a: alias(a) });
   }
 
   private publicarFichas(p: Partida): void {
@@ -474,6 +490,13 @@ export class JuegoCoop {
       case 'senal':
         this.senalar(f, c.frase);
         return;
+      case 'pasar': {
+        // Solo lo que este jugador lleva, y a otro jugador de la partida (T84d).
+        const lleva = f.objetos.some((o) => o.objeto === c.objeto && o.portador === this.yo);
+        if (!lleva || c.a === this.yo || !f.orden.includes(c.a)) return;
+        this.enviarIntencion({ t: 'pasar', p: { objeto: c.objeto, a: c.a } });
+        return;
+      }
       case 'nota':
         if (c.op === 'agregar') {
           const texto = limpiarNota(c.texto);

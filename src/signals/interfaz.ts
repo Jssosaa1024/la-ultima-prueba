@@ -1,6 +1,7 @@
 import { batch, computed, signal } from '@preact/signals';
 import { girarTelefono } from './pantalla';
 import { fase } from './partida';
+import type { Alias } from '../net/protocolo';
 
 /**
  * Estado de la interfaz que también le importa al motor (T31).
@@ -50,7 +51,11 @@ export type Aviso =
       sala: number;
     }
   /** Cooperativo: ese dato solo se lee con una herramienta que este jugador no lleva. */
-  | { t: 'necesita_herramienta'; objeto: string; herramienta: string };
+  | { t: 'necesita_herramienta'; objeto: string; herramienta: string }
+  /** Cooperativo (T84d): un compañero (`de`, su alias) le pasó un objeto a este jugador. */
+  | { t: 'objeto_recibido'; objeto: string; de: Alias | null }
+  /** Cooperativo (T84d): este jugador le pasó un objeto a un compañero (`a`, su alias). */
+  | { t: 'objeto_pasado'; objeto: string; a: Alias | null };
 
 export interface Carga {
   estado: 'inactiva' | 'cargando' | 'lista' | 'error';
