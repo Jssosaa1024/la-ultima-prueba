@@ -100,93 +100,100 @@ export default function BarraCoop() {
           </button>
         )}
       </div>
-      {abierto === 'pasar' && puedePasar && (
-        <PasarObjeto llevo={llevo} companeros={companeros} alPasar={() => setAbierto(null)} />
+      {/* T87b: la lista abierta y los avisos van en dos zonas; en pantallas bajas, a los lados. */}
+      {(abierto === 'frases' || (abierto === 'pasar' && puedePasar)) && (
+        <div class="coop-barra-listas">
+          {abierto === 'pasar' && puedePasar && (
+            <PasarObjeto llevo={llevo} companeros={companeros} alPasar={() => setAbierto(null)} />
+          )}
+          {abierto === 'frases' && (
+            <div class="coop-frases coop-desliza" role="group" aria-label="Frases rápidas">
+              {/* T91: señala el objeto que tienes enfocado; el motor lo marca para los demás. */}
+              <button
+                type="button"
+                class="hud-boton-redondo"
+                disabled={!objeto}
+                onClick={() => enviar({ t: 'senal', frase: null })}
+              >
+                {objeto ? `Señalar: ${objeto.nombre}` : 'Señalar (enfoca un objeto)'}
+              </button>
+              {FRASES_RAPIDAS.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  class="hud-boton-redondo"
+                  onClick={() => enviar({ t: 'senal', frase: f })}
+                >
+                  {TEXTO_FRASE[f]}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
-      {abierto === 'frases' && (
-        <div class="coop-frases" role="group" aria-label="Frases rápidas">
-          {/* T91: señala el objeto que tienes enfocado; el motor lo marca para los demás. */}
-          <button
-            type="button"
-            class="hud-boton-redondo"
-            disabled={!objeto}
-            onClick={() => enviar({ t: 'senal', frase: null })}
-          >
-            {objeto ? `Señalar: ${objeto.nombre}` : 'Señalar (enfoca un objeto)'}
-          </button>
-          {FRASES_RAPIDAS.map((f) => (
+      <div class="coop-barra-avisos">
+        <SenalesRecientes />
+        {espera && (
+          <p class="coop-aviso" role="status">
+            {textoEsperaD(aliasDe(jugadores, espera.jugador), restante)}
+          </p>
+        )}
+        {pausado && !hayVoto('reanudar') && (
+          <div class="coop-aviso">
+            <p>El reloj está en pausa.</p>
             <button
-              key={f}
               type="button"
-              class="hud-boton-redondo"
-              onClick={() => enviar({ t: 'senal', frase: f })}
+              class="boton boton-principal"
+              onClick={() => enviar({ t: 'votar', asunto: 'reanudar', opcion: null, acepta: true })}
             >
-              {TEXTO_FRASE[f]}
+              Reanudar
             </button>
-          ))}
-        </div>
-      )}
-      <SenalesRecientes />
-      {espera && (
-        <p class="coop-aviso" role="status">
-          {textoEsperaD(aliasDe(jugadores, espera.jugador), restante)}
-        </p>
-      )}
-      {pausado && !hayVoto('reanudar') && (
-        <div class="coop-aviso">
-          <p>El reloj está en pausa.</p>
-          <button
-            type="button"
-            class="boton boton-principal"
-            onClick={() => enviar({ t: 'votar', asunto: 'reanudar', opcion: null, acepta: true })}
-          >
-            Reanudar
-          </button>
-        </div>
-      )}
-      {propuesta && !propuesta.aceptan.includes(yo) && panel.value !== 'mecanismo' && (
-        <div class="coop-aviso">
-          <p>{aliasDe(jugadores, propuesta.por)} propone unos ajustes en la máquina.</p>
-          <button
-            type="button"
-            class="boton boton-principal"
-            onClick={() => abrirPanel('mecanismo')}
-          >
-            Ver propuesta
-          </button>
-        </div>
-      )}
-      {votos.map((v) => {
-        const vote = v.votos.includes(yo);
-        return (
-          <div key={v.asunto} class="coop-aviso" role="group" aria-label="Votación">
-            <p>
-              {textoVoto(v, jugadores)} {textoCuenta(v.votos, jugadores)}
-            </p>
-            {vote ? (
-              <button
-                type="button"
-                class="boton boton-secundario"
-                onClick={() =>
-                  enviar({ t: 'votar', asunto: v.asunto, opcion: v.opcion, acepta: false })
-                }
-              >
-                Retirar mi voto
-              </button>
-            ) : (
-              <button
-                type="button"
-                class="boton boton-principal"
-                onClick={() =>
-                  enviar({ t: 'votar', asunto: v.asunto, opcion: v.opcion, acepta: true })
-                }
-              >
-                Aceptar
-              </button>
-            )}
           </div>
-        );
-      })}
+        )}
+        {propuesta && !propuesta.aceptan.includes(yo) && panel.value !== 'mecanismo' && (
+          <div class="coop-aviso">
+            <p>{aliasDe(jugadores, propuesta.por)} propone unos ajustes en la máquina.</p>
+            <button
+              type="button"
+              class="boton boton-principal"
+              onClick={() => abrirPanel('mecanismo')}
+            >
+              Ver propuesta
+            </button>
+          </div>
+        )}
+        {votos.map((v) => {
+          const vote = v.votos.includes(yo);
+          return (
+            <div key={v.asunto} class="coop-aviso" role="group" aria-label="Votación">
+              <p>
+                {textoVoto(v, jugadores)} {textoCuenta(v.votos, jugadores)}
+              </p>
+              {vote ? (
+                <button
+                  type="button"
+                  class="boton boton-secundario"
+                  onClick={() =>
+                    enviar({ t: 'votar', asunto: v.asunto, opcion: v.opcion, acepta: false })
+                  }
+                >
+                  Retirar mi voto
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  class="boton boton-principal"
+                  onClick={() =>
+                    enviar({ t: 'votar', asunto: v.asunto, opcion: v.opcion, acepta: true })
+                  }
+                >
+                  Aceptar
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
@@ -208,7 +215,7 @@ function PasarObjeto({
   const objeto = llevo.find((o) => o.id === elegido) ?? llevo[0];
   if (!objeto) return null;
   return (
-    <div class="coop-pasar" role="group" aria-label="Pasar objeto">
+    <div class="coop-pasar coop-desliza" role="group" aria-label="Pasar objeto">
       {llevo.length > 1 ? (
         <div class="coop-pasar-fila" role="group" aria-label="¿Qué objeto?">
           {llevo.map((o) => (
