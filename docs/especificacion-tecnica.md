@@ -71,13 +71,13 @@ Pipeline de compresión (glTF-Transform + meshoptimizer), ajustado en v1.1: perf
 
 ## Laboratorio de assets (v1.1)
 
-**Ola 6 (16 de noviembre de 2026): el arte final usa solo modelos CC0 ya hechos, en un solo estilo low-poly.** Kenney primero y Quaternius para lo que falte; texturas de ambientCG para piso, paredes y techo. Sin Meshy, Sketchfab ni Poly Haven, sin Blender y sin luz horneada. Qué modelo reemplaza a cada objeto, de qué paquete y cuánto pesa cada sala está en `docs/arte-cc0.md`. **Quaternius queda en pausa** hasta que Alex decida: desde el 28 de agosto de 2026 su sitio publica una licencia propia (QAL v1.0) que no es CC0 y prohíbe redistribuir los assets sueltos, y este repositorio es público. Mientras tanto, lo que Kenney no tiene se queda como primitiva. La comparación entre fuentes de la v1.1 queda descartada; el modo `?lab=1` sigue comparando cada original con su versión optimizada.
+**Ola 6 (16 de noviembre de 2026): el arte final usa solo modelos CC0 ya hechos, en un solo estilo low-poly.** Solo Kenney; texturas de ambientCG para piso, paredes y techo. Sin Meshy, Sketchfab ni Poly Haven, sin Blender y sin luz horneada. Qué modelo reemplaza a cada objeto, de qué paquete y cuánto pesa cada sala está en `docs/arte-cc0.md`. **Sin Quaternius** (decisión de Alex, 16 de noviembre de 2026): desde el 28 de agosto de 2026 su sitio publica una licencia propia (QAL v1.0) que no es CC0 y prohíbe redistribuir los assets sueltos, y este repositorio es público. Lo que Kenney no tiene se queda como primitiva. La comparación entre fuentes de la v1.1 queda descartada; el modo `?lab=1` sigue comparando cada original con su versión optimizada.
 
 Todas las salas terminan en GLB con meshopt y KTX2 de 1024 px y cumplen el mismo presupuesto. Paredes, piso y techo usan texturas CC0 de ambientCG, solo canal de color.
 
 | Sala | Fuente | Qué aporta | Qué medimos sobre todo |
 | --- | --- | --- | --- |
-| Portería y salas 1 a 4 | Kenney (CC0); Quaternius (CC0) donde Kenney no alcanza | Muebles, estanterías, puertas, máquinas y ambientación | Draw calls antes y después de `join`, `instance` y `palette` |
+| Portería y salas 1 a 4 | Kenney (CC0); primitivas donde Kenney no alcanza | Muebles, estanterías, puertas, máquinas y ambientación | Draw calls antes y después de `join`, `instance` y `palette` |
 | 5 · Rectoría | Lo mismo, más geometría por código | Muebles CC0; urna, fichas y mano mecánica generadas en Three.js; efectos con Web Audio | Costo cero de descarga en la geometría por código |
 
 Los objetos planos que muestran datos (pizarras, carteles, el graficador, el marcador) siguen siendo primitivas: su contenido se lee en la vista 2D de inspección.
@@ -91,7 +91,6 @@ El script lee la `fuente` de cada archivo en `art/credits.json` y aplica su perf
 | Perfil | Pasos específicos | Trampa principal |
 | --- | --- | --- |
 | `kenney` | Factor de escala por pack a metros; `join` de piezas que comparten material; `instance` de repetidos; `palette` para fundir materiales planos en una textura | Muchas piezas sueltas = muchas draw calls |
-| `quaternius` | Escala a metros y pivote en el centro de la base; quitar animaciones, cámaras y luces; colores de material a la paleta de la sala (`palette`); `simplify` solo si pasa de 6k triángulos | Estilo distinto al de Kenney: si no encaja, se busca otro modelo |
 | `ambientcg` | Material a 1K; solo color para paredes, piso y techo; `repeat` ajustado en Three.js | Repetición visible de la textura |
 | `ia-imagen` | Redimensionar a potencia de 2 (1024² máx.); KTX2 ETC1S. Sin uso planeado desde la ola 6 | Logos, texto o caras que no deben aparecer |
 | `codigo` | Sin archivo: la geometría se crea al cargar la sala y se mide en el panel de métricas | Triángulos que no ve `check-budget` |
@@ -100,7 +99,7 @@ Después del perfil, la etapa común es la misma para todos: `dedup` → `prune`
 
 ### Luz sin hornear (ola 6)
 
-Ya no hay rehorneado en Blender ni lightmap: los modelos de Kenney y Quaternius no traen luz propia y sus colores planos se ven bien con la luz de la sala. Los materiales son Lambert y los iluminan la luz hemisférica de la sala y la linterna; si un mueble grande parece flotar, lleva una sombra falsa (un plano oscuro) bajo su base. Las colisiones salen de las primitivas de `src/content/salas.json`, y el campo `modelo` de cada objeto (T19d) dice qué GLB se ve en su lugar. Las tareas de Blender (T11f, T16) y de lightmap (T48, T55, T61, T67, T73) quedan canceladas.
+Ya no hay rehorneado en Blender ni lightmap: los modelos de Kenney no traen luz propia y sus colores planos se ven bien con la luz de la sala. Los materiales son Lambert y los iluminan la luz hemisférica de la sala y la linterna; si un mueble grande parece flotar, lleva una sombra falsa (un plano oscuro) bajo su base. Las colisiones salen de las primitivas de `src/content/salas.json`, y el campo `modelo` de cada objeto (T19d) dice qué GLB se ve en su lugar. Las tareas de Blender (T11f, T16) y de lightmap (T48, T55, T61, T67, T73) quedan canceladas.
 
 ### Modo `?lab=1`
 
@@ -205,9 +204,9 @@ Una entrada por archivo publicado, más una captura de la página de licencia de
 ```
 
 - `tipo`: `modelo`, `textura`, `imagen`, `audio` o `voz`.
-- `fuente`: `kenney`, `quaternius`, `ambientcg`, `meshy`, `tripo`, `sketchfab`, `polyhaven`, `ia-imagen`, `freesound`, `elevenlabs`, `codigo` o `propio`. Elige el perfil de limpieza de `optimize-models`. Desde la ola 6, los modelos solo vienen de `kenney` y `quaternius`, y las texturas de `ambientcg`; las demás quedan en el esquema para el audio y para rechazar con un mensaje claro lo que no se debe publicar.
+- `fuente`: `kenney`, `quaternius`, `ambientcg`, `meshy`, `tripo`, `sketchfab`, `polyhaven`, `ia-imagen`, `freesound`, `elevenlabs`, `codigo` o `propio`. Elige el perfil de limpieza de `optimize-models`. Desde la ola 6, los modelos solo vienen de `kenney` y las texturas de `ambientcg`; `quaternius` y las demás quedan en el esquema para el audio y para rechazar con un mensaje claro lo que no se debe publicar.
 - `plan`: obligatorio (`gratis` o `pago`) para Meshy, Tripo y ElevenLabs, porque la licencia depende del plan activo el día de la generación, no del plan actual. Para la IA se anota también el prompt.
-- `evidencia`: obligatoria para Sketchfab, Meshy y ElevenLabs. Sketchfab cambió de dueño este año; la captura prueba la licencia que tenía el modelo al bajarlo. Para los paquetes de Kenney, Quaternius y ambientCG también se guarda una captura de la página del paquete con su licencia el día de la descarga (lista en `docs/arte-cc0.md`), aunque el script no la exija.
+- `evidencia`: obligatoria para Sketchfab, Meshy y ElevenLabs. Sketchfab cambió de dueño este año; la captura prueba la licencia que tenía el modelo al bajarlo. Para los paquetes de Kenney y ambientCG también se guarda una captura de la página del paquete con su licencia el día de la descarga (lista en `docs/arte-cc0.md`), aunque el script no la exija.
 
 ### `check-credits` en cada build
 
@@ -263,14 +262,14 @@ la-ultima-prueba/
 │  ├─ evidencia/                 # v1.1: capturas de licencia del día de descarga
 │  ├─ porteria/
 │  ├─ s1-cooperativa/  s2-laboratorio/  s3-gimnasio/  s4-biblioteca/  s5-rectoria/
-│  │  ├─ originales/              # paquetes CC0 sin tocar (Kenney, Quaternius, ambientCG)
+│  │  ├─ originales/              # paquetes CC0 sin tocar (Kenney, ambientCG)
 │  │  ├─ limpios/                 # v1.1: salida de la etapa de limpieza, sin comprimir
 │  │  └─ texturas/
 │  ├─ compartido/originales/     # ola 6: paquetes CC0 y texturas que usan varias salas
 │  └─ audio/                     # WAV originales de La Voz y ambientes
 ├─ scripts/
 │  ├─ optimize-models.ts         # limpieza por fuente + etapa común + asset.copyright
-│  ├─ perfiles/                  # kenney, quaternius, ambientcg, ia-imagen (ola 6)
+│  ├─ perfiles/                  # kenney, ambientcg, ia-imagen (ola 6)
 │  ├─ optimize-audio.ts          # WAV → AAC mono a −16 LUFS
 │  ├─ build-manifest.ts          # hash, bytes y triángulos por sala
 │  ├─ check-budget.ts            # falla el build si se excede el presupuesto (informa en lab)
@@ -714,7 +713,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [ ] **T11b** (v1.1) Perfil Kenney: escala por pack, `join`, `instance` y `palette` — 45 min
 - [ ] ~~**T11c** (v1.1) Perfil Sketchfab: quitar cámaras, luces y nodos vacíos; eje +Y, escala, pivote y `simplify` a 6k — 50 min~~ Cancelada en la ola 6: sin Sketchfab
 - [ ] ~~**T11d** (v1.1) Perfil Meshy: pivote en la base, escala a metros, `simplify` y revisión de luz horneada — 40 min~~ Cancelada en la ola 6: sin Meshy
-- [ ] **T11e** (ola 6) Perfiles Quaternius y ambientCG: escala a metros, pivote en la base, quitar animaciones, cámaras y luces, colores a la paleta de la sala; texturas a 1024 px, solo color — 45 min
+- [ ] **T11e** (ola 6) Perfil ambientCG: texturas a 1024 px, solo color (sin Quaternius desde T11sc) — 30 min
 - [ ] ~~**T11f** (v1.1) Plantilla de Blender para rehornear assets externos con el lightmap de la sala (UV2, Cycles, exportación) — 55 min~~ Cancelada en la ola 6: sin Blender ni luz horneada
 - [x] **T11g** (v1.1) Esquema de `art/credits.json`, carpeta de evidencias y escritura de `asset.copyright` en cada GLB — 50 min. Esquema en `scripts/creditos/esquema.ts`; `optimize-models` escribe el crédito con `textoCopyright()` y no escribe en `public/assets/salas/` un modelo sin entrada
 - [x] **T11h** (v1.1) Script `check-credits` con todas las reglas de licencia y sus tests — 50 min. Reglas en `scripts/creditos/reglas.ts`; corre en `build` y `verify` antes de `astro build`. Además de las de la lista: CC BY exige el enlace a la licencia, lo generado con IA exige el prompt y la captura anotada debe existir
@@ -731,6 +730,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T11s** (ola 6) Elegir los modelos CC0: `docs/arte-cc0.md` lista cada objeto visible de la portería y las cinco salas con su modelo de Kenney (paquete y archivo exacto) o «primitiva», las texturas de ambientCG, la estimación de presupuesto por sala y qué bajar. Quaternius queda en pausa por su licencia QAL — 30 min
 - [ ] **T11sa** (ola 6) Descargar los 3 paquetes de Kenney y las 5 texturas de ambientCG a `art/compartido/originales/`, con su captura en `art/evidencia/` (lista en `docs/arte-cc0.md`) — 30 min. Lo hace Alex
 - [x] **T11sb** (ola 6) Reglas al día con el arte CC0: tabla de fuentes y pipeline sin Blender ni lightmap en `AGENTS.md` y en esta especificación, perfil `quaternius` en lugar de `meshy`, `sketchfab` y `polyhaven`, fuente `quaternius` en `scripts/creditos/esquema.ts`, y Git LFS para los zips, modelos, imágenes y audio de `art/` en `.gitattributes`, con su prueba (`tests/unit/gitattributes.test.ts`) — 40 min
+- [x] **T11sc** (ola 6) Sin Quaternius (decisión de Alex, 16-11-2026): fuera de `AGENTS.md`, de esta especificación y de `docs/arte-cc0.md`, y `check-credits` rechaza la fuente `quaternius` con un mensaje claro — 20 min
 - [ ] ~~**T11t** (v1.1) Laboratorio: generar instrumentos en Meshy (plan gratis, límite de caras) y registrarlos con evidencia — 50 min~~ Cancelada en la ola 6: el laboratorio usa modelos CC0 de `docs/arte-cc0.md`
 - [ ] ~~**T11u** (v1.1) Gimnasio: elegir modelos CC BY de Sketchfab y guardar captura de su licencia — 45 min~~ Cancelada en la ola 6: el gimnasio usa modelos CC0 de `docs/arte-cc0.md`
 - [ ] ~~**T11v** (v1.1) Biblioteca: descargar a mano modelos de Poly Haven en 1k y registrarlos — 40 min~~ Cancelada en la ola 6: la biblioteca usa modelos CC0 de `docs/arte-cc0.md`
@@ -900,7 +900,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 | ElevenLabs en plan gratis (v1.1) | Sin licencia comercial; exige mencionar elevenlabs.io en el título, y la licencia sigue al archivo aunque se suba de plan después | Voz solo con plan de pago activo; regenerar todo lo hecho en plan gratis |
 | Meshy en plan gratis (v1.1) | CC BY 4.0: uso comercial solo con crédito a Meshy | Ya no se usa (ola 6); si volviera, crédito obligatorio vía check-credits |
 | Sketchfab: licencia por modelo (v1.1) | Conviven CC BY, NC y ND; KitBash compró Sketchfab en agosto de 2026 y los términos pueden cambiar | Ya no se usa (ola 6): solo CC0 de Kenney y Quaternius |
-| Estilos que no casan (ola 6) | Kenney y Quaternius son low-poly pero no idénticos: una sala mezclada puede verse dispareja | Kenney primero; Quaternius solo donde Kenney no tiene, con los colores llevados a la paleta de la sala (perfil `quaternius`) |
+| Estilos que no casan (ola 6) | Los paquetes de Kenney son de años distintos (Furniture Kit de 2018; Mini Shop y Factory Kit, recientes): una sala mezclada puede verse dispareja | Revisar las vistas previas antes de bajar y llevar los colores a la paleta de la sala (`palette` en el perfil `kenney`) |
 | Cuota de Git LFS (ola 6) | Los paquetes de `art/` cuentan contra el almacenamiento y la descarga gratis de LFS en GitHub | Subir solo los paquetes que se usan; Cloudflare no los descarga, porque `art/` no se publica |
 | API de Poly Haven (v1.1) | Los assets son CC0, pero la API es solo para uso no comercial salvo licencia aparte | Descarga manual desde la web; ningún script llama a la API |
 | Freesound con licencias mezcladas (v1.1) | Conviven CC0, CC BY, CC BY-NC y Sampling+ antiguo | Solo CC0 y CC BY; Sampling+ se trata como no comercial |

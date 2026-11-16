@@ -72,13 +72,13 @@ En GPU solo están la portería y la sala actual. La siguiente se descarga a la 
 
 Base: `docs/arte-cc0.md` (qué modelo reemplaza a cada objeto) y la sección «Laboratorio de assets» de la especificación.
 
-**Solo CC0 ya hecho, un solo estilo low-poly** (decisión de Alex, 16 de noviembre de 2026). Kenney primero; Quaternius solo para lo que Kenney no tiene, y anotado en `docs/arte-cc0.md`. Sin Meshy, Sketchfab ni Poly Haven, sin Blender y sin luz horneada. Antes de agregar un paquete nuevo, decídelo con Alex.
+**Solo CC0 ya hecho, un solo estilo low-poly** (decisión de Alex, 16 de noviembre de 2026). Solo Kenney; lo que Kenney no tiene se queda como primitiva (`docs/arte-cc0.md`). Sin Meshy, Sketchfab ni Poly Haven, sin Blender y sin luz horneada. Antes de agregar un paquete nuevo, decídelo con Alex.
 
-**Quaternius, en pausa.** Desde el 28 de agosto de 2026, quaternius.com publica su propia licencia (QAL v1.0), que no es CC0 y prohíbe redistribuir los assets sueltos; el repositorio es público y `art/` guarda los originales. Hasta que Alex decida, no se baja nada de Quaternius. Lo que Kenney no tiene se queda como primitiva (`docs/arte-cc0.md`).
+**Sin Quaternius** (decisión de Alex, 16 de noviembre de 2026). Desde el 28 de agosto de 2026, quaternius.com publica su propia licencia (QAL v1.0), que no es CC0 y prohíbe redistribuir los assets sueltos; el repositorio es público y `art/` guarda los originales. `check-credits` rechaza la fuente `quaternius`.
 
 | Sala | Modelos | Regla clave |
 | --- | --- | --- |
-| Todas | Kenney (CC0); Quaternius (CC0) donde Kenney no alcanza | Escala a metros y pivote en la base; `join`, `instance` y `palette`: el problema son las draw calls |
+| Todas | Kenney (CC0); primitivas donde Kenney no alcanza | Escala a metros y pivote en la base; `join`, `instance` y `palette`: el problema son las draw calls |
 | s5-rectoria | Lo mismo, más geometría por código | Urna, fichas y mano mecánica siguen creadas en Three.js; efectos con Web Audio |
 
 Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo canal de color. Los carteles y paneles planos que muestran datos siguen siendo primitivas: su texto se lee en la vista 2D.
@@ -86,7 +86,7 @@ Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo ca
 **Pipeline de modelos.**
 
 1. El paquete va sin tocar a `art/<sala>/originales/` (Git LFS) con la captura de su licencia en `art/evidencia/`, y cada modelo publicado se registra en `art/credits.json`.
-2. `optimize-models --etapa limpieza` aplica el perfil de su `fuente` (`kenney`, `quaternius` o `ambientcg`, en `scripts/perfiles/`) y escribe en `art/<sala>/limpios/`. Aquí, y solo aquí, se usa `simplify`, si un modelo se pasa de 6k triángulos.
+2. `optimize-models --etapa limpieza` aplica el perfil de su `fuente` (`kenney` o `ambientcg`, en `scripts/perfiles/`) y escribe en `art/<sala>/limpios/`. Aquí, y solo aquí, se usa `simplify`, si un modelo se pasa de 6k triángulos.
 3. La etapa común: `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` (1024 px) → `asset.copyright`.
 
 Sin Blender ni lightmap: los materiales son Lambert y los ilumina la luz hemisférica de la sala, más la linterna. Las colisiones salen de las primitivas de `src/content/salas.json`; el campo `modelo` de cada objeto dice qué GLB se ve en su lugar.

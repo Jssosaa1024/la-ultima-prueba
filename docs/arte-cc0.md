@@ -1,12 +1,12 @@
 # Arte CC0: qué modelo reemplaza a cada objeto
 
-Decisión de Alex del 16 de noviembre de 2026: el arte final usa solo modelos CC0 ya hechos, en un solo estilo low-poly. Kenney va primero y Quaternius se usa si falta algo; piso, paredes y techo llevan texturas de ambientCG. No se usan Blender, luz horneada, Meshy ni Sketchfab.
+Decisión de Alex del 16 de noviembre de 2026: el arte final usa solo modelos CC0 ya hechos, en un solo estilo low-poly. Solo Kenney (Quaternius quedó fuera, ver «Quaternius, fuera»); piso, paredes y techo llevan texturas de ambientCG. No se usan Blender, luz horneada, Meshy ni Sketchfab.
 
 Este documento es la lista de compras. Dice qué bajar, dónde guardarlo y qué objeto de `src/content/salas.json` reemplaza cada modelo, y estima si cada sala cabe en el presupuesto. Nada de esto está descargado todavía.
 
 ## Para Alex: qué bajar
 
-Son **3 paquetes de Kenney y 5 texturas de ambientCG**. De Quaternius no hay que bajar nada por ahora (ver «Quaternius, en pausa»).
+Son **3 paquetes de Kenney y 5 texturas de ambientCG**. De Quaternius no se baja nada (ver «Quaternius, fuera»).
 
 | # | Qué | Página de descarga | Botón | Carpeta en el repo |
 | --- | --- | --- | --- | --- |
@@ -50,9 +50,9 @@ Cada zip de Kenney trae además un `License.txt` con la licencia CC0. Queda dent
 | --- | --- | --- | --- |
 | Kenney | CC0 1.0 | Cada página de paquete dice «License: Creative Commons CC0» (revisado el 16-11-2026 en las tres); `License.txt` en el zip | Crédito opcional. En `art/credits.json`: `fuente: "kenney"`, `licencia: "CC0-1.0"`, `autor: "Kenney"` |
 | ambientCG | CC0 1.0 | <https://docs.ambientcg.com/license/> | Permite incluir los archivos en un juego. No pide crédito, pero no se puede dar a entender que ambientCG respalda el juego. La descarga es a mano, sin API: la API está permitida, pero no hace falta |
-| Quaternius | **En duda** | Las páginas de los paquetes dicen CC0; <https://quaternius.com/license.html> dice otra cosa | Ver la sección siguiente |
+| Quaternius | **No se usa** | Las páginas de los paquetes dicen CC0; <https://quaternius.com/license.html> dice otra cosa | Ver la sección siguiente |
 
-### Quaternius, en pausa
+### Quaternius, fuera
 
 Desde el 28 de agosto de 2026, la página de licencia de quaternius.com publica la **Quaternius Asset License (QAL) v1.0**. Esa licencia no es CC0:
 
@@ -64,10 +64,7 @@ Las páginas de los paquetes viejos siguen diciendo «License: CC0», y poly.piz
 
 Por otro lado, Quaternius casi no aporta. No tiene nada para el gimnasio (graderías, red, balones, marcador), ni caja fuerte, taza, registradora, casilleros, reloj, polea o linterna. Lo poco que tiene (un frasco, una palanca, una consola) ya lo cubren Kenney o una primitiva.
 
-**Recomendación:** no usar Quaternius. Si Alex quiere usarlo igual, hay que decidir antes:
-
-1. si basta la etiqueta CC0 de la página del paquete del día de la descarga (con captura);
-2. si sus originales se guardan fuera del repositorio público.
+**Decisión de Alex (16 de noviembre de 2026):** no se usa Quaternius. Lo que Kenney no tiene se queda como primitiva, y `check-credits` rechaza la fuente `quaternius`.
 
 ## Cómo leer las tablas
 

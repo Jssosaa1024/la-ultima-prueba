@@ -59,7 +59,7 @@ const kenney: Credito = {
   evidencia: null,
 };
 
-/** Ola 6: Quaternius para lo que Kenney no tiene. CC0, igual que Kenney. */
+/** Ola 6: Quaternius quedó fuera por su licencia QAL; check-credits lo rechaza. */
 const quaternius: Credito = {
   archivo: 'public/assets/salas/s3-gimnasio/graderia.glb',
   sala: 's3-gimnasio',
@@ -101,14 +101,17 @@ const problemas = (c: Credito, evidencias = EVIDENCIAS): string[] =>
 
 describe('esquema de art/credits.json (T11g)', () => {
   it('acepta las entradas bien anotadas', () => {
-    for (const c of [graderia, kenney, quaternius, meshyGratis]) {
+    for (const c of [graderia, kenney, meshyGratis]) {
       expect(esquemaCredito.safeParse(c).success, c.archivo).toBe(true);
     }
   });
 
-  it('acepta Quaternius como fuente, CC0 y sin captura obligatoria (ola 6)', () => {
+  it('rechaza Quaternius con un mensaje claro, aunque diga CC0 (ola 6)', () => {
     expect(FUENTES).toContain('quaternius');
-    expect(problemas(quaternius)).toEqual([]);
+    expect(esquemaCredito.safeParse(quaternius).success).toBe(true);
+    expect(problemas(quaternius)).toEqual([
+      'Quaternius no se usa (decisión del 16-11-2026): su licencia QAL prohíbe redistribuir los assets y el repositorio es público',
+    ]);
   });
 
   it('el art/credits.json del repositorio cumple el esquema y las reglas', async () => {
