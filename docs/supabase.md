@@ -1,13 +1,14 @@
 # Supabase para el cooperativo · pasos para Alex
 
-15 de noviembre de 2026 · T78 y T79
+15 de noviembre de 2026 · T78 y T79 (T98: contadores de uso, 16 de noviembre)
 
-El modo cooperativo usa Supabase solo para dos cosas:
+El juego usa Supabase solo para tres cosas:
 
-- una **sesión anónima** para cada jugador, sin correo, nombre ni contraseña;
-- un **canal privado** por partida (`partida:K7MP`) para enviar mensajes y saber quién está conectado.
+- una **sesión anónima** para cada jugador del cooperativo, sin correo, nombre ni contraseña;
+- un **canal privado** por partida (`partida:K7MP`) para enviar mensajes y saber quién está conectado;
+- unos **contadores de uso** sin datos personales (paso 9): cuántas partidas empiezan y terminan y cuántas salas se resuelven, por día.
 
-No hay tablas, no se guarda nada y no hay servidor propio. El código ya está listo: falta crear el proyecto y poner dos valores en Cloudflare Pages.
+No se guarda ninguna partida, ningún jugador ni nada escrito por nadie, y no hay servidor propio. El código ya está listo: falta crear el proyecto y poner dos valores en Cloudflare Pages.
 
 **Nadie ha probado esto con un proyecto real todavía.** Las pruebas usan un Supabase simulado. Si un paso del panel no se ve igual, busca el nombre entre comillas en el buscador del panel.
 
@@ -87,12 +88,43 @@ Todavía no hay pantalla del cooperativo: la sala de espera (T81) y la conexión
 
 Si en el panel de Supabase, en **Realtime** → **Inspector**, aparece un canal `partida:XXXX` mientras juegan, la conexión llega.
 
+## 9. Contadores de uso (T98, unos 3 minutos)
+
+El juego cuenta, sin datos personales, cuántas partidas empiezan y terminan y cuántas salas se resuelven. Sirve para el piloto y para saber si el juego se usa. No hay cookies ni scripts de terceros.
+
+Qué se guarda, y nada más: **el día**, **el evento** (partida iniciada, sala resuelta o partida terminada), **el modo** (solo o grupo) y, según el evento, **la sala** (`s1` a `s5`) o **el rango de minutos jugados** (`0-10`, `10-20`, `20-30` o `30-40`). Cada fila es un número que sube de a uno. No hay id de jugador, código de partida, alias, IP ni texto escrito por nadie.
+
+1. En el menú: **SQL Editor** → **New query**.
+2. Abre en GitHub [`supabase/migrations/20261116120000_analitica.sql`](../supabase/migrations/20261116120000_analitica.sql), copia todo y pégalo.
+3. Pulsa **Run**. Debe decir «Success. No rows returned». Se puede correr otra vez sin perder los contadores.
+
+Qué hace: crea la tabla `analitica_contadores`, que nadie puede leer ni cambiar desde el juego, y la función `contar_evento`, la única puerta: solo suma 1 si el evento, el modo y el detalle están en la lista. Cualquier otra cosa la ignora.
+
+Si no hiciste los pasos 5 y 6 (las variables en Cloudflare), el juego no envía nada.
+
+### Ver los contadores
+
+En **SQL Editor** → **New query**, pega y pulsa **Run**:
+
+```sql
+select dia, evento, modo, detalle, total
+from public.analitica_contadores
+order by dia desc, evento, modo, detalle;
+```
+
+O en **Table Editor** → `analitica_contadores`.
+
+- En grupo cuenta solo el anfitrión: una partida de 4 suma 1, no 4.
+- Continuar una partida guardada no cuenta otra «partida iniciada».
+- Cualquiera con la clave pública puede sumar a un contador (no hay forma de evitarlo sin servidor propio). Tómalos como una guía, no como una cifra exacta.
+- Supabase guarda en sus registros técnicos la IP de cada llamada, como cualquier servidor web, por poco tiempo (1 día en el plan Free). La tabla de contadores no la tiene.
+
 ## Cosas para tener en cuenta
 
 - **El plan Free se pausa** si el proyecto pasa una semana sin uso. Si el cooperativo deja de conectar después de unos días quieto, entra al panel y pulsa **Restore project**.
 - **Límites del plan Free:** 200 conexiones a la vez y 100 mensajes por segundo. Alcanza para unas 3 partidas de 4 jugadores al mismo tiempo; el plan del juego es máximo 2 (especificación, «Costo frente a los límites de Supabase»).
 - **El código de partida es la llave.** Cualquiera con sesión que adivine un código activo puede entrar al canal. Hay unos 923.000 códigos posibles, el anfitrión rechaza al quinto jugador y a quien llega con la partida empezada, y por el canal solo viajan ids y números, nunca texto escrito por los jugadores.
-- **Datos de menores:** Supabase guarda un usuario anónimo por navegador, sin correo ni nombre. El alias se elige de una lista. No se guarda ninguna partida.
+- **Datos de menores:** Supabase guarda un usuario anónimo por navegador, sin correo ni nombre. El alias se elige de una lista. No se guarda ninguna partida. Los contadores del paso 9 son totales por día, sin nada que identifique a nadie.
 
 ## Para quien programa
 
@@ -100,3 +132,4 @@ Si en el panel de Supabase, en **Realtime** → **Inspector**, aparece un canal 
 - `src/net/index.ts`: `elegirRed()` usa Supabase si las dos variables están y tienen la forma esperada, salvo con `?red=pestanas`. Sin ellas usa BroadcastChannel y la interfaz debe mostrar `AVISO_SIN_SUPABASE`.
 - Canal: `private: true`, `broadcast: { self: false, ack: true }` (T92b: Supabase no devuelve nada a quien envía; `int` y `evt` se entregan a uno mismo en el navegador al confirmarse y las poses no vuelven) y `presence: { key: jugador }`. Presence se escribe una vez por unión, porque Supabase permite 5 llamadas de Presence cada 30 s.
 - Si el canal se vuelve a unir solo tras una caída, el transporte avisa con `alReconectar` y `ClienteCoop` aplica las reglas de T89 y T90.
+- `src/net/analitica.ts` y `src/signals/analitica.ts` (T98): llaman a `contar_evento` con `fetch`, la clave pública, sin cookies (`credentials: 'omit'`) y sin referer. La lista cerrada está en `src/game/analitica.ts` y en el SQL; una prueba de unidad revisa que coincidan.

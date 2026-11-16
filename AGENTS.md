@@ -5,7 +5,7 @@ Especificación técnica completa: `docs/especificacion-tecnica.md` · Diseño: 
 
 ## Reglas no negociables
 
-1. **Sin servidores propios.** El sitio es estático en Cloudflare Pages. Nada de Pages Functions, Workers, Supabase Edge Functions ni backend propio. Supabase se usa solo para Auth anónima y Realtime (Broadcast + Presence), más las políticas RLS de `supabase/migrations/`.
+1. **Sin servidores propios.** El sitio es estático en Cloudflare Pages. Nada de Pages Functions, Workers, Supabase Edge Functions ni backend propio. Supabase se usa solo para Auth anónima y Realtime (Broadcast + Presence), más las políticas RLS de `supabase/migrations/` y los contadores de uso de T98 (una tabla que solo escribe la función `contar_evento`).
 2. **Celular primero.** Dispositivo de referencia: Android de 2 GB de RAM (Mali-G52 MC2 / PowerVR GE8320), Chrome actualizado, 30 fps sostenidos. Todo se diseña y se prueba primero con controles táctiles; teclado y ratón son secundarios.
 3. **El presupuesto 3D se respeta.** `scripts/check-budget.ts` rompe el build si una sala se pasa. No subas límites para que pase: optimiza el asset. La única excepción es el modo `?lab=1`, y solo para los originales que se comparan (ver «Laboratorio de assets y licencias»).
 4. **Sin secretos en el repositorio.** Solo la URL y la anon key pública de Supabase, vía variables `PUBLIC_*`. Ninguna otra clave de API va en el código, en el contenido ni en la documentación.
