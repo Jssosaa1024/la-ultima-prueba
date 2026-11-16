@@ -85,8 +85,8 @@ Paredes, piso y techo de todas las salas usan texturas CC0 de ambientCG, solo ca
 
 **Pipeline de modelos.**
 
-1. El paquete va sin tocar a `art/<sala>/originales/` (Git LFS) con la captura de su licencia en `art/evidencia/`, y cada modelo publicado se registra en `art/credits.json`.
-2. `optimize-models --etapa limpieza` aplica el perfil de su `fuente` (`kenney` o `ambientcg`, en `scripts/perfiles/`) y escribe en `art/<sala>/limpios/`. Aquí, y solo aquí, se usa `simplify`, si un modelo se pasa de 6k triángulos.
+1. El paquete va sin tocar a `art/compartido/originales/` (o `art/<sala>/originales/`), por Git LFS, con la captura de su licencia en `art/evidencia/`. Cada archivo publicado se registra en `art/credits.json` (licencia y `fuente`) y en `art/modelos.json` (de qué piezas del zip sale).
+2. `npm run optimize-models -- --lista` lee las piezas desde el zip, sin descomprimirlo en el repo, y aplica el perfil de su `fuente` (`kenney` o `ambientcg`, en `scripts/perfiles/`). Si un modelo se pasa de 6k triángulos, se usa `simplify` aquí, y solo aquí.
 3. La etapa común: `dedup` → `prune` → `weld` → `quantize` → `meshopt` → `ktx2` (1024 px) → `asset.copyright`.
 
 Sin Blender ni lightmap: los materiales son Lambert y los ilumina la luz hemisférica de la sala, más la linterna. Las colisiones salen de las primitivas de `src/content/salas.json`; el campo `modelo` de cada objeto dice qué GLB se ve en su lugar.

@@ -86,11 +86,11 @@ El presupuesto de la sección 0 manda sobre las cifras de la investigación (100
 
 ### Limpieza por fuente en `optimize-models`
 
-El script lee la `fuente` de cada archivo en `art/credits.json` y aplica su perfil antes de la etapa común. Ningún perfil sube un límite: si un asset no cabe, se simplifica o se cambia.
+`npm run optimize-models -- --lista [--sala <carpeta>]` (T11a) arma lo que dice `art/modelos.json`: cada modelo con sus piezas (un archivo dentro de un zip de `art/`, con posición y giro), un giro y un `estirar` por eje o una `caja` en metros opcionales (con `caja`, el modelo calza justo en el `tam` del objeto y lo que va encima no flota); cada textura con su imagen. Lee la `fuente` de cada archivo en `art/credits.json`, aplica su perfil (`scripts/perfiles/`) antes de la etapa común y escribe en `public/assets/salas/`; después, `npm run build-manifest` le pone el hash. Los zips se leen sin descomprimirlos en el repositorio, así que no hay carpeta `limpios/`. Ningún perfil sube un límite: si un asset no cabe, se simplifica o se cambia.
 
 | Perfil | Pasos específicos | Trampa principal |
 | --- | --- | --- |
-| `kenney` | Factor de escala por pack a metros; `join` de piezas que comparten material; `instance` de repetidos; `palette` para fundir materiales planos en una textura | Muchas piezas sueltas = muchas draw calls |
+| `kenney` | Factor de escala por pack a metros (`ESCALA_PAQUETE`); piezas y transformaciones horneadas en los vértices; `dedup`, `palette` para fundir materiales planos en una textura y `join`: una draw call por modelo; pivote en el centro de la base. Los objetos repetidos de una sala los instancia el motor (T19e) | Muchas piezas sueltas = muchas draw calls |
 | `ambientcg` | Material a 1K; solo color para paredes, piso y techo; `repeat` ajustado en Three.js | Repetición visible de la textura |
 | `ia-imagen` | Redimensionar a potencia de 2 (1024² máx.); KTX2 ETC1S. Sin uso planeado desde la ola 6 | Logos, texto o caras que no deben aparecer |
 | `codigo` | Sin archivo: la geometría se crea al cargar la sala y se mide en el panel de métricas | Triángulos que no ve `check-budget` |
@@ -259,17 +259,17 @@ la-ultima-prueba/
 │  └─ especificacion-tecnica.md  # este documento, exportado
 ├─ art/                          # fuentes de arte (Git LFS), nunca se publican
 │  ├─ credits.json               # v1.1: una entrada por archivo publicado
+│  ├─ modelos.json               # ola 6: de qué piezas de qué zip sale cada archivo publicado
 │  ├─ evidencia/                 # v1.1: capturas de licencia del día de descarga
 │  ├─ porteria/
 │  ├─ s1-cooperativa/  s2-laboratorio/  s3-gimnasio/  s4-biblioteca/  s5-rectoria/
 │  │  ├─ originales/              # paquetes CC0 sin tocar (Kenney, ambientCG)
-│  │  ├─ limpios/                 # v1.1: salida de la etapa de limpieza, sin comprimir
 │  │  └─ texturas/
 │  ├─ compartido/originales/     # ola 6: paquetes CC0 y texturas que usan varias salas
 │  └─ audio/                     # WAV originales de La Voz y ambientes
 ├─ scripts/
 │  ├─ optimize-models.ts         # limpieza por fuente + etapa común + asset.copyright
-│  ├─ perfiles/                  # kenney, ambientcg, ia-imagen (ola 6)
+│  ├─ perfiles/                  # kenney y ambientcg (ola 6)
 │  ├─ optimize-audio.ts          # WAV → AAC mono a −16 LUFS
 │  ├─ build-manifest.ts          # hash, bytes y triángulos por sala
 │  ├─ check-budget.ts            # falla el build si se excede el presupuesto (informa en lab)
@@ -709,11 +709,11 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T10** Servir los decodificadores y cargar un GLB de prueba con Meshopt + KTX2 — 40 min
 - [x] **T10b** (ola 6) Prueba de la taza: `npm run optimize-models -- art/prueba-assets/originales public/assets/salas/porteria` y `npm run build-manifest` llevan el original hasta `public/assets/` con su entrada en `art/credits.json`, y `/jugar?prueba=asset` lo muestra sobre el escritorio de la portería (`src/engine/salas/prueba-asset.ts`). Mientras Alex no traiga la taza de Kenney (Food Kit, `mug.glb`), el original es una taza low-poly hecha por código (`npm run taza-prueba`, 256 triángulos, textura de color ETC1S): crédito `propio`, fuente `codigo`. E2e `prueba-asset.spec.ts` — 45 min
 - [ ] **T11** Medir una escena de estrés (60k triángulos, 40 draw calls) en el celular de referencia — 45 min
-- [ ] **T11a** (v1.1) `optimize-models` lee la `fuente` en `art/credits.json` y aplica su perfil de limpieza — 45 min
-- [ ] **T11b** (v1.1) Perfil Kenney: escala por pack, `join`, `instance` y `palette` — 45 min
+- [x] **T11a** (v1.1) `optimize-models` lee la `fuente` en `art/credits.json` y aplica su perfil de limpieza. Ola 6: `--lista` arma lo que dice `art/modelos.json` (piezas dentro de los zips de `art/`, sacadas a una carpeta temporal con el fflate de three.js), revisa antes de escribir que cada archivo tenga crédito, una fuente con perfil y el tipo correcto, e imprime triángulos, draw calls y tamaño en metros. Pruebas en `tests/unit/perfiles.test.ts` — 45 min
+- [x] **T11b** (v1.1) Perfil Kenney: escala por pack, `join`, `instance` y `palette`. Furniture Kit ×2, Mini Shop ×2,1 y Factory Kit ×1 a metros; piezas, giro y `estirar` horneados en los vértices; `dedup` → `palette` → `join` → pivote en la base. El `instance` de objetos repetidos lo hace el motor (T19e). Con el estante de Mini Shop: 22 draw calls → 1 — 45 min
 - [ ] ~~**T11c** (v1.1) Perfil Sketchfab: quitar cámaras, luces y nodos vacíos; eje +Y, escala, pivote y `simplify` a 6k — 50 min~~ Cancelada en la ola 6: sin Sketchfab
 - [ ] ~~**T11d** (v1.1) Perfil Meshy: pivote en la base, escala a metros, `simplify` y revisión de luz horneada — 40 min~~ Cancelada en la ola 6: sin Meshy
-- [ ] **T11e** (ola 6) Perfil ambientCG: texturas a 1024 px, solo color (sin Quaternius desde T11sc) — 30 min
+- [x] **T11e** (ola 6) Perfil ambientCG: texturas a 1024 px, solo color (sin Quaternius desde T11sc). Solo acepta `<Id>_..._Color.jpg`; KTX2 ETC1S en sRGB con mipmaps — 30 min
 - [ ] ~~**T11f** (v1.1) Plantilla de Blender para rehornear assets externos con el lightmap de la sala (UV2, Cycles, exportación) — 55 min~~ Cancelada en la ola 6: sin Blender ni luz horneada
 - [x] **T11g** (v1.1) Esquema de `art/credits.json`, carpeta de evidencias y escritura de `asset.copyright` en cada GLB — 50 min. Esquema en `scripts/creditos/esquema.ts`; `optimize-models` escribe el crédito con `textoCopyright()` y no escribe en `public/assets/salas/` un modelo sin entrada
 - [x] **T11h** (v1.1) Script `check-credits` con todas las reglas de licencia y sus tests — 50 min. Reglas en `scripts/creditos/reglas.ts`; corre en `build` y `verify` antes de `astro build`. Además de las de la lista: CC BY exige el enlace a la licencia, lo generado con IA exige el prompt y la captura anotada debe existir
