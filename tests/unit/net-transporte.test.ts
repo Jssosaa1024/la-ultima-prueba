@@ -43,6 +43,25 @@ describe('red en memoria', () => {
     expect(recibidos).toEqual([['j_cliente0-1'], ['j_cliente0-1'], ['j_cliente0-1']]);
   });
 
+  it('T92b: las poses (dir) no vuelven a quien las envía; int y evt sí', async () => {
+    const red = new RedEnMemoria();
+    const [a, b, c] = await tres(red);
+    const dir = [a, b, c].map(() => [] as string[]);
+    const int = [a, b, c].map(() => [] as string[]);
+    [a, b, c].forEach((x, i) => {
+      x?.escuchar('dir', (m) => dir[i]?.push(m.de));
+      x?.escuchar('int', (m) => int[i]?.push(m.de));
+    });
+    await a?.enviar(
+      'dir',
+      directo('j_cliente0', { t: 'pose', p: { s: 1, x: 0, y: 0, z: 0, yaw: 0 } }),
+    );
+    await a?.enviar('int', listo('j_cliente0', 1));
+    red.vaciar();
+    expect(dir).toEqual([[], ['j_cliente0'], ['j_cliente0']]);
+    expect(int).toEqual([['j_cliente0'], ['j_cliente0'], ['j_cliente0']]);
+  });
+
   it('no envía mensajes inválidos y descarta los que llegan mal', async () => {
     const red = new RedEnMemoria();
     const [a, b] = await tres(red);
@@ -147,6 +166,18 @@ describe('transporte entre pestañas (BroadcastChannel)', () => {
     await esperar(50);
     expect(enA).toEqual(['j_pestana2-1']);
     expect(enB).toEqual(['j_pestana2-1']);
+    // T92b: la pose propia no vuelve; a la otra pestaña sí llega.
+    const posesA: string[] = [];
+    const posesB: string[] = [];
+    a.escuchar('dir', (m) => posesA.push(m.de));
+    b.escuchar('dir', (m) => posesB.push(m.de));
+    await b.enviar(
+      'dir',
+      directo('j_pestana2', { t: 'pose', p: { s: 1, x: 0, y: 0, z: 0, yaw: 0 } }),
+    );
+    await esperar(50);
+    expect(posesA).toEqual(['j_pestana2']);
+    expect(posesB).toEqual([]);
     await b.salir();
     await esperar(50);
     expect(presentesA).toEqual(['j_pestana1']);

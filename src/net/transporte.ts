@@ -15,9 +15,10 @@ import {
  * Reglas comunes a todos los transportes:
  * - Lo que llega se valida con `validar()` antes de entregarlo; lo inválido se descarta.
  * - Lo que se envía también se valida: nunca sale un mensaje mal formado.
- * - Los mensajes llegan también a quien los envió (`self: true` de Supabase), para que el
- *   anfitrión procese sus propias intenciones por la misma ruta. Quien escucha `dir` ignora
- *   los suyos.
+ * - `int` y `evt` llegan también a quien los envió, para que el anfitrión procese sus propias
+ *   intenciones por la misma ruta que las de los demás.
+ * - `dir` (poses y señales) NO vuelve a quien lo envió (T92b): ya lo tiene y, en Supabase,
+ *   cada entrega cuesta un evento. Igual, quien escucha `dir` ignora los suyos.
  */
 export interface Transporte {
   /** Se une al canal de la partida y publica su identidad en Presence (una sola vez). */

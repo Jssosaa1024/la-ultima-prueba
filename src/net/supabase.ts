@@ -11,8 +11,10 @@ import { Oyentes, revisarUnion, type Transporte } from './transporte';
  *   recargar no crea otro usuario.
  * - Canal privado `partida:{codigo}`: lo protegen las políticas RLS de
  *   `supabase/migrations/` (T78).
- * - Broadcast con `self: true` (el anfitrión recibe sus propias intenciones) y `ack: true`
- *   (para `int` y `evt` se espera la confirmación del servidor; `dir` no la espera).
+ * - Broadcast con `self: false` y `ack: true` (T92b). Supabase no devuelve nada a quien lo
+ *   envía: las poses y señales propias (`dir`) ya no gastan una entrega. `int` y `evt` se
+ *   entregan a quien los envía aquí mismo, cuando el servidor confirma (`ack`), así el
+ *   anfitrión sigue procesando sus propias intenciones por la misma ruta que antes.
  * - Presence guarda solo la identidad, una vez al unirse.
  *
  * Usa solo la URL y la clave pública (anon) de `PUBLIC_*`. Nunca la `service_role`.
@@ -80,7 +82,7 @@ export class TransporteSupabase implements Transporte {
     const canal = this.cliente.channel(`partida:${codigo}`, {
       config: {
         private: true,
-        broadcast: { self: true, ack: true },
+        broadcast: { self: false, ack: true },
         presence: { key: identidad.jugador, enabled: true },
       },
     });
@@ -122,11 +124,16 @@ export class TransporteSupabase implements Transporte {
       void envio.catch(() => undefined);
       return true;
     }
+    let ok: boolean;
     try {
-      return (await envio) === 'ok';
+      ok = (await envio) === 'ok';
     } catch {
-      return false;
+      ok = false;
     }
+    // T92b: la entrega propia de `int` y `evt`, solo si el servidor los aceptó (como hacía
+    // `self: true`). Una copia, para que nadie comparta el objeto con quien lo envió.
+    if (ok && this.canal) this.oyentes.recibir(canal, structuredClone(mensaje));
+    return ok;
   }
 
   escuchar<C extends Canal>(canal: C, fn: (m: SobreDe<C>) => void): () => void {

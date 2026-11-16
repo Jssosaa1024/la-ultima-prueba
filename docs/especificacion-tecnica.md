@@ -588,7 +588,7 @@ Un rechazo anula la propuesta y el rol D vuelve a proponer. Si la etapa no queda
 
 - Sesión anónima de Supabase; el alias se elige de una lista, sin nombres reales.
 - Código de 4 caracteres de un alfabeto sin símbolos confusos (sin 0, O, 1, I, L). Máximo 4 jugadores; el quinto recibe `rechazo { motivo: "llena" }`.
-- Tres nombres de evento Broadcast: `int` (intenciones, con `ack`), `evt` (eventos del anfitrión) y `dir` (poses y señales, sin `ack`). `self: true` para que el anfitrión procese sus propias intenciones por la misma ruta.
+- Tres nombres de evento Broadcast: `int` (intenciones, con `ack`), `evt` (eventos del anfitrión) y `dir` (poses y señales, sin `ack`). `self: false` desde T92b: el servidor no devuelve nada a quien envía. `int` y `evt` se entregan a uno mismo en el navegador cuando el servidor confirma, para que el anfitrión procese sus propias intenciones por la misma ruta; `dir` no vuelve a quien lo envía.
 - Presence guarda solo identidad: `{ jugador, alias, color, unido_en, version_contenido }`. Se escribe una vez al unirse, porque Supabase permite 5 llamadas de Presence por cliente cada 30 s; el estado «listo» va por Broadcast.
 - T79 y T78: el transporte está en `src/net/supabase.ts` (con `@supabase/supabase-js` 2.118.0, cargado con `import()` solo en el cooperativo) y las políticas RLS en `supabase/migrations/`: solo usuarios con sesión (la anónima cuenta), solo canales `partida:` con un código válido y solo Broadcast y Presence. Los pasos para crear el proyecto y poner las variables en Cloudflare Pages están en `docs/supabase.md`.
 
@@ -694,7 +694,7 @@ Supabase cuenta un evento por cada mensaje enviado o entregado, así que una pos
 | Pro | 500 | 500 | 15 |
 | Pro sin tope de gasto | 2.500 | 10.000 | 75 |
 
-Con el máximo previsto de 2 partidas simultáneas, el plan Free alcanza con las poses a 2 Hz (T82b): la prueba de carga da picos de 75 eventos/s. A 4 Hz los picos llegaban a 140 eventos/s, porque con `self: true` cada mensaje cuesta 1 + 4 eventos y los picos llegan cuando los 4 caminan a la vez. Fuente: [Realtime Limits, Supabase](https://supabase.com/docs/guides/realtime/limits), consultada el 5 de noviembre de 2026.
+Con el máximo previsto de 2 partidas simultáneas, el plan Free alcanza con las poses a 2 Hz (T82b) y sin eco (T92b): la prueba de carga da picos de 60 eventos/s (75 con el eco de antes). Con `self: true` cada mensaje costaba 1 + 4 eventos; sin eco cuesta 1 + 3. Tres partidas quedan en 96 eventos/s, al borde del límite, así que el máximo sigue en 2. Fuente: [Realtime Limits, Supabase](https://supabase.com/docs/guides/realtime/limits), consultada el 5 de noviembre de 2026.
 
 ## 4) Lista de tareas en orden
 
@@ -866,6 +866,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T90** Migración de anfitrión — 55 min
 - [x] **T91** Señalar y frases rápidas — 40 min. Botón «Frases» en la barra del grupo: «Señalar» el objeto enfocado y seis frases de la lista (`FRASES`); viaja `senal` con el id de la frase y el centro del objeto en cm, una por segundo como máximo. Los demás ven «Búho: ¡Aquí!» unos segundos (también por lector de pantalla). Las señales quedan en el signal `senales` para que el motor dibuje el punto (sesión A); sin objeto enfocado se usa `miPosicion`, que debe escribir el motor, y mientras no lo haga la señal va sin punto (0, 0, 0). E2e `coop-sala1.spec.ts`: dos pestañas juegan la sala 1 completa Parte 3D (sesión A): cada señal con punto se ve 5 s como un aro y una flecha del color de quien señaló, en un solo `InstancedMesh` (`src/engine/coop/marcadores.ts`); e2e `coop-senal.spec.ts`
 - [x] **T92** Prueba de carga con partidas simuladas para medir eventos por segundo — 50 min. `npm run prueba-carga` (`--hz 2` para el respaldo): con `self: true` cada mensaje cuesta 1 + 4 eventos, y 2 partidas de 4 a 4 Hz llegan a picos de 140 eventos/s, sobre los 100/s del plan Free (ver `docs/reportes/ola-4-sesion-A.md`)
+- [x] **T92b** (nueva, ola 5b) Las poses y señales (`dir`) no vuelven a quien las envía. El canal de Supabase pasa a `self: false` (Supabase no permite elegirlo por evento) y el transporte entrega `int` y `evt` a quien los envía cuando el servidor confirma, así el anfitrión y la réplica no cambian; la red en memoria y la de pestañas hacen lo mismo. `npm run prueba-carga`: 2 partidas de 4 bajan de 75 a 60 eventos/s de pico; la tabla muestra también la cuenta de antes y un test comprueba que ninguna pose vuelve — 40 min
 - [ ] **T93** Prueba con cuatro celulares reales en datos móviles — 45 min
 
 ### Fase 9 · Rendimiento y lanzamiento

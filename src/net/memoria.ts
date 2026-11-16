@@ -101,6 +101,8 @@ export class RedEnMemoria {
     this.enviados[canal]++;
     for (const a of this.salas.get(codigo) ?? []) {
       const propio = a === de;
+      // T92b: las poses y señales no vuelven a quien las envía (como en Supabase).
+      if (propio && canal === 'dir') continue;
       // Las entregas a uno mismo no se pierden ni se retrasan (no pasan por la red).
       const p = this.opciones.perdida ?? 0;
       const perdida = typeof p === 'number' ? p : p(canal, de.yo, a.yo);

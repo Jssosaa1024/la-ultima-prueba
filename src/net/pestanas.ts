@@ -67,9 +67,12 @@ export class TransportePestanas implements Transporte {
     if (!this.canal || !validar(canal, mensaje).ok) return false;
     const paquete: Paquete = { k: 'msg', canal, m: mensaje };
     this.canal.postMessage(paquete);
-    // BroadcastChannel no entrega a quien envía: se imita `self: true`.
-    const copia = structuredClone(mensaje);
-    queueMicrotask(() => this.oyentes.recibir(canal, copia));
+    // BroadcastChannel no entrega a quien envía: se imita la entrega propia de `int` y `evt`.
+    // `dir` no vuelve (T92b), igual que en Supabase.
+    if (canal !== 'dir') {
+      const copia = structuredClone(mensaje);
+      queueMicrotask(() => this.oyentes.recibir(canal, copia));
+    }
     return true;
   }
 
