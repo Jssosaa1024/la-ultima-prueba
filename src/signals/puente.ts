@@ -42,6 +42,11 @@ export type Comando =
    * rápida de la lista, o sin frase. Máximo una por segundo.
    */
   | { t: 'senal'; frase: (typeof FRASES)[number] | null }
+  /**
+   * Cooperativo (T84d): pasarle a un compañero (`a`, id de jugador) un objeto que lleva este
+   * jugador. El anfitrión lo acepta solo si el destino está conectado.
+   */
+  | { t: 'pasar'; objeto: string; a: string }
   /** Botón contextual sobre el objeto enfocado. */
   | { t: 'accion'; objeto: string; accion: AccionObjeto }
   /** Pausar el reloj (el cuaderno lo pausa en modo individual). */

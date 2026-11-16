@@ -1,5 +1,6 @@
 import { nombreDeObjeto } from '../../content/salas';
 import type { Aviso } from '../../signals/interfaz';
+import { NOMBRE_ALIAS } from '../coop/nombres';
 
 /** Formatos del HUD. Puros: se prueban sin navegador. */
 
@@ -32,6 +33,16 @@ export function textoDeAviso(aviso: Aviso): string {
       const objeto = nombreDeObjeto(aviso.objeto) ?? 'Esto';
       const herramienta = (nombreDeObjeto(aviso.herramienta) ?? 'una herramienta').toLowerCase();
       return `${objeto}: está muy oscuro para leer. Hace falta que quien tenga la ${herramienta} la use aquí.`;
+    }
+    case 'objeto_recibido': {
+      const objeto = nombreDeObjeto(aviso.objeto) ?? 'un objeto';
+      const quien = aviso.de ? NOMBRE_ALIAS[aviso.de] : 'Alguien';
+      return `${quien} te pasó: ${objeto}. Ya está en lo que llevas.`;
+    }
+    case 'objeto_pasado': {
+      const objeto = nombreDeObjeto(aviso.objeto) ?? 'un objeto';
+      const quien = aviso.a ? NOMBRE_ALIAS[aviso.a] : 'tu compañero';
+      return `Le pasaste a ${quien}: ${objeto}.`;
     }
   }
 }

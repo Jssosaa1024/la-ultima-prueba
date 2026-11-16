@@ -128,6 +128,32 @@ describe('partida cooperativa en este navegador', () => {
     expect(inventario.value.map((o) => o.id)).toEqual(['porteria-linterna']);
   });
 
+  it('pasar: me avisa quién me pasó el objeto; si lo paso yo, se va al otro (T84d)', async () => {
+    const yo = coop.value.jugadores.find((j) => j.yo)?.jugador ?? '';
+    await otro.enviar({ t: 'recoger', p: { objeto: 'porteria-linterna' } });
+    await asentar();
+    await otro.enviar({ t: 'pasar', p: { objeto: 'porteria-linterna', a: yo } });
+    await asentar();
+    expect(aviso.value).toEqual({ t: 'objeto_recibido', objeto: 'porteria-linterna', de: 'oso' });
+
+    // Lo que no llevo no se pasa, ni a mí mismo ni a quien no está en la partida.
+    enviar({ t: 'pasar', objeto: 'porteria-reloj', a: 'j_anfitrion' });
+    enviar({ t: 'pasar', objeto: 'porteria-linterna', a: yo });
+    enviar({ t: 'pasar', objeto: 'porteria-linterna', a: 'j_nadie' });
+    await asentar();
+    expect(inventario.value.map((o) => o.id)).toEqual(['porteria-linterna']);
+
+    enviar({ t: 'pasar', objeto: 'porteria-linterna', a: 'j_anfitrion' });
+    await asentar();
+    expect(inventario.value).toEqual([]);
+    expect(otro.foto?.objetos).toContainEqual({
+      objeto: 'porteria-linterna',
+      portador: 'j_anfitrion',
+      sala: 'porteria',
+    });
+    expect(aviso.value).toEqual({ t: 'objeto_pasado', objeto: 'porteria-linterna', a: 'oso' });
+  });
+
   it('la pizarra en penumbra pide la linterna', async () => {
     await otro.enviar({
       t: 'votar',

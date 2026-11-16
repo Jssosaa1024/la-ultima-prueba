@@ -258,3 +258,35 @@
   color: #111418;
   font-weight: 600;
 }
+
+/* Pasar un objeto a un compañero (T84d). */
+.coop-pasar {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.coop-pasar-fila {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.coop-pasar-que {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 78%);
+}
+
+.coop-pasar .hud-boton-redondo[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 2px #e8a33d;
+  background: rgb(232 163 61 / 35%);
+}
+
+.coop-companero {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}

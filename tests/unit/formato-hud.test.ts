@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatoReloj, relojEnPalabras } from '../../src/ui/hud/formato';
+import { formatoReloj, relojEnPalabras, textoDeAviso } from '../../src/ui/hud/formato';
 
 describe('formatoReloj', () => {
   it('muestra minutos y segundos con dos cifras', () => {
@@ -20,5 +20,22 @@ describe('relojEnPalabras', () => {
     expect(relojEnPalabras(38 * 60_000 + 5_000)).toBe('38 minutos y 5 segundos');
     expect(relojEnPalabras(120_000)).toBe('2 minutos');
     expect(relojEnPalabras(9_000)).toBe('9 segundos');
+  });
+});
+
+describe('textoDeAviso al pasar objetos (T84d)', () => {
+  it('dice quién pasó qué', () => {
+    expect(textoDeAviso({ t: 'objeto_recibido', objeto: 'porteria-linterna', de: 'buho' })).toBe(
+      'Búho te pasó: Linterna. Ya está en lo que llevas.',
+    );
+    expect(textoDeAviso({ t: 'objeto_pasado', objeto: 'porteria-linterna', a: 'jaguar' })).toBe(
+      'Le pasaste a Jaguar: Linterna.',
+    );
+  });
+
+  it('sin alias conocido no inventa un nombre', () => {
+    expect(textoDeAviso({ t: 'objeto_recibido', objeto: 'porteria-linterna', de: null })).toBe(
+      'Alguien te pasó: Linterna. Ya está en lo que llevas.',
+    );
   });
 });

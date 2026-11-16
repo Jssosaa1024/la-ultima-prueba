@@ -8,10 +8,11 @@ import {
   propuestaCoop,
   votosCoop,
   type EsperaD,
+  type JugadorCoop,
   type VotoCoop,
 } from '../../signals/coop';
 import { abrirCuaderno, abrirPanel, enfocado, panel } from '../../signals/interfaz';
-import { reloj } from '../../signals/partida';
+import { inventario, reloj, type ObjetoInventario } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
 import {
   aliasDe,
@@ -22,6 +23,7 @@ import {
   textoSenal,
   textoVoto,
 } from './textos';
+import { COLOR, NOMBRE_ALIAS } from './nombres';
 import '../botones.css';
 import './coop.css';
 
@@ -52,8 +54,13 @@ export default function BarraCoop() {
   const pausado = reloj.value.pausado;
   const roles = misRoles.value;
   const hayVoto = (asunto: VotoCoop['asunto']) => votos.some((v) => v.asunto === asunto);
-  const [conFrases, setConFrases] = useState(false);
+  /** Qué lista de botones está abierta debajo de la fila: frases o pasar un objeto. */
+  const [abierto, setAbierto] = useState<'frases' | 'pasar' | null>(null);
+  const alternar = (cual: 'frases' | 'pasar') => setAbierto(abierto === cual ? null : cual);
   const objeto = enfocado.value;
+  const llevo = inventario.value.filter((o) => !o.conBoton);
+  const companeros = jugadores.filter((j) => !j.yo && j.conectado);
+  const puedePasar = llevo.length > 0 && companeros.length > 0;
 
   return (
     <section class="coop-barra" aria-label="Grupo">
@@ -67,11 +74,22 @@ export default function BarraCoop() {
         <button
           type="button"
           class="hud-boton-redondo"
-          aria-expanded={conFrases}
-          onClick={() => setConFrases(!conFrases)}
+          aria-expanded={abierto === 'frases'}
+          onClick={() => alternar('frases')}
         >
           Frases
         </button>
+        {/* T84d: pasarle a un compañero algo de lo que llevas. */}
+        {puedePasar && (
+          <button
+            type="button"
+            class="hud-boton-redondo"
+            aria-expanded={abierto === 'pasar'}
+            onClick={() => alternar('pasar')}
+          >
+            Pasar objeto
+          </button>
+        )}
         {!pausado && !hayVoto('pausa') && (
           <button
             type="button"
@@ -82,7 +100,10 @@ export default function BarraCoop() {
           </button>
         )}
       </div>
-      {conFrases && (
+      {abierto === 'pasar' && puedePasar && (
+        <PasarObjeto llevo={llevo} companeros={companeros} alPasar={() => setAbierto(null)} />
+      )}
+      {abierto === 'frases' && (
         <div class="coop-frases" role="group" aria-label="Frases rápidas">
           {/* T91: señala el objeto que tienes enfocado; el motor lo marca para los demás. */}
           <button
@@ -167,6 +188,66 @@ export default function BarraCoop() {
         );
       })}
     </section>
+  );
+}
+
+/**
+ * Pasar un objeto (T84d): primero qué (si llevas más de uno) y luego a quién. Cada compañero
+ * se reconoce por su alias y su color. Por la red solo viajan los ids.
+ */
+function PasarObjeto({
+  llevo,
+  companeros,
+  alPasar,
+}: {
+  llevo: readonly ObjetoInventario[];
+  companeros: readonly JugadorCoop[];
+  alPasar: () => void;
+}) {
+  const [elegido, setElegido] = useState<string | null>(null);
+  const objeto = llevo.find((o) => o.id === elegido) ?? llevo[0];
+  if (!objeto) return null;
+  return (
+    <div class="coop-pasar" role="group" aria-label="Pasar objeto">
+      {llevo.length > 1 ? (
+        <div class="coop-pasar-fila" role="group" aria-label="¿Qué objeto?">
+          {llevo.map((o) => (
+            <button
+              key={o.id}
+              type="button"
+              class="hud-boton-redondo"
+              aria-pressed={o.id === objeto.id}
+              onClick={() => setElegido(o.id)}
+            >
+              {o.nombre}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p class="coop-pasar-que">Pasas: {objeto.nombre}</p>
+      )}
+      <div class="coop-pasar-fila" role="group" aria-label="¿A quién?">
+        {companeros.map((j) => (
+          <button
+            key={j.jugador}
+            type="button"
+            class="hud-boton-redondo coop-companero"
+            aria-label={`Pasarle ${objeto.nombre} a ${NOMBRE_ALIAS[j.alias]} (${COLOR[j.color].nombre})`}
+            onClick={() => {
+              enviar({ t: 'pasar', objeto: objeto.id, a: j.jugador });
+              alPasar();
+            }}
+          >
+            <span
+              class="coop-punto"
+              style={{ background: COLOR[j.color].css }}
+              aria-hidden="true"
+            />
+            {NOMBRE_ALIAS[j.alias]}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
