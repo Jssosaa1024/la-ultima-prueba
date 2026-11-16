@@ -112,6 +112,8 @@ function Escena() {
   return (
     <div class="juego">
       <canvas ref={canvasRef} class="juego-canvas" aria-label="Escena del juego" />
+      {/* Viñeta (T19j): oscurece apenas los bordes, sin costo en la GPU del juego. */}
+      <div class="juego-vineta" aria-hidden="true" />
       {/* Datos técnicos de pantalla: solo en la prueba de carga. */}
       <div ref={hudRef} class="hud" hidden={!pruebaGlb}>
         <div class="zona-segura">

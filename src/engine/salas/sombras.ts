@@ -7,6 +7,9 @@
  * Cada sombra es un plano de 3 × 3 trozos («nueve cortes»): el centro va oscuro parejo y el
  * borde difuso mide siempre lo mismo en metros (de `HUNDIDO` dentro del mueble a `MARGEN_SOMBRA`
  * fuera), sea una banca o una estantería. Las esquinas salen redondeadas.
+ *
+ * T19j: la misma malla lleva los cuadros sueltos de la oclusión falsa de los acabados
+ * (`acabados.ts`), con la misma textura: siguen siendo una sola draw call.
  */
 import {
   BufferGeometry,
@@ -110,11 +113,32 @@ function cortes(medio: number): { pos: number; uv: number }[] {
   ];
 }
 
-/** Une las sombras de `objetos` en una malla. `null` si no hay ninguna. */
-export function crearSombras(objetos: readonly ObjetoSala[]): Mesh | null {
+/**
+ * Un cuadro suelto (T19j): cuatro esquinas en el mundo y su UV en la textura de sombra, en el
+ * orden en que se ven de frente (los triángulos 0-1-2 y 0-2-3).
+ */
+export interface Cuadro {
+  esquinas: readonly (readonly [number, number, number])[];
+  uvs: readonly (readonly [number, number])[];
+}
+
+/**
+ * Une las sombras de `objetos` y los cuadros `extra` (T19j) en una malla. `null` si no hay
+ * ninguna.
+ */
+export function crearSombras(
+  objetos: readonly ObjetoSala[],
+  extra: readonly Cuadro[] = [],
+): Mesh | null {
   const posiciones: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
+  for (const c of extra) {
+    const base = posiciones.length / 3;
+    c.esquinas.forEach((e) => posiciones.push(...e));
+    c.uvs.forEach((uv) => uvs.push(...uv));
+    indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  }
   for (const o of objetos) {
     const { ancho, fondo } = huella(o);
     if (ancho <= 0 || fondo <= 0) continue;

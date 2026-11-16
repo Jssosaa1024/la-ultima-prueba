@@ -105,6 +105,21 @@ export const esquemaSala = z.strictObject({
       metros: positivo.optional(),
     })
     .optional(),
+  /**
+   * Opcional (T19j): acabados por código, para que la sala no se vea como una caja. Zócalo
+   * pintado en la parte baja de las paredes con su franja, rodapié y cornisa; marcos en las
+   * puertas y los tableros; lámparas de techo con su brillo y rincones oscurecidos.
+   */
+  acabados: z
+    .strictObject({
+      /** Pintura de la parte baja de las paredes. */
+      zocalo: color,
+      /** La línea que separa el zócalo del resto de la pared. */
+      franja: color,
+      /** Rodapié y marcos de puertas y tableros. */
+      marcos: color,
+    })
+    .optional(),
   /** Dónde aparece el jugador al entrar y hacia dónde mira (grados, 0 = hacia −Z). */
   inicio: z.strictObject({ x: metros, z: metros, giro: metros }),
   objetos: z.array(esquemaObjeto).min(1),

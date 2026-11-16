@@ -94,6 +94,18 @@ Alex vio la portería y la sala 1 con Kenney y dijo que se veían muy simples. S
 - **Sala 1:** estantes = `cabinet_medium` + `shelf_B_large_decorated`, mostrador = 3 × `kitchencounter_straight_A`, etiquetadora `oven`, caja `crate`, mesa `table_medium_long`. La registradora sigue siendo la de Kenney Mini Shop. De ambiente: dos huacales con verduras, frascos, menú, cactus, lámpara y dos cuadros.
 - **Medidas:** portería 2.616 triángulos, 151 KB; sala 1, 8.426 triángulos, 305 KB. Cada modelo, una draw call.
 
+## Acabados por código (T19j)
+
+Con KayKit los muebles ya se veían bien, pero las salas seguían siendo cajas: paredes lisas, luz pareja y nada en el techo. Sin paquetes nuevos, el motor agrega (`src/engine/salas/acabados.ts`) a las salas que tienen `acabados` en `salas.json`:
+
+- **Zócalo pintado** hasta 1,05 m con su franja, rodapié y cornisa. Portería: azul `#35618c` con franja amarilla; sala 1: terracota `#b4573a` con franja crema.
+- **Marcos** de madera en las puertas y en los tableros grandes sin modelo (pizarra, corcho, mural).
+- **Lámparas de techo** en fila por el centro de la sala, con un halo en el techo y un charco de luz en el piso (textura de 64 × 64 hecha por código, aditiva).
+- **Rincones oscurecidos**: franjas de sombra junto a las paredes y en las esquinas, en la misma malla de las sombras de contacto.
+- **Viñeta** suave en los bordes de la pantalla (CSS, sin costo en la GPU del juego).
+
+Costo: hasta 3 draw calls más por sala (difusores, brillos y, si no existía, la malla fija) y menos de 2.000 triángulos. La sala 1 cambia la baldosa por parqué (ambientCG WoodFloor071, ya descargado en T11sa: 145 KB). Las salas 2 a 5 los recibirán con su arte.
+
 ## Portería y sala 1: cómo quedaron (T19h)
 
 Ya se ven en el juego. Lo que cambió frente a las tablas de abajo, al verlo armado:
