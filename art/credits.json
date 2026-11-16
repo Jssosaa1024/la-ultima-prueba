@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "archivo": "public/assets/salas/porteria/taza.glb",
+    "sala": "porteria",
+    "tipo": "modelo",
+    "titulo": "Taza de prueba (generada por código, T10b)",
+    "autor": "La Última Prueba",
+    "fuente": "codigo",
+    "url": null,
+    "licencia": "propio",
+    "licencia_url": null,
+    "cambios": null,
+    "fecha": "2026-11-16",
+    "plan": null,
+    "evidencia": null
+  }
+]

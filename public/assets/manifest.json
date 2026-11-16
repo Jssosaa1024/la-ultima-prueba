@@ -1,4 +1,34 @@
 {
   "version": 1,
-  "salas": {}
+  "salas": {
+    "porteria": {
+      "archivos": [
+        {
+          "archivo": "salas/porteria/taza.e699a579.glb",
+          "sha256": "e699a57982d7b04f1a9156c5a48dab94414f3a9315938a0d841e9e16a13454d9",
+          "bytes": 5608,
+          "triangulos": 256,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "loza",
+              "ancho": 128,
+              "alto": 64,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 5448
+            }
+          ]
+        }
+      ],
+      "audio": [],
+      "totales": {
+        "bytes": 5608,
+        "bytesAudio": 0,
+        "triangulos": 256,
+        "drawCalls": 1,
+        "bytesGpu": 5448
+      }
+    }
+  }
 }

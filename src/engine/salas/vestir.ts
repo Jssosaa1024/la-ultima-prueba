@@ -1,12 +1,15 @@
 /**
  * Vestir una sala (T19g): ponerle a la sala ya armada por código lo que se descarga.
  *
- * Hoy son las texturas de color de piso, paredes y techo (KTX2 de 1024, repetidas). La sala
- * ya se ve completa con sus colores antes de vestirla: si un archivo no está en el manifiesto
- * o no se puede cargar, esa superficie se queda con su color y la partida sigue.
+ * - Los modelos de los objetos (T19e, GLB con meshopt y KTX2): ver `modelos.ts`.
+ * - Las texturas de color de piso, paredes y techo (T19g, KTX2 de 1024, repetidas).
  *
- * Cada sala carga sus propias copias de las texturas (de la caché HTTP, sin volver a
- * descargar): así, al liberar una sala con `dispose()`, la portería no pierde las suyas.
+ * La sala ya se ve completa con sus primitivas y colores antes de vestirla: si un archivo no
+ * está en el manifiesto o no se puede cargar, ese objeto o esa superficie se queda como estaba
+ * y la partida sigue.
+ *
+ * Cada sala carga sus propias copias (de la caché HTTP, sin volver a descargar): así, al
+ * liberar una sala con `dispose()`, la portería no pierde las suyas.
  */
 import { RepeatWrapping, SRGBColorSpace } from 'three';
 import type { Mesh, MeshLambertMaterial, Object3D, Texture } from 'three';
@@ -14,16 +17,24 @@ import type { Sala } from '../../content/esquema-salas';
 import { urlDeAsset } from '../carga/manifiesto';
 import type { IndiceAssets } from '../carga/manifiesto';
 import { SUPERFICIES, TEXTURA } from './construir';
+import { aLambert, ponerModelos } from './modelos';
 
 /** De dónde salen los archivos. En el juego, el manifiesto y el cargador KTX2 (T10). */
 export interface FuentesAssets {
   indice(): Promise<IndiceAssets>;
   textura(url: string): Promise<Texture>;
+  /** La escena del GLB. */
+  modelo(url: string): Promise<Object3D>;
 }
+
+/** Los modelos distintos que usa la sala (nombres en su carpeta del manifiesto). */
+const modelosDe = (sala: Sala): string[] => [
+  ...new Set(sala.objetos.flatMap((o) => (o.modelo ? [o.modelo] : []))),
+];
 
 /** `true` si la sala tiene algo que descargar. */
 export function necesitaVestir(sala: Sala): boolean {
-  return SUPERFICIES.some((s) => sala.texturas?.[s]);
+  return SUPERFICIES.some((s) => sala.texturas?.[s]) || modelosDe(sala).length > 0;
 }
 
 /** Las URL de lo que usa la sala, para dejarlas en la caché antes de entrar. */
@@ -32,6 +43,10 @@ export function urlsDeSala(sala: Sala, indice: IndiceAssets): string[] {
   for (const s of SUPERFICIES) {
     const id = sala.texturas?.[s];
     const url = id ? urlDeAsset(indice, id, 'ktx2') : null;
+    if (url) urls.add(url);
+  }
+  for (const nombre of modelosDe(sala)) {
+    const url = urlDeAsset(indice, `${sala.id}/${nombre}`, 'glb');
     if (url) urls.add(url);
   }
   return [...urls];
@@ -66,19 +81,37 @@ export async function vestirSala(
     porTextura.set(id, [...(porTextura.get(id) ?? []), o as Mesh]);
   });
 
-  await Promise.all(
-    [...porTextura].map(async ([id, mallas]) => {
-      const url = urlDeAsset(indice, id, 'ktx2');
-      if (!url) {
-        console.warn(`La textura ${id} no está en el manifiesto; queda el color de la sala`);
-        return;
-      }
-      try {
-        const textura = await fuentes.textura(url);
-        for (const m of mallas) aplicarTextura(m, textura);
-      } catch (error) {
-        console.warn(`No se pudo cargar la textura ${id}; queda el color de la sala`, error);
-      }
-    }),
-  );
+  const cargados = new Map<string, Object3D>();
+  const modelos = modelosDe(sala).map(async (nombre) => {
+    const id = `${sala.id}/${nombre}`;
+    const url = urlDeAsset(indice, id, 'glb');
+    if (!url) {
+      console.warn(`El modelo ${id} no está en el manifiesto; queda la primitiva`);
+      return;
+    }
+    try {
+      const modelo = await fuentes.modelo(url);
+      aLambert(modelo);
+      cargados.set(nombre, modelo);
+    } catch (error) {
+      console.warn(`No se pudo cargar el modelo ${id}; queda la primitiva`, error);
+    }
+  });
+
+  const texturas = [...porTextura].map(async ([id, mallas]) => {
+    const url = urlDeAsset(indice, id, 'ktx2');
+    if (!url) {
+      console.warn(`La textura ${id} no está en el manifiesto; queda el color de la sala`);
+      return;
+    }
+    try {
+      const textura = await fuentes.textura(url);
+      for (const m of mallas) aplicarTextura(m, textura);
+    } catch (error) {
+      console.warn(`No se pudo cargar la textura ${id}; queda el color de la sala`, error);
+    }
+  });
+
+  await Promise.all([...modelos, ...texturas]);
+  if (cargados.size > 0) ponerModelos(raiz, sala, cargados);
 }

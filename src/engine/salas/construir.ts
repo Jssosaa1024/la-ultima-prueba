@@ -11,6 +11,8 @@
  * - Luz sin horneado (T19f): una hemisférica y una direccional, sin sombras en tiempo real, y
  *   una sombra de contacto falsa bajo cada mueble que se apoya en el piso (`sombras.ts`), todas
  *   en UNA malla.
+ * - Modelos (T19e): un objeto con `modelo` no se une a la malla fija; su primitiva sigue siendo
+ *   la caja que choca y la que se toca, y `vestir.ts` pone el GLB encima al cargarlo.
  * - Texturas de piso, paredes y techo (T19g): la superficie que tiene textura en `salas.json`
  *   se une en su propia malla, con UV en metros, para que `vestir.ts` le ponga el mapa al
  *   cargarlo. Mientras tanto (o si no carga) se ve con su color.
@@ -53,6 +55,8 @@ export type Superficie = (typeof SUPERFICIES)[number];
 const SUPERFICIE = 'superficie';
 /** En `userData` de la malla de una superficie con textura: el id de la textura en el manifiesto. */
 export const TEXTURA = 'textura';
+/** En `userData` de un objeto con modelo (T19e): el nombre del GLB en la carpeta de la sala. */
+export const MODELO = 'modelo';
 
 export interface SalaConstruida {
   id: Sala['id'];
@@ -102,6 +106,7 @@ function crearObjeto(o: ObjetoSala): Object3D {
   objeto.rotation.y = (o.giro ?? 0) * GRADOS;
   objeto.userData['id'] = o.id;
   if (o.puerta) objeto.userData['puerta'] = o.puerta;
+  if (o.modelo) objeto.userData[MODELO] = o.modelo;
   if (o.solido) marcarSolido(objeto);
   if (o.accion && o.nombre) {
     marcarInteractivo(objeto, { id: o.id, nombre: o.nombre, accion: o.accion });
@@ -149,9 +154,9 @@ function crearCascaron(sala: Sala): Object3D[] {
 
 const material = (color: string): MeshLambertMaterial => new MeshLambertMaterial({ color });
 
-/** `true` si el objeto o alguno de sus padres se puede tocar. */
-function esInteractivo(o: Object3D): boolean {
-  for (let a: Object3D | null = o; a; a = a.parent) if (a.userData['interactivo']) return true;
+/** `true` si el objeto o alguno de sus padres tiene la marca `clave` en `userData`. */
+function conMarca(o: Object3D, clave: string): boolean {
+  for (let a: Object3D | null = o; a; a = a.parent) if (a.userData[clave]) return true;
   return false;
 }
 
@@ -200,7 +205,10 @@ function unirFijas(raiz: Group, sala: Sala): void {
   const fijas: Mesh[] = [];
   raiz.traverse((o) => {
     const malla = o as Mesh;
-    if (malla.isMesh && !esInteractivo(malla)) fijas.push(malla);
+    // Lo que se toca y lo que lleva modelo (T19e) quedan aparte.
+    if (malla.isMesh && !conMarca(malla, 'interactivo') && !conMarca(malla, MODELO)) {
+      fijas.push(malla);
+    }
   });
   if (fijas.length === 0) return;
 
