@@ -60,6 +60,50 @@ describe('T88 · secuencia y resincronización', () => {
     copiasIguales(m);
   });
 
+  it('T88b: una pista ofrecida por tiempo llega a todos en ese momento, no con la foto de 15 s', async () => {
+    const m = await mesa(3);
+    await empezarYEntrar(m);
+    // Lo que decidió el anfitrión (su sesión) y lo que ve cada copia, incluida la suya.
+    const enSesion = () => m.host.anfitrion?.sesion.pistas[0]?.ofrecidas ?? 0;
+    const enCopia = (c: (typeof m.clientes)[number]) => c.foto?.pistas[0]?.ofrecidas ?? 0;
+    // Una foto a los 7 s corre la de cada 15 s, para que no coincida con la oferta de la pista.
+    m.avanzar(7000);
+    m.host.anfitrion?.emitirFoto();
+    m.red.vaciar();
+    // Segundo a segundo hasta que el anfitrión ofrece la primera pista (120 s en la sala 1).
+    let segundos = 7;
+    while (enSesion() === 0 && segundos < 200) {
+      m.avanzar(1000);
+      segundos++;
+      // En el mismo segundo en que el anfitrión la ofrece, todas las copias ya la tienen.
+      for (const c of m.clientes) expect(enCopia(c), c.yo).toBe(enSesion());
+    }
+    expect(enSesion()).toBe(1);
+    expect(segundos).toBeGreaterThanOrEqual(120);
+    copiasIguales(m);
+  });
+
+  it('T88b: la pista ofrecida por intentos llega con el resultado que la abrió', async () => {
+    const m = await mesa(2);
+    await empezarYEntrar(m);
+    const otro = m.clientes[1];
+    if (!otro) throw new Error('falta el segundo');
+    const mal = { ...etapa(0).solucion, rodillos: [20] };
+    // tras_intentos: 3 en la sala 1. Sin avanzar el reloj, solo los intentos la abren.
+    for (let k = 0; k < 3; k++) await proponerYConfirmar(m, 0, mal);
+    expect(m.host.foto?.pistas[0]?.ofrecidas).toBe(1);
+    expect(otro.foto?.pistas[0]?.ofrecidas).toBe(1);
+    copiasIguales(m);
+  });
+
+  it('T88b: sin pista nueva no se difunde ninguna foto extra', async () => {
+    const m = await mesa(2);
+    await empezarYEntrar(m);
+    const antes = m.eventos.filter((e) => e.t === 'estado').length;
+    m.avanzar(10_000);
+    expect(m.eventos.filter((e) => e.t === 'estado').length).toBe(antes);
+  });
+
   it('un evento repetido o viejo no se aplica dos veces', async () => {
     const m = await mesa(2);
     await empezarYEntrar(m);
