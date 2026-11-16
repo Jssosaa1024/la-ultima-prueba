@@ -266,6 +266,7 @@ describe('vestir la sala (T19g)', () => {
           ? Promise.reject(new Error('no carga'))
           : Promise.resolve(new DataTexture(new Uint8Array(4), 1, 1) as Texture);
       },
+      modelo: () => Promise.reject(new Error('sin modelos')),
     };
     return { f, pedidas };
   };

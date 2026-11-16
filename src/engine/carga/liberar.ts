@@ -19,7 +19,12 @@ export function liberarObjeto(raiz: Object3D): Liberado {
   const materiales = new Set<Material>();
   const texturas = new Set<Texture>();
 
+  const instanciadas: { dispose(): void }[] = [];
   raiz.traverse((objeto) => {
+    // Una malla instanciada guarda además sus matrices en la GPU (T19e).
+    if ((objeto as { isInstancedMesh?: boolean }).isInstancedMesh) {
+      instanciadas.push(objeto as unknown as { dispose(): void });
+    }
     const { geometry, material } = objeto as Object3D & {
       geometry?: BufferGeometry;
       material?: Material | Material[];
@@ -34,6 +39,7 @@ export function liberarObjeto(raiz: Object3D): Liberado {
   geometrias.forEach((g) => g.dispose());
   texturas.forEach((t) => t.dispose());
   materiales.forEach((m) => m.dispose());
+  instanciadas.forEach((m) => m.dispose());
   raiz.removeFromParent();
   return { geometrias: geometrias.size, materiales: materiales.size, texturas: texturas.size };
 }
