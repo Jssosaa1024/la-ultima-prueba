@@ -100,6 +100,7 @@ export async function armarModelo(
     escala: escalaDe(entrada),
     giro: entrada.giro,
     estirar: entrada.estirar,
+    caja: entrada.caja,
   });
   // Un GLB lleva un solo búfer: las piezas traían uno cada una.
   await documento.transform(unpartition());

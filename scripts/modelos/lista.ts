@@ -4,9 +4,9 @@
  * Cada entrada dice qué archivo de `public/assets/salas/` se arma y de dónde sale:
  *
  * - Un modelo (`.glb`) se arma con una o más `piezas` de un paquete, cada una con su posición
- *   y su giro (en las unidades del paquete), más un `estirar` opcional para acercar sus
- *   proporciones a la caja del objeto en `salas.json`. El motor lo ajusta después a esa caja
- *   sin deformarlo (T19e).
+ *   y su giro (en las unidades del paquete), más un `estirar` por eje o una `caja` en metros
+ *   opcionales para acercar sus proporciones a la caja del objeto en `salas.json`. El motor
+ *   lo ajusta después a esa caja sin deformarlo (T19e).
  * - Una textura (`.ktx2`) sale de una sola imagen.
  *
  * El `original` es la ruta de un archivo de `art/`, o de un archivo dentro de un zip de `art/`
@@ -45,16 +45,23 @@ const pieza = z.strictObject({
   giro: z.number().min(-360).max(360).optional(),
 });
 
-export const esquemaEntradaModelo = z.strictObject({
-  archivo: z.string().regex(ARCHIVO_MODELO, 'public/assets/salas/<carpeta>/<nombre>.glb'),
-  piezas: z.array(pieza).min(1).max(16),
-  /** Giro de todo el modelo, en grados, para que su frente mire a +Z como la primitiva. */
-  giro: z.number().min(-360).max(360).optional(),
-  /** Factor por eje (x, y, z) después de pasar a metros: acerca las proporciones a la caja. */
-  estirar: z.tuple([positivo, positivo, positivo]).optional(),
-  /** Por qué se eligió así (se lee en el PR, no lo usa el script). */
-  nota: z.string().max(300).optional(),
-});
+export const esquemaEntradaModelo = z
+  .strictObject({
+    archivo: z.string().regex(ARCHIVO_MODELO, 'public/assets/salas/<carpeta>/<nombre>.glb'),
+    piezas: z.array(pieza).min(1).max(16),
+    /** Giro de todo el modelo, en grados, para que su frente mire a +Z como la primitiva. */
+    giro: z.number().min(-360).max(360).optional(),
+    /** Factor por eje (x, y, z) después de pasar a metros: acerca las proporciones a la caja. */
+    estirar: z.tuple([positivo, positivo, positivo]).optional(),
+    /**
+     * Medidas finales en metros (ancho, alto, fondo), las de `tam` en `salas.json`: el perfil
+     * estira cada eje para calzar justo. `null` en un eje = proporcional (el fondo de un plano).
+     */
+    caja: z.tuple([positivo.nullable(), positivo.nullable(), positivo.nullable()]).optional(),
+    /** Por qué se eligió así (se lee en el PR, no lo usa el script). */
+    nota: z.string().max(300).optional(),
+  })
+  .refine((e) => !(e.estirar && e.caja), 'Usa «estirar» o «caja», no los dos');
 
 export const esquemaEntradaTextura = z.strictObject({
   archivo: z.string().regex(ARCHIVO_TEXTURA, 'public/assets/salas/<carpeta>/<nombre>.ktx2'),

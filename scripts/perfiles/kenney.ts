@@ -3,7 +3,9 @@
  * una sola draw call.
  *
  * 1. Cada pieza va a su posición y giro (unidades del paquete), todas bajo un nodo raíz.
- * 2. Escala del paquete a metros, giro del modelo y `estirar` por eje.
+ * 2. Escala del paquete a metros, giro del modelo y `estirar` por eje, o `caja`: las medidas
+ *    finales en metros, para que el modelo calce justo en la caja del objeto en `salas.json`
+ *    (lo que va encima, como la linterna sobre el escritorio, no queda flotando).
  * 3. Las transformaciones se hornean en los vértices y `flatten` deja todos los nodos hermanos.
  * 4. `palette`: los materiales de color plano (Furniture Kit) se funden en uno con una textura
  *    de paleta pequeña. Mini Shop y Factory Kit ya traen un solo material con `colormap.png`.
@@ -12,7 +14,7 @@
  *
  * No hay `simplify`: los modelos de Kenney ya son low-poly. El resto lo hace la etapa común.
  */
-import { Node as NodoGltf } from '@gltf-transform/core';
+import { getBounds, Node as NodoGltf } from '@gltf-transform/core';
 import type { Document, mat4, Node, vec3, vec4 } from '@gltf-transform/core';
 import {
   center,
@@ -79,7 +81,13 @@ export interface PiezaColocada {
 export async function aplicarPerfilKenney(
   documento: Document,
   piezas: PiezaColocada[],
-  opciones: { escala: number; giro?: number | undefined; estirar?: vec3 | undefined },
+  opciones: {
+    escala: number;
+    giro?: number | undefined;
+    estirar?: vec3 | undefined;
+    /** Medidas finales en metros (ancho, alto, fondo); `null` = proporcional. */
+    caja?: [number | null, number | null, number | null] | undefined;
+  },
 ): Promise<void> {
   const raiz = documento.getRoot();
   const escena = raiz.getDefaultScene() ?? raiz.listScenes()[0] ?? documento.createScene();
@@ -110,6 +118,25 @@ export async function aplicarPerfilKenney(
     if (otra !== escena) otra.dispose();
   }
   escena.addChild(modelo);
+
+  // 2b: con `caja`, el estiramiento sale de las medidas: cada eje queda con la suya en metros.
+  if (opciones.caja) {
+    const { min, max } = getBounds(escena);
+    const lados = max.map((v, i) => v - (min[i] ?? 0));
+    const actual = modelo.getScale();
+    const [cx, cy, cz] = opciones.caja.map((medida, i) => {
+      const lado = lados[i] ?? 0;
+      return medida !== null && lado > 1e-6 ? medida / lado : null;
+    });
+    // Un eje sin medida (el fondo de un plano) sigue la media de los otros dos.
+    const conocidos = [cx, cy, cz].filter((f): f is number => f !== null);
+    const media = conocidos.reduce((a, b) => a + b, 0) / Math.max(1, conocidos.length);
+    modelo.setScale([
+      (actual[0] ?? 1) * (cx ?? media),
+      (actual[1] ?? 1) * (cy ?? media),
+      (actual[2] ?? 1) * (cz ?? media),
+    ]);
+  }
 
   // 3: la matriz de cada nodo con malla pasa a sus vértices y el nodo queda en la raíz de la
   // escena, sin transformación. Así un `estirar` no uniforme con piezas giradas no pierde nada

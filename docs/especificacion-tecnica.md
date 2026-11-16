@@ -86,7 +86,7 @@ El presupuesto de la sección 0 manda sobre las cifras de la investigación (100
 
 ### Limpieza por fuente en `optimize-models`
 
-`npm run optimize-models -- --lista [--sala <carpeta>]` (T11a) arma lo que dice `art/modelos.json`: cada modelo con sus piezas (un archivo dentro de un zip de `art/`, con posición y giro), un giro y un `estirar` por eje opcionales; cada textura con su imagen. Lee la `fuente` de cada archivo en `art/credits.json`, aplica su perfil (`scripts/perfiles/`) antes de la etapa común y escribe en `public/assets/salas/`; después, `npm run build-manifest` le pone el hash. Los zips se leen sin descomprimirlos en el repositorio, así que no hay carpeta `limpios/`. Ningún perfil sube un límite: si un asset no cabe, se simplifica o se cambia.
+`npm run optimize-models -- --lista [--sala <carpeta>]` (T11a) arma lo que dice `art/modelos.json`: cada modelo con sus piezas (un archivo dentro de un zip de `art/`, con posición y giro), un giro y un `estirar` por eje o una `caja` en metros opcionales (con `caja`, el modelo calza justo en el `tam` del objeto y lo que va encima no flota); cada textura con su imagen. Lee la `fuente` de cada archivo en `art/credits.json`, aplica su perfil (`scripts/perfiles/`) antes de la etapa común y escribe en `public/assets/salas/`; después, `npm run build-manifest` le pone el hash. Los zips se leen sin descomprimirlos en el repositorio, así que no hay carpeta `limpios/`. Ningún perfil sube un límite: si un asset no cabe, se simplifica o se cambia.
 
 | Perfil | Pasos específicos | Trampa principal |
 | --- | --- | --- |

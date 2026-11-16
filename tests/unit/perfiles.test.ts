@@ -92,6 +92,10 @@ describe('art/modelos.json (T11a)', () => {
     expect(esquemaLista.safeParse([escritorio, escritorio]).success).toBe(false);
     expect(esquemaLista.safeParse([{ ...escritorio, piezas: [] }]).success).toBe(false);
     expect(esquemaLista.safeParse([{ ...escritorio, estirar: [1, 0, 1] }]).success).toBe(false);
+    expect(esquemaLista.safeParse([{ ...escritorio, caja: [1.2, 0.75, null] }]).success).toBe(true);
+    expect(
+      esquemaLista.safeParse([{ ...escritorio, caja: [1, 1, 1], estirar: [1, 1, 1] }]).success,
+    ).toBe(false);
   });
 
   it('parte el original en zip y ruta interna, y saca la carpeta del destino', () => {
@@ -348,6 +352,25 @@ describe('perfil kenney (T11b)', () => {
     });
     // La pieza (2 × 2 × 1) gira 180° en total: sigue de 2 × 2 × 1, y se estira a 2 × 3 × 3.
     expect(tamano(documento).tam).toEqual([2, 3, 3]);
+  });
+
+  it('con «caja» calza justo en las medidas del objeto, y un eje sin medida va proporcional', async () => {
+    const justo = new Document();
+    justo.createScene();
+    await aplicarPerfilKenney(justo, [{ raices: [piezaDePrueba(justo, 'a')] }], {
+      escala: 2,
+      caja: [1.2, 0.75, 0.6],
+    });
+    expect(tamano(justo).tam).toEqual([1.2, 0.75, 0.6]);
+
+    const plano = new Document();
+    plano.createScene();
+    await aplicarPerfilKenney(plano, [{ raices: [piezaDePrueba(plano, 'a')] }], {
+      escala: 1,
+      caja: [1, 4, null],
+    });
+    // 2 × 2 × 1 → x ×0,5 e y ×2: el fondo sigue la media, ×1,25.
+    expect(tamano(plano).tam).toEqual([1, 4, 1.25]);
   });
 });
 
