@@ -1,14 +1,24 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import datos from '../../src/content/salas.json';
 
 // T19h y T19i: la portería y la sala 1 se ven con modelos CC0 (KayKit, y la registradora de
 // Kenney) y texturas de ambientCG. Cada objeto con `modelo` en salas.json muestra su GLB (la
 // primitiva queda como caja que choca), y el piso, las paredes y el techo piden su KTX2.
 
+interface SalaJson {
+  id: string;
+  objetos: { id: string; modelo?: string }[];
+}
+
+// Playwright no importa JSON sin atributo de importación: se lee del disco.
+const datos = JSON.parse(
+  readFileSync(new URL('../../src/content/salas.json', import.meta.url), 'utf8'),
+) as SalaJson[];
+
 /** Los objetos con modelo de una sala, en orden: lo que el motor publica en `data-modelos`. */
 const conModelo = (id: string): string[] =>
   (datos.find((s) => s.id === id)?.objetos ?? [])
-    .filter((o) => 'modelo' in o && o.modelo)
+    .filter((o) => o.modelo)
     .map((o) => o.id)
     .sort();
 
