@@ -117,7 +117,10 @@ Tener en cuenta:
 ## 5. Pruebas
 
 - `format:check`, `lint`, `test`, `check-credits`, `check-budget`, `check-audio` y el build (con `astro check`) en verde en cada PR, en local y con el candado de pruebas.
-- E2e de cada PR en celular y escritorio, solo las que tocan estas pantallas (en cada PR está la lista y el resultado).
+- E2e de cada PR en celular y escritorio, solo las que tocan estas pantallas (en cada PR está la lista y el resultado):
+  - T41c: 59 pasan, 1 se salta.
+  - T41d: 89 pasan, 9 se saltan; 6 fallaron en la corrida grande (mi prueba nueva de la pausa, corregida, y dos que caminan por la escena, por tiempo con el equipo cargado) y pasaron al repetirlas solas.
+  - T41e: 57 pasan, 1 se salta; 4 que caminan por la escena (cruzar puertas, tocar la puerta 2) fallaron por tiempo y pasaron al repetirlas solas.
 - Nuevas: `tests/unit/tema.test.ts` (contraste y tamaño de letra) y `tests/e2e/tema-archivo.spec.ts` (menú, crear, pausa y final en 740 × 360; animaciones quietas con menos movimiento).
 - Cambiaron por la pausa: `hud`, `humo`, `partida`, `orientacion` y `depuracion` ya no esperan el `window.confirm`; usan `salirDeLaPartida()` de `tests/e2e/escena.ts`.
 
