@@ -85,6 +85,26 @@ const idTextura = z
   .string()
   .regex(ID_TEXTURA, 'Id del manifiesto: <carpeta>/<nombre>, por ejemplo compartido/piso-madera');
 
+/** Cómo está una lámpara de techo (T19k). La que titila baja de vez en cuando, nunca a negro. */
+export const ESTADOS_LAMPARA = ['encendida', 'apagada', 'titila'] as const;
+export type EstadoLampara = (typeof ESTADOS_LAMPARA)[number];
+
+/** Paredes por su lado: norte en −Z, sur en +Z, oeste en −X y este en +X. */
+export const PAREDES = ['norte', 'sur', 'oeste', 'este'] as const;
+
+/** Una ventana alta en una pared (T19k): el vidrio, sin contar el marco. */
+const ventana = z.strictObject({
+  pared: z.enum(PAREDES),
+  /** Centro a lo largo de la pared: x en norte y sur, z en oeste y este. */
+  centro: metros,
+  /** Borde de abajo del vidrio. */
+  y: positivo,
+  ancho: positivo,
+  alto: positivo,
+  /** Si en esta ventana se ve la luna. */
+  luna: z.boolean().optional(),
+});
+
 export const esquemaSala = z.strictObject({
   id: z.enum(LUGARES),
   nombre: z.string().trim().min(1).max(40),
@@ -103,6 +123,37 @@ export const esquemaSala = z.strictObject({
       techo: idTextura.optional(),
       /** Metros que cubre una repetición (por defecto, 2: `METROS_POR_REPETICION` en el motor). */
       metros: positivo.optional(),
+      /**
+       * Opcional (T19k): color que tiñe la textura de cada superficie (multiplica). Sin tinte,
+       * la textura se ve con sus colores, igual en todas las salas.
+       */
+      tinte: z
+        .strictObject({
+          piso: color.optional(),
+          paredes: color.optional(),
+          techo: color.optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  /**
+   * Opcional (T19k): la luz de la sala. Siempre son las mismas dos luces (hemisférica y
+   * direccional), porque cambiar de juego de luces recompila los shaders al pasar de sala; aquí
+   * cambian sus colores, su fuerza, de dónde viene la direccional y la exposición del tono.
+   * Sin este campo, la luz de T19i.
+   */
+  luz: z
+    .strictObject({
+      /** Color de lo que mira hacia arriba (cielo) y hacia abajo (suelo) de la hemisférica. */
+      cielo: color,
+      suelo: color,
+      fuerza: positivo,
+      direccional: color,
+      fuerzaDireccional: positivo,
+      /** Dónde está la direccional, en metros desde el centro de la sala; apunta al centro. */
+      desde: vec3.optional(),
+      /** Exposición del tono (`toneMappingExposure`); el ajuste «Brillo» la multiplica. */
+      exposicion: positivo,
     })
     .optional(),
   /**
@@ -118,6 +169,13 @@ export const esquemaSala = z.strictObject({
       franja: color,
       /** Rodapié y marcos de puertas y tableros. */
       marcos: color,
+      /**
+       * Opcional (T19k): cómo está cada lámpara de techo, en el orden en que se reparten a lo
+       * largo de la sala (de −X a +X o de −Z a +Z). Las que falten, encendidas.
+       */
+      lamparas: z.array(z.enum(ESTADOS_LAMPARA)).optional(),
+      /** Opcional (T19k): ventanas altas con el cielo de noche, hechas por código. */
+      ventanas: z.array(ventana).optional(),
     })
     .optional(),
   /** Dónde aparece el jugador al entrar y hacia dónde mira (grados, 0 = hacia −Z). */

@@ -1,8 +1,19 @@
 import { NeutralToneMapping, SRGBColorSpace, Vector2, WebGLRenderer } from 'three';
 import type { PerspectiveCamera } from 'three';
 
-/** Exposición del tono neutro (T19i). */
+/** Exposición del tono neutro (T19i), si la sala no dice otra cosa. */
 export const EXPOSICION = 1.1;
+
+/**
+ * Exposición con la que se dibuja una sala (T19k): la de su `luz` en salas.json por el ajuste
+ * «Brillo» del jugador. Es un uniform: cambiarla no recompila nada.
+ */
+export function exposicionDe(
+  sala: { luz?: { exposicion: number } | undefined },
+  brillo: number,
+): number {
+  return (sala.luz?.exposicion ?? EXPOSICION) * brillo;
+}
 
 /**
  * Renderer WebGL2 del juego (T12).

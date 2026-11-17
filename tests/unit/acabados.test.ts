@@ -102,12 +102,18 @@ describe('acabados de sala (T19j)', () => {
         sala,
         sala.acabados ?? { zocalo: '', franja: '', marcos: '' },
       );
+      // T19k: las ventanas y los difusores de las lámparas apagadas, si la sala los tiene.
+      const extra = [
+        ...(sala.acabados?.ventanas?.length ? ['ventanas'] : []),
+        ...(sala.acabados?.lamparas?.includes('apagada') ? ['difusores-apagados'] : []),
+      ];
       expect(fijas.map((m) => m.name)).toEqual([
         'zocalo',
         'franja',
         'marcos',
         'cornisa',
         'carcasas',
+        ...extra,
       ]);
       for (const m of fijas) {
         m.geometry.computeBoundingBox();

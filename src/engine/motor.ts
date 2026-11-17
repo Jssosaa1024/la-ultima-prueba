@@ -40,7 +40,7 @@ import { crearEscalaDinamica } from './escala';
 import { crearBucle } from './loop';
 import { animacionDeSala } from './mecanismos';
 import type { AnimacionSala } from './mecanismos';
-import { crearRenderer, seguirTamano } from './renderer';
+import { crearRenderer, exposicionDe, seguirTamano } from './renderer';
 import type { Cargador } from './carga/cargador';
 import { pedirIndice } from './carga/manifiesto';
 import type { IndiceAssets } from './carga/manifiesto';
@@ -172,6 +172,17 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     if (!detenido && estadoMotor.value === 'pausado' && !document.hidden) dibujar();
   };
 
+  /**
+   * Exposición de la sala que se ve (T19k): la de su `luz` por el ajuste «Brillo». Es un
+   * uniform: cambiarla no recompila nada. Queda en un atributo para las pruebas e2e.
+   */
+  const ponerExposicion = (brillo = ajustes.peek().brillo): void => {
+    if (!mostrada) return;
+    const exposicion = exposicionDe(salaPorId(mostrada), brillo);
+    renderer.toneMappingExposure = exposicion;
+    canvas.dataset['exposicion'] = exposicion.toFixed(3);
+  };
+
   const cambiarA = async (lugar: Lugar): Promise<void> => {
     if (mostrada === lugar) return;
     const desde = mostrada;
@@ -201,6 +212,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
     canvas.dataset['sala'] = lugar;
+    ponerExposicion();
     // Mallas de la sala, con las que agregan sus animaciones: las geometrías en la GPU no deben
     // pasar de aquí (más las de la portería).
     canvas.dataset['mallas'] = String(contarMallas(nueva.raiz));
@@ -233,6 +245,12 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         void cambiarA(sala.value);
       }
     }
+  });
+
+  // El jugador cambia el brillo en los ajustes (T19k): se ve en el acto, también en pausa.
+  const dejarDeSeguirBrillo = effect(() => {
+    ponerExposicion(ajustes.value.brillo);
+    dibujarSiEnPausa();
   });
 
   // Audio (T43): suena después del primer toque. El último efecto queda en un atributo del
@@ -428,6 +446,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     detenido = true;
     clearTimeout(precarga);
     dejarDeSeguirSala();
+    dejarDeSeguirBrillo();
     dejarDeSeguirFase();
     dejarDeEscuchar();
     interaccion?.liberar();
@@ -448,6 +467,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['sonido'];
     delete canvas.dataset['audio'];
     delete canvas.dataset['escala'];
+    delete canvas.dataset['exposicion'];
     escalaResolucion.value = 1;
   };
 }

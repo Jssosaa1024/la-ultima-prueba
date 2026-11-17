@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   AJUSTES_INICIALES,
   ajustes,
+  BRILLOS,
   cambiarAjustes,
   cargarAjustes,
   CLAVE_AJUSTES,
@@ -33,6 +34,7 @@ describe('validarAjustes (T39)', () => {
       texto: 'muy-grande',
       volumenVoz: 40,
       volumenAmbiente: 0,
+      brillo: 1.2,
     };
     expect(validarAjustes(a)).toEqual(a);
   });
@@ -51,6 +53,13 @@ describe('validarAjustes (T39)', () => {
   it('rechaza volúmenes fuera de 0 a 100, decimales y textos', () => {
     for (const v of [-10, 110, 50.5, '50', null, Number.NaN, Infinity]) {
       expect(validarAjustes({ volumenVoz: v }).volumenVoz).toBe(AJUSTES_INICIALES.volumenVoz);
+    }
+  });
+
+  it('el brillo (T19k) solo toma uno de sus tres pasos', () => {
+    for (const b of BRILLOS) expect(validarAjustes({ brillo: b }).brillo).toBe(b);
+    for (const b of [0, 0.5, 1.1, 2, '1', null, Number.NaN]) {
+      expect(validarAjustes({ brillo: b }).brillo).toBe(1);
     }
   });
 

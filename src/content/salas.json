@@ -10,9 +10,27 @@
       "piso": "compartido/piso-baldosa",
       "paredes": "compartido/paredes",
       "techo": "compartido/techo",
-      "metros": 2
+      "metros": 2,
+      "tinte": { "paredes": "#e9e4d6" }
     },
-    "acabados": { "zocalo": "#35618c", "franja": "#e8b84a", "marcos": "#4a3626" },
+    "luz": {
+      "cielo": "#9fb0d0",
+      "suelo": "#525a68",
+      "fuerza": 1.1,
+      "direccional": "#a9bbff",
+      "fuerzaDireccional": 0.7,
+      "exposicion": 1.15
+    },
+    "acabados": {
+      "zocalo": "#35618c",
+      "franja": "#e8b84a",
+      "marcos": "#4a3626",
+      "lamparas": ["titila", "apagada", "encendida"],
+      "ventanas": [
+        { "pared": "norte", "centro": -1.95, "y": 2.2, "ancho": 1.4, "alto": 0.75 },
+        { "pared": "norte", "centro": 2, "y": 2.2, "ancho": 1.4, "alto": 0.75, "luna": true }
+      ]
+    },
     "inicio": { "x": 0, "z": 4.2, "giro": 0 },
     "objetos": [
       {
@@ -229,9 +247,26 @@
       "piso": "compartido/piso-madera",
       "paredes": "compartido/paredes",
       "techo": "compartido/techo",
-      "metros": 2
+      "metros": 2,
+      "tinte": { "paredes": "#e3eedb" }
     },
-    "acabados": { "zocalo": "#b4573a", "franja": "#f2d39b", "marcos": "#5a3d28" },
+    "luz": {
+      "cielo": "#ffe6c8",
+      "suelo": "#6a5a4a",
+      "fuerza": 1.25,
+      "direccional": "#ffd9b0",
+      "fuerzaDireccional": 0.9,
+      "exposicion": 1.05
+    },
+    "acabados": {
+      "zocalo": "#b4573a",
+      "franja": "#f2d39b",
+      "marcos": "#5a3d28",
+      "ventanas": [
+        { "pared": "norte", "centro": -1.6, "y": 2.4, "ancho": 1.5, "alto": 0.45, "luna": true },
+        { "pared": "norte", "centro": 1.3, "y": 2.4, "ancho": 1.5, "alto": 0.45 }
+      ]
+    },
     "inicio": { "x": 0, "z": 1.9, "giro": 0 },
     "objetos": [
       {

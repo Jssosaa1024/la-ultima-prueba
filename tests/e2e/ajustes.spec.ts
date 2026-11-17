@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { leer } from './escena';
 
 // T39: ajustes de sensibilidad, modo zurdo, tamaño de texto y volumen, guardados en este equipo.
+// T19k: y el brillo de la imagen, que cambia la exposición de la escena en el acto.
 
 const CLAVE = 'la-ultima-prueba:ajustes';
 
@@ -21,6 +22,18 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
   await panel.getByRole('button', { name: 'Más: Sensibilidad de la mirada' }).click();
   await panel.getByRole('button', { name: 'Menos: Volumen de la voz' }).click();
   await panel.getByRole('button', { name: 'Menos: Volumen del ambiente' }).click();
+
+  // Detrás del menú ya está la portería: el brillo la aclara sin recargar.
+  const escena = page.getByLabel('Escena del juego');
+  await expect(escena).toHaveAttribute('data-exposicion', /^\d/, { timeout: 20_000 });
+  const antes = Number(await escena.getAttribute('data-exposicion'));
+  await panel.getByRole('button', { name: 'Más: Brillo de la imagen' }).click();
+  await expect(panel.getByRole('group', { name: 'Brillo de la imagen' })).toContainText(
+    'Más claro',
+  );
+  await expect
+    .poll(async () => Number(await escena.getAttribute('data-exposicion')))
+    .toBeCloseTo(antes * 1.2, 2);
 
   await expect(panel.getByRole('button', { name: 'Muy grande' })).toHaveAttribute(
     'aria-pressed',
