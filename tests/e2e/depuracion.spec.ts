@@ -75,21 +75,16 @@ test('con ?debug=1 el panel mide la sala y exporta el JSON de la especificación
   await expect(panel).toBeHidden();
 });
 
-test('3 toques en la esquina superior izquierda, debajo de «Salir», abren el panel', async ({
+test('3 toques en la esquina superior izquierda, debajo de «Pausa», abren el panel', async ({
   page,
 }, info) => {
   await continuarEn(page, { sala: 's1-cooperativa' });
   const panel = page.getByRole('region', { name: 'Métricas de rendimiento' });
   await expect(panel).toBeHidden();
-  // «Salir» ocupa de 8 a 56 px: se toca justo debajo, sin abrir su confirmación.
-  let confirmacion = false;
-  page.on('dialog', (d) => {
-    confirmacion = true;
-    void d.dismiss();
-  });
+  // «Pausa» ocupa de 8 a 56 px: se toca justo debajo, sin abrir la pausa.
   await tresToques(page, 20, 70, info.project.name === 'celular');
   await expect(panel).toBeVisible();
-  expect(confirmacion).toBe(false);
+  await expect(page.getByRole('dialog', { name: 'Pausa' })).toHaveCount(0);
   await expect(panel).toContainText('s1-cooperativa');
   // El panel no tapa el juego: los toques fuera de sus botones siguen llegando a la escena.
   const estilo = await panel.evaluate((e) => getComputedStyle(e).pointerEvents);

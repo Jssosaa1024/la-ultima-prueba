@@ -586,7 +586,59 @@
     flex-basis: 6rem;
   }
 
+  /* «Ya no estoy listo» es largo: el primer botón toma el doble de ancho. */
+  .coop-espera:has(.coop-jugadores) > .coop-cuenta + .menu-acciones > .boton:first-child {
+    flex-grow: 2;
+  }
+
   .coop-espera:has(.coop-jugadores) > .coop-cuenta + .menu-acciones + .menu-nota {
     grid-area: pista;
   }
+}
+
+/*
+ * Barra del grupo con el tema del archivo (T41d): los encargos, los avisos y las votaciones son
+ * notas de papel prendidas sobre la escena; las señales de los compañeros, etiquetas ámbar.
+ * Los botones redondos siguen siendo los del HUD.
+ */
+.coop-barra.tema-archivo {
+  color: var(--tema-tinta);
+}
+
+.coop-barra.tema-archivo .coop-encargos,
+.coop-barra.tema-archivo .coop-aviso,
+.coop-barra.tema-archivo .coop-pasar-que {
+  border: 1px solid var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: var(--tema-grano), var(--tema-papel);
+  color: var(--tema-tinta);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 45%);
+}
+
+.coop-barra.tema-archivo .coop-aviso {
+  border-left: 4px solid var(--tema-sello-rojo);
+}
+
+.coop-barra.tema-archivo .coop-aviso .boton-secundario {
+  border-color: var(--tema-tinta-suave);
+  background: rgb(255 255 255 / 25%);
+  color: var(--tema-tinta);
+}
+
+.coop-barra.tema-archivo .coop-aviso .boton:focus-visible {
+  outline-color: var(--tema-sello-azul);
+  box-shadow: 0 0 0 6px var(--tema-papel);
+}
+
+.coop-barra.tema-archivo .coop-senal {
+  border: 1px solid var(--tema-tinta);
+  border-radius: var(--tema-radio);
+  background: var(--tema-ambar);
+  color: var(--tema-tinta);
+  font-family: var(--tema-letra-maquina);
+}
+
+/* Los botones redondos del HUD conservan su letra y su color sobre la escena. */
+.coop-barra.tema-archivo .hud-boton-redondo {
+  color: #f2f2f2;
 }

@@ -107,6 +107,7 @@ export default function PanelAjustes({ alCerrar, pausarReloj = false }: Props) {
 
   return (
     <Dialogo
+      tema="archivo"
       antetitulo="Ajustes"
       titulo="Ajustes del juego"
       // Al cerrar, el foco vuelve al botón «Ajustes» del menú o del HUD.

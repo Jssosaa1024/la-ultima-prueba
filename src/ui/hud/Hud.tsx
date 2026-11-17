@@ -12,6 +12,7 @@ import {
 import { pistas } from '../../signals/mecanismo';
 import {
   inventario,
+  modo,
   reloj,
   restanteEn,
   SALAS_CON_SELLO,
@@ -187,18 +188,20 @@ function BotonAccion() {
   );
 }
 
+/**
+ * Pausa (ola 6, T41d): abre la ficha de pausa, con los ajustes y la confirmación para salir.
+ * En grupo el reloj no se detiene por uno solo (se vota en la barra del grupo), así que el
+ * botón se llama «Salir» y abre directamente la confirmación.
+ */
 function BotonSalir() {
   return (
     <button
       type="button"
       class="hud-boton-redondo"
-      onClick={() => {
-        if (window.confirm('¿Salir de la partida? Se pierde lo que llevas.')) {
-          enviar({ t: 'salir' });
-        }
-      }}
+      data-foco-retorno="pausa"
+      onClick={() => abrirPanel('pausa')}
     >
-      Salir
+      {modo.value === 'individual' ? 'Pausa' : 'Salir'}
     </button>
   );
 }

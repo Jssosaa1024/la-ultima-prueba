@@ -58,7 +58,12 @@ describe('tema del archivo: contraste AA', () => {
 });
 
 /** Las hojas de estilo de las pantallas con el tema. */
-const HOJAS = ['src/ui/tema.css', 'src/ui/menus/menus.css', 'src/ui/carga/carga.css'];
+const HOJAS = [
+  'src/ui/tema.css',
+  'src/ui/menus/menus.css',
+  'src/ui/carga/carga.css',
+  'src/ui/paneles/pausa.css',
+];
 
 describe('tema del archivo: texto de 14 px o más', () => {
   for (const hoja of HOJAS) {
