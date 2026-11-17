@@ -7,7 +7,6 @@
   place-items: center;
   padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right))
     calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
-  background: #111418;
   color: #f2f2f2;
   touch-action: pan-y;
   user-select: text;
@@ -17,14 +16,6 @@
   width: 100%;
   max-width: 32rem;
   line-height: 1.55;
-}
-
-.final-antetitulo {
-  margin: 0;
-  font-size: 0.875rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #b8c2cc;
 }
 
 .final-titulo {
@@ -79,7 +70,7 @@
 }
 
 .final-resumen dt {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: #b8c2cc;
 }
 
@@ -170,11 +161,6 @@
   font-weight: 700;
 }
 
-.aprendizaje-estado {
-  font-size: 0.875rem;
-  color: #b8c2cc;
-}
-
 .aprendizaje-sala .aprendizaje-maquina {
   margin-top: 4px;
   font-size: 0.9375rem;
@@ -200,4 +186,146 @@
   font-style: normal;
   font-weight: 700;
   color: #e8a33d;
+}
+
+/*
+ * Tema del archivo (ola 6, T41e): cada paso del cierre es una ficha de papel sobre la noche,
+ * con el sello del final, los números a máquina y una ficha por sala en el resumen. Colores y
+ * texturas de `ui/tema.css`; todo el texto sobre el papel va en tinta (contraste AA).
+ */
+.final-caja {
+  max-width: 40rem;
+}
+
+.tema-ficha.final-ficha {
+  padding: 20px 20px 18px;
+}
+
+.final-ficha .final-titulo {
+  font-family: var(--tema-letra-maquina);
+  color: var(--tema-tinta);
+}
+
+.final-ficha .final-titulo:focus-visible {
+  outline-color: var(--tema-sello-azul);
+}
+
+.final-ficha .final-subtitulo {
+  font-family: var(--tema-letra-maquina);
+  font-size: 1.125rem;
+}
+
+.final-ficha .final-nota {
+  color: var(--tema-tinta-suave);
+}
+
+/* El sello del final, arriba a la derecha, golpea al llegar. */
+.final-sello {
+  float: right;
+  margin: 4px 0 8px 12px;
+}
+
+.final-ficha .final-resumen > div {
+  border: 1px dashed var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: rgb(255 255 255 / 35%);
+}
+
+.final-ficha .final-resumen dt {
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tema-tinta-suave);
+}
+
+.final-ficha .final-resumen dd {
+  font-family: var(--tema-letra-maquina);
+  font-size: 1.25rem;
+}
+
+.final-ficha .final-voz {
+  border-left-color: var(--tema-sello-rojo);
+  background: rgb(255 255 255 / 35%);
+}
+
+.final-ficha .final-voz-quien {
+  color: var(--tema-sello-rojo);
+}
+
+.final-ficha .aprendizaje-sala {
+  border: 1px solid var(--tema-papel-borde);
+  border-left: 4px solid var(--tema-tinta-suave);
+  border-radius: var(--tema-radio);
+  background: rgb(255 255 255 / 35%);
+}
+
+.final-ficha .aprendizaje-sin_pistas {
+  border-left-color: var(--tema-sello-verde);
+}
+
+.final-ficha .aprendizaje-con_pistas {
+  border-left-color: var(--tema-sello-azul);
+}
+
+.final-ficha .aprendizaje-sin_resolver {
+  border-left-color: var(--tema-sello-rojo);
+}
+
+.final-ficha .aprendizaje-cabeza {
+  align-items: center;
+}
+
+.final-ficha .aprendizaje-tema {
+  font-family: var(--tema-letra-maquina);
+}
+
+.final-ficha .aprendizaje-sala .aprendizaje-maquina {
+  color: var(--tema-tinta);
+  font-weight: 700;
+}
+
+/* La hoja de la fotocopiadora lleva el sello «Copia». */
+.final-hoja {
+  position: relative;
+  border: 1px solid var(--tema-papel-borde);
+  font-family: var(--tema-letra-maquina);
+}
+
+.final-hoja-sello {
+  position: absolute;
+  top: -12px;
+  right: 10px;
+}
+
+/* La elección de final frente a la puerta, sobre el papel. */
+.tema-archivo .eleccion-opcion {
+  border: 1px dashed var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: rgb(255 255 255 / 30%);
+}
+
+/* Celular en horizontal: el resumen de las salas va de a dos para leer menos hacia abajo. */
+@media (min-width: 640px) {
+  .final-ficha .aprendizaje-salas {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .final-ficha .final-acciones {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .final-ficha .final-acciones > .boton {
+    flex: 1 1 12rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .final-sello {
+    float: none;
+    display: inline-block;
+    margin: 0 0 8px;
+  }
 }
