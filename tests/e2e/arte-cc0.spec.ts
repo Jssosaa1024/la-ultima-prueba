@@ -36,11 +36,13 @@ const SALA_1 = conModelo('s1-cooperativa');
 
 const TEXTURAS = /^\/assets\/salas\/compartido\/([a-z0-9-]+)\.[0-9a-f]{8}\.ktx2$/;
 
-for (const [sala, url, objetos] of [
-  ['porteria', '/jugar', PORTERIA],
-  ['s1-cooperativa', '/jugar?sala=s1-cooperativa', SALA_1],
-  ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio')],
-  ['s3-gimnasio', '/jugar?sala=s3-gimnasio', conModelo('s3-gimnasio')],
+// Por sala: cuántos objetos con modelo como mínimo y cuántas texturas pide (el gimnasio deja
+// el techo de color, porque tiene 9 m de alto).
+for (const [sala, url, objetos, minimo, nTexturas] of [
+  ['porteria', '/jugar', PORTERIA, 9, 3],
+  ['s1-cooperativa', '/jugar?sala=s1-cooperativa', SALA_1, 9, 3],
+  ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio'), 9, 3],
+  ['s3-gimnasio', '/jugar?sala=s3-gimnasio', conModelo('s3-gimnasio'), 5, 2],
 ] as const) {
   test(`${sala}: modelos CC0 y texturas de ambientCG`, async ({ page }) => {
     const errores: string[] = [];
@@ -53,14 +55,12 @@ for (const [sala, url, objetos] of [
 
     await page.goto(url);
     await page.getByRole('button', { name: 'Jugar solo' }).click();
-    // Cada sala con arte viste al menos sus muebles grandes (el gimnasio, el que menos: 5).
-    expect(objetos.length).toBeGreaterThanOrEqual(5);
+    expect(objetos.length).toBeGreaterThanOrEqual(minimo);
     const canvas = page.getByLabel('Escena del juego');
     await expect(canvas).toHaveAttribute('data-sala', sala);
     await expect(canvas).toHaveAttribute('data-modelos', objetos.join(','), { timeout: 30_000 });
     const esperadas = texturasDe(sala);
-    // Piso y paredes siempre; el techo del gimnasio va de color, sin textura.
-    expect(esperadas.length).toBeGreaterThanOrEqual(2);
+    expect(esperadas).toHaveLength(nTexturas);
     // La precarga puede pedir también las de otra sala: se miran solo las de esta.
     await expect
       .poll(() => [...texturas].filter((t) => esperadas.includes(t)).sort())

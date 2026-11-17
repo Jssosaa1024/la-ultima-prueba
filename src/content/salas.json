@@ -1160,6 +1160,7 @@
         "tam": [1.6, 0.3, 0.3],
         "pos": [8, 0, -4.8],
         "color": "#e67e22",
+        "solido": true,
         "modelo": "conos"
       },
       {

@@ -269,10 +269,11 @@ describe('ventanas de noche (T19k)', () => {
         for (const o of sala.objetos) {
           const p = enPared(sala, v.pared, o);
           if (p.distancia > (o.forma === 'plano' ? 0.1 : 0.4)) continue;
-          if (p.hasta <= h.desde || p.desde >= h.hasta) continue;
+          // Puertas y tableros llevan marco a los lados y arriba (8 cm como mucho).
+          const marco = o.forma === 'plano' && (esPuerta(o) || esTablero(o)) ? 0.08 : 0;
+          if (p.hasta + marco <= h.desde || p.desde - marco >= h.hasta) continue;
           if (o.forma === 'plano') {
             // Puertas, tableros y cuadros pegados a esa pared, con sus marcos.
-            const marco = esPuerta(o) || esTablero(o) ? 0.08 : 0;
             const seCruzan = o.pos[1] < h.arriba && o.pos[1] + o.tam[1] + marco > h.abajo;
             expect(seCruzan, `${l}: ventana en ${v.centro} y ${o.id}`).toBe(false);
           } else {
