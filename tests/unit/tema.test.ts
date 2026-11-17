@@ -63,6 +63,7 @@ const HOJAS = [
   'src/ui/menus/menus.css',
   'src/ui/carga/carga.css',
   'src/ui/paneles/pausa.css',
+  'src/ui/finales/finales.css',
 ];
 
 describe('tema del archivo: texto de 14 px o más', () => {

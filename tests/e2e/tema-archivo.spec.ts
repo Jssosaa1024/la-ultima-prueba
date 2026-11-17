@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { continuarEn } from './escena';
 
 // Ola 6 · tema «Archivo del colegio de noche» (T41c) en el menú de inicio: legible y fácil de
 // tocar en un celular en horizontal (740 × 360), con letra de 14 px o más y sin animaciones si
@@ -79,6 +80,29 @@ test.describe('pausa en 740 × 360 (T41d)', () => {
       expect(await letraMinima(page, '.dialogo')).toBeGreaterThanOrEqual(14);
       if (nombre === 'Pausa')
         await ficha.getByRole('button', { name: 'Salir de la partida' }).click();
+    }
+  });
+});
+
+test.describe('final en 740 × 360 (T41e)', () => {
+  test.use({ viewport: { width: 740, height: 360 } });
+
+  test('el expediente cerrado lleva su sello y el resumen se lee en 14 px o más', async ({
+    page,
+  }) => {
+    // A la partida le quedan 5 s: llega sola al final «Tiempo cumplido».
+    await continuarEn(page, { sala: 's2-laboratorio', restanteMs: 5000 });
+    const titulo = page.getByRole('heading', { level: 1, name: 'Tiempo cumplido' });
+    await expect(titulo).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('.final-sello')).toHaveText('Archivo borrado');
+    // Cada sala del resumen lleva un sello con cómo terminó (texto real, no solo color).
+    const resumen = page.getByRole('region', { name: 'Lo que aprendiste esta noche' });
+    await expect(resumen.locator('.tema-sello')).toHaveCount(5);
+    await expect(resumen.locator('.tema-sello').first()).toHaveText('Resuelta sin pistas');
+    await expect(resumen.locator('.tema-sello').last()).toHaveText('Sin resolver');
+    expect(await letraMinima(page, 'main')).toBeGreaterThanOrEqual(14);
+    for (const boton of await page.getByRole('main').getByRole('button').all()) {
+      expect((await boton.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     }
   });
 });
