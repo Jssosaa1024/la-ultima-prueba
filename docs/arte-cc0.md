@@ -223,20 +223,28 @@ Objetos nuevos hechos con primitivas (van en la malla fija): tablero y aro de ba
 
 ## Sala 4 · La biblioteca
 
+Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos y la ficha rota siguen como primitivas: su máquina los anima o su texto se lee en 2D. La pila de libros sí lleva modelo: la animación la encoge con su nodo.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s4-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
-| `s4-estante-1` · estante 0,5 × 2,2 × 2,5 | Furniture · `bookcaseClosedWide.glb` | 744 | `estante-ancho` | Escalar a 2,2 m de alto |
-| `s4-estante-m` · estante M 0,5 × 2,2 × 2 | Furniture · `bookcaseOpen.glb` | 640 | `estante-abierto` | — |
-| `s4-libro-m` · libro que sobresale | Primitiva | — | — | Un solo libro; se usa |
-| `s4-casilleros` · pared de casilleros 4 × 2 × 0,5 | Furniture · `bookcaseClosedDoors.glb` × 4 | 536 c/u | `casillero` | Kenney no tiene casilleros; con `instance` son una draw call |
-| `s4-lamparas` · resumen semanal (cuatro lámparas) | Furniture · `lampWall.glb` × 4 | 84 c/u | `lampara-pared` | El panel sigue siendo un plano; las luces son del mecanismo |
-| `s4-mostrador` · mostrador 2,4 × 1 × 0,7 | Furniture · `kitchenBar.glb` + `kitchenBarEnd.glb` | 152 + s/d | `mostrador` | El mismo de la sala 1 |
-| `s4-caja-devoluciones` · caja de devoluciones | Furniture · `cardboardBoxClosed.glb` | 120 | `caja-cerrada` | — |
-| `s4-ficha-rota` · ficha rota | Primitiva | — | — | Papel |
-| `s4-carritos` · cinco carritos | Primitiva | — | — | Kenney no tiene carritos de libros; `carritos.ts` apila libros encima |
-| `s4-pila-libros` · pila de 20 libros | Furniture · `books.glb` | 124 | `libros` | Con `instance` para la altura |
-| `s4-mesa-lectura` · mesa 1,6 × 0,75 × 0,8 | Furniture · `table.glb` | 240 | `mesa` | — |
+| `s4-puerta` | Restaurant · `door_A` | 188 | `puerta` | La misma de las otras salas |
+| `s4-estante-1` · 0,5 × 2,2 × 2,5 | Furniture · 2 `cabinet_medium`, 6 repisas `shelf_B`, 8 `book_set` | 4.236 | `estante-a` | Mueble bajo con repisas llenas de libros, de lado contra la pared oeste |
+| `s4-estante-m` · 0,5 × 2,2 × 2 | Furniture · `cabinet_medium` + `cabinet_small`, repisas y libros | 3.744 | `estante-m` | Con el hueco del libro M en la fila 2 |
+| `s4-libro-m` | Furniture · `book_single` | 68 | `libro` | Sobresale 18 cm de su fila, con el lomo hacia la sala |
+| `s4-casilleros` · 4 × 2 × 0,5 | Restaurant · `kitchencabinet` × 6 | 936 | `casilleros` | |
+| `s4-mostrador` · 2,4 × 1 × 0,7 | Furniture · `cabinet_medium` × 2 | 856 | `mostrador` | |
+| `s4-caja-devoluciones` | Restaurant · `crate` | 132 | `caja-devoluciones` | |
+| `s4-pila-libros` | Furniture · `book_single` × 10 | 680 | `pila` | Los libros de los carritos pasan al mismo naranja (`COLOR_LIBROS`) |
+| `s4-mesa-lectura` · 1,8 × 1,52 × 1,9 | Furniture · `table_medium_long`, 4 sillas, `book_set` y `lamp_table` | 2.140 | `mesa-lectura` | Las sillas quedaron metidas bajo la mesa |
+| `s4-estanteria-este` (nuevo) | Como `estante-a`, con otra disposición | 4.236 | `estante-b` | Pared este |
+| `s4-rincon-lectura` (nuevo) | Furniture · `armchair`, `table_small`, `book_set`, `lamp_standing` | 1.212 | `rincon-lectura` | Rincón sureste |
+
+Nuevo hecho con primitiva: una alfombra vinotinto bajo el rincón de lectura (va en la malla fija).
+
+- **Superficies:** parqué (WoodFloor071) con tinte claro, pañete crema y techo de oficina.
+- **Acabados:** zócalo verde con franja ocre; la lámpara del oeste titila (alumbra el estante M y el libro), la del centro está encendida (carritos y pila) y la del mostrador, apagada; dos ventanas de noche en la pared norte, con luna en la del este.
+- **Luz:** cielo azul de luna y relleno neutro; la direccional entra desde el sureste.
+- **Medidas:** 11 GLB, 18.428 triángulos, 0,47 MB. Prueba del cooperativo: 39 de 40. Cada estante se armó con 16 piezas como máximo (el límite de `optimize-models`), solo con las repisas de adelante.
 
 ## Sala 5 · La rectoría
 
@@ -289,7 +297,7 @@ El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 dr
 | Cooperativa | 9 GLB | ~12.000 | ~0,3 MB + ~0,6 MB | Sí |
 | Laboratorio (medido, T19l) | 8 GLB | 3.172 | 0,14 MB + texturas compartidas | Sí |
 | Gimnasio (medido, T19m) | 5 GLB | 1.882 | 0,09 MB + piso nuevo de 0,15 MB | Sí |
-| Biblioteca | 8 GLB | ~5.500 | ~0,1 MB + ~0,6 MB | Sí |
+| Biblioteca (medido, T19n) | 11 GLB | 18.428 | 0,47 MB + texturas compartidas | Sí |
 | Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
 
 Ninguna sala pasa de 1 MB ni de 15.000 triángulos. Lo que sí puede pasarse son las **draw calls**:
