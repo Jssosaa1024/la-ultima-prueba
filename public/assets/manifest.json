@@ -34,6 +34,21 @@
           ]
         },
         {
+          "archivo": "salas/compartido/piso-madera.14701770.ktx2",
+          "sha256": "147017701da5ed5de891c7373127c7e50ffd9ebda8b10e35272b4ccca83fbefa",
+          "bytes": 148760,
+          "texturas": [
+            {
+              "nombre": "piso-madera",
+              "ancho": 1024,
+              "alto": 1024,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 697303
+            }
+          ]
+        },
+        {
           "archivo": "salas/compartido/techo.0e34df1f.ktx2",
           "sha256": "0e34df1f4fad0eba666cc6d1bae7ab635e6088380c4dbe078596667b0df2f951",
           "bytes": 48865,
@@ -51,11 +66,11 @@
       ],
       "audio": [],
       "totales": {
-        "bytes": 290620,
+        "bytes": 439380,
         "bytesAudio": 0,
         "triangulos": 0,
         "drawCalls": 0,
-        "bytesGpu": 1743258
+        "bytesGpu": 2440561
       }
     },
     "porteria": {

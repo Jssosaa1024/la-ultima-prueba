@@ -261,6 +261,10 @@
     "original": "art/compartido/originales/ambientcg/PaintedPlaster017_1K-JPG.zip#PaintedPlaster017_1K-JPG_Color.jpg"
   },
   {
+    "archivo": "public/assets/salas/compartido/piso-madera.ktx2",
+    "original": "art/compartido/originales/ambientcg/WoodFloor071_1K-JPG.zip#WoodFloor071_1K-JPG_Color.jpg"
+  },
+  {
     "archivo": "public/assets/salas/compartido/techo.ktx2",
     "original": "art/compartido/originales/ambientcg/OfficeCeiling001_1K-JPG.zip#OfficeCeiling001_1K-JPG_Color.jpg"
   }

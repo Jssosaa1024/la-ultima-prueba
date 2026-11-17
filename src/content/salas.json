@@ -12,6 +12,7 @@
       "techo": "compartido/techo",
       "metros": 2
     },
+    "acabados": { "zocalo": "#35618c", "franja": "#e8b84a", "marcos": "#4a3626" },
     "inicio": { "x": 0, "z": 4.2, "giro": 0 },
     "objetos": [
       {
@@ -225,11 +226,12 @@
     "alto": 3,
     "colores": { "piso": "#8e7f6a", "paredes": "#efe3c8", "techo": "#f4f1ea" },
     "texturas": {
-      "piso": "compartido/piso-baldosa",
+      "piso": "compartido/piso-madera",
       "paredes": "compartido/paredes",
       "techo": "compartido/techo",
       "metros": 2
     },
+    "acabados": { "zocalo": "#b4573a", "franja": "#f2d39b", "marcos": "#5a3d28" },
     "inicio": { "x": 0, "z": 1.9, "giro": 0 },
     "objetos": [
       {

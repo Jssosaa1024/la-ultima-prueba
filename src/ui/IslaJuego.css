@@ -15,6 +15,14 @@
   display: block;
 }
 
+/* Viñeta (T19j): bordes un poco más oscuros, como una cámara. No recibe toques. */
+.juego-vineta {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgb(0 0 0 / 0%) 58%, rgb(0 0 0 / 32%) 100%);
+}
+
 /* Capa del HUD: su padding es la zona segura (notch, esquinas redondeadas, barra de gestos). */
 .hud {
   position: absolute;

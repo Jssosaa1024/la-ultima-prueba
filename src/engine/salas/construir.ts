@@ -16,6 +16,10 @@
  * - Texturas de piso, paredes y techo (T19g): la superficie que tiene textura en `salas.json`
  *   se une en su propia malla, con UV en metros, para que `vestir.ts` le ponga el mapa al
  *   cargarlo. Mientras tanto (o si no carga) se ve con su color.
+ * - Acabados (T19j): si la sala los pide, zócalo, rodapié, cornisa, marcos y carcasas de
+ *   lámparas se unen con lo fijo (una malla más si la sala no tenía nada fijo de color plano);
+ *   los difusores y brillos de las lámparas son dos mallas más, y la oclusión falsa va en la
+ *   malla de las sombras (`acabados.ts`).
  */
 import {
   BoxGeometry,
@@ -35,6 +39,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { ObjetoSala, Sala } from '../../content/esquema-salas';
 import { marcarInteractivo } from '../interaccion/interaccion';
 import type { Caja } from '../jugador/colision';
+import { crearAcabados } from './acabados';
 import { cajasDeColision, marcarSolido } from './colisiones';
 import { crearSombras, objetosConSombra } from './sombras';
 
@@ -287,9 +292,13 @@ export function construirSala(sala: Sala): SalaConstruida {
 
   // Primero las colisiones, con cada objeto por separado; después se une la geometría.
   const cajas = cajasDeColision(raiz);
+  // Los acabados no chocan: entran después de las colisiones y antes de unir lo fijo.
+  const acabados = sala.acabados ? crearAcabados(sala, sala.acabados) : null;
+  if (acabados) raiz.add(...acabados.fijas);
   unirFijas(raiz, sala);
-  const sombras = crearSombras(objetosConSombra(sala.objetos));
+  const sombras = crearSombras(objetosConSombra(sala.objetos), acabados?.oclusion);
   if (sombras) raiz.add(sombras);
+  if (acabados) raiz.add(...acabados.luces);
   raiz.add(...crearLuces(sala));
 
   let triangulos = 0;
