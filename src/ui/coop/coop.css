@@ -423,3 +423,170 @@
 .coop-aviso-eleccion:empty {
   display: none;
 }
+
+/*
+ * T41c: crear, unirse y la sala de espera van dentro de la ficha de papel del menú (tema
+ * «Archivo del colegio de noche»). Sobre el papel, todo pasa a tinta: los grises y el naranja
+ * de la noche no dan contraste AA sobre papel claro.
+ */
+.tema-ficha .coop-titulo {
+  font-family: var(--tema-letra-maquina);
+  font-size: 1.375rem;
+  color: var(--tema-tinta);
+}
+
+.tema-ficha .coop-codigo {
+  border-color: var(--tema-tinta-suave);
+  background: rgb(255 255 255 / 55%);
+  color: var(--tema-tinta);
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+}
+
+.tema-ficha .coop-codigo:focus-visible,
+.tema-ficha .coop-opcion:has(input:focus-visible) {
+  outline-color: var(--tema-sello-azul);
+}
+
+.tema-ficha .coop-error-campo,
+.tema-ficha .coop-aviso-eleccion {
+  color: var(--tema-sello-rojo);
+}
+
+.tema-ficha .coop-opciones legend {
+  font-family: var(--tema-letra-maquina);
+}
+
+.tema-ficha .coop-opcion {
+  border-color: var(--tema-tinta-suave);
+  background: rgb(255 255 255 / 25%);
+}
+
+.tema-ficha .coop-opcion-elegida {
+  border-color: var(--tema-tinta);
+  background: var(--tema-ambar);
+  color: var(--tema-tinta);
+}
+
+.tema-ficha .coop-opcion-ocupada {
+  color: var(--tema-tinta-suave);
+  background: transparent;
+}
+
+.tema-ficha .coop-ocupado {
+  font-size: 0.875rem;
+}
+
+.tema-ficha .coop-punto {
+  box-shadow: 0 0 0 1px rgb(42 33 24 / 60%);
+}
+
+.tema-ficha .coop-punto-vacio {
+  border-color: var(--tema-tinta-suave);
+  box-shadow: none;
+}
+
+.tema-ficha .coop-codigo-grande span {
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tema-ficha .coop-codigo-grande strong {
+  font-family: var(--tema-letra-maquina);
+  color: var(--tema-sello-rojo);
+}
+
+.tema-ficha .coop-jugador {
+  border: 1px solid var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: rgb(255 255 255 / 35%);
+}
+
+.tema-ficha .coop-jugador-estado {
+  color: var(--tema-tinta-suave);
+}
+
+/* Celular en horizontal: la sala de espera se compacta para que la lista y los botones quepan. */
+@media (max-height: 500px) {
+  .tema-ficha .coop-formulario,
+  .tema-ficha .coop-espera {
+    gap: 0.6rem;
+  }
+
+  .tema-ficha .coop-codigo-grande strong {
+    font-size: 2rem;
+  }
+
+  .tema-ficha .coop-espera .menu-nota {
+    margin: 0;
+  }
+
+  .tema-ficha .menu-acciones {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .tema-ficha .menu-acciones > .boton {
+    flex: 1 1 10rem;
+  }
+}
+
+/*
+ * Sala de espera en horizontal (T41c): dos columnas dentro de la ficha. A la izquierda el código
+ * para dictarlo; a la derecha quiénes están y los botones. Solo con la lista de jugadores (los
+ * avisos de error o de conexión siguen en una columna).
+ */
+@media (min-width: 640px) and (max-height: 500px) {
+  .tema-ficha .coop-espera:has(.coop-jugadores) {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-areas:
+      'titulo jugadores'
+      'codigo jugadores'
+      'nota cambiar'
+      'nota cuenta'
+      'pista acciones';
+    align-items: start;
+    column-gap: 16px;
+    row-gap: 0.5rem;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-titulo {
+    grid-area: titulo;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-codigo-grande {
+    grid-area: codigo;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-codigo-grande + .menu-nota {
+    grid-area: nota;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-jugadores {
+    grid-area: jugadores;
+  }
+
+  /* «Cambiar alias o color» o el formulario para elegirlos. */
+  .coop-espera:has(.coop-jugadores) > .coop-jugadores + * {
+    grid-area: cambiar;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-cuenta {
+    grid-area: cuenta;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-cuenta + .menu-acciones {
+    grid-area: acciones;
+  }
+
+  /* «Iniciar» (o «Estoy listo») y «Salir» en la misma fila. */
+  .coop-espera:has(.coop-jugadores) > .coop-cuenta + .menu-acciones > .boton {
+    flex-basis: 6rem;
+  }
+
+  .coop-espera:has(.coop-jugadores) > .coop-cuenta + .menu-acciones + .menu-nota {
+    grid-area: pista;
+  }
+}
