@@ -43,11 +43,14 @@ test('«Pausa» detiene el reloj; «Salir de la partida» pide confirmación y v
   const pausa = page.getByRole('dialog', { name: 'Pausa' });
   await expect(pausa).toBeFocused();
   await expect(pausa).toContainText('El reloj de las 00:40 está detenido');
-  await expect(page.getByRole('timer')).toHaveAttribute('aria-label', /en pausa/);
+  // Con un panel abierto el HUD queda inerte (fuera del árbol de accesibilidad): se lee el reloj
+  // por su clase.
+  const reloj = page.locator('.hud-reloj');
+  await expect(reloj).toContainText('en pausa');
   // «Seguir jugando» cierra la pausa, el reloj vuelve a correr y el foco vuelve al botón.
   await pausa.getByRole('button', { name: 'Seguir jugando' }).click();
   await expect(pausa).toHaveCount(0);
-  await expect(page.getByRole('timer')).not.toHaveAttribute('aria-label', /en pausa/);
+  await expect(page.getByRole('timer')).not.toHaveAccessibleName(/en pausa/);
   await expect(page.getByRole('button', { name: 'Pausa' })).toBeFocused();
   // Desde la pausa se llega a los ajustes.
   await page.getByRole('button', { name: 'Pausa' }).click();
