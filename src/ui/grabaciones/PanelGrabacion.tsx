@@ -2,14 +2,15 @@ import { useEffect } from 'preact/hooks';
 import { grabacionDeSala } from '../../content/grabaciones';
 import { cerrarPanel } from '../../signals/interfaz';
 import { grabaciones, sala } from '../../signals/partida';
+import { mostrarLinea, ocultarLinea } from '../../signals/voz';
 import Dialogo from '../paneles/Dialogo';
 import { textoAvance, tituloGrabacion } from './textos';
 import './grabaciones.css';
 
 /**
  * Lo que se ve al recoger una grabación (T75): dónde estaba y lo que dice. Es la de la sala
- * actual; si el jugador vuelve a usar el escondite, se muestra otra vez. El audio llega
- * después: por ahora la grabación se lee.
+ * actual; si el jugador vuelve a usar el escondite, se muestra otra vez. Mientras el panel
+ * está abierto suena la grabación con la voz del profe (T42b); al cerrarlo, se calla.
  */
 export default function PanelGrabacion() {
   const grabacion = grabacionDeSala(sala.value);
@@ -20,6 +21,12 @@ export default function PanelGrabacion() {
   useEffect(() => {
     if (!laTiene) cerrarPanel();
   }, [laTiene]);
+  const idSonido = grabacion && laTiene ? grabacion.id : null;
+  useEffect(() => {
+    if (!idSonido) return;
+    mostrarLinea(idSonido);
+    return () => ocultarLinea(idSonido);
+  }, [idSonido]);
   if (!grabacion || !laTiene) return null;
 
   return (

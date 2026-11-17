@@ -12,6 +12,7 @@ import {
   totalSellos,
 } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
+import { mostrarLinea, ocultarLinea } from '../../signals/voz';
 import { formatoReloj } from '../hud/formato';
 import {
   AGRADECIMIENTO,
@@ -102,6 +103,13 @@ function Resumen({
   const id = final.value ?? 'tiempo_cumplido';
   const texto = FINALES_TEXTO[id];
   const voz = GUION.find((l) => l.final === id);
+  // La Voz dice la línea de este final mientras se ve el resumen (T42b).
+  const idVoz = voz?.id ?? null;
+  useEffect(() => {
+    if (!idVoz) return;
+    mostrarLinea(idVoz);
+    return () => ocultarLinea(idVoz);
+  }, [idVoz]);
   // Al terminar, el controlador deja el reloj en pausa: `restanteMs` es lo que sobró.
   const usado = DURACION_MS - reloj.value.restanteMs;
 
