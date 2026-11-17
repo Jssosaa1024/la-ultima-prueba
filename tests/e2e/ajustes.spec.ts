@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { leer } from './escena';
 
@@ -5,6 +6,15 @@ import { leer } from './escena';
 // T19k: y el brillo de la imagen, que cambia la exposición de la escena en el acto.
 
 const CLAVE = 'la-ultima-prueba:ajustes';
+
+// Playwright no importa JSON sin atributo de importación: se lee del disco.
+const salas = JSON.parse(
+  readFileSync(new URL('../../src/content/salas.json', import.meta.url), 'utf8'),
+) as { id: string; luz?: { exposicion: number } }[];
+
+/** Lo que el motor publica en `data-exposicion` para una sala y un brillo (T19k). */
+const exposicion = (id: string, brillo: number): string =>
+  ((salas.find((s) => s.id === id)?.luz?.exposicion ?? 1.1) * brillo).toFixed(3);
 
 async function abrirMenu(page: Page): Promise<void> {
   await page.goto('/jugar');
@@ -23,17 +33,15 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
   await panel.getByRole('button', { name: 'Menos: Volumen de la voz' }).click();
   await panel.getByRole('button', { name: 'Menos: Volumen del ambiente' }).click();
 
-  // Detrás del menú ya está la portería: el brillo la aclara sin recargar.
+  // Detrás del menú ya está la portería: el brillo la aclara en el acto, sin recargar (T19k).
   const escena = page.getByLabel('Escena del juego');
-  await expect(escena).toHaveAttribute('data-exposicion', /^\d/, { timeout: 20_000 });
-  const antes = Number(await escena.getAttribute('data-exposicion'));
+  await expect(escena).toHaveAttribute('data-sala', 'porteria', { timeout: 20_000 });
+  await expect(escena).toHaveAttribute('data-exposicion', exposicion('porteria', 1));
   await panel.getByRole('button', { name: 'Más: Brillo de la imagen' }).click();
   await expect(panel.getByRole('group', { name: 'Brillo de la imagen' })).toContainText(
     'Más claro',
   );
-  await expect
-    .poll(async () => Number(await escena.getAttribute('data-exposicion')))
-    .toBeCloseTo(antes * 1.2, 2);
+  await expect(escena).toHaveAttribute('data-exposicion', exposicion('porteria', 1.2));
 
   await expect(panel.getByRole('button', { name: 'Muy grande' })).toHaveAttribute(
     'aria-pressed',
@@ -53,6 +61,9 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-texto', 'muy-grande');
+  // El brillo guardado se aplica desde que la sala aparece.
+  await expect(escena).toHaveAttribute('data-sala', 'porteria', { timeout: 20_000 });
+  await expect(escena).toHaveAttribute('data-exposicion', exposicion('porteria', 1.2));
   await page.getByRole('button', { name: 'Ajustes' }).click();
   await expect(panel.getByRole('button', { name: 'A la derecha (zurdo)' })).toHaveAttribute(
     'aria-pressed',
@@ -64,6 +75,11 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
   await panel.getByRole('button', { name: 'Restablecer' }).click();
   await expect(page.locator('html')).not.toHaveAttribute('data-texto', /./);
   await expect(panel.getByRole('group', { name: 'Volumen de la voz' })).toContainText('100 %');
+
+  // Cada sala trae su propia exposición: la sala 1 es más cálida y clara que el pasillo.
+  await page.goto('/jugar?sala=s1-cooperativa');
+  await expect(escena).toHaveAttribute('data-sala', 's1-cooperativa', { timeout: 20_000 });
+  await expect(escena).toHaveAttribute('data-exposicion', exposicion('s1-cooperativa', 1));
 });
 
 test('unos ajustes guardados inválidos no rompen el juego: cada campo malo vuelve al inicial', async ({

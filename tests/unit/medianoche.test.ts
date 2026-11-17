@@ -195,8 +195,21 @@ describe('lámparas con estado (T19k)', () => {
     const color = nombrada(raiz, 'brillos').geometry.getAttribute('color') as BufferAttribute;
     const antes = Array.from(color.array as Float32Array);
     const animacion = animarLamparas(raiz, true);
-    for (let i = 0; i < 2000; i++) animacion?.actualizar(0.05);
-    expect(Array.from(color.array as Float32Array)).toEqual(antes);
+    if (!animacion) throw new Error('sin animación');
+    let t = 0;
+    let bajadas = 0;
+    for (let i = 0; i < 2000; i++) {
+      animacion.actualizar(0.05);
+      t += 0.05;
+      // Justo donde titilaría, los colores siguen iguales.
+      if (nivelTitileo(t) < 1) {
+        bajadas++;
+        expect(Array.from(color.array as Float32Array)).toEqual(antes);
+      }
+      expect(animacion.estado).toBe('lampara-llena');
+    }
+    // El recorrido pasó por bajadas: si no, la prueba no probaría nada.
+    expect(bajadas).toBeGreaterThan(0);
   });
 
   it('la portería sigue diciendo su máquina y su luz a las e2e', () => {

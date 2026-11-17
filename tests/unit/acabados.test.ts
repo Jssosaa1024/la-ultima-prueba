@@ -163,9 +163,18 @@ describe('acabados de sala (T19j)', () => {
     const material = brillos.material as MeshBasicMaterial;
     expect(material.blending).toBe(AdditiveBlending);
     expect(material.depthWrite).toBe(false);
-    // Un rayo hacia el techo, justo debajo de una lámpara, las atraviesa.
-    const rayo = new Raycaster(new Vector3(0, 1.6, 0), new Vector3(0, 1, 0));
-    expect(rayo.intersectObjects([difusores, brillos])).toHaveLength(0);
+    // Un rayo hacia el techo, justo debajo de una lámpara encendida (desde T19k la del medio
+    // está apagada; la de la entrada, no), las atraviesa.
+    const encendida = lamparasDe(salaPorId('porteria'))[2];
+    if (!encendida) throw new Error('falta la lámpara de la entrada');
+    const rayo = new Raycaster(new Vector3(encendida.x, 1.6, encendida.z), new Vector3(0, 1, 0));
+    expect(rayo.intersectObjects([difusores])).toHaveLength(0);
+    expect(rayo.intersectObjects([brillos])).toHaveLength(0);
+    // Y uno hacia el cielo de una ventana (T19k), que también va en los difusores.
+    const ventana = new Raycaster(new Vector3(-1.95, 2.55, 0), new Vector3(0, 0, -1));
+    expect(ventana.intersectObjects([difusores, brillos])).toHaveLength(0);
+    difusores.geometry.computeBoundingBox();
+    expect(difusores.geometry.boundingBox?.min.z).toBeLessThan(-4.9);
     // Las sombras de contacto llevan también los 16 cuadros de la oclusión (4 vértices c/u).
     const sombras = nombrada(raiz, 'sombras');
     const conSombra = construirSala(sinAcabados(salaPorId('porteria'))).raiz;

@@ -3,7 +3,7 @@
  * La interfaz lo monta con `iniciarMotor(canvas)` y lo desmonta con la función que devuelve.
  * Se comunica con ui/ solo por src/signals/.
  */
-import { effect } from '@preact/signals';
+import { effect, untracked } from '@preact/signals';
 import { PerspectiveCamera, Scene } from 'three';
 import type { Mesh, Object3D } from 'three';
 import type { Lugar } from '../content/esquema-salas';
@@ -173,12 +173,17 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   };
 
   /**
-   * Exposición de la sala que se ve (T19k): la de su `luz` por el ajuste «Brillo». Es un
-   * uniform: cambiarla no recompila nada. Queda en un atributo para las pruebas e2e.
+   * Exposición de la sala que está en pantalla, sin el brillo (T19k). Cambia cuando la sala
+   * nueva ya se ve, no cuando se pide: mientras carga, la anterior sigue con la suya.
    */
-  const ponerExposicion = (brillo = ajustes.peek().brillo): void => {
-    if (!mostrada) return;
-    const exposicion = exposicionDe(salaPorId(mostrada), brillo);
+  let exposicionSala: number | null = null;
+  /**
+   * Pone la exposición de la sala en pantalla por el ajuste «Brillo». Es un uniform: cambiarla
+   * no recompila nada. Queda en un atributo para las pruebas e2e.
+   */
+  const ponerExposicion = (brillo: number): void => {
+    if (exposicionSala === null) return;
+    const exposicion = exposicionSala * brillo;
     renderer.toneMappingExposure = exposicion;
     canvas.dataset['exposicion'] = exposicion.toFixed(3);
   };
@@ -212,7 +217,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
     canvas.dataset['sala'] = lugar;
-    ponerExposicion();
+    exposicionSala = exposicionDe(salaPorId(lugar), 1);
+    ponerExposicion(ajustes.peek().brillo);
     // Mallas de la sala, con las que agregan sus animaciones: las geometrías en la GPU no deben
     // pasar de aquí (más las de la portería).
     canvas.dataset['mallas'] = String(contarMallas(nueva.raiz));
@@ -250,7 +256,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   // El jugador cambia el brillo en los ajustes (T19k): se ve en el acto, también en pausa.
   const dejarDeSeguirBrillo = effect(() => {
     ponerExposicion(ajustes.value.brillo);
-    dibujarSiEnPausa();
+    // Solo el brillo despierta este effect: el estado del motor se lee sin suscribirse.
+    untracked(dibujarSiEnPausa);
   });
 
   // Audio (T43): suena después del primer toque. El último efecto queda en un atributo del
