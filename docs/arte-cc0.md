@@ -223,7 +223,7 @@ Objetos nuevos hechos con primitivas (van en la malla fija): tablero y aro de ba
 
 ## Sala 4 · La biblioteca
 
-Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos y la ficha rota siguen como primitivas: su máquina los anima o su texto se lee en 2D. La pila de libros sí lleva modelo: la animación la encoge con su nodo.
+Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos y la ficha rota siguen como primitivas: su máquina los anima o su texto se lee en 2D. La pila de libros también sigue como caja, en el naranja de los libros de los carritos.
 
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
@@ -234,7 +234,7 @@ Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen se
 | `s4-casilleros` · 4 × 2 × 0,5 | Restaurant · `kitchencabinet` × 6 | 936 | `casilleros` | |
 | `s4-mostrador` · 2,4 × 1 × 0,7 | Furniture · `cabinet_medium` × 2 | 856 | `mostrador` | |
 | `s4-caja-devoluciones` | Restaurant · `crate` | 132 | `caja-devoluciones` | |
-| `s4-pila-libros` | Furniture · `book_single` × 10 | 680 | `pila` | Los libros de los carritos pasan al mismo naranja (`COLOR_LIBROS`) |
+| `s4-pila-libros` | Primitiva | — | — | Sigue como caja: un modelo dejaría contar 10 libros y el puzzle dice que son 20. Va en el naranja de los libros de los carritos (`COLOR_LIBROS`) |
 | `s4-mesa-lectura` · 1,8 × 1,52 × 1,9 | Furniture · `table_medium_long`, 4 sillas, `book_set` y `lamp_table` | 2.140 | `mesa-lectura` | Las sillas quedaron metidas bajo la mesa |
 | `s4-estanteria-este` (nuevo) | Como `estante-a`, con otra disposición | 4.236 | `estante-b` | Pared este |
 | `s4-rincon-lectura` (nuevo) | Furniture · `armchair`, `table_small`, `book_set`, `lamp_standing` | 1.212 | `rincon-lectura` | Rincón sureste |
@@ -244,7 +244,7 @@ Nuevo hecho con primitiva: una alfombra vinotinto bajo el rincón de lectura (va
 - **Superficies:** parqué (WoodFloor071) con tinte claro, pañete crema y techo de oficina.
 - **Acabados:** zócalo verde con franja ocre; la lámpara del oeste titila (alumbra el estante M y el libro), la del centro está encendida (carritos y pila) y la del mostrador, apagada; dos ventanas de noche en la pared norte, con luna en la del este.
 - **Luz:** cielo azul de luna y relleno neutro; la direccional entra desde el sureste.
-- **Medidas:** 11 GLB, 18.428 triángulos, 0,47 MB. Prueba del cooperativo: 39 de 40. Cada estante se armó con 16 piezas como máximo (el límite de `optimize-models`), solo con las repisas de adelante.
+- **Medidas:** 10 GLB, 17.748 triángulos, 0,44 MB. Prueba del cooperativo: 39 de 40. Cada estante se armó con 16 piezas como máximo (el límite de `optimize-models`), solo con las repisas de adelante.
 
 ## Sala 5 · La rectoría
 
@@ -297,10 +297,10 @@ El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 dr
 | Cooperativa | 9 GLB | ~12.000 | ~0,3 MB + ~0,6 MB | Sí |
 | Laboratorio (medido, T19l) | 8 GLB | 3.172 | 0,14 MB + texturas compartidas | Sí |
 | Gimnasio (medido, T19m) | 5 GLB | 1.882 | 0,09 MB + piso nuevo de 0,15 MB | Sí |
-| Biblioteca (medido, T19n) | 11 GLB | 18.428 | 0,47 MB + texturas compartidas | Sí |
+| Biblioteca (medido, T19n) | 10 GLB | 17.748 | 0,44 MB + texturas compartidas | Sí |
 | Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
 
-Ninguna sala pasa de 1 MB ni de 15.000 triángulos. Lo que sí puede pasarse son las **draw calls**:
+Ninguna sala pasa de 1 MB; la biblioteca es la de más triángulos (unos 17.700), lejos del límite de 90.000. Lo que sí puede pasarse son las **draw calls**:
 
 - Los modelos del Furniture Kit traen un material por color, de 2 a 5 cada uno. En una sala con 10 modelos son 20 a 50 llamadas, más las paredes y los mecanismos.
 - Por eso el perfil `kenney` aplica `join`, `instance` y `palette` antes de la etapa común. `check-budget` lo comprueba con los archivos reales.

@@ -723,57 +723,6 @@
     "caja": [0.45, 0.25, 0.4]
   },
   {
-    "archivo": "public/assets/salas/s4-biblioteca/pila.glb",
-    "piezas": [
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [0, 0.25, 0]
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [0.03, 0.75, -0.02],
-        "giro": 180
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [-0.02, 1.25, 0.03]
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [0.04, 1.75, 0],
-        "giro": 180
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [-0.03, 2.25, -0.03]
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [0.01, 2.75, 0.02],
-        "giro": 180
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [0.02, 3.25, -0.01]
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [-0.02, 3.75, 0.02],
-        "giro": 180
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [0.03, 4.25, 0]
-      },
-      {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
-        "pos": [-0.01, 4.75, -0.02],
-        "giro": 180
-      }
-    ],
-    "caja": [0.4, 0.6, 0.3]
-  },
-  {
     "archivo": "public/assets/salas/s4-biblioteca/mesa-lectura.glb",
     "piezas": [
       {

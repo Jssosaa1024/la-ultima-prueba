@@ -819,9 +819,9 @@
           ]
         },
         {
-          "archivo": "salas/s4-biblioteca/casilleros.004c11d1.glb",
-          "sha256": "004c11d191e6eda8661772f54569e6a897c8a178680e352f88ef2ae55c790061",
-          "bytes": 27252,
+          "archivo": "salas/s4-biblioteca/casilleros.d19b9807.glb",
+          "sha256": "d19b980773a53ee4e14f25f39f7fe8ca4448aec986c083a2190f584b3bc8cc42",
+          "bytes": 27256,
           "triangulos": 936,
           "drawCalls": 1,
           "texturas": [
@@ -836,9 +836,9 @@
           ]
         },
         {
-          "archivo": "salas/s4-biblioteca/estante-a.228f049f.glb",
-          "sha256": "228f049fe0f5947d6f0b03f6a0dca226088d91fb7497c23aec3862b1cdfb30df",
-          "bytes": 94836,
+          "archivo": "salas/s4-biblioteca/estante-a.0fb9d477.glb",
+          "sha256": "0fb9d4774cc448a9a593f82fecd53561e9147e99dc9add650167af8334f3b9b5",
+          "bytes": 94844,
           "triangulos": 4236,
           "drawCalls": 1,
           "texturas": [
@@ -853,9 +853,9 @@
           ]
         },
         {
-          "archivo": "salas/s4-biblioteca/estante-b.726dc227.glb",
-          "sha256": "726dc2279cfd5e691097a14ae4d2b710aced09c508ff00c599e9328053986a06",
-          "bytes": 94860,
+          "archivo": "salas/s4-biblioteca/estante-b.16f55278.glb",
+          "sha256": "16f55278615db40a47d0c5c4ffa2f8f75764de6c7388595eac7ea0337730d18c",
+          "bytes": 94868,
           "triangulos": 4236,
           "drawCalls": 1,
           "texturas": [
@@ -870,9 +870,9 @@
           ]
         },
         {
-          "archivo": "salas/s4-biblioteca/estante-m.db8c2c61.glb",
-          "sha256": "db8c2c6192cb0b75ac3d6658687b267aa1866f58dd281a14a846a69fdf94f49d",
-          "bytes": 83460,
+          "archivo": "salas/s4-biblioteca/estante-m.10864fc3.glb",
+          "sha256": "10864fc334068d48fd18a44b85d311c52af4f31374ffba7f2f06dae310612de0",
+          "bytes": 83444,
           "triangulos": 3744,
           "drawCalls": 1,
           "texturas": [
@@ -921,27 +921,10 @@
           ]
         },
         {
-          "archivo": "salas/s4-biblioteca/mostrador.de8504f7.glb",
-          "sha256": "de8504f731d53e7027f5cc345b4e80a2bd9685a0b60f846796b21066e21c1d8f",
-          "bytes": 27332,
+          "archivo": "salas/s4-biblioteca/mostrador.42b15263.glb",
+          "sha256": "42b152634d3aebc4e8e0076b4b35109114369064f22f60eee5d274590cd83ea1",
+          "bytes": 27336,
           "triangulos": 856,
-          "drawCalls": 1,
-          "texturas": [
-            {
-              "nombre": "furniturebits_texture",
-              "ancho": 256,
-              "alto": 256,
-              "formato": "etc1s",
-              "alfa": false,
-              "bytesGpu": 43581
-            }
-          ]
-        },
-        {
-          "archivo": "salas/s4-biblioteca/pila.ebdb1a56.glb",
-          "sha256": "ebdb1a563b4a6adad95f06346cb0e6b3718c2a3cce7a94b0ffea6b337e277d69",
-          "bytes": 24776,
-          "triangulos": 680,
           "drawCalls": 1,
           "texturas": [
             {
@@ -991,11 +974,11 @@
       ],
       "audio": [],
       "totales": {
-        "bytes": 471956,
+        "bytes": 447188,
         "bytesAudio": 0,
-        "triangulos": 18428,
-        "drawCalls": 11,
-        "bytesGpu": 479391
+        "triangulos": 17748,
+        "drawCalls": 10,
+        "bytesGpu": 435810
       }
     }
   }
