@@ -1,32 +1,55 @@
-/* Aviso de carga al cambiar de sala (T20b): en el centro, sin recibir toques. */
-.indicador-carga {
+/*
+ * Aviso de carga al cambiar de sala (T20b): en el centro, sin recibir toques. Tema del archivo
+ * (T41c): una ficha de papel (`.tema-ficha` de `ui/tema.css`) con un reloj ámbar cuya aguja gira.
+ */
+/* `.tema-ficha` pone el papel; aquí van posición y tamaño (más específico que `.tema-ficha`). */
+.indicador-carga.tema-ficha {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   max-width: calc(100% - 32px);
-  box-sizing: border-box;
   margin: 0;
-  padding: 12px 18px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 12px;
-  background: rgb(0 0 0 / 75%);
-  color: #f2f2f2;
+  gap: 12px;
   font-size: 1rem;
+  line-height: 1.35;
   pointer-events: none;
 }
 
-.indicador-carga-giro {
+.indicador-carga-texto {
+  display: grid;
+}
+
+.indicador-carga-rotulo {
+  color: var(--tema-tinta-suave);
+}
+
+/* El reloj de las 00:40 en miniatura: esfera ámbar y una aguja de tinta. */
+.indicador-carga-reloj {
+  position: relative;
   flex: none;
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   box-sizing: border-box;
-  border: 3px solid rgb(255 255 255 / 30%);
-  border-top-color: #f2f2f2;
+  border: 2px solid var(--tema-tinta);
   border-radius: 50%;
-  animation: indicador-carga-giro 0.9s linear infinite;
+  background: var(--tema-ambar);
+  box-shadow: 0 0 10px rgb(242 169 59 / 60%);
+}
+
+.indicador-carga-aguja {
+  position: absolute;
+  left: calc(50% - 1px);
+  bottom: 50%;
+  width: 2px;
+  height: 9px;
+  border-radius: 1px;
+  background: var(--tema-tinta);
+  transform-origin: 50% 100%;
+  animation: indicador-carga-giro 1.2s steps(12) infinite;
 }
 
 @keyframes indicador-carga-giro {
@@ -35,9 +58,10 @@
   }
 }
 
-/* Quien pide menos movimiento ve el aro quieto; el texto ya dice lo que pasa. */
+/* Quien pide menos movimiento ve la aguja quieta; el texto ya dice lo que pasa. */
 @media (prefers-reduced-motion: reduce) {
-  .indicador-carga-giro {
+  .indicador-carga-aguja {
     animation: none;
+    transform: rotate(40deg);
   }
 }

@@ -1,0 +1,399 @@
+/*
+ * Tema «Archivo del colegio de noche» (ola 6, T41c).
+ *
+ * El jugador revisa el archivo de la I. E. Los Almendros antes de que se borre a las 00:40:
+ * fichas y carpetas de cartón, papel envejecido, sellos de goma, letra de máquina de escribir
+ * en títulos y etiquetas, el reloj ámbar como motivo y luz cálida de linterna sobre fondo oscuro.
+ *
+ * Cómo se usa:
+ * - Los colores, letras, bordes y sombras son variables `--tema-*` en `:root`.
+ * - La clase `.tema-archivo` en el contenedor de una pantalla pone el fondo de linterna, la letra de
+ *   texto y los botones del tema. Fuera de `.tema-archivo` (HUD, paneles de mecanismo) nada cambia.
+ * - `.tema-ficha` (componente `tema/Ficha.tsx`) es un papel: ficha de archivo o carpeta de cartón.
+ * - `.tema-sello` (componente `tema/Sello.tsx`) es un sello de goma con texto real (se lee).
+ * - Las texturas son SVG propio en `data:` (la CSP permite `img-src data:`): sin imágenes.
+ *
+ * Accesibilidad: todo el texto mide 14 px o más y cumple contraste AA (los pares están
+ * anotados junto a cada color). Las animaciones son cortas y se quitan con
+ * `prefers-reduced-motion`.
+ */
+
+/*
+ * Fuentes autoalojadas (la CSP no deja cargar nada de fuera). Las dos tienen licencia SIL OFL
+ * 1.1; los archivos van en `public/fonts/` con su `OFL.txt`. Mientras no estén, el navegador usa
+ * la pila del sistema de `--tema-letra-*` y no pasa nada más (un 404 por archivo).
+ */
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('/fonts/courier-prime-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('/fonts/courier-prime-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('/fonts/atkinson-hyperlegible-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('/fonts/atkinson-hyperlegible-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Letras: máquina de escribir para títulos y etiquetas; una legible para los textos. */
+  --tema-letra-maquina:
+    'Courier Prime', 'Courier New', Courier, 'Nimbus Mono PS', ui-monospace, monospace;
+  --tema-letra-texto:
+    'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    sans-serif;
+
+  /* Noche: el fondo del archivo a oscuras. */
+  --tema-noche: #14110d;
+  --tema-noche-2: #201a14;
+  --tema-noche-borde: #4a3d2e;
+  /* Texto sobre la noche: 15,7:1 y 10:1 con --tema-noche. */
+  --tema-claro: #f3ead6;
+  --tema-claro-suave: #cbbd9f;
+
+  /* Papel envejecido y tinta. Tinta sobre papel 12,5:1; tinta suave 6,8:1. */
+  --tema-papel: #efe4cc;
+  --tema-papel-2: #e6d6b4;
+  --tema-papel-borde: #b99d6c;
+  --tema-tinta: #2a2118;
+  --tema-tinta-suave: #5a4a36;
+  /* Renglones y margen de la ficha (decorativos). */
+  --tema-renglon: rgb(70 110 160 / 22%);
+  --tema-margen: rgb(170 50 40 / 45%);
+
+  /* Carpeta de cartón: tinta encima 6,2:1. */
+  --tema-carton: #c79a5b;
+  --tema-carton-oscuro: #8a6236;
+
+  /* El reloj ámbar de las 00:40: 9,4:1 sobre la noche; tinta encima 7,9:1. */
+  --tema-ambar: #f2a93b;
+  --tema-ambar-brillo: #ffc766;
+
+  /* Tintas de sello, legibles sobre el papel: rojo 5,8:1, azul 6,8:1, verde 5,5:1. */
+  --tema-sello-rojo: #a3271f;
+  --tema-sello-azul: #1f4a8a;
+  --tema-sello-verde: #2c6440;
+
+  /* Bordes y sombras. */
+  --tema-radio: 4px;
+  --tema-radio-boton: 6px;
+  --tema-sombra-papel:
+    0 1px 0 rgb(255 255 255 / 35%) inset, 0 10px 28px rgb(0 0 0 / 55%), 0 2px 6px rgb(0 0 0 / 40%);
+  --tema-sombra-boton: 0 2px 0 rgb(0 0 0 / 45%);
+
+  /* Grano del papel: ruido SVG propio, en mosaico de 160 px (barato de dibujar). */
+  --tema-grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .1 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  /* Bordes del papel amarillentos por los años. */
+  --tema-envejecido: radial-gradient(
+    ellipse 120% 110% at 50% 40%,
+    rgb(0 0 0 / 0%) 55%,
+    rgb(120 80 30 / 22%) 100%
+  );
+  /* La linterna: un círculo cálido sobre la noche. */
+  --tema-linterna: radial-gradient(
+    ellipse 70% 85% at 62% 42%,
+    rgb(255 190 110 / 16%) 0%,
+    rgb(255 170 80 / 6%) 45%,
+    rgb(0 0 0 / 0%) 72%
+  );
+}
+
+/* ---------- Pantalla del archivo: fondo de linterna, letra y botones ---------- */
+
+.tema-archivo {
+  font-family: var(--tema-letra-texto);
+  color: var(--tema-claro);
+}
+
+/* Las pantallas completas (menú, finales) llevan la noche con la linterna encima. */
+.tema-fondo {
+  background:
+    var(--tema-linterna),
+    radial-gradient(ellipse at center, rgb(0 0 0 / 0%) 50%, rgb(0 0 0 / 55%) 100%),
+    rgb(20 17 13 / 94%);
+}
+
+/* Etiqueta de máquina de escribir (antetítulos, rótulos de carpeta). */
+.tema-etiqueta {
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tema-titulo {
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--tema-ambar);
+  text-shadow: 0 0 18px rgb(242 169 59 / 25%);
+}
+
+/* El motivo del reloj: «00:40» en ámbar, como el reloj de la portería. */
+.tema-reloj {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 4px 10px;
+  border: 1px solid rgb(242 169 59 / 45%);
+  border-radius: var(--tema-radio);
+  background: rgb(0 0 0 / 45%);
+  color: var(--tema-claro-suave);
+  font-size: 0.875rem;
+}
+
+.tema-reloj strong {
+  font-family: var(--tema-letra-maquina);
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--tema-ambar);
+  text-shadow: 0 0 8px rgb(242 169 59 / 55%);
+}
+
+/* Botones dentro del archivo. Siguen siendo `.boton`: 48 px de alto y el mismo foco visible. */
+.tema-archivo .boton {
+  border-radius: var(--tema-radio-boton);
+  /* Letra legible: en máquina de escribir los botones no caben en una línea a 740 px. */
+  font-family: var(--tema-letra-texto);
+  font-weight: 700;
+  box-shadow: var(--tema-sombra-boton);
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out;
+}
+
+.tema-archivo .boton:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.tema-archivo .boton-principal {
+  border-color: var(--tema-tinta);
+  background: var(--tema-ambar);
+  color: var(--tema-tinta);
+}
+
+.tema-archivo .boton-secundario {
+  border-color: var(--tema-noche-borde);
+  background: rgb(0 0 0 / 30%);
+  color: var(--tema-claro);
+}
+
+/* Sobre papel, el botón secundario va con tinta. */
+.tema-ficha .boton-secundario,
+.tema-archivo .tema-ficha .boton-secundario {
+  border-color: var(--tema-tinta-suave);
+  background: rgb(255 255 255 / 25%);
+  color: var(--tema-tinta);
+}
+
+/* Foco visible sobre papel: el blanco de botones.css no se ve en el papel claro. */
+.tema-ficha .boton:focus-visible {
+  outline-color: var(--tema-sello-azul);
+  box-shadow: 0 0 0 6px var(--tema-papel);
+}
+
+/* ---------- Ficha: papel de archivo o carpeta de cartón ---------- */
+
+.tema-ficha {
+  position: relative;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border: 1px solid var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: var(--tema-grano), var(--tema-envejecido), var(--tema-papel);
+  color: var(--tema-tinta);
+  font-family: var(--tema-letra-texto);
+  box-shadow: var(--tema-sombra-papel);
+}
+
+/* Ficha de archivo: renglones azules y margen rojo arriba, como una ficha bibliográfica. */
+.tema-ficha-renglones {
+  background:
+    var(--tema-grano),
+    var(--tema-envejecido),
+    linear-gradient(var(--tema-margen), var(--tema-margen)) 0 2.6rem / 100% 2px no-repeat,
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0 calc(1.75rem - 1px),
+        var(--tema-renglon) calc(1.75rem - 1px) 1.75rem
+      )
+      0 2.6rem / 100% calc(100% - 2.6rem) no-repeat,
+    var(--tema-papel);
+}
+
+/* Carpeta de cartón con su pestaña. */
+.tema-ficha-carpeta {
+  margin-top: 1.75rem;
+  border-color: var(--tema-carton-oscuro);
+  border-top-left-radius: 0;
+  background: var(--tema-grano), var(--tema-envejecido), var(--tema-carton);
+}
+
+.tema-ficha-pestana {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  max-width: 85%;
+  margin: 0;
+  padding: 4px 14px 2px;
+  overflow: hidden;
+  border: 1px solid var(--tema-papel-borde);
+  border-bottom: 0;
+  border-radius: 6px 10px 0 0;
+  background: var(--tema-grano), var(--tema-papel);
+  color: var(--tema-tinta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tema-ficha-carpeta > .tema-ficha-pestana {
+  border-color: var(--tema-carton-oscuro);
+  background: var(--tema-grano), var(--tema-carton);
+}
+
+/* La pestaña pide espacio arriba en una ficha simple. */
+.tema-ficha:has(> .tema-ficha-pestana):not(.tema-ficha-carpeta) {
+  margin-top: 1.75rem;
+  border-top-left-radius: 0;
+}
+
+/* Texto secundario dentro del papel. */
+.tema-ficha .tema-ficha-nota {
+  color: var(--tema-tinta-suave);
+  font-size: 0.875rem;
+}
+
+/* La ficha entra deslizándose, como cuando se saca de un cajón. */
+.tema-ficha-entra {
+  animation: tema-ficha-entra 240ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes tema-ficha-entra {
+  from {
+    opacity: 0;
+    transform: translateY(14px) rotate(-0.8deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Sello de goma ---------- */
+
+.tema-sello {
+  --sello-giro: -6deg;
+  --sello-color: var(--tema-sello-rojo);
+
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 2px 10px;
+  border: 3px double var(--sello-color);
+  border-radius: 6px;
+  color: var(--sello-color);
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(var(--sello-giro));
+  /* Tinta gastada: el grano del papel se come un poco del sello. */
+  mask-image: var(--tema-grano), linear-gradient(#000, #000);
+  mask-composite: exclude;
+  mix-blend-mode: multiply;
+}
+
+/* Sobre la noche no hay papel que «absorba» la tinta: el sello va en claro. */
+.tema-sello-sobre-noche {
+  mix-blend-mode: normal;
+}
+
+.tema-sello-rojo {
+  --sello-color: var(--tema-sello-rojo);
+}
+
+.tema-sello-azul {
+  --sello-color: var(--tema-sello-azul);
+}
+
+.tema-sello-verde {
+  --sello-color: var(--tema-sello-verde);
+}
+
+/* Ámbar: solo sobre la noche (sobre el papel no da contraste). */
+.tema-sello-ambar {
+  --sello-color: var(--tema-ambar);
+}
+
+.tema-sello-recto {
+  --sello-giro: -2deg;
+}
+
+.tema-sello-grande {
+  padding: 4px 14px;
+  border-width: 4px;
+  font-size: 1.125rem;
+}
+
+/* El sello golpea: baja grande, aprieta y queda. */
+.tema-sello-golpe {
+  animation: tema-sello-golpe 320ms cubic-bezier(0.3, 0.6, 0.4, 1.2) both;
+}
+
+@keyframes tema-sello-golpe {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--sello-giro)) scale(1.9);
+  }
+
+  65% {
+    opacity: 1;
+    transform: rotate(var(--sello-giro)) scale(0.93);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotate(var(--sello-giro)) scale(1);
+  }
+}
+
+/* ---------- Menos movimiento ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .tema-ficha-entra,
+  .tema-sello-golpe {
+    animation: none;
+  }
+
+  .tema-archivo .boton {
+    transition: none;
+  }
+}

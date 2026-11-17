@@ -9,6 +9,7 @@ import {
   type JugadorCoop,
 } from '../../signals/coop';
 import { enviar } from '../../signals/puente';
+import Sello from '../tema/Sello';
 import ListasApariencia, { primeroLibre } from './ListasApariencia';
 import { COLOR, NOMBRE_ALIAS } from './nombres';
 import '../botones.css';
@@ -191,15 +192,18 @@ export default function SalaDeEspera({ alSalir }: { alSalir: () => void }) {
               {j.eligiendo ? (j.yo ? 'Tú' : 'Sin alias') : nombreJugador(j)}
             </span>
             <span class="coop-jugador-estado">
-              {!j.conectado
-                ? 'desconectado'
-                : j.eligiendo
-                  ? 'eligiendo alias y color'
-                  : j.anfitrion
-                    ? 'crea la partida'
-                    : j.listo
-                      ? 'listo'
-                      : 'todavía no'}
+              {!j.conectado ? (
+                'desconectado'
+              ) : j.eligiendo ? (
+                'eligiendo alias y color'
+              ) : j.anfitrion ? (
+                'crea la partida'
+              ) : j.listo ? (
+                // Al decir «listo», el sello golpea la ficha del jugador (T41c).
+                <Sello texto="listo" color="verde" golpe recto />
+              ) : (
+                'todavía no'
+              )}
             </span>
           </li>
         ))}
