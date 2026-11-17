@@ -182,21 +182,25 @@ Los objetos con mecanismo que sí reciben modelo deben caber en la caja de `sala
 
 ## Sala 2 · El laboratorio
 
+Hecha en T19l, con KayKit Restaurant Bits (todo de un solo paquete) y la medianoche de T19k. Los tanques, perillas, palanca, campana, taza, hoja y graficador siguen como primitivas: su máquina los anima o su texto se lee en 2D.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s2-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
-| `s2-tanque-a`, `s2-tanque-b` · tanques de vidrio | Primitiva | — | — | `tanques.ts` pone el líquido dentro del cilindro; Kenney no tiene tanques de vidrio |
-| `s2-panel` · tablero de los tanques 2 × 0,9 × 0,3 | Factory · `screen-panel-wide.glb` | s/d (15 KB) | `tablero` | — |
-| `s2-perilla-verde`, `s2-perilla-morada` · perillas | Primitiva | — | — | Pequeñas y de colores que dan pistas |
-| `s2-palanca` · palanca | Factory · `lever-double.glb` | s/d (17 KB) | `palanca-doble` | — |
-| `s2-graficador` · graficador 2,4 × 1,4 | Primitiva | — | — | Plano; la gráfica se lee en 2D |
-| `s2-incubadora` · incubadora 1 × 1,2 × 0,8 | Factory · `machine-window.glb` | s/d (37 KB) | `incubadora` | La bandeja y la gota son del mecanismo |
-| `s2-campana` · campana con temporizador | Primitiva | — | — | Kenney no tiene campana; `tanques.ts` la sacude |
-| `s2-meson-1` · mesón 2,4 × 0,9 × 0,8 | Furniture · `kitchenCabinet.glb` × 3 | 396 c/u | `meson` | Tres módulos unidos con `join` |
-| `s2-meson-2` · mesón 2 × 0,9 × 0,8 | Furniture · `kitchenCabinet.glb` × 3 | 396 c/u | `meson` | El mismo GLB, escalado |
-| `s2-taza` · taza «T. R.» | Primitiva | — | — | Solo el Food Kit tiene taza (`mug.glb`): no vale bajar un paquete por un objeto de 9 cm |
-| `s2-hoja-ayer` · hoja | Primitiva | — | — | Papel; se lee en 2D |
-| `s2-gabinete` · gabinete 0,6 × 1,8 × 0,8 | Furniture · `bookcaseClosedDoors.glb` | 536 | `casillero` | El mismo de la portería |
+| `s2-puerta` · puerta | Restaurant · `door_A` | 188 | `puerta` | La misma de la portería y la sala 1 |
+| `s2-panel` · tablero 2 × 0,9 × 0,3 | Restaurant · `kitchencounter_straight_B` | 168 | `tablero` | Mueble bajo blanco con cubierta naranja; perillas y palanca encima |
+| `s2-incubadora` · 1 × 1,2 × 0,8 | Restaurant · `fridge_B` | 426 | `incubadora` | Nevera turquesa de una puerta; la campana va encima |
+| `s2-gabinete` · 0,6 × 1,8 × 0,8 | Restaurant · `kitchencabinet` × 2 | 312 | `gabinete` | Dos alacenas apiladas, de lado (`giro` 90 en `modelos.json`) |
+| `s2-meson-1`, `s2-meson-2` · 2,4 × 0,9 × 0,8 | Restaurant · `kitchentable_A_large` | 236 | `meson` | Un solo GLB instanciado; el mesón 2 creció 40 cm hacia el oeste para compartirlo |
+| `s2-poceta` (nuevo) | Restaurant · `kitchentable_sink` | 742 | `poceta` | Mesa de acero con poceta y grifo, en la esquina sureste |
+| `s2-repisa-frascos` (nuevo) | Restaurant · `shelf_papertowel` + 3 frascos | 828 | `repisa-frascos` | Encima de la poceta |
+| `s2-taburete-1`, `-2` (nuevos) | Restaurant · `chair_stool` | 272 | `taburete` | Junto al mesón 1 |
+
+Objetos nuevos hechos con primitivas (van en la malla fija): computador, tuberías de los tanques al techo, microscopio, gradilla con tubos de ensayo, tabla periódica (solo colores, sin texto) y extintor.
+
+- **Superficies:** baldosa (Tiles040), pañete y techo de oficina, con tinte gris verdoso en el piso y celeste grisáceo en las paredes.
+- **Acabados:** zócalo verde petróleo con franja blanca; lámparas apagada (oeste, el rincón de la linterna), encendida y titilando (sobre el graficador); dos ventanas de noche en la pared del fondo, con luna en la del oeste.
+- **Luz:** noche fría, verde agua, con la direccional entrando desde el pasillo.
+- **Medidas:** 8 GLB, 3.172 triángulos, 138 KB. Prueba del cooperativo: 36 de 40.
 
 ## Sala 3 · El gimnasio
 
@@ -281,7 +285,7 @@ El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 dr
 | --- | --- | --- | --- | --- |
 | Portería | 6 GLB | ~3.000 | ~0,1 MB de modelos + ~0,6 MB de texturas | Sí |
 | Cooperativa | 9 GLB | ~12.000 | ~0,3 MB + ~0,6 MB | Sí |
-| Laboratorio | 6 GLB | ~6.000 | ~0,1 MB + ~0,6 MB | Sí |
+| Laboratorio (medido, T19l) | 8 GLB | 3.172 | 0,14 MB + texturas compartidas | Sí |
 | Gimnasio | 4 GLB | ~3.000 | ~0,05 MB + ~0,4 MB (sin techo) | Sí |
 | Biblioteca | 8 GLB | ~5.500 | ~0,1 MB + ~0,6 MB | Sí |
 | Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
