@@ -94,7 +94,7 @@ test.describe('final en 740 × 360 (T41e)', () => {
     await continuarEn(page, { sala: 's2-laboratorio', restanteMs: 5000 });
     const titulo = page.getByRole('heading', { level: 1, name: 'Tiempo cumplido' });
     await expect(titulo).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('.final-sello')).toHaveText('Tiempo cumplido');
+    await expect(page.locator('.final-sello')).toHaveText('Archivo borrado');
     // Cada sala del resumen lleva un sello con cómo terminó (texto real, no solo color).
     const resumen = page.getByRole('region', { name: 'Lo que aprendiste esta noche' });
     await expect(resumen.locator('.tema-sello')).toHaveCount(5);

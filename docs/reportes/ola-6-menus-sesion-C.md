@@ -36,7 +36,7 @@ Resumen honesto:
 - **Pausa (nueva)**: el botón del HUD se llama «Pausa» y abre una ficha con el sello **EN PAUSA**; el reloj se detiene. Desde ahí: «Seguir jugando», «Ajustes» y «Salir de la partida», que pide confirmar; al confirmar golpea el sello **EXPEDIENTE CERRADO**. Reemplaza al `window.confirm` del navegador, que no se podía leer bien en el celular. En grupo, el botón sigue llamándose «Salir» y abre solo la confirmación, porque la pausa en grupo se vota en la barra.
 - **Ajustes**: la misma ficha de papel, con los controles en tinta.
 - **Barra del grupo**: avisos y votos como notas de papel; las señales de los compañeros, etiquetas ámbar.
-- **Finales**: el final es un expediente cerrado con su sello (SALIDA AUTORIZADA, ARCHIVO RESTAURADO, AYUDA RECIBIDA o TIEMPO CUMPLIDO), los números a máquina y, en el resumen de aprendizaje, una ficha por sala con un sello de cómo terminó (sin pistas, con pistas o sin resolver). Créditos en ficha con renglones; la hoja de la fotocopiadora con el sello COPIA. La elección de final frente a la puerta usa la misma ficha.
+- **Finales**: el final es un expediente cerrado con su sello (SALIDA AUTORIZADA, ARCHIVO RESTAURADO, AYUDA RECIBIDA o ARCHIVO BORRADO), los números a máquina y, en el resumen de aprendizaje, una ficha por sala con un sello de cómo terminó (sin pistas, con pistas o sin resolver). Créditos en ficha con renglones; la hoja de la fotocopiadora con el sello COPIA. La elección de final frente a la puerta usa la misma ficha.
 
 ### Accesibilidad y seguridad
 

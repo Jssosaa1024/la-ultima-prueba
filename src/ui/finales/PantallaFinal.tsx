@@ -34,7 +34,7 @@ const SELLO_FINAL: Readonly<Record<FinalId, { texto: string; color: ColorSello }
   justo_a_tiempo: { texto: 'Salida autorizada', color: 'verde' },
   el_legado: { texto: 'Archivo restaurado', color: 'azul' },
   pedir_ayuda: { texto: 'Ayuda recibida', color: 'azul' },
-  tiempo_cumplido: { texto: 'Tiempo cumplido', color: 'rojo' },
+  tiempo_cumplido: { texto: 'Archivo borrado', color: 'rojo' },
 };
 
 /** Cómo quedó cada sala, como sello en su ficha del resumen. */
