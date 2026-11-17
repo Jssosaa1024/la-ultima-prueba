@@ -2,7 +2,8 @@
  * Cargador de salas (T20): entrar a una sala, liberar la anterior y preparar la siguiente.
  *
  * - **compileAsync**: antes de mostrar una sala se compilan sus shaders sin bloquear el
- *   cuadro, para que entrar no dé un tirón en un celular de gama baja.
+ *   cuadro, para que entrar no dé un tirón en un celular de gama baja. Se compilan con las
+ *   luces que la sala va a tener al dibujarse, no con las de la anterior (T20d).
  * - **Memoria**: en la GPU solo quedan la portería y la sala actual (especificación,
  *   sección 0). Al salir de una sala se libera con `dispose()`; la portería se conserva.
  * - **Precarga**: la siguiente sala se arma en la CPU en un momento libre, sin subirla a la
@@ -12,7 +13,7 @@
  * pone después con `vestir`, una sola vez por sala armada, antes de compilar; la precarga solo
  * deja esos archivos en la caché, sin decodificarlos (`precalentar`).
  */
-import type { Camera, Object3D, Scene } from 'three';
+import type { Camera, Light, Object3D, Scene } from 'three';
 import type { Lugar, Sala } from '../../content/esquema-salas';
 import { carga } from '../../signals/interfaz';
 import { liberarObjeto } from '../carga/liberar';
@@ -84,6 +85,29 @@ export function crearCargadorSalas({
     else liberarObjeto(sala.raiz);
   };
 
+  /**
+   * Compila la sala nueva solo con sus luces (T20d). `compile` de three suma las luces visibles
+   * de la escena y las de la sala nueva: con la sala actual todavía en la escena vería dos
+   * hemisféricas y dos direccionales, y en el primer cuadro, con una de cada una, three tendría
+   * que compilar otra vez lo que falte (el tirón que se quería evitar). Las luces de la sala
+   * actual se apagan solo mientras three las cuenta, que es la parte síncrona de
+   * `compileAsync`: se prenden antes de que se dibuje cualquier cuadro.
+   */
+  const compilarConSusLuces = (nueva: SalaConstruida): Promise<unknown> => {
+    const apagadas: Object3D[] = [];
+    actual?.raiz.traverse((o) => {
+      if ((o as Light).isLight && o.visible) {
+        o.visible = false;
+        apagadas.push(o);
+      }
+    });
+    try {
+      return renderer.compileAsync(nueva.raiz, camara, escena);
+    } finally {
+      for (const luz of apagadas) luz.visible = true;
+    }
+  };
+
   return {
     async entrar(lugar) {
       if (actual?.id === lugar) return actual;
@@ -99,7 +123,7 @@ export function crearCargadorSalas({
           });
         }
         carga.value = { estado: 'cargando', progreso: 0.5 };
-        await renderer.compileAsync(nueva.raiz, camara, escena);
+        await compilarConSusLuces(nueva);
         if (este !== pedido) {
           // Mientras se compilaba se pidió otra sala: esta ya no se muestra.
           guardarOLiberar(nueva);
