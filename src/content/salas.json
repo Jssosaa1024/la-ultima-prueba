@@ -1201,6 +1201,32 @@
     "fondo": 8,
     "alto": 3.2,
     "colores": { "piso": "#7b5d3f", "paredes": "#e8dcc5", "techo": "#f2ede3" },
+    "texturas": {
+      "piso": "compartido/piso-madera",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2,
+      "tinte": { "piso": "#c4ae94", "paredes": "#f0e4c8", "techo": "#e2e2e6" }
+    },
+    "luz": {
+      "cielo": "#b8c3e6",
+      "suelo": "#6a6660",
+      "fuerza": 1.6,
+      "direccional": "#c4d0ff",
+      "fuerzaDireccional": 0.9,
+      "desde": [4, 4.5, 4],
+      "exposicion": 1.1
+    },
+    "acabados": {
+      "zocalo": "#447a60",
+      "franja": "#c9a45c",
+      "marcos": "#5a3a24",
+      "lamparas": ["titila", "encendida", "apagada"],
+      "ventanas": [
+        { "pared": "norte", "centro": -1.5, "y": 2.42, "ancho": 1.8, "alto": 0.6 },
+        { "pared": "norte", "centro": 2.5, "y": 2.42, "ancho": 2.4, "alto": 0.6, "luna": true }
+      ]
+    },
     "inicio": { "x": 0, "z": 3.4, "giro": 0 },
     "objetos": [
       {
@@ -1212,7 +1238,8 @@
         "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
-        "puerta": "porteria"
+        "puerta": "porteria",
+        "modelo": "puerta"
       },
       {
         "id": "s4-estante-1",
@@ -1220,7 +1247,8 @@
         "tam": [0.5, 2.2, 2.5],
         "pos": [-4.7, 0, -2],
         "color": "#6e2c00",
-        "solido": true
+        "solido": true,
+        "modelo": "estante-a"
       },
       {
         "id": "s4-estante-m",
@@ -1229,16 +1257,18 @@
         "tam": [0.5, 2.2, 2],
         "pos": [-4.7, 0, 1.2],
         "color": "#784212",
-        "solido": true
+        "solido": true,
+        "modelo": "estante-m"
       },
       {
         "id": "s4-libro-m",
         "nombre": "Libro que sobresale del estante M",
         "forma": "caja",
-        "tam": [0.22, 0.32, 0.1],
-        "pos": [-4.36, 1.2, 1.5],
+        "tam": [0.25, 0.34, 0.14],
+        "pos": [-4.435, 1.41, 1.5],
         "color": "#c0392b",
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "libro"
       },
       {
         "id": "s4-casilleros",
@@ -1248,7 +1278,8 @@
         "pos": [2.5, 0, -3.7],
         "color": "#7f8c8d",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "casilleros"
       },
       {
         "id": "s4-lamparas",
@@ -1267,16 +1298,18 @@
         "pos": [2.5, 0, 1],
         "color": "#6e2c00",
         "solido": true,
-        "accion": "examinar"
+        "accion": "examinar",
+        "modelo": "mostrador"
       },
       {
         "id": "s4-caja-devoluciones",
         "nombre": "Caja de devoluciones",
         "forma": "caja",
-        "tam": [0.5, 0.3, 0.35],
+        "tam": [0.45, 0.25, 0.4],
         "pos": [3.4, 1, 1],
         "color": "#a04000",
-        "accion": "examinar"
+        "accion": "examinar",
+        "modelo": "caja-devoluciones"
       },
       {
         "id": "s4-ficha-rota",
@@ -1310,17 +1343,46 @@
         "forma": "caja",
         "tam": [0.4, 0.6, 0.3],
         "pos": [-0.6, 0, 1],
-        "color": "#922b21",
+        "color": "#d9822b",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "pila"
       },
       {
         "id": "s4-mesa-lectura",
         "forma": "caja",
-        "tam": [1.6, 0.75, 0.8],
-        "pos": [-2.6, 0, 2.4],
+        "tam": [1.8, 1.52, 1.9],
+        "pos": [-2.6, 0, 2.95],
         "color": "#935116",
-        "solido": true
+        "solido": true,
+        "modelo": "mesa-lectura"
+      },
+      {
+        "id": "s4-estanteria-este",
+        "forma": "caja",
+        "tam": [0.5, 2.2, 2.5],
+        "pos": [4.7, 0, -1.95],
+        "giro": 180,
+        "color": "#6e2c00",
+        "solido": true,
+        "modelo": "estante-b"
+      },
+      {
+        "id": "s4-rincon-lectura",
+        "forma": "caja",
+        "tam": [2.25, 1.42, 0.96],
+        "pos": [4.47, 0, 2.84],
+        "giro": -90,
+        "color": "#4f7fa8",
+        "solido": true,
+        "modelo": "rincon-lectura"
+      },
+      {
+        "id": "s4-alfombra",
+        "forma": "caja",
+        "tam": [1.2, 0.02, 1.7],
+        "pos": [3.3, 0, 2.85],
+        "color": "#9c4b55"
       }
     ]
   },

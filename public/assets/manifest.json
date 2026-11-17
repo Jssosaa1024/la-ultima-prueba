@@ -798,6 +798,205 @@
         "drawCalls": 5,
         "bytesGpu": 348650
       }
+    },
+    "s4-biblioteca": {
+      "archivos": [
+        {
+          "archivo": "salas/s4-biblioteca/caja-devoluciones.74b1051d.glb",
+          "sha256": "74b1051d85eb5de23ce393587cadc1079f2ec8d41aef6747a1e17eafd39ae1d7",
+          "bytes": 14064,
+          "triangulos": 132,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/casilleros.004c11d1.glb",
+          "sha256": "004c11d191e6eda8661772f54569e6a897c8a178680e352f88ef2ae55c790061",
+          "bytes": 27252,
+          "triangulos": 936,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/estante-a.228f049f.glb",
+          "sha256": "228f049fe0f5947d6f0b03f6a0dca226088d91fb7497c23aec3862b1cdfb30df",
+          "bytes": 94836,
+          "triangulos": 4236,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/estante-b.726dc227.glb",
+          "sha256": "726dc2279cfd5e691097a14ae4d2b710aced09c508ff00c599e9328053986a06",
+          "bytes": 94860,
+          "triangulos": 4236,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/estante-m.db8c2c61.glb",
+          "sha256": "db8c2c6192cb0b75ac3d6658687b267aa1866f58dd281a14a846a69fdf94f49d",
+          "bytes": 83460,
+          "triangulos": 3744,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/libro.bd104ada.glb",
+          "sha256": "bd104ada55cd2fc2cfb3210211c0c3be788b4b12bd254d2c12fa816a92368b39",
+          "bytes": 11568,
+          "triangulos": 68,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/mesa-lectura.4a802034.glb",
+          "sha256": "4a802034dea709f125fa421645d484cdd404a292b547770fec60fa8bc5c77a2b",
+          "bytes": 49920,
+          "triangulos": 2140,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/mostrador.de8504f7.glb",
+          "sha256": "de8504f731d53e7027f5cc345b4e80a2bd9685a0b60f846796b21066e21c1d8f",
+          "bytes": 27332,
+          "triangulos": 856,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/pila.ebdb1a56.glb",
+          "sha256": "ebdb1a563b4a6adad95f06346cb0e6b3718c2a3cce7a94b0ffea6b337e277d69",
+          "bytes": 24776,
+          "triangulos": 680,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/puerta.3adb0fcd.glb",
+          "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
+          "bytes": 15276,
+          "triangulos": 188,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/rincon-lectura.13da0fd6.glb",
+          "sha256": "13da0fd6cec6f7002a583b8cb148491ad2426a0018f170ac2ce499477d93c617",
+          "bytes": 28612,
+          "triangulos": 1212,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        }
+      ],
+      "audio": [],
+      "totales": {
+        "bytes": 471956,
+        "bytesAudio": 0,
+        "triangulos": 18428,
+        "drawCalls": 11,
+        "bytesGpu": 479391
+      }
     }
   }
 }
