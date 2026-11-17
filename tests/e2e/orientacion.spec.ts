@@ -36,7 +36,7 @@ test('en vertical se pide girar el teléfono, con el reloj en pausa y la escena 
   const vista = page.viewportSize();
   expect(Math.round(caja?.width ?? 0)).toBe(vista?.width);
   expect(Math.round(caja?.height ?? 0)).toBe(vista?.height);
-  await expect(page.getByRole('button', { name: 'Salir' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Pausa' })).toHaveCount(0);
   // El reloj no avanza mientras se ve el aviso.
   const reloj1 = page.locator('.hud-reloj');
   await expect(reloj1).toContainText('en pausa');
@@ -48,7 +48,7 @@ test('en vertical se pide girar el teléfono, con el reloj en pausa y la escena 
   await expect(aviso).toHaveCount(0);
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
   await expect(reloj).not.toHaveAttribute('aria-label', /en pausa/);
-  await expect(page.getByRole('button', { name: 'Salir' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pausa' })).toBeVisible();
 });
 
 test('el cuaderno abierto sigue igual después de girar, y el reloj sigue en pausa', async ({

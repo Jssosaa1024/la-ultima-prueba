@@ -13,6 +13,7 @@ import PanelGrabacion from './grabaciones/PanelGrabacion';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
 import PanelMecanismo from './mecanismos/PanelMecanismo';
+import PanelPausa from './paneles/Pausa';
 import PedirAyuda from './paneles/PedirAyuda';
 import PanelPistas from './pistas/Pistas';
 import Subtitulos from './subtitulos/Subtitulos';
@@ -47,6 +48,7 @@ export default function Partida() {
         {abierto === 'mecanismo' && <PanelMecanismo />}
         {abierto === 'pistas' && <PanelPistas />}
         {abierto === 'grabacion' && <PanelGrabacion />}
+        {abierto === 'pausa' && <PanelPausa />}
         {abierto === 'ajustes' && (
           <PanelAjustes alCerrar={cerrarPanel} pausarReloj={modo.value === 'individual'} />
         )}

@@ -103,7 +103,7 @@ export function abrirCuaderno(): void {
 
 /** Abre un panel que no necesita más datos (la puerta de salida, la máquina de la sala…). */
 export function abrirPanel(
-  cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion' | 'ajustes',
+  cual: 'salida' | 'ayuda' | 'mecanismo' | 'pistas' | 'grabacion' | 'ajustes' | 'pausa',
 ): void {
   batch(() => {
     inspeccionando.value = null;

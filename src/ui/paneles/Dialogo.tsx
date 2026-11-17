@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useId, useRef } from 'preact/hooks';
 import '../botones.css';
+import '../tema.css';
 import './dialogo.css';
 
 interface Props {
@@ -19,6 +20,11 @@ interface Props {
    * (por ejemplo, `cuaderno` para el botón que abre el cuaderno).
    */
   retorno?: string;
+  /**
+   * `archivo`: el panel es una ficha de papel del tema «Archivo del colegio de noche» (ola 6) y
+   * entra deslizándose. Sin `tema`, el panel se ve como siempre.
+   */
+  tema?: 'archivo';
   children: ComponentChildren;
 }
 
@@ -65,6 +71,7 @@ export default function Dialogo({
   cerrarSecundario = false,
   acciones,
   retorno,
+  tema,
   children,
 }: Props) {
   const id = useId();
@@ -110,10 +117,10 @@ export default function Dialogo({
   };
 
   return (
-    <div class="dialogo-fondo">
+    <div class={tema ? 'dialogo-fondo tema-archivo' : 'dialogo-fondo'}>
       <div
         ref={ref}
-        class="dialogo"
+        class={tema ? 'dialogo dialogo-entra' : 'dialogo'}
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${id}-titulo`}

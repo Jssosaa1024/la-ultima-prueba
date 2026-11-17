@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { salirDeLaPartida } from './escena';
 
 // Prueba de humo: las páginas cargan sin errores y lo esencial está a la vista.
 
@@ -59,8 +60,7 @@ test('/jugar arranca el motor 3D, que solo dibuja en la partida y con la pestañ
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
 
   // Al salir al menú vuelve a detenerse, y volver a la pestaña no lo arranca.
-  page.once('dialog', (d) => void d.accept());
-  await page.getByRole('button', { name: 'Salir' }).click();
+  await salirDeLaPartida(page);
   await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
   await expect(canvas).toHaveAttribute('data-motor', 'pausado');
   await cambiarVisibilidad(true);

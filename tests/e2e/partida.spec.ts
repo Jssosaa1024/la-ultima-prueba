@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 // Toque corto con duración fija, para que no dependa de la carga del equipo (T05b).
-import { continuarEn } from './escena';
+import { continuarEn, salirDeLaPartida } from './escena';
 import { tocar } from './toque';
 
 // T31b: el controlador real de la partida, visto desde la portería. Se toca cada objeto donde
@@ -376,8 +376,7 @@ test('al recargar, «Continuar partida» devuelve el cuaderno, sus notas y el re
   await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
 
   // «Salir» abandona la partida: el menú ya no ofrece continuar.
-  page.once('dialog', (d) => void d.accept());
-  await page.getByRole('button', { name: 'Salir' }).click();
+  await salirDeLaPartida(page);
   await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Continuar partida' })).toHaveCount(0);
   await page.reload();

@@ -59,6 +59,30 @@ test.describe('celular en horizontal, 740 × 360', () => {
   });
 });
 
+test.describe('pausa en 740 × 360 (T41d)', () => {
+  test.use({ viewport: { width: 740, height: 360 } });
+
+  test('la ficha de pausa y la confirmación caben, con botones de 44 px y letra de 14 px', async ({
+    page,
+  }) => {
+    await page.goto('/jugar');
+    await page.getByRole('button', { name: 'Jugar solo' }).click();
+    await page.getByRole('button', { name: 'Pausa' }).click();
+    for (const nombre of ['Pausa', '¿Salir de la partida?']) {
+      const ficha = page.getByRole('dialog', { name: nombre });
+      await expect(ficha).toBeVisible();
+      for (const boton of await ficha.getByRole('button').all()) {
+        const caja = await boton.boundingBox();
+        expect(caja?.height ?? 0).toBeGreaterThanOrEqual(44);
+        expect((caja?.y ?? 0) + (caja?.height ?? 0)).toBeLessThanOrEqual(360);
+      }
+      expect(await letraMinima(page, '.dialogo')).toBeGreaterThanOrEqual(14);
+      if (nombre === 'Pausa')
+        await ficha.getByRole('button', { name: 'Salir de la partida' }).click();
+    }
+  });
+});
+
 test.describe('con menos movimiento', () => {
   test.use({ reducedMotion: 'reduce' });
 
