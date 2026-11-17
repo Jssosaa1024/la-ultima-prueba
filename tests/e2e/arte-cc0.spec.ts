@@ -5,6 +5,7 @@ import { expect, test } from '@playwright/test';
 // Kenney) y texturas de ambientCG. Cada objeto con `modelo` en salas.json muestra su GLB (la
 // primitiva queda como caja que choca), y el piso, las paredes y el techo piden su KTX2.
 // T19j: cada sala pide las texturas que dice su campo `texturas` (la sala 1 tiene parqué).
+// T19l en adelante: lo mismo en cada sala que recibe su arte (el laboratorio, con KayKit).
 
 interface SalaJson {
   id: string;

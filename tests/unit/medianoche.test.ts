@@ -22,7 +22,8 @@ import { animarLamparas, CICLO_TITILEO_S, nivelTitileo } from '../../src/engine/
 import { alturaCerros } from '../../src/engine/salas/ventanas';
 import { CON_ARTE } from './sin-arte';
 
-// T19k: medianoche en la portería y la sala 1 (luz por sala, lámparas con estado, ventanas).
+// T19k: medianoche en las salas con arte (luz por sala, lámparas con estado, ventanas). Desde
+// T19l, cada sala que recibe su arte entra en `CON_ARTE` (tests/unit/sin-arte.ts).
 
 const NOCHE = CON_ARTE;
 
@@ -45,7 +46,7 @@ const luces = (raiz: Object3D) => {
 const hex = (c: Color): string => `#${c.getHexString()}`;
 
 describe('luz por sala (T19k)', () => {
-  it('la portería y la sala 1 tienen su luz; las demás quedan con la de T19i', () => {
+  it('las salas con arte tienen su luz; las demás quedan con la de T19i', () => {
     for (const l of LUGARES) {
       const sala = salaPorId(l);
       const { hemi, dir } = luces(construirSala(sala).raiz);
@@ -239,7 +240,7 @@ describe('lámparas con estado (T19k)', () => {
 });
 
 describe('ventanas de noche (T19k)', () => {
-  it('la portería y la sala 1 tienen dos ventanas en la pared del fondo, con luna en una', () => {
+  it('las salas con arte tienen dos ventanas en la pared del fondo, con luna en una', () => {
     for (const l of NOCHE) {
       const ventanas = salaPorId(l).acabados?.ventanas ?? [];
       expect(ventanas).toHaveLength(2);

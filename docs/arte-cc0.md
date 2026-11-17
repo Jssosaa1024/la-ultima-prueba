@@ -198,7 +198,7 @@ Hecha en T19l, con KayKit Restaurant Bits (todo de un solo paquete) y la mediano
 Objetos nuevos hechos con primitivas (van en la malla fija): computador, tuberías de los tanques al techo, microscopio, gradilla con tubos de ensayo, tabla periódica (solo colores, sin texto) y extintor.
 
 - **Superficies:** baldosa (Tiles040), pañete y techo de oficina, con tinte gris verdoso en el piso y celeste grisáceo en las paredes.
-- **Acabados:** zócalo verde petróleo con franja blanca; lámparas apagada (oeste, el rincón de la linterna), encendida y titilando (sobre el graficador); dos ventanas de noche en la pared del fondo, con luna en la del oeste.
+- **Acabados:** zócalo verde petróleo con franja blanca; lámparas apagada (oeste, el rincón de la linterna), encendida (centro) y titilando (este, sobre el mesón 1); dos ventanas de noche en la pared del fondo, con luna en la del oeste.
 - **Luz:** noche fría, verde agua, con la direccional entrando desde el pasillo.
 - **Medidas:** 8 GLB, 3.172 triángulos, 138 KB. Prueba del cooperativo: 36 de 40.
 
