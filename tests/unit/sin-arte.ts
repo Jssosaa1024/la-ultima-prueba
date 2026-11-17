@@ -1,4 +1,21 @@
-import type { Sala } from '../../src/content/esquema-salas';
+import type { Lugar, Sala } from '../../src/content/esquema-salas';
+
+/**
+ * Salas con su arte final (T19h a T19o): modelos CC0, texturas, acabados y luz de medianoche.
+ * Cada sala que recibe su arte se agrega aquí, y las pruebas de arte la revisan.
+ */
+export const CON_ARTE = [
+  'porteria',
+  's1-cooperativa',
+  's2-laboratorio',
+] as const satisfies readonly Lugar[];
+
+/** La sala sin los acabados por código (T19j): sin zócalo, lámparas, ventanas ni oclusión. */
+export function sinAcabados(sala: Sala): Sala {
+  const copia = { ...sala };
+  delete copia.acabados;
+  return copia;
+}
 
 /** La sala sin texturas de piso, paredes y techo, con sus modelos. */
 export function sinTexturas(sala: Sala): Sala {

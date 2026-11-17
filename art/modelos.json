@@ -253,6 +253,102 @@
     "caja": [0.8, 0.6, null]
   },
   {
+    "archivo": "public/assets/salas/s2-laboratorio/puerta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_A.gltf"
+      }
+    ],
+    "caja": [1.1, 2.2, 0.12],
+    "nota": "Igual que en la portería y la sala 1. Fondo de 12 cm: el modelo trae 57 cm y se metía en la sala."
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/tablero.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencounter_straight_B.gltf"
+      }
+    ],
+    "caja": [2, 0.9, 0.3],
+    "nota": "Mueble bajo blanco con cubierta naranja como tablero de los tanques: perillas y palanca encima"
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/incubadora.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/fridge_B.gltf"
+      }
+    ],
+    "caja": [1, 1.2, 0.8],
+    "nota": "Nevera de una puerta como incubadora; la campana va encima"
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/gabinete.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf",
+        "pos": [0, 2, 0]
+      }
+    ],
+    "caja": [0.6, 1.8, 0.8],
+    "giro": 90,
+    "nota": "Dos alacenas apiladas, de lado contra la pared oeste (frente al este)"
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/meson.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchentable_A_large.gltf"
+      }
+    ],
+    "caja": [2.4, 0.9, 0.8],
+    "nota": "Mesa de acero con entrepaño; los dos mesones la instancian"
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/poceta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchentable_sink.gltf"
+      }
+    ],
+    "caja": [1.3, 1.6, 0.8],
+    "nota": "Mesa de acero con poceta y grifo de cuello de ganso"
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/repisa-frascos.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/shelf_papertowel.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/jar_C_large.gltf",
+        "pos": [-0.6667, 0.1507, 0.3]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/jar_A_medium.gltf",
+        "pos": [0, 0.1507, 0.3]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/jar_D_medium.gltf",
+        "pos": [0.6667, 0.1507, 0.3]
+      }
+    ],
+    "caja": [1.3, 1.18, 0.39],
+    "nota": "Repisa con rollo de toallas y tres frascos de reactivos"
+  },
+  {
+    "archivo": "public/assets/salas/s2-laboratorio/taburete.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/chair_stool.gltf"
+      }
+    ],
+    "caja": [0.4, 0.5, 0.4]
+  },
+  {
     "archivo": "public/assets/salas/compartido/piso-baldosa.ktx2",
     "original": "art/compartido/originales/ambientcg/Tiles040_1K-JPG.zip#Tiles040_1K-JPG_Color.jpg"
   },

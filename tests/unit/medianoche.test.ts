@@ -20,10 +20,11 @@ import type { Titileo } from '../../src/engine/salas/acabados';
 import { construirSala, LUZ_INICIAL } from '../../src/engine/salas/construir';
 import { animarLamparas, CICLO_TITILEO_S, nivelTitileo } from '../../src/engine/salas/lamparas';
 import { alturaCerros } from '../../src/engine/salas/ventanas';
+import { CON_ARTE } from './sin-arte';
 
 // T19k: medianoche en la portería y la sala 1 (luz por sala, lámparas con estado, ventanas).
 
-const NOCHE = ['porteria', 's1-cooperativa'] as const;
+const NOCHE = CON_ARTE;
 
 const nombrada = (raiz: Object3D, nombre: string): Mesh => {
   const m = raiz.getObjectByName(nombre) as Mesh | undefined;
@@ -82,7 +83,7 @@ describe('luz por sala (T19k)', () => {
 
   it('la exposición es la de la sala por el brillo del jugador', () => {
     expect(exposicionDe({}, 1)).toBe(EXPOSICION);
-    expect(exposicionDe(salaPorId('s2-laboratorio'), 1.2)).toBeCloseTo(EXPOSICION * 1.2);
+    expect(exposicionDe({}, 1.2)).toBeCloseTo(EXPOSICION * 1.2);
     const porteria = salaPorId('porteria');
     expect(exposicionDe(porteria, 0.85)).toBeCloseTo((porteria.luz?.exposicion ?? 0) * 0.85);
   });

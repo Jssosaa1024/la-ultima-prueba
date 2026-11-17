@@ -475,7 +475,33 @@
     "ancho": 9,
     "fondo": 6,
     "alto": 3.2,
-    "colores": { "piso": "#5f6a6a", "paredes": "#c9d4d6", "techo": "#dfe6e7" },
+    "colores": { "piso": "#a0a8a8", "paredes": "#9eabae", "techo": "#dbe1e3" },
+    "texturas": {
+      "piso": "compartido/piso-baldosa",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2,
+      "tinte": { "piso": "#b9c4c2", "paredes": "#d3e2ea", "techo": "#e2e8eb" }
+    },
+    "luz": {
+      "cielo": "#c2d6db",
+      "suelo": "#5f6a6c",
+      "fuerza": 1.4,
+      "direccional": "#e0e9ff",
+      "fuerzaDireccional": 0.75,
+      "desde": [-1, 4.5, 4.5],
+      "exposicion": 1.1
+    },
+    "acabados": {
+      "zocalo": "#2f6670",
+      "franja": "#d9ece6",
+      "marcos": "#56636a",
+      "lamparas": ["apagada", "encendida", "titila"],
+      "ventanas": [
+        { "pared": "norte", "centro": -3.4, "y": 2, "ancho": 1.2, "alto": 0.85, "luna": true },
+        { "pared": "norte", "centro": -1.3, "y": 2, "ancho": 1, "alto": 0.85 }
+      ]
+    },
     "inicio": { "x": 0, "z": 2.4, "giro": 0 },
     "objetos": [
       {
@@ -487,7 +513,8 @@
         "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
-        "puerta": "porteria"
+        "puerta": "porteria",
+        "modelo": "puerta"
       },
       {
         "id": "s2-tanque-a",
@@ -517,7 +544,8 @@
         "pos": [-1.3, 0, -1],
         "color": "#4d5656",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "tablero"
       },
       {
         "id": "s2-perilla-verde",
@@ -563,7 +591,8 @@
         "pos": [3.7, 0, -2.4],
         "color": "#aab7b8",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "incubadora"
       },
       {
         "id": "s2-campana",
@@ -580,15 +609,17 @@
         "tam": [2.4, 0.9, 0.8],
         "pos": [2.2, 0, 0.6],
         "color": "#5d6d7e",
-        "solido": true
+        "solido": true,
+        "modelo": "meson"
       },
       {
         "id": "s2-meson-2",
         "forma": "caja",
-        "tam": [2, 0.9, 0.8],
-        "pos": [-2.8, 0, 1],
+        "tam": [2.4, 0.9, 0.8],
+        "pos": [-3, 0, 1],
         "color": "#5d6d7e",
-        "solido": true
+        "solido": true,
+        "modelo": "meson"
       },
       {
         "id": "s2-taza",
@@ -616,7 +647,242 @@
         "pos": [-4.2, 0, -2.4],
         "color": "#4d5656",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "gabinete"
+      },
+      {
+        "id": "s2-poceta",
+        "forma": "caja",
+        "tam": [1.3, 1.6, 0.8],
+        "pos": [4.1, 0, 2.05],
+        "giro": -90,
+        "color": "#7a8489",
+        "solido": true,
+        "modelo": "poceta"
+      },
+      {
+        "id": "s2-repisa-frascos",
+        "forma": "caja",
+        "tam": [1.3, 1.18, 0.39],
+        "pos": [4.305, 1.68, 2.05],
+        "giro": -90,
+        "color": "#a7654c",
+        "modelo": "repisa-frascos"
+      },
+      {
+        "id": "s2-taburete-1",
+        "forma": "cilindro",
+        "tam": [0.4, 0.5, 0],
+        "pos": [1.6, 0, 1.35],
+        "color": "#d16c33",
+        "solido": true,
+        "modelo": "taburete"
+      },
+      {
+        "id": "s2-taburete-2",
+        "forma": "cilindro",
+        "tam": [0.4, 0.5, 0],
+        "pos": [2.5, 0, 1.35],
+        "color": "#d16c33",
+        "solido": true,
+        "modelo": "taburete"
+      },
+      {
+        "id": "s2-computador",
+        "forma": "grupo",
+        "tam": [0.48, 0.4, 0.34],
+        "pos": [2.15, 0.9, 0.55],
+        "color": "#2f3437",
+        "partes": [
+          { "forma": "caja", "tam": [0.2, 0.015, 0.14], "pos": [0, 0, -0.08] },
+          { "forma": "caja", "tam": [0.05, 0.1, 0.035], "pos": [0, 0.015, -0.1] },
+          { "forma": "caja", "tam": [0.48, 0.3, 0.035], "pos": [0, 0.1, -0.09] },
+          {
+            "forma": "caja",
+            "tam": [0.44, 0.26, 0.004],
+            "pos": [0, 0.12, -0.0705],
+            "color": "#8ecae6"
+          },
+          { "forma": "caja", "tam": [0.4, 0.02, 0.13], "pos": [0, 0, 0.09], "color": "#4a5256" }
+        ]
+      },
+      {
+        "id": "s2-tuberias",
+        "forma": "grupo",
+        "tam": [2.2, 3.21, 0.8],
+        "pos": [-1.3, 0, -1.8],
+        "color": "#7f8a90",
+        "partes": [
+          { "forma": "cilindro", "tam": [0.8, 0.05, 0], "pos": [-0.7, 0, 0], "color": "#5d666b" },
+          { "forma": "cilindro", "tam": [0.8, 0.05, 0], "pos": [0.7, 0, 0], "color": "#5d666b" },
+          { "forma": "cilindro", "tam": [0.76, 0.05, 0], "pos": [-0.7, 1.6, 0] },
+          { "forma": "cilindro", "tam": [0.76, 0.05, 0], "pos": [0.7, 1.6, 0] },
+          {
+            "forma": "cilindro",
+            "tam": [0.09, 1.56, 0],
+            "pos": [-0.7, 1.65, 0],
+            "color": "#9aa4aa"
+          },
+          { "forma": "cilindro", "tam": [0.09, 1.56, 0], "pos": [0.7, 1.65, 0], "color": "#9aa4aa" }
+        ]
+      },
+      {
+        "id": "s2-microscopio",
+        "forma": "grupo",
+        "tam": [0.16, 0.36, 0.2],
+        "pos": [-3.45, 0.9, 0.95],
+        "giro": 25,
+        "color": "#2b3034",
+        "partes": [
+          { "forma": "caja", "tam": [0.16, 0.03, 0.2], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.045, 0.26, 0.05], "pos": [0, 0.03, -0.075] },
+          { "forma": "caja", "tam": [0.13, 0.015, 0.12], "pos": [0, 0.11, 0.01] },
+          {
+            "forma": "cilindro",
+            "tam": [0.05, 0.13, 0],
+            "pos": [0, 0.17, -0.02],
+            "color": "#e9edf0"
+          },
+          { "forma": "cilindro", "tam": [0.032, 0.06, 0], "pos": [0, 0.3, -0.02] }
+        ]
+      },
+      {
+        "id": "s2-gradilla",
+        "forma": "grupo",
+        "tam": [0.3, 0.16, 0.09],
+        "pos": [-2.45, 0.9, 0.85],
+        "color": "#c9a46a",
+        "partes": [
+          { "forma": "caja", "tam": [0.3, 0.02, 0.09], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.3, 0.015, 0.09], "pos": [0, 0.075, 0] },
+          { "forma": "caja", "tam": [0.02, 0.075, 0.09], "pos": [-0.14, 0.02, 0] },
+          { "forma": "caja", "tam": [0.02, 0.075, 0.09], "pos": [0.14, 0.02, 0] },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [-0.1, 0.01, 0],
+            "color": "#58d68d"
+          },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [-0.05, 0.01, 0],
+            "color": "#a569bd"
+          },
+          { "forma": "cilindro", "tam": [0.024, 0.15, 0], "pos": [0, 0.01, 0], "color": "#5dade2" },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [0.05, 0.01, 0],
+            "color": "#f4d03f"
+          },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [0.1, 0.01, 0],
+            "color": "#ec7063"
+          }
+        ]
+      },
+      {
+        "id": "s2-tabla-periodica",
+        "forma": "grupo",
+        "tam": [1.66, 0.95, 0.03],
+        "pos": [4.495, 1.3, -0.6],
+        "giro": -90,
+        "color": "#eef1ee",
+        "partes": [
+          { "forma": "caja", "tam": [1.62, 0.92, 0.012], "pos": [0, 0, 0.006] },
+          {
+            "forma": "caja",
+            "tam": [1.66, 0.025, 0.02],
+            "pos": [0, 0.92, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [1.66, 0.025, 0.02],
+            "pos": [0, -0.025, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.025, 0.92, 0.02],
+            "pos": [-0.8225, 0, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.025, 0.92, 0.02],
+            "pos": [0.8225, 0, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.075, 0.525, 0.012],
+            "pos": [-0.6375, 0.315, 0.018],
+            "color": "#e57373"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.075, 0.45, 0.012],
+            "pos": [-0.5625, 0.315, 0.018],
+            "color": "#f0a35e"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.75, 0.3, 0.012],
+            "pos": [-0.15, 0.315, 0.018],
+            "color": "#5dade2"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.375, 0.45, 0.012],
+            "pos": [0.4125, 0.315, 0.018],
+            "color": "#9ccc65"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.075, 0.525, 0.012],
+            "pos": [0.6375, 0.315, 0.018],
+            "color": "#ba8fd6"
+          },
+          {
+            "forma": "caja",
+            "tam": [1.05, 0.15, 0.012],
+            "pos": [0.075, 0.105, 0.018],
+            "color": "#f7d774"
+          }
+        ]
+      },
+      {
+        "id": "s2-extintor",
+        "forma": "grupo",
+        "tam": [0.2, 0.56, 0.2],
+        "pos": [1.1, 0.75, 2.89],
+        "color": "#c0392b",
+        "partes": [
+          { "forma": "cilindro", "tam": [0.16, 0.45, 0], "pos": [0, 0, 0] },
+          { "forma": "cilindro", "tam": [0.06, 0.07, 0], "pos": [0, 0.45, 0], "color": "#2b2b2b" },
+          {
+            "forma": "caja",
+            "tam": [0.12, 0.025, 0.035],
+            "pos": [0.02, 0.52, 0],
+            "color": "#2b2b2b"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.025, 0.32, 0.025],
+            "pos": [0.095, 0.12, 0],
+            "color": "#2b2b2b"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.1, 0.06, 0.02],
+            "pos": [0, 0.32, -0.085],
+            "color": "#6b7378"
+          }
+        ]
       }
     ]
   },
