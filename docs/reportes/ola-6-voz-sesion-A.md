@@ -28,11 +28,11 @@ Resumen honesto: **nada se probó en un celular real** y **nadie ha escuchado to
 - `check-budget`: todas las salas cumplen. `check-audio`: las 23 líneas están a −16 ± 0,3 LUFS.
 - E2e en `subtitulos.spec.ts`. Una prueba verifica que el audio de la primera línea se pide y que el subtítulo sabe si suena. Otra corta el audio y verifica que los subtítulos pasan igual.
 - **Suite e2e completa** (celular y escritorio, un navegador, con el candado): pasaron 247 y fallaron 4. Una era mi prueba nueva, que tocaba «Jugar solo» antes de que el motor estuviera escuchando; ya la corregí. Las otras 3 (cruzar a la sala 1 en cooperativo, la señal «¡Aquí!» y un eje de la prueba de estrés) pasaron al repetirlas. `estres.spec.ts` también pasó 3 veces seguidas: 24 de 24. Fallaban por la carga del equipo, con otra sesión probando al mismo tiempo.
-- `check-credits` **falla hasta que Alex suba la captura del plan**. Para correr la verificación en local usé un archivo provisional que no se sube.
+- `check-credits`: en verde con la captura del plan Creator.
 
 ## Qué necesita Alex
 
-1. **La captura del plan de ElevenLabs.** Entra a elevenlabs.io → tu foto (arriba a la derecha) → **Subscription**. Toma una captura donde se vean el nombre del plan de pago y la fecha. Guárdala como `art/evidencia/elevenlabs-plan-2026-11-17.png` (en minúsculas, exactamente ese nombre). Si prefieres, pásamela y yo la pongo. Sin ella, el build de Cloudflare falla, por eso este PR no se sube hasta tenerla.
+1. ~~La captura del plan de ElevenLabs.~~ Hecho: `art/evidencia/elevenlabs-plan-2026-11-17.png` muestra el plan **Creator** (de pago) el día que se generaron las voces.
 2. **(Opcional) Permiso de lectura en la clave.** Hoy la clave solo puede generar voz. Para que `npm run voz` lea el plan desde la API, en **Developers → API Keys**, edita la clave y activa **User → Read**. El valor de la clave no cambia.
 3. **Escuchar las 23 líneas** en `art/audio/voz/originales/`. Revisa sobre todo cómo dice «00:40» (`voz-intro-3`) y las tres grabaciones. Para rehacer una: `npm run voz -- --solo voz-intro-3 --forzar`.
 
