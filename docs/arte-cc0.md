@@ -106,6 +106,19 @@ Con KayKit los muebles ya se veían bien, pero las salas seguían siendo cajas: 
 
 Costo: hasta 3 draw calls más por sala (difusores, brillos y, si no existía, la malla fija) y menos de 2.000 triángulos. La sala 1 cambia la baldosa por parqué (ambientCG WoodFloor071, ya descargado en T11sa: 145 KB). Las salas 2 a 5 los recibirán con su arte.
 
+## Medianoche (T19k)
+
+Alex vio los acabados y pidió más. De las sugerencias revisadas, el primer paquete fue la luz: la historia pasa a las 23:59 con el colegio cerrado, y las salas se veían de día. Sin paquetes nuevos y sin draw calls nuevas:
+
+- **Luz por sala** (`luz` en `salas.json`): las mismas dos luces de siempre (hemisférica y direccional), con otros colores y otra fuerza, y la exposición del tono. Portería: cielo azul grisáceo, luz de luna fría y penumbra. Sala 1: luz cálida, como un refugio. Las salas sin `luz` quedan con la de T19i.
+- **Brillo de la imagen**: un ajuste nuevo con tres pasos (más oscuro, normal y más claro) que multiplica la exposición, por si la penumbra no se ve en una pantalla barata o con sol.
+- **Paredes con color propio** (`texturas.tinte`): antes el motor ponía la textura en blanco y las dos salas tenían el mismo yeso gris. Portería, crema frío; cooperativa, verde menta. La textura de pared (1.024 × 512) ya no sale estirada a lo alto.
+- **Lámparas con estado** (`acabados.lamparas`): en la portería la del fondo titila de vez en cuando, la del medio está apagada y la de la entrada encendida. La que titila nunca llega a negro, baja a lo sumo dos veces en un segundo y se queda quieta con «reducir movimiento».
+- **Ventanas de noche** (`acabados.ventanas`): dos ventanas altas en la pared del fondo de cada sala, con cielo degradado, cerros, casitas encendidas y la luna, todo con geometría y colores por vértice (sin textura). El marco va con lo fijo y el cielo con los difusores.
+- **Viñeta** con el tono de cada sala: azul noche en la portería, café en la cooperativa.
+
+Pendiente para Alex: verlo en su celular con el brillo de la pantalla a la mitad y decir si quedó muy oscuro. Las puertas siguen turquesa (decisión aparte) y la puerta de salida sigue con los vidrios celestes del modelo.
+
 ## Portería y sala 1: cómo quedaron (T19h)
 
 Ya se ven en el juego. Lo que cambió frente a las tablas de abajo, al verlo armado:

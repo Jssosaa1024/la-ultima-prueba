@@ -3,7 +3,7 @@
  * La interfaz lo monta con `iniciarMotor(canvas)` y lo desmonta con la función que devuelve.
  * Se comunica con ui/ solo por src/signals/.
  */
-import { effect } from '@preact/signals';
+import { effect, untracked } from '@preact/signals';
 import { PerspectiveCamera, Scene } from 'three';
 import type { Mesh, Object3D } from 'three';
 import type { Lugar } from '../content/esquema-salas';
@@ -40,7 +40,7 @@ import { crearEscalaDinamica } from './escala';
 import { crearBucle } from './loop';
 import { animacionDeSala } from './mecanismos';
 import type { AnimacionSala } from './mecanismos';
-import { crearRenderer, seguirTamano } from './renderer';
+import { crearRenderer, exposicionDe, seguirTamano } from './renderer';
 import type { Cargador } from './carga/cargador';
 import { pedirIndice } from './carga/manifiesto';
 import type { IndiceAssets } from './carga/manifiesto';
@@ -172,6 +172,22 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     if (!detenido && estadoMotor.value === 'pausado' && !document.hidden) dibujar();
   };
 
+  /**
+   * Exposición de la sala que está en pantalla, sin el brillo (T19k). Cambia cuando la sala
+   * nueva ya se ve, no cuando se pide: mientras carga, la anterior sigue con la suya.
+   */
+  let exposicionSala: number | null = null;
+  /**
+   * Pone la exposición de la sala en pantalla por el ajuste «Brillo». Es un uniform: cambiarla
+   * no recompila nada. Queda en un atributo para las pruebas e2e.
+   */
+  const ponerExposicion = (brillo: number): void => {
+    if (exposicionSala === null) return;
+    const exposicion = exposicionSala * brillo;
+    renderer.toneMappingExposure = exposicion;
+    canvas.dataset['exposicion'] = exposicion.toFixed(3);
+  };
+
   const cambiarA = async (lugar: Lugar): Promise<void> => {
     if (mostrada === lugar) return;
     const desde = mostrada;
@@ -201,6 +217,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
     canvas.dataset['sala'] = lugar;
+    exposicionSala = exposicionDe(salaPorId(lugar), 1);
+    ponerExposicion(ajustes.peek().brillo);
     // Mallas de la sala, con las que agregan sus animaciones: las geometrías en la GPU no deben
     // pasar de aquí (más las de la portería).
     canvas.dataset['mallas'] = String(contarMallas(nueva.raiz));
@@ -233,6 +251,13 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         void cambiarA(sala.value);
       }
     }
+  });
+
+  // El jugador cambia el brillo en los ajustes (T19k): se ve en el acto, también en pausa.
+  const dejarDeSeguirBrillo = effect(() => {
+    ponerExposicion(ajustes.value.brillo);
+    // Solo el brillo despierta este effect: el estado del motor se lee sin suscribirse.
+    untracked(dibujarSiEnPausa);
   });
 
   // Audio (T43): suena después del primer toque. El último efecto queda en un atributo del
@@ -428,6 +453,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     detenido = true;
     clearTimeout(precarga);
     dejarDeSeguirSala();
+    dejarDeSeguirBrillo();
     dejarDeSeguirFase();
     dejarDeEscuchar();
     interaccion?.liberar();
@@ -448,6 +474,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     delete canvas.dataset['sonido'];
     delete canvas.dataset['audio'];
     delete canvas.dataset['escala'];
+    delete canvas.dataset['exposicion'];
     escalaResolucion.value = 1;
   };
 }

@@ -23,6 +23,15 @@
   background: radial-gradient(ellipse at center, rgb(0 0 0 / 0%) 58%, rgb(0 0 0 / 32%) 100%);
 }
 
+/* T19k: la viñeta toma el tono de la noche de cada sala (el canvas lleva `data-sala`). */
+.juego-canvas[data-sala='porteria'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(6 10 24 / 0%) 50%, rgb(6 10 24 / 45%) 100%);
+}
+
+.juego-canvas[data-sala='s1-cooperativa'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(24 12 4 / 0%) 55%, rgb(24 12 4 / 38%) 100%);
+}
+
 /* Capa del HUD: su padding es la zona segura (notch, esquinas redondeadas, barra de gestos). */
 .hud {
   position: absolute;

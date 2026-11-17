@@ -19,7 +19,10 @@
  * - Acabados (T19j): si la sala los pide, zócalo, rodapié, cornisa, marcos y carcasas de
  *   lámparas se unen con lo fijo (una malla más si la sala no tenía nada fijo de color plano);
  *   los difusores y brillos de las lámparas son dos mallas más, y la oclusión falsa va en la
- *   malla de las sombras (`acabados.ts`).
+ *   malla de las sombras (`acabados.ts`). Desde T19k también las ventanas: el marco con lo
+ *   fijo y el cielo de noche con los difusores, sin mallas nuevas.
+ * - Luz por sala (T19k): `luz` en salas.json cambia colores, fuerza y lado de las mismas dos
+ *   luces, y la exposición que pone el motor al entrar.
  */
 import {
   BoxGeometry,
@@ -38,6 +41,7 @@ import type { Object3D } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { ObjetoSala, Sala } from '../../content/esquema-salas';
 import { marcarInteractivo } from '../interaccion/interaccion';
+import { EXPOSICION } from '../renderer';
 import type { Caja } from '../jugador/colision';
 import { crearAcabados } from './acabados';
 import { cajasDeColision, marcarSolido } from './colisiones';
@@ -277,13 +281,26 @@ function unirFijas(raiz: Group, sala: Sala): void {
  */
 function crearLuces(sala: Sala): Object3D[] {
   // T19i: cielo cálido y suelo más oscuro, y una direccional más fuerte de lado: cada cara de
-  // un mueble queda con su tono y las formas se leen mejor.
-  const cielo = new HemisphereLight(0xfff6ea, 0x8f8377, 1.45);
-  const sol = new DirectionalLight(0xffe9cc, 1.7);
+  // un mueble queda con su tono y las formas se leen mejor. T19k: cada sala puede cambiar los
+  // colores, la fuerza y el lado (`luz` en salas.json), pero no el número ni el tipo de luces.
+  const luz = sala.luz ?? LUZ_INICIAL;
+  const cielo = new HemisphereLight(luz.cielo, luz.suelo, luz.fuerza);
+  const sol = new DirectionalLight(luz.direccional, luz.fuerzaDireccional);
   sol.castShadow = false;
-  sol.position.set(sala.ancho * 0.6, sala.alto * 1.4, sala.fondo * 0.25);
+  const [x, y, z] = luz.desde ?? [sala.ancho * 0.6, sala.alto * 1.4, sala.fondo * 0.25];
+  sol.position.set(x, y, z);
   return [cielo, sol];
 }
+
+/** La luz de las salas sin `luz` en salas.json (la de T19i). */
+export const LUZ_INICIAL: Readonly<NonNullable<Sala['luz']>> = {
+  cielo: '#fff6ea',
+  suelo: '#8f8377',
+  fuerza: 1.45,
+  direccional: '#ffe9cc',
+  fuerzaDireccional: 1.7,
+  exposicion: EXPOSICION,
+};
 
 export function construirSala(sala: Sala): SalaConstruida {
   const raiz = new Group();

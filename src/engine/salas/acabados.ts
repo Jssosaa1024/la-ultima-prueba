@@ -10,6 +10,9 @@
  *   otra malla aditiva con una textura de 64 × 64 hecha por código.
  * - Rincones oscurecidos (oclusión falsa): franjas de sombra junto a las paredes, en el piso y el
  *   techo, y en las esquinas. Van en la malla de las sombras de contacto (`sombras.ts`).
+ * - T19k: cada lámpara puede estar encendida, apagada (su difusor va con lo fijo y no tiene
+ *   brillo) o titilando (`lamparas.ts` la anima). Ventanas de noche (`ventanas.ts`): el marco
+ *   con lo fijo y el cielo con los difusores. El color de difusores y brillos va por vértice.
  *
  * Lo de color plano se une a la malla fija de la sala (`construir.ts`). Si la sala no tenía
  * malla fija (todo lo fijo con textura o modelo, como la portería y la sala 1), esa malla es
@@ -19,6 +22,7 @@
 import {
   AdditiveBlending,
   BoxGeometry,
+  Color,
   DataTexture,
   Float32BufferAttribute,
   LinearFilter,
@@ -31,8 +35,10 @@ import {
 } from 'three';
 import type { BufferGeometry } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import type { ObjetoSala, Sala } from '../../content/esquema-salas';
+import type { EstadoLampara, ObjetoSala, Sala } from '../../content/esquema-salas';
 import type { Cuadro } from './sombras';
+import { ALFEIZAR, armarVentana, MARCO } from './ventanas';
+import type { Ventana } from './ventanas';
 
 export type Acabados = NonNullable<Sala['acabados']>;
 type Medidas = Pick<Sala, 'ancho' | 'fondo' | 'alto'>;
@@ -62,12 +68,16 @@ const METROS_POR_LAMPARA = 3.4;
 const CARCASA = { ancho: 1.25, alto: 0.06, fondo: 0.4 };
 const DIFUSOR = { ancho: 1.1, fondo: 0.28 };
 const COLOR_CARCASA = '#dedbd3';
-const COLOR_DIFUSOR = 0xfff4de;
-const COLOR_BRILLO = 0xffe2b8;
+const COLOR_DIFUSOR = new Color(0xfff4de);
+/** Difusor de una lámpara apagada: plástico opalino que ilumina la sala, como lo fijo. */
+const COLOR_DIFUSOR_APAGADO = '#a9abae';
+const COLOR_BRILLO = new Color(0xffe2b8);
+/** Marco de las ventanas: metal pintado de gris claro. */
+const COLOR_VENTANA = '#8d949a';
 /** Halo en el techo y charco de luz en el piso: medidas en metros y cuánto suma cada uno. */
 const HALO = { ancho: 2.6, fondo: 1.5, fuerza: 0.9 };
-const CHARCO = { ancho: 3.4, fondo: 3.4, fuerza: 0.42 };
-const OPACIDAD_BRILLO = 0.35;
+const CHARCO = { ancho: 3.4, fondo: 3.4, fuerza: 0.75 };
+const OPACIDAD_BRILLO = 0.45;
 const LADO_TEXTURA_BRILLO = 64;
 /** Para que no parpadeen con el piso, el techo o las sombras de contacto (a 4 mm). */
 const SOBRE_PISO = 0.006;
@@ -219,48 +229,166 @@ function horizontal(
     .translate(lugar.x, 0, lugar.z);
 }
 
-/** Pinta todos los vértices de una geometría con la misma intensidad. */
-function conFuerza(g: BufferGeometry, fuerza: number): BufferGeometry {
+/** Pinta todos los vértices de una geometría con el mismo color, por `fuerza`. */
+function pintar(g: BufferGeometry, color: Color, fuerza = 1): BufferGeometry {
   const n = g.getAttribute('position').count;
-  g.setAttribute('color', new Float32BufferAttribute(new Array<number>(n * 3).fill(fuerza), 3));
+  const datos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    datos[i * 3] = color.r * fuerza;
+    datos[i * 3 + 1] = color.g * fuerza;
+    datos[i * 3 + 2] = color.b * fuerza;
+  }
+  g.setAttribute('color', new Float32BufferAttribute(datos, 3));
   return g;
 }
 
-/** Difusores que brillan y halos de luz: dos mallas que no toman luz ni reciben toques. */
-function crearLuces(sala: Medidas): Mesh[] {
-  const lugares = lamparasDe(sala);
-  const difusores = new Mesh(
-    unir(
-      lugares.map((l) =>
-        horizontal(DIFUSOR.ancho, DIFUSOR.fondo, sala.alto - CARCASA.alto - 0.001, l, true),
-      ),
-    ),
-    // Sin tono: el difusor se ve blanco pleno, más claro que todo lo que la luz ilumina.
-    new MeshBasicMaterial({ color: COLOR_DIFUSOR, toneMapped: false }),
-  );
-  difusores.name = 'difusores';
+/** Clave de `userData` de difusores y brillos con lo que baja cuando una lámpara titila. */
+export const TITILEO = 'titileo';
 
-  const brillos = new Mesh(
-    unir(
-      lugares.flatMap((l) => [
-        conFuerza(horizontal(HALO.ancho, HALO.fondo, sala.alto - BAJO_TECHO, l, true), HALO.fuerza),
-        conFuerza(horizontal(CHARCO.ancho, CHARCO.fondo, SOBRE_PISO, l, false), CHARCO.fuerza),
-      ]),
-    ),
+/** Vértices de una malla que bajan juntos cuando titila una lámpara (T19k). */
+export interface Titileo {
+  /** Primer vértice y cuántos, en el orden de la malla. */
+  rangos: [number, number][];
+  /** El color de esos vértices encendidos, uno tras otro. */
+  base: Float32Array;
+}
+
+interface Parte {
+  g: BufferGeometry;
+  titila: boolean;
+}
+
+/** Une las partes en una malla que no recibe toques y recuerda las que titilan. */
+function mallaDeLuz(partes: Parte[], material: MeshBasicMaterial, nombre: string): Mesh | null {
+  if (partes.length === 0) {
+    material.map?.dispose();
+    material.dispose();
+    return null;
+  }
+  const rangos: [number, number][] = [];
+  let vertice = 0;
+  for (const { g, titila } of partes) {
+    const n = g.getAttribute('position').count;
+    const ultimo = rangos.at(-1);
+    if (titila && ultimo && ultimo[0] + ultimo[1] === vertice) ultimo[1] += n;
+    else if (titila) rangos.push([vertice, n]);
+    vertice += n;
+  }
+  const malla = new Mesh(unir(partes.map((p) => p.g)), material);
+  malla.name = nombre;
+  malla.raycast = () => undefined;
+  if (rangos.length > 0) {
+    const colores = malla.geometry.getAttribute('color').array as Float32Array;
+    const base = new Float32Array(rangos.reduce((s, [, n]) => s + n, 0) * 3);
+    let k = 0;
+    for (const [inicio, n] of rangos) {
+      base.set(colores.subarray(inicio * 3, (inicio + n) * 3), k);
+      k += n * 3;
+    }
+    const titileo: Titileo = { rangos, base };
+    malla.userData[TITILEO] = titileo;
+  }
+  return malla;
+}
+
+/**
+ * Difusores que brillan (con el cielo de las ventanas) y halos de luz: dos mallas que no
+ * toman luz ni reciben toques. Los difusores de las lámparas apagadas van aparte, con lo fijo.
+ */
+function crearLuces(
+  sala: Medidas,
+  estados: readonly EstadoLampara[],
+  cielos: BufferGeometry[],
+): { luces: Mesh[]; apagados: BufferGeometry[] } {
+  const yDifusor = sala.alto - CARCASA.alto - 0.001;
+  const difusor = (l: { x: number; z: number; giro: number }): BufferGeometry =>
+    horizontal(DIFUSOR.ancho, DIFUSOR.fondo, yDifusor, l, true);
+  const lamparas = lamparasDe(sala).map((l, i) => ({ l, estado: estados[i] ?? 'encendida' }));
+  const prendidas = lamparas
+    .filter((x) => x.estado !== 'apagada')
+    .map((x) => ({ l: x.l, titila: x.estado === 'titila' }));
+
+  const difusores = mallaDeLuz(
+    [
+      ...prendidas.map(({ l, titila }) => ({ g: pintar(difusor(l), COLOR_DIFUSOR), titila })),
+      ...cielos.map((g) => ({ g, titila: false })),
+    ],
+    // Sin luz ni tono: el difusor se ve blanco pleno, más claro que todo lo que la luz
+    // ilumina, y el cielo de las ventanas con su color justo.
+    new MeshBasicMaterial({ vertexColors: true, toneMapped: false }),
+    'difusores',
+  );
+  const brillos = mallaDeLuz(
+    prendidas.flatMap(({ l, titila }) => [
+      {
+        g: pintar(
+          horizontal(HALO.ancho, HALO.fondo, sala.alto - BAJO_TECHO, l, true),
+          COLOR_BRILLO,
+          HALO.fuerza,
+        ),
+        titila,
+      },
+      {
+        g: pintar(
+          horizontal(CHARCO.ancho, CHARCO.fondo, SOBRE_PISO, l, false),
+          COLOR_BRILLO,
+          CHARCO.fuerza,
+        ),
+        titila,
+      },
+    ]),
     new MeshBasicMaterial({
-      color: COLOR_BRILLO,
       map: texturaBrillo(),
       vertexColors: true,
       transparent: true,
       opacity: OPACIDAD_BRILLO,
       blending: AdditiveBlending,
       depthWrite: false,
+      // La luz que suma no pasa por el tono: así el charco contrasta con la penumbra.
+      toneMapped: false,
     }),
+    'brillos',
   );
-  brillos.name = 'brillos';
+  return {
+    luces: [difusores, brillos].filter((m): m is Mesh => m !== null),
+    apagados: lamparas.filter((x) => x.estado === 'apagada').map((x) => difusor(x.l)),
+  };
+}
 
-  for (const m of [difusores, brillos]) m.raycast = () => undefined;
-  return [difusores, brillos];
+const PAREDES_POR_LADO = { norte: 0, sur: 1, oeste: 2, este: 3 } as const;
+
+/**
+ * La pared de una ventana y su centro en las coordenadas de esa pared. `centro` va en x
+ * (norte y sur) o en z (oeste y este); el eje de la pared puede ir al revés.
+ */
+export function paredDeVentana(
+  sala: Pick<Sala, 'ancho' | 'fondo'>,
+  v: Pick<Ventana, 'pared' | 'centro'>,
+): { pared: Pared; a: number } {
+  const pared = paredesDe(sala)[PAREDES_POR_LADO[v.pared]] as Pared;
+  const { largo } = ejes(pared);
+  const eje = v.pared === 'norte' || v.pared === 'sur' ? largo[0] : largo[2];
+  // Sin -0: que el centro en 0 se lea como 0.
+  return { pared, a: Math.round(eje) * v.centro + 0 };
+}
+
+/**
+ * Lo que ocupa una ventana con su marco y su alféizar en la pared: de `desde` a `hasta` a lo
+ * largo (en las coordenadas del mundo, x o z) y de `abajo` a `arriba`.
+ */
+export function huecoDeVentana(v: Ventana): {
+  desde: number;
+  hasta: number;
+  abajo: number;
+  arriba: number;
+} {
+  const medio = v.ancho / 2 + MARCO + ALFEIZAR.sobra;
+  return {
+    desde: v.centro - medio,
+    hasta: v.centro + medio,
+    abajo: v.y - MARCO - ALFEIZAR.alto,
+    arriba: v.y + v.alto + MARCO,
+  };
 }
 
 /** Un cuadro de sombra que se ve desde el lado de `normal`; junto a la pared, oscuridad `v`. */
@@ -330,7 +458,7 @@ export function oclusionDe(sala: Medidas): Cuadro[] {
 export interface SalaAcabada {
   /** Mallas de color plano que se unen con lo fijo de la sala. */
   fijas: Mesh[];
-  /** Difusores y brillos de las lámparas: dos draw calls. */
+  /** Difusores (con el cielo de las ventanas) y brillos de las lámparas: dos draw calls. */
   luces: Mesh[];
   /** Cuadros para la malla de sombras de contacto. */
   oclusion: Cuadro[];
@@ -338,6 +466,15 @@ export interface SalaAcabada {
 
 export function crearAcabados(sala: Sala, acabados: Acabados): SalaAcabada {
   const paredes = paredesDe(sala);
+  const ventanas = (acabados.ventanas ?? []).map((v, i) => {
+    const { pared, a } = paredDeVentana(sala, v);
+    return armarVentana(pared, a, v, i + 1);
+  });
+  const { luces, apagados } = crearLuces(
+    sala,
+    acabados.lamparas ?? [],
+    ventanas.flatMap((v) => v.cielo),
+  );
   const zocalo = ALTO_ZOCALO - ALTO_FRANJA;
   const marcos = sala.objetos.filter((o) => esPuerta(o) || esTablero(o)).map(marco);
   const carcasas = lamparasDe(sala).map((l) =>
@@ -351,6 +488,12 @@ export function crearAcabados(sala: Sala, acabados: Acabados): SalaAcabada {
     m.name = nombre;
     return m;
   };
+  const opcionales: Mesh[] = [];
+  const marcosVentanas = ventanas.flatMap((v) => v.marco);
+  if (marcosVentanas.length > 0) opcionales.push(malla('ventanas', marcosVentanas, COLOR_VENTANA));
+  if (apagados.length > 0) {
+    opcionales.push(malla('difusores-apagados', apagados, COLOR_DIFUSOR_APAGADO));
+  }
   return {
     fijas: [
       malla(
@@ -374,8 +517,9 @@ export function crearAcabados(sala: Sala, acabados: Acabados): SalaAcabada {
         sala.colores.techo,
       ),
       malla('carcasas', carcasas, COLOR_CARCASA),
+      ...opcionales,
     ],
-    luces: crearLuces(sala),
+    luces,
     oclusion: oclusionDe(sala),
   };
 }
