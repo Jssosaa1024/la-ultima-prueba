@@ -217,17 +217,23 @@ export async function recoger(page: Page, caja: Caja, conDedo: boolean, id: stri
 /**
  * Usa una puerta y espera a estar del otro lado: el motor publica la posición nueva un cuadro
  * después de cambiar de sala, y todo lo que sigue se calcula con ella.
+ *
+ * En grupo, la puerta abre un voto: `votar` hace que los demás lo acepten, y la espera de la sala
+ * nueva empieza después (T05e). Con WebGL por la CPU, el toque de la otra pestaña en «Aceptar»
+ * tarda de 2 a 7 s y a veces más; contado dentro de esa espera, la prueba fallaba sin error.
  */
 export async function cruzar(
   page: Page,
   caja: Caja,
   conDedo: boolean,
   puerta: string,
+  votar?: () => Promise<void>,
 ): Promise<void> {
   const { sala: origen, objeto } = buscar(puerta);
   const destino = objeto.puerta;
   if (!destino) throw new Error(`${puerta} no es una puerta`);
   await usar(page, caja, conDedo, puerta);
+  await votar?.();
   await expect(page.getByLabel('Escena del juego')).toHaveAttribute('data-sala', destino);
   const llegada = puntoDeEntrada(salaPorId(destino), origen.id);
   await expect

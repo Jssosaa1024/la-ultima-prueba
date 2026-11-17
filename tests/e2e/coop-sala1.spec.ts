@@ -23,17 +23,12 @@ test('dos jugadores resuelven la sala 1 en cooperativo', async ({ page, context 
   const { a, b } = await empezarCoop(context, page);
   const [cajaA, cajaB] = [await cajaDe(a), await cajaDe(b)];
 
-  // Jaguar cruza la puerta 1: abre el voto; con el de Búho, el grupo entra.
-  await Promise.all([
-    cruzar(a, cajaA, conDedo, 'porteria-puerta-1'),
-    (async () => {
-      // Llega cuando Jaguar termina de caminar hasta la puerta: puede tardar.
-      await expect(barra(b)).toContainText('Jaguar propone ir a La cooperativa', {
-        timeout: 120_000,
-      });
-      await barra(b).getByRole('button', { name: 'Aceptar' }).click();
-    })(),
-  ]);
+  // Jaguar cruza la puerta 1: abre el voto; con el de Búho, el grupo entra. La propuesta llega a
+  // Búho en menos de 1 s; la sala nueva se espera desde que la acepta (T05e).
+  await cruzar(a, cajaA, conDedo, 'porteria-puerta-1', async () => {
+    await expect(barra(b)).toContainText('Jaguar propone ir a La cooperativa');
+    await barra(b).getByRole('button', { name: 'Aceptar' }).click();
+  });
   await expect(b.getByLabel('Escena del juego')).toHaveAttribute('data-sala', 's1-cooperativa');
 
   // Con dos jugadores, en la sala 1 Jaguar tiene A y B; Búho, C y D.
