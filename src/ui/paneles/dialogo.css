@@ -104,3 +104,65 @@
     padding: 6px 16px 8px;
   }
 }
+
+/*
+ * Tema del archivo (ola 6, T41d): con `tema="archivo"`, el panel es una ficha de papel
+ * envejecido sobre la noche, con títulos de máquina de escribir. Lo usan la pausa, los ajustes y
+ * la elección de final; los demás paneles no cambian. Colores y texturas de `ui/tema.css`.
+ */
+.dialogo-fondo.tema-archivo {
+  background: var(--tema-linterna), rgb(10 8 6 / 80%);
+  color: var(--tema-tinta);
+}
+
+.tema-archivo .dialogo {
+  border: 1px solid var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: var(--tema-grano), var(--tema-envejecido), var(--tema-papel);
+  color: var(--tema-tinta);
+  box-shadow: var(--tema-sombra-papel);
+}
+
+.tema-archivo .dialogo-entra {
+  animation: tema-ficha-entra 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.tema-archivo .dialogo:focus-visible {
+  outline-color: var(--tema-sello-azul);
+}
+
+.tema-archivo .dialogo-antetitulo {
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--tema-tinta-suave);
+}
+
+.tema-archivo .dialogo-titulo {
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+  color: var(--tema-tinta);
+}
+
+.tema-archivo .dialogo-pie {
+  border-top: 1px dashed var(--tema-papel-borde);
+}
+
+/* Sobre el papel, el botón secundario va con tinta y el foco en azul de sello. */
+.tema-archivo .dialogo .boton-secundario {
+  border-color: var(--tema-tinta-suave);
+  background: rgb(255 255 255 / 25%);
+  color: var(--tema-tinta);
+}
+
+.tema-archivo .dialogo .boton:focus-visible {
+  outline-color: var(--tema-sello-azul);
+  box-shadow: 0 0 0 6px var(--tema-papel);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tema-archivo .dialogo-entra {
+    animation: none;
+  }
+}

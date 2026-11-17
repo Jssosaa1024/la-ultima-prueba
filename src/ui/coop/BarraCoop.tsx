@@ -25,6 +25,7 @@ import {
 } from './textos';
 import { COLOR, NOMBRE_ALIAS } from './nombres';
 import '../botones.css';
+import '../tema.css';
 import './coop.css';
 
 /** Milisegundos que le quedan a la espera de D, redibujando una vez por segundo. */
@@ -63,7 +64,8 @@ export default function BarraCoop() {
   const puedePasar = llevo.length > 0 && companeros.length > 0;
 
   return (
-    <section class="coop-barra" aria-label="Grupo">
+    // Tema del archivo (T41d): avisos como notas de papel y señales en ámbar.
+    <section class="coop-barra tema-archivo" aria-label="Grupo">
       <div class="coop-barra-fila">
         {/* T86: la pista de cada encargo está en el cuaderno. */}
         {roles.length > 0 && (

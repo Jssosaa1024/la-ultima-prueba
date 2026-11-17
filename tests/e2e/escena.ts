@@ -355,3 +355,17 @@ export async function tocarObjeto(
   }
   await expect(esperado).toBeVisible();
 }
+
+/**
+ * Sale de la partida individual como el jugador (T41d): «Pausa», «Salir de la partida» y
+ * «Sí, salir». El sello «Expediente cerrado» golpea antes de volver al menú.
+ */
+export async function salirDeLaPartida(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Pausa' }).click();
+  const pausa = page.getByRole('dialog', { name: 'Pausa' });
+  await pausa.getByRole('button', { name: 'Salir de la partida' }).click();
+  await page
+    .getByRole('dialog', { name: '¿Salir de la partida?' })
+    .getByRole('button', { name: 'Sí, salir' })
+    .click();
+}

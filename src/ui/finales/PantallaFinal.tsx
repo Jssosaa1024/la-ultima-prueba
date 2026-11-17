@@ -2,10 +2,12 @@ import type { RefObject } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { GUION } from '../../content/guion';
 import { textoResumen } from '../../content/resumenes';
+import type { ResultadoSala } from '../../game/aprendizaje';
 import {
   aprendizaje,
   DURACION_MS,
   final,
+  type FinalId,
   GRABACIONES,
   grabaciones,
   reloj,
@@ -14,6 +16,8 @@ import {
 import { enviar } from '../../signals/puente';
 import { mostrarLinea, ocultarLinea } from '../../signals/voz';
 import { formatoReloj } from '../hud/formato';
+import Ficha from '../tema/Ficha';
+import Sello, { type ColorSello } from '../tema/Sello';
 import {
   AGRADECIMIENTO,
   CAMEOS,
@@ -23,7 +27,23 @@ import {
   textoTotalAprendizaje,
 } from './textos';
 import '../botones.css';
+import '../tema.css';
 import './finales.css';
+
+/** El sello que cierra el expediente en cada final (tema del archivo, T41e). */
+const SELLO_FINAL: Readonly<Record<FinalId, { texto: string; color: ColorSello }>> = {
+  justo_a_tiempo: { texto: 'Salida autorizada', color: 'verde' },
+  el_legado: { texto: 'Archivo restaurado', color: 'azul' },
+  pedir_ayuda: { texto: 'Ayuda recibida', color: 'azul' },
+  tiempo_cumplido: { texto: 'Archivo borrado', color: 'rojo' },
+};
+
+/** Cómo quedó cada sala, como sello en su ficha del resumen. */
+const COLOR_RESULTADO: Readonly<Record<ResultadoSala, ColorSello>> = {
+  sin_pistas: 'verde',
+  con_pistas: 'azul',
+  sin_resolver: 'rojo',
+};
 
 type Paso = 'final' | 'creditos' | 'poscreditos';
 
@@ -42,12 +62,11 @@ export default function PantallaFinal() {
   const volver = (): void => enviar({ t: 'salir' });
 
   return (
-    <main class="final" aria-labelledby="final-titulo">
+    <main class="final tema-archivo tema-fondo" aria-labelledby="final-titulo">
       <div class="final-caja">
         {paso === 'final' && <Resumen tituloRef={titulo} alSeguir={() => setPaso('creditos')} />}
         {paso === 'creditos' && (
-          <section>
-            <p class="final-antetitulo">Créditos</p>
+          <Ficha como="section" variante="renglones" pestana="Créditos" entra clase="final-ficha">
             <h1 id="final-titulo" ref={titulo} tabIndex={-1} class="final-titulo">
               La Última Prueba
             </h1>
@@ -71,22 +90,24 @@ export default function PantallaFinal() {
                 Continuar
               </button>
             </div>
-          </section>
+          </Ficha>
         )}
         {paso === 'poscreditos' && (
-          <section>
-            <p class="final-antetitulo">Una cosa más…</p>
+          <Ficha como="section" pestana="Una cosa más…" entra clase="final-ficha">
             <h1 id="final-titulo" ref={titulo} tabIndex={-1} class="final-titulo">
               La fotocopiadora
             </h1>
             <p>{POSCREDITOS.escena}</p>
-            <blockquote class="final-hoja">{POSCREDITOS.hoja}</blockquote>
+            <blockquote class="final-hoja">
+              <Sello texto="Copia" decorativo clase="final-hoja-sello" />
+              {POSCREDITOS.hoja}
+            </blockquote>
             <div class="final-acciones">
               <button type="button" class="boton boton-principal" onClick={volver}>
                 Volver al menú
               </button>
             </div>
-          </section>
+          </Ficha>
         )}
       </div>
     </main>
@@ -112,10 +133,12 @@ function Resumen({
   }, [idVoz]);
   // Al terminar, el controlador deja el reloj en pausa: `restanteMs` es lo que sobró.
   const usado = DURACION_MS - reloj.value.restanteMs;
+  const sello = SELLO_FINAL[id];
 
   return (
-    <section>
-      <p class="final-antetitulo">Final</p>
+    <Ficha como="section" pestana="Expediente cerrado · Final" entra clase="final-ficha">
+      {/* El sello repite el título: es adorno y el lector de pantalla no lo lee dos veces. */}
+      <Sello texto={sello.texto} color={sello.color} grande golpe decorativo clase="final-sello" />
       <h1 id="final-titulo" ref={tituloRef} tabIndex={-1} class="final-titulo">
         {texto.titulo}
       </h1>
@@ -153,7 +176,7 @@ function Resumen({
           Volver al menú
         </button>
       </div>
-    </section>
+    </Ficha>
   );
 }
 
@@ -180,9 +203,12 @@ function Aprendizaje() {
                 <span class="aprendizaje-tema">
                   Sala {s.numero} · {t.tema}
                 </span>
-                <span class="aprendizaje-estado">
-                  {textoResultadoSala(s.resultado, s.pistasVistas)}
-                </span>
+                <Sello
+                  texto={textoResultadoSala(s.resultado, s.pistasVistas)}
+                  color={COLOR_RESULTADO[s.resultado]}
+                  recto
+                  clase="aprendizaje-estado"
+                />
               </p>
               <p class="aprendizaje-maquina">
                 {t.maquina}: {t.concepto}

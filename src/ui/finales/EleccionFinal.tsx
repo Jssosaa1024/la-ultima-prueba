@@ -23,6 +23,7 @@ export default function EleccionFinal() {
   if (!opciones.salir) {
     return (
       <Dialogo
+        tema="archivo"
         antetitulo="Portería"
         titulo="Puerta de salida"
         cerrar="Volver"
@@ -39,6 +40,7 @@ export default function EleccionFinal() {
     // `key` distinta: el diálogo se monta de nuevo y lleva el foco a la pregunta.
     return (
       <Dialogo
+        tema="archivo"
         key="confirmar"
         antetitulo="Portería"
         titulo="Puerta de salida"
@@ -58,6 +60,7 @@ export default function EleccionFinal() {
 
   return (
     <Dialogo
+      tema="archivo"
       key="elegir"
       antetitulo="Portería"
       titulo="Puerta de salida"

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { continuarEn, tocarObjeto } from './escena';
+import { continuarEn, salirDeLaPartida, tocarObjeto } from './escena';
 
 // T33: HUD con reloj, sellos, inventario y botón contextual.
 
@@ -34,10 +34,36 @@ test('al tocar un objeto aparece el botón contextual, con su nombre y de 44 px 
     .toBeGreaterThanOrEqual(44);
 });
 
-test('«Salir» pide confirmación y vuelve al menú', async ({ page }) => {
+test('«Pausa» detiene el reloj; «Salir de la partida» pide confirmación y vuelve al menú', async ({
+  page,
+}) => {
   await page.goto('/jugar');
   await page.getByRole('button', { name: 'Jugar solo' }).click();
-  page.once('dialog', (d) => void d.accept());
-  await page.getByRole('button', { name: 'Salir' }).click();
+  await page.getByRole('button', { name: 'Pausa' }).click();
+  const pausa = page.getByRole('dialog', { name: 'Pausa' });
+  await expect(pausa).toBeFocused();
+  await expect(pausa).toContainText('El reloj de las 00:40 está detenido');
+  // Con un panel abierto el HUD queda inerte (fuera del árbol de accesibilidad): se lee el reloj
+  // por su clase.
+  const reloj = page.locator('.hud-reloj');
+  await expect(reloj).toContainText('en pausa');
+  // «Seguir jugando» cierra la pausa, el reloj vuelve a correr y el foco vuelve al botón.
+  await pausa.getByRole('button', { name: 'Seguir jugando' }).click();
+  await expect(pausa).toHaveCount(0);
+  await expect(page.getByRole('timer')).not.toHaveAccessibleName(/en pausa/);
+  await expect(page.getByRole('button', { name: 'Pausa' })).toBeFocused();
+  // Desde la pausa se llega a los ajustes.
+  await page.getByRole('button', { name: 'Pausa' }).click();
+  await pausa.getByRole('button', { name: 'Ajustes' }).click();
+  await expect(page.getByRole('dialog', { name: 'Ajustes del juego' })).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Cerrar' }).click();
+  // Salir pide confirmación: «No, seguir jugando» no termina la partida.
+  await page.getByRole('button', { name: 'Pausa' }).click();
+  await pausa.getByRole('button', { name: 'Salir de la partida' }).click();
+  const confirmar = page.getByRole('dialog', { name: '¿Salir de la partida?' });
+  await expect(confirmar).toBeFocused();
+  await confirmar.getByRole('button', { name: 'No, seguir jugando' }).click();
+  await expect(page.getByRole('timer')).toBeVisible();
+  await salirDeLaPartida(page);
   await expect(page.getByRole('button', { name: 'Jugar solo' })).toBeVisible();
 });

@@ -1,0 +1,31 @@
+/* Pausa y confirmar salir (T41d): un sello sobre la ficha y el texto al lado. */
+.pausa-cuerpo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pausa-cuerpo p {
+  margin: 0;
+}
+
+.pausa-cuerpo > p + p {
+  margin-top: 0.5rem;
+}
+
+.pausa-sello {
+  flex: none;
+}
+
+.pausa-nota {
+  font-size: 0.875rem;
+  color: var(--tema-tinta-suave);
+}
+
+/* En vertical o muy angosto, el sello va encima del texto. */
+@media (max-width: 480px) {
+  .pausa-cuerpo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
