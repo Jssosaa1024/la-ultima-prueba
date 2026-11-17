@@ -40,6 +40,7 @@ for (const [sala, url, objetos] of [
   ['porteria', '/jugar', PORTERIA],
   ['s1-cooperativa', '/jugar?sala=s1-cooperativa', SALA_1],
   ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio')],
+  ['s3-gimnasio', '/jugar?sala=s3-gimnasio', conModelo('s3-gimnasio')],
 ] as const) {
   test(`${sala}: modelos CC0 y texturas de ambientCG`, async ({ page }) => {
     const errores: string[] = [];
@@ -52,12 +53,14 @@ for (const [sala, url, objetos] of [
 
     await page.goto(url);
     await page.getByRole('button', { name: 'Jugar solo' }).click();
-    expect(objetos.length).toBeGreaterThan(8);
+    // Cada sala con arte viste al menos sus muebles grandes (el gimnasio, el que menos: 5).
+    expect(objetos.length).toBeGreaterThanOrEqual(5);
     const canvas = page.getByLabel('Escena del juego');
     await expect(canvas).toHaveAttribute('data-sala', sala);
     await expect(canvas).toHaveAttribute('data-modelos', objetos.join(','), { timeout: 30_000 });
     const esperadas = texturasDe(sala);
-    expect(esperadas).toHaveLength(3);
+    // Piso y paredes siempre; el techo del gimnasio va de color, sin textura.
+    expect(esperadas.length).toBeGreaterThanOrEqual(2);
     // La precarga puede pedir también las de otra sala: se miran solo las de esta.
     await expect
       .poll(() => [...texturas].filter((t) => esperadas.includes(t)).sort())

@@ -34,6 +34,21 @@
           ]
         },
         {
+          "archivo": "salas/compartido/piso-gimnasio.b512637e.ktx2",
+          "sha256": "b512637e84c8efa7e9e19b0bd5f29c86a58f54181be5e261789624439e72c21b",
+          "bytes": 150324,
+          "texturas": [
+            {
+              "nombre": "piso-gimnasio",
+              "ancho": 1024,
+              "alto": 1024,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 697303
+            }
+          ]
+        },
+        {
           "archivo": "salas/compartido/piso-madera.14701770.ktx2",
           "sha256": "147017701da5ed5de891c7373127c7e50ffd9ebda8b10e35272b4ccca83fbefa",
           "bytes": 148760,
@@ -66,11 +81,11 @@
       ],
       "audio": [],
       "totales": {
-        "bytes": 439380,
+        "bytes": 589704,
         "bytesAudio": 0,
         "triangulos": 0,
         "drawCalls": 0,
-        "bytesGpu": 2440561
+        "bytesGpu": 3137864
       }
     },
     "porteria": {
@@ -685,6 +700,103 @@
         "triangulos": 3172,
         "drawCalls": 8,
         "bytesGpu": 348648
+      }
+    },
+    "s3-gimnasio": {
+      "archivos": [
+        {
+          "archivo": "salas/s3-gimnasio/banca.746a4cf1.glb",
+          "sha256": "746a4cf1a31fd7b64cf1c6e8c5e6f22c1ddb82e2c766be117026e9cd38eaf209",
+          "bytes": 14588,
+          "triangulos": 276,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s3-gimnasio/carro-balones.f9e6490a.glb",
+          "sha256": "f9e6490acca6f5b89e8a51403466d5c7b21f6d0602b0b54a2c08b470e8a8f0ea",
+          "bytes": 17776,
+          "triangulos": 296,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s3-gimnasio/conos.09421875.glb",
+          "sha256": "09421875a73e151c1ac340ba02ff2674cd9fdaa9dbe5ff5f7572f44bb33bad1c",
+          "bytes": 16092,
+          "triangulos": 198,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "colormap",
+              "ancho": 512,
+              "alto": 512,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 174326
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s3-gimnasio/puerta.77dd5f48.glb",
+          "sha256": "77dd5f48fa0d97e97577bc3524eeb41722a572ad21d7c61fa62273d1b4658188",
+          "bytes": 15296,
+          "triangulos": 188,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s3-gimnasio/sillas.1439c9f2.glb",
+          "sha256": "1439c9f2c4b540af28c6784282979cef98093cd7ec5ef5eb779302e36ab541ff",
+          "bytes": 29492,
+          "triangulos": 924,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        }
+      ],
+      "audio": [],
+      "totales": {
+        "bytes": 93244,
+        "bytesAudio": 0,
+        "triangulos": 1882,
+        "drawCalls": 5,
+        "bytesGpu": 348650
       }
     }
   }
