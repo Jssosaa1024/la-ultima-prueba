@@ -421,6 +421,366 @@
     "nota": "Conos de entrenamiento; KayKit no tiene"
   },
   {
+    "archivo": "public/assets/salas/s4-biblioteca/puerta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_A.gltf"
+      }
+    ],
+    "caja": [1.1, 2.2, 0.12]
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/estante-a.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [-1, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [1, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [-1, 1.52, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [1, 1.52, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [-1, 2.17, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [1, 2.17, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [-1, 2.82, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [1, 2.82, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-1.45, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-0.55, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [0.55, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [1.45, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-1.4, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-0.5, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [0.6, 3.17, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [1.5, 3.17, 0.25],
+        "giro": 180
+      }
+    ],
+    "caja": [0.5, 2.2, 2.5],
+    "giro": 90
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/estante-m.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [-0.5, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_small.gltf",
+        "pos": [1.0, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [-0.5, 1.52, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_small.gltf",
+        "pos": [1.0, 1.52, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [-0.5, 2.17, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_small.gltf",
+        "pos": [1.0, 2.17, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_small_decorated.gltf",
+        "pos": [1.0, 2.17, -0.5]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [-0.5, 2.82, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_small.gltf",
+        "pos": [1.0, 2.82, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-0.95, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-0.1, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
+        "pos": [1.15, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-1.05, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf",
+        "pos": [-0.1, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [1.0, 3.17, 0.25],
+        "giro": 180
+      }
+    ],
+    "caja": [0.5, 2.2, 2.0],
+    "giro": 90
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/estante-b.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [-1, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [1, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [-1, 1.52, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [1, 1.52, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [-1, 2.17, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [1, 2.17, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large.gltf",
+        "pos": [-1, 2.82, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [1, 2.82, 0.0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [0.5, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [1.4, 1.87, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-1.5, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-0.6, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [0.6, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [1.45, 2.52, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-1.4, 3.17, 0.25],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [-0.5, 3.17, 0.25],
+        "giro": 180
+      }
+    ],
+    "caja": [0.5, 2.2, 2.5],
+    "giro": 90
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/libro.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf"
+      }
+    ],
+    "caja": [0.25, 0.34, 0.14],
+    "giro": -90
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/casilleros.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf",
+        "pos": [-2, -2, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf",
+        "pos": [0, -2, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf",
+        "pos": [2, -2, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf",
+        "pos": [-2, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/kitchencabinet.gltf",
+        "pos": [2, 0, 0]
+      }
+    ],
+    "caja": [4, 2, 0.5]
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/mostrador.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [-1, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf",
+        "pos": [1, 0, 0]
+      }
+    ],
+    "caja": [2.4, 1, 0.7]
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/caja-devoluciones.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/crate.gltf"
+      }
+    ],
+    "caja": [0.45, 0.25, 0.4]
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/mesa-lectura.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/table_medium_long.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_A_wood.gltf",
+        "pos": [-0.75, 0, 1.1],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_A_wood.gltf",
+        "pos": [0.75, 0, 1.1],
+        "giro": 180
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_B_wood.gltf",
+        "pos": [-0.75, 0, -1.1]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_B_wood.gltf",
+        "pos": [0.75, 0, -1.1]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [0.45, 1.25, 0.15],
+        "giro": 30
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/lamp_table.gltf",
+        "pos": [-0.95, 1.0, -0.3]
+      }
+    ],
+    "caja": [1.8, 1.52, 1.9]
+  },
+  {
+    "archivo": "public/assets/salas/s4-biblioteca/rincon-lectura.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/armchair.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/table_small.gltf",
+        "pos": [1.55, 0, 0.1]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_set.gltf",
+        "pos": [1.55, 1.25, 0.1],
+        "giro": 90
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/lamp_standing.gltf",
+        "pos": [-1.45, 0, -0.35]
+      }
+    ],
+    "caja": [2.25, 1.42, 0.96]
+  },
+  {
     "archivo": "public/assets/salas/compartido/piso-baldosa.ktx2",
     "original": "art/compartido/originales/ambientcg/Tiles040_1K-JPG.zip#Tiles040_1K-JPG_Color.jpg"
   },

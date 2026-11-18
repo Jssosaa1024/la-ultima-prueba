@@ -20,7 +20,7 @@ const GABINETE: Punto3 = [-3.9, 1, -2.4];
 const BALON_NARANJA: Punto3 = [-8.42, 1.02, 0.16];
 const BALON_VERDE: Punto3 = [-8.78, 1.02, 0.16];
 /** El libro que sobresale del estante M de la biblioteca. */
-const LIBRO: Punto3 = [-4.36, 1.34, 1.5];
+const LIBRO: Punto3 = [-4.4, 1.58, 1.5];
 
 /**
  * Camina hacia el objeto hasta tenerlo a menos de `cerca` metros. El objeto (o su mueble) es

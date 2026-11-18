@@ -9,6 +9,7 @@ export const CON_ARTE = [
   's1-cooperativa',
   's2-laboratorio',
   's3-gimnasio',
+  's4-biblioteca',
 ] as const satisfies readonly Lugar[];
 
 /** La sala sin los acabados por código (T19j): sin zócalo, lámparas, ventanas ni oclusión. */

@@ -798,6 +798,188 @@
         "drawCalls": 5,
         "bytesGpu": 348650
       }
+    },
+    "s4-biblioteca": {
+      "archivos": [
+        {
+          "archivo": "salas/s4-biblioteca/caja-devoluciones.74b1051d.glb",
+          "sha256": "74b1051d85eb5de23ce393587cadc1079f2ec8d41aef6747a1e17eafd39ae1d7",
+          "bytes": 14064,
+          "triangulos": 132,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/casilleros.d19b9807.glb",
+          "sha256": "d19b980773a53ee4e14f25f39f7fe8ca4448aec986c083a2190f584b3bc8cc42",
+          "bytes": 27256,
+          "triangulos": 936,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/estante-a.0fb9d477.glb",
+          "sha256": "0fb9d4774cc448a9a593f82fecd53561e9147e99dc9add650167af8334f3b9b5",
+          "bytes": 94844,
+          "triangulos": 4236,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/estante-b.16f55278.glb",
+          "sha256": "16f55278615db40a47d0c5c4ffa2f8f75764de6c7388595eac7ea0337730d18c",
+          "bytes": 94868,
+          "triangulos": 4236,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/estante-m.10864fc3.glb",
+          "sha256": "10864fc334068d48fd18a44b85d311c52af4f31374ffba7f2f06dae310612de0",
+          "bytes": 83444,
+          "triangulos": 3744,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/libro.bd104ada.glb",
+          "sha256": "bd104ada55cd2fc2cfb3210211c0c3be788b4b12bd254d2c12fa816a92368b39",
+          "bytes": 11568,
+          "triangulos": 68,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/mesa-lectura.4a802034.glb",
+          "sha256": "4a802034dea709f125fa421645d484cdd404a292b547770fec60fa8bc5c77a2b",
+          "bytes": 49920,
+          "triangulos": 2140,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/mostrador.42b15263.glb",
+          "sha256": "42b152634d3aebc4e8e0076b4b35109114369064f22f60eee5d274590cd83ea1",
+          "bytes": 27336,
+          "triangulos": 856,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/puerta.3adb0fcd.glb",
+          "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
+          "bytes": 15276,
+          "triangulos": 188,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s4-biblioteca/rincon-lectura.13da0fd6.glb",
+          "sha256": "13da0fd6cec6f7002a583b8cb148491ad2426a0018f170ac2ce499477d93c617",
+          "bytes": 28612,
+          "triangulos": 1212,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        }
+      ],
+      "audio": [],
+      "totales": {
+        "bytes": 447188,
+        "bytesAudio": 0,
+        "triangulos": 17748,
+        "drawCalls": 10,
+        "bytesGpu": 435810
+      }
     }
   }
 }
