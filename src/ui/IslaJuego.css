@@ -80,3 +80,7 @@
 .juego-canvas[data-sala='s2-laboratorio'] ~ .juego-vineta {
   background: radial-gradient(ellipse at center, rgb(4 22 26 / 0%) 54%, rgb(4 22 26 / 40%) 100%);
 }
+
+.juego-canvas[data-sala='s3-gimnasio'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(8 16 26 / 0%) 52%, rgb(8 16 26 / 42%) 100%);
+}

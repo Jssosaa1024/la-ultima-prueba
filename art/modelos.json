@@ -349,6 +349,78 @@
     "caja": [0.4, 0.5, 0.4]
   },
   {
+    "archivo": "public/assets/salas/s3-gimnasio/puerta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_A.gltf"
+      }
+    ],
+    "caja": [1.4, 2.4, 0.12],
+    "nota": "Puerta del gimnasio, más grande que las de las otras salas. Fondo de 12 cm."
+  },
+  {
+    "archivo": "public/assets/salas/s3-gimnasio/banca.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/table_low.gltf"
+      }
+    ],
+    "caja": [3, 0.45, 0.5],
+    "nota": "Mesa baja estirada como banca larga; la planilla va encima"
+  },
+  {
+    "archivo": "public/assets/salas/s3-gimnasio/carro-balones.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/crate.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/crate_lid.gltf",
+        "pos": [0, 0.8, 0]
+      }
+    ],
+    "caja": [1, 0.9, 0.7],
+    "nota": "Cajón con tapa: los balones descansan encima a 0,9 m"
+  },
+  {
+    "archivo": "public/assets/salas/s3-gimnasio/sillas.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_A_wood.gltf",
+        "pos": [-0.9, 0, 0.04],
+        "giro": -5
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_A_wood.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_A_wood.gltf",
+        "pos": [0.9, 0, 0.05],
+        "giro": 7
+      }
+    ],
+    "caja": [1.96, 0.94, 0.7],
+    "nota": "Tres sillas en fila contra la pared oeste"
+  },
+  {
+    "archivo": "public/assets/salas/s3-gimnasio/conos.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-factory-kit/kenney_factory-kit_3.0.zip#Models/GLB format/cone.glb",
+        "pos": [-0.65, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kenney-factory-kit/kenney_factory-kit_3.0.zip#Models/GLB format/cone.glb"
+      },
+      {
+        "original": "art/compartido/originales/kenney-factory-kit/kenney_factory-kit_3.0.zip#Models/GLB format/cone.glb",
+        "pos": [0.65, 0, 0]
+      }
+    ],
+    "caja": [1.6, 0.3, 0.3],
+    "nota": "Conos de entrenamiento; KayKit no tiene"
+  },
+  {
     "archivo": "public/assets/salas/compartido/piso-baldosa.ktx2",
     "original": "art/compartido/originales/ambientcg/Tiles040_1K-JPG.zip#Tiles040_1K-JPG_Color.jpg"
   },
@@ -359,6 +431,11 @@
   {
     "archivo": "public/assets/salas/compartido/piso-madera.ktx2",
     "original": "art/compartido/originales/ambientcg/WoodFloor071_1K-JPG.zip#WoodFloor071_1K-JPG_Color.jpg"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/piso-gimnasio.ktx2",
+    "original": "art/compartido/originales/ambientcg/WoodFloor051_1K-JPG.zip#WoodFloor051_1K-JPG_Color.jpg",
+    "nota": "Piso de tablas del gimnasio"
   },
   {
     "archivo": "public/assets/salas/compartido/techo.ktx2",

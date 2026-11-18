@@ -240,12 +240,18 @@ describe('lámparas con estado (T19k)', () => {
 });
 
 describe('ventanas de noche (T19k)', () => {
-  it('las salas con arte tienen dos ventanas en la pared del fondo, con luna en una', () => {
+  it('las salas con arte tienen al menos dos ventanas, con luna en una sola', () => {
     for (const l of NOCHE) {
       const ventanas = salaPorId(l).acabados?.ventanas ?? [];
-      expect(ventanas).toHaveLength(2);
-      expect(ventanas.every((v) => v.pared === 'norte')).toBe(true);
-      expect(ventanas.filter((v) => v.luna)).toHaveLength(1);
+      expect(ventanas.length, l).toBeGreaterThanOrEqual(2);
+      expect(
+        ventanas.some((v) => v.pared === 'norte'),
+        l,
+      ).toBe(true);
+      expect(
+        ventanas.filter((v) => v.luna),
+        l,
+      ).toHaveLength(1);
     }
   });
 
@@ -260,28 +266,21 @@ describe('ventanas de noche (T19k)', () => {
         expect(h.abajo).toBeGreaterThan(1.05);
         // La cornisa ocupa los últimos 7 cm.
         expect(h.arriba).toBeLessThan(sala.alto - 0.07);
-        // Puertas, tableros y cuadros pegados a la misma pared (con sus marcos).
-        const zPared = -sala.fondo / 2;
-        const enLaPared = sala.objetos.filter(
-          (o) => o.forma === 'plano' && Math.abs(o.pos[2] - zPared) < 0.1 && v.pared === 'norte',
-        );
-        for (const o of enLaPared) {
-          const marco = esPuerta(o) || esTablero(o) ? 0.08 : 0;
-          const izq = o.pos[0] - o.tam[0] / 2 - marco;
-          const der = o.pos[0] + o.tam[0] / 2 + marco;
-          const abajo = o.pos[1];
-          const arriba = o.pos[1] + o.tam[1] + marco;
-          const seCruzan = izq < h.hasta && der > h.desde && abajo < h.arriba && arriba > h.abajo;
-          expect(seCruzan, `${v.centro} y ${o.id}`).toBe(false);
-        }
-        // Y lo que se apoya contra esa pared (casillero, estante) queda por debajo.
         for (const o of sala.objetos) {
-          if (o.forma === 'plano') continue;
-          const cerca = Math.abs(o.pos[2] - o.tam[2] / 2 - zPared) < 0.4;
-          const izq = o.pos[0] - o.tam[0] / 2;
-          const der = o.pos[0] + o.tam[0] / 2;
-          if (cerca && izq < h.hasta && der > h.desde) {
-            expect(o.pos[1] + o.tam[1], o.id).toBeLessThan(h.abajo);
+          const p = enPared(sala, v.pared, o);
+          if (p.distancia > (o.forma === 'plano' ? 0.1 : 0.4)) continue;
+          // Puertas y tableros llevan marco a los lados y arriba (8 cm como mucho).
+          const marco = o.forma === 'plano' && (esPuerta(o) || esTablero(o)) ? 0.08 : 0;
+          if (p.hasta + marco <= h.desde || p.desde - marco >= h.hasta) continue;
+          if (o.forma === 'plano') {
+            // Puertas, tableros y cuadros pegados a esa pared, con sus marcos.
+            const seCruzan = o.pos[1] < h.arriba && o.pos[1] + o.tam[1] + marco > h.abajo;
+            expect(seCruzan, `${l}: ventana en ${v.centro} y ${o.id}`).toBe(false);
+          } else {
+            // Lo que se apoya contra esa pared queda por debajo, o del todo por encima (vigas).
+            const debajo = o.pos[1] + o.tam[1] < h.abajo;
+            const encima = o.pos[1] >= h.arriba;
+            expect(debajo || encima, `${l}: ventana en ${v.centro} y ${o.id}`).toBe(true);
           }
         }
       }
@@ -318,13 +317,15 @@ describe('ventanas de noche (T19k)', () => {
       const con = construirSala(sala);
       const sin = construirSala(sinVentanas);
       expect(con.mallas).toBe(sin.mallas);
-      expect(con.triangulos - sin.triangulos).toBeLessThan(600);
+      const ventanas = sala.acabados?.ventanas?.length ?? 0;
+      expect(con.triangulos - sin.triangulos).toBeLessThan(200 * ventanas);
       // Los 5 del cooperativo con 4 jugadores (T83b).
       expect(con.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
       // El cielo queda en la pared, un poco adelante, y no recibe toques.
       const difusores = nombrada(con.raiz, 'difusores');
       difusores.geometry.computeBoundingBox();
       expect(difusores.geometry.boundingBox?.min.z).toBeGreaterThan(-sala.fondo / 2);
+      expect(difusores.geometry.boundingBox?.max.z).toBeLessThan(sala.fondo / 2);
     }
   });
 
@@ -350,6 +351,33 @@ describe('ventanas de noche (T19k)', () => {
     expect(esquemaSala.safeParse(malo).success).toBe(false);
   });
 });
+
+/**
+ * Dónde queda un objeto respecto a una pared: qué tan lejos está su cara más cercana y qué
+ * tramo ocupa a lo largo de ella (x en norte y sur, z en oeste y este), con su giro.
+ */
+function enPared(
+  sala: Pick<Sala, 'ancho' | 'fondo'>,
+  pared: 'norte' | 'sur' | 'oeste' | 'este',
+  o: Sala['objetos'][number],
+): { distancia: number; desde: number; hasta: number } {
+  const g = ((o.giro ?? 0) * Math.PI) / 180;
+  const ancho = o.tam[0];
+  const fondo = o.forma === 'cilindro' || o.forma === 'esfera' ? o.tam[0] : o.tam[2];
+  const mx = (Math.abs(Math.cos(g)) * ancho + Math.abs(Math.sin(g)) * fondo) / 2;
+  const mz = (Math.abs(Math.sin(g)) * ancho + Math.abs(Math.cos(g)) * fondo) / 2;
+  const [x, , z] = o.pos;
+  switch (pared) {
+    case 'norte':
+      return { distancia: z - mz + sala.fondo / 2, desde: x - mx, hasta: x + mx };
+    case 'sur':
+      return { distancia: sala.fondo / 2 - (z + mz), desde: x - mx, hasta: x + mx };
+    case 'oeste':
+      return { distancia: x - mx + sala.ancho / 2, desde: z - mz, hasta: z + mz };
+    case 'este':
+      return { distancia: sala.ancho / 2 - (x + mx), desde: z - mz, hasta: z + mz };
+  }
+}
 
 function never(): never {
   throw new Error('la sala debía tener acabados');

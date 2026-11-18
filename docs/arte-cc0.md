@@ -204,20 +204,22 @@ Objetos nuevos hechos con primitivas (van en la malla fija): computador, tuberí
 
 ## Sala 3 · El gimnasio
 
+Hecha en T19m, con KayKit y los conos de Kenney Factory Kit (KayKit no tiene). Gradas, reflector, postes, sensores, cinta métrica, marcador, polea, planilla y balones siguen como primitivas: el reflector y los balones los animan sus máquinas y lo demás se lee en 2D.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s3-puerta` · puerta 1,4 × 2,4 | Furniture · `doorwayFront.glb` | 184 | `puerta-salida` | — |
-| `s3-grada-1` a `-3` · graderías de 8 m | Primitiva | — | — | Solo el Racing Kit trae graderías (`grandStand.glb`): no vale un paquete más. Tres cajas con la textura de madera del piso |
-| `s3-reflector` · reflector | Furniture · `lampSquareFloor.glb` | 120 | `reflector` | `reflector.ts` lo inclina; debe caber en Ø0,5 × 0,6 |
-| `s3-postes` · postes de voleibol | Primitiva | — | — | Kenney no tiene; `reflector.ts` los mueve uno por uno |
-| `s3-sensores` · sensores de luz | Primitiva | — | — | Franja en el piso; los discos se encienden (mecanismo) |
-| `s3-cinta-metrica` · cinta del piso | Primitiva | — | — | Franja pintada en el piso |
-| `s3-marcador` · marcador 2 × 1 | Primitiva | — | — | Plano |
-| `s3-polea` · polea del marcador | Primitiva | — | — | Kenney no tiene polea |
-| `s3-banca` · banca 3 × 0,45 × 0,5 | Furniture · `bench.glb` | s/d | `banca` | Estirar en x |
-| `s3-planilla` · planilla | Primitiva | — | — | Papel; se lee en 2D |
-| `s3-carro-balones` · carro de balones | Mini Shop · `shopping-cart.glb` | s/d (43 KB) | `carro` | Parecido débil: si no convence, primitiva |
-| `s3-balon-1` a `-4` · balones | Primitiva | — | — | Esferas; `balones.ts` las hace rebotar |
+| `s3-puerta` · 1,4 × 2,4 | Restaurant · `door_A` | 188 | `puerta` | GLB propio: es más grande que las puertas de las otras salas |
+| `s3-banca` · 3 × 0,45 × 0,5 | Furniture · `table_low` | 276 | `banca` | Mesa baja estirada; la planilla va encima |
+| `s3-carro-balones` · 1 × 0,9 × 0,7 | Restaurant · `crate` + `crate_lid` | 296 | `carro-balones` | Cajón con tapa: los balones descansan encima a 0,9 m |
+| `s3-sillas` (nuevo) | Furniture · `chair_A_wood` × 3 | 924 | `sillas` | En fila contra la pared oeste |
+| `s3-conos` (nuevo) | Factory · `cone` × 3 | 198 | `conos` | Conos de entrenamiento en la esquina noreste |
+
+Objetos nuevos hechos con primitivas (van en la malla fija): tablero y aro de baloncesto, tablas de sentarse en las gradas, cinco vigas en el techo, colchonetas, extintor y la cuerda de la polea.
+
+- **Superficies:** piso de tablas (WoodFloor051, textura nueva `compartido/piso-gimnasio`, 150 KB) y pañete con tinte claro; el techo, sin textura, de color gris azulado.
+- **Acabados:** zócalo verde cancha con franja crema; seis lámparas, solo tres dan luz (una titila) para que el coliseo se vea apagado; seis ventanas altas (cuatro al norte, dos al sur), con luna en una.
+- **Luz:** luna azul fría desde el suroeste alto; los charcos de las lámparas dan el contraste cálido.
+- **Medidas:** 5 GLB, 1.882 triángulos, 93 KB. Prueba del cooperativo: 37 de 40.
 
 ## Sala 4 · La biblioteca
 
@@ -286,7 +288,7 @@ El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 dr
 | Portería | 6 GLB | ~3.000 | ~0,1 MB de modelos + ~0,6 MB de texturas | Sí |
 | Cooperativa | 9 GLB | ~12.000 | ~0,3 MB + ~0,6 MB | Sí |
 | Laboratorio (medido, T19l) | 8 GLB | 3.172 | 0,14 MB + texturas compartidas | Sí |
-| Gimnasio | 4 GLB | ~3.000 | ~0,05 MB + ~0,4 MB (sin techo) | Sí |
+| Gimnasio (medido, T19m) | 5 GLB | 1.882 | 0,09 MB + piso nuevo de 0,15 MB | Sí |
 | Biblioteca | 8 GLB | ~5.500 | ~0,1 MB + ~0,6 MB | Sí |
 | Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
 
