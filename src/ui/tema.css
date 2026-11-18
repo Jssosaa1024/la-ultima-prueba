@@ -20,8 +20,9 @@
 
 /*
  * Fuentes autoalojadas (la CSP no deja cargar nada de fuera). Las dos tienen licencia SIL OFL
- * 1.1; los archivos van en `public/fonts/` con su `OFL.txt`. Mientras no estén, el navegador usa
- * la pila del sistema de `--tema-letra-*` y no pasa nada más (un 404 por archivo).
+ * 1.1: los archivos están en `public/fonts/` junto a su licencia (`OFL-*.txt`) y la captura de
+ * cada licencia, en `art/evidencia/fuente-*.png` (T41g). Mientras cargan, el navegador usa la
+ * pila del sistema de `--tema-letra-*` (`font-display: swap`).
  */
 @font-face {
   font-family: 'Courier Prime';
