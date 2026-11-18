@@ -479,7 +479,7 @@
   },
   {
     "id": "s4-caja-devoluciones",
-    "descripcion": "Una caja de cartón con libros devueltos y algunos papeles.",
+    "descripcion": "Un huacal de madera para los libros devueltos, con algunos papeles.",
     "bloques": [
       {
         "tipo": "texto",

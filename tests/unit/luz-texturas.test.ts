@@ -26,7 +26,7 @@ import {
 import { necesitaVestir, urlsDeSala, vestirSala } from '../../src/engine/salas/vestir';
 import type { FuentesAssets } from '../../src/engine/salas/vestir';
 import { carga } from '../../src/signals/interfaz';
-import { sinArte, sinTexturas } from './sin-arte';
+import { sinAcabados, sinArte, sinTexturas } from './sin-arte';
 
 // T19f (luz sin horneado y sombras de contacto) y T19g (texturas de piso, paredes y techo).
 
@@ -107,7 +107,8 @@ describe('luz sin horneado (T19f)', () => {
   });
 
   it('todas las sombras de una sala son UNA malla transparente pegada al piso', () => {
-    const { raiz } = construirSala(salaPorId('s2-laboratorio'));
+    // Sin acabados: la oclusión falsa de las esquinas (T19j) va en la misma malla y sube al techo.
+    const { raiz } = construirSala(sinAcabados(salaPorId('s2-laboratorio')));
     const sombras = nombrada(raiz, 'sombras');
     const n = objetosConSombra(salaPorId('s2-laboratorio').objetos).length;
     expect(sombras.geometry.getAttribute('position').count).toBe(16 * n);

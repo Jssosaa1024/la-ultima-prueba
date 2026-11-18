@@ -182,80 +182,105 @@ Los objetos con mecanismo que sí reciben modelo deben caber en la caja de `sala
 
 ## Sala 2 · El laboratorio
 
+Hecha en T19l, con KayKit Restaurant Bits (todo de un solo paquete) y la medianoche de T19k. Los tanques, perillas, palanca, campana, taza, hoja y graficador siguen como primitivas: su máquina los anima o su texto se lee en 2D.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s2-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
-| `s2-tanque-a`, `s2-tanque-b` · tanques de vidrio | Primitiva | — | — | `tanques.ts` pone el líquido dentro del cilindro; Kenney no tiene tanques de vidrio |
-| `s2-panel` · tablero de los tanques 2 × 0,9 × 0,3 | Factory · `screen-panel-wide.glb` | s/d (15 KB) | `tablero` | — |
-| `s2-perilla-verde`, `s2-perilla-morada` · perillas | Primitiva | — | — | Pequeñas y de colores que dan pistas |
-| `s2-palanca` · palanca | Factory · `lever-double.glb` | s/d (17 KB) | `palanca-doble` | — |
-| `s2-graficador` · graficador 2,4 × 1,4 | Primitiva | — | — | Plano; la gráfica se lee en 2D |
-| `s2-incubadora` · incubadora 1 × 1,2 × 0,8 | Factory · `machine-window.glb` | s/d (37 KB) | `incubadora` | La bandeja y la gota son del mecanismo |
-| `s2-campana` · campana con temporizador | Primitiva | — | — | Kenney no tiene campana; `tanques.ts` la sacude |
-| `s2-meson-1` · mesón 2,4 × 0,9 × 0,8 | Furniture · `kitchenCabinet.glb` × 3 | 396 c/u | `meson` | Tres módulos unidos con `join` |
-| `s2-meson-2` · mesón 2 × 0,9 × 0,8 | Furniture · `kitchenCabinet.glb` × 3 | 396 c/u | `meson` | El mismo GLB, escalado |
-| `s2-taza` · taza «T. R.» | Primitiva | — | — | Solo el Food Kit tiene taza (`mug.glb`): no vale bajar un paquete por un objeto de 9 cm |
-| `s2-hoja-ayer` · hoja | Primitiva | — | — | Papel; se lee en 2D |
-| `s2-gabinete` · gabinete 0,6 × 1,8 × 0,8 | Furniture · `bookcaseClosedDoors.glb` | 536 | `casillero` | El mismo de la portería |
+| `s2-puerta` · puerta | Restaurant · `door_A` | 188 | `puerta` | La misma de la portería y la sala 1 |
+| `s2-panel` · tablero 2 × 0,9 × 0,3 | Restaurant · `kitchencounter_straight_B` | 168 | `tablero` | Mueble bajo blanco con cubierta naranja; perillas y palanca encima |
+| `s2-incubadora` · 1 × 1,2 × 0,8 | Restaurant · `fridge_B` | 426 | `incubadora` | Nevera turquesa de una puerta; la campana va encima |
+| `s2-gabinete` · 0,6 × 1,8 × 0,8 | Restaurant · `kitchencabinet` × 2 | 312 | `gabinete` | Dos alacenas apiladas, de lado (`giro` 90 en `modelos.json`) |
+| `s2-meson-1`, `s2-meson-2` · 2,4 × 0,9 × 0,8 | Restaurant · `kitchentable_A_large` | 236 | `meson` | Un solo GLB instanciado; el mesón 2 creció 40 cm hacia el oeste para compartirlo |
+| `s2-poceta` (nuevo) | Restaurant · `kitchentable_sink` | 742 | `poceta` | Mesa de acero con poceta y grifo, en la esquina sureste |
+| `s2-repisa-frascos` (nuevo) | Restaurant · `shelf_papertowel` + 3 frascos | 828 | `repisa-frascos` | Encima de la poceta |
+| `s2-taburete-1`, `-2` (nuevos) | Restaurant · `chair_stool` | 272 | `taburete` | Junto al mesón 1 |
+
+Objetos nuevos hechos con primitivas (van en la malla fija): computador, tuberías de los tanques al techo, microscopio, gradilla con tubos de ensayo, tabla periódica (solo colores, sin texto) y extintor.
+
+- **Superficies:** baldosa (Tiles040), pañete y techo de oficina, con tinte gris verdoso en el piso y celeste grisáceo en las paredes.
+- **Acabados:** zócalo verde petróleo con franja blanca; lámparas apagada (oeste, el rincón de la linterna), encendida (centro) y titilando (este, sobre el mesón 1); dos ventanas de noche en la pared del fondo, con luna en la del oeste.
+- **Luz:** noche fría, verde agua, con la direccional entrando desde el pasillo.
+- **Medidas:** 8 GLB, 3.172 triángulos, 138 KB. Prueba del cooperativo: 36 de 40.
 
 ## Sala 3 · El gimnasio
 
+Hecha en T19m, con KayKit y los conos de Kenney Factory Kit (KayKit no tiene). Gradas, reflector, postes, sensores, cinta métrica, marcador, polea, planilla y balones siguen como primitivas: el reflector y los balones los animan sus máquinas y lo demás se lee en 2D.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s3-puerta` · puerta 1,4 × 2,4 | Furniture · `doorwayFront.glb` | 184 | `puerta-salida` | — |
-| `s3-grada-1` a `-3` · graderías de 8 m | Primitiva | — | — | Solo el Racing Kit trae graderías (`grandStand.glb`): no vale un paquete más. Tres cajas con la textura de madera del piso |
-| `s3-reflector` · reflector | Furniture · `lampSquareFloor.glb` | 120 | `reflector` | `reflector.ts` lo inclina; debe caber en Ø0,5 × 0,6 |
-| `s3-postes` · postes de voleibol | Primitiva | — | — | Kenney no tiene; `reflector.ts` los mueve uno por uno |
-| `s3-sensores` · sensores de luz | Primitiva | — | — | Franja en el piso; los discos se encienden (mecanismo) |
-| `s3-cinta-metrica` · cinta del piso | Primitiva | — | — | Franja pintada en el piso |
-| `s3-marcador` · marcador 2 × 1 | Primitiva | — | — | Plano |
-| `s3-polea` · polea del marcador | Primitiva | — | — | Kenney no tiene polea |
-| `s3-banca` · banca 3 × 0,45 × 0,5 | Furniture · `bench.glb` | s/d | `banca` | Estirar en x |
-| `s3-planilla` · planilla | Primitiva | — | — | Papel; se lee en 2D |
-| `s3-carro-balones` · carro de balones | Mini Shop · `shopping-cart.glb` | s/d (43 KB) | `carro` | Parecido débil: si no convence, primitiva |
-| `s3-balon-1` a `-4` · balones | Primitiva | — | — | Esferas; `balones.ts` las hace rebotar |
+| `s3-puerta` · 1,4 × 2,4 | Restaurant · `door_A` | 188 | `puerta` | GLB propio: es más grande que las puertas de las otras salas |
+| `s3-banca` · 3 × 0,45 × 0,5 | Furniture · `table_low` | 276 | `banca` | Mesa baja estirada; la planilla va encima |
+| `s3-carro-balones` · 1 × 0,9 × 0,7 | Restaurant · `crate` + `crate_lid` | 296 | `carro-balones` | Cajón con tapa: los balones descansan encima a 0,9 m |
+| `s3-sillas` (nuevo) | Furniture · `chair_A_wood` × 3 | 924 | `sillas` | En fila contra la pared oeste |
+| `s3-conos` (nuevo) | Factory · `cone` × 3 | 198 | `conos` | Conos de entrenamiento en la esquina noreste |
+
+Objetos nuevos hechos con primitivas (van en la malla fija): tablero y aro de baloncesto, tablas de sentarse en las gradas, cinco vigas en el techo, colchonetas, extintor y la cuerda de la polea.
+
+- **Superficies:** piso de tablas (WoodFloor051, textura nueva `compartido/piso-gimnasio`, 150 KB) y pañete con tinte claro; el techo, sin textura, de color gris azulado.
+- **Acabados:** zócalo verde cancha con franja crema; seis lámparas, solo tres dan luz (una titila) para que el coliseo se vea apagado; seis ventanas altas (cuatro al norte, dos al sur), con luna en una.
+- **Luz:** luna azul fría desde el suroeste alto; los charcos de las lámparas dan el contraste cálido.
+- **Medidas:** 5 GLB, 1.882 triángulos, 93 KB. Prueba del cooperativo: 37 de 40.
 
 ## Sala 4 · La biblioteca
 
+Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos y la ficha rota siguen como primitivas: su máquina los anima o su texto se lee en 2D. La pila de libros también sigue como caja, en el naranja de los libros de los carritos.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s4-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
-| `s4-estante-1` · estante 0,5 × 2,2 × 2,5 | Furniture · `bookcaseClosedWide.glb` | 744 | `estante-ancho` | Escalar a 2,2 m de alto |
-| `s4-estante-m` · estante M 0,5 × 2,2 × 2 | Furniture · `bookcaseOpen.glb` | 640 | `estante-abierto` | — |
-| `s4-libro-m` · libro que sobresale | Primitiva | — | — | Un solo libro; se usa |
-| `s4-casilleros` · pared de casilleros 4 × 2 × 0,5 | Furniture · `bookcaseClosedDoors.glb` × 4 | 536 c/u | `casillero` | Kenney no tiene casilleros; con `instance` son una draw call |
-| `s4-lamparas` · resumen semanal (cuatro lámparas) | Furniture · `lampWall.glb` × 4 | 84 c/u | `lampara-pared` | El panel sigue siendo un plano; las luces son del mecanismo |
-| `s4-mostrador` · mostrador 2,4 × 1 × 0,7 | Furniture · `kitchenBar.glb` + `kitchenBarEnd.glb` | 152 + s/d | `mostrador` | El mismo de la sala 1 |
-| `s4-caja-devoluciones` · caja de devoluciones | Furniture · `cardboardBoxClosed.glb` | 120 | `caja-cerrada` | — |
-| `s4-ficha-rota` · ficha rota | Primitiva | — | — | Papel |
-| `s4-carritos` · cinco carritos | Primitiva | — | — | Kenney no tiene carritos de libros; `carritos.ts` apila libros encima |
-| `s4-pila-libros` · pila de 20 libros | Furniture · `books.glb` | 124 | `libros` | Con `instance` para la altura |
-| `s4-mesa-lectura` · mesa 1,6 × 0,75 × 0,8 | Furniture · `table.glb` | 240 | `mesa` | — |
+| `s4-puerta` | Restaurant · `door_A` | 188 | `puerta` | La misma de las otras salas |
+| `s4-estante-1` · 0,5 × 2,2 × 2,5 | Furniture · 2 `cabinet_medium`, 6 repisas `shelf_B`, 8 `book_set` | 4.236 | `estante-a` | Mueble bajo con repisas llenas de libros, de lado contra la pared oeste |
+| `s4-estante-m` · 0,5 × 2,2 × 2 | Furniture · `cabinet_medium` + `cabinet_small`, repisas y libros | 3.744 | `estante-m` | Con el hueco del libro M en la fila 2 |
+| `s4-libro-m` | Furniture · `book_single` | 68 | `libro` | Sobresale 18 cm de su fila, con el lomo hacia la sala |
+| `s4-casilleros` · 4 × 2 × 0,5 | Restaurant · `kitchencabinet` × 6 | 936 | `casilleros` | |
+| `s4-mostrador` · 2,4 × 1 × 0,7 | Furniture · `cabinet_medium` × 2 | 856 | `mostrador` | |
+| `s4-caja-devoluciones` | Restaurant · `crate` | 132 | `caja-devoluciones` | |
+| `s4-pila-libros` | Primitiva | — | — | Sigue como caja: un modelo dejaría contar 10 libros y el puzzle dice que son 20. Va en el naranja de los libros de los carritos (`COLOR_LIBROS`) |
+| `s4-mesa-lectura` · 1,8 × 1,52 × 1,9 | Furniture · `table_medium_long`, 4 sillas, `book_set` y `lamp_table` | 2.140 | `mesa-lectura` | Las sillas quedaron metidas bajo la mesa |
+| `s4-estanteria-este` (nuevo) | Como `estante-a`, con otra disposición | 4.236 | `estante-b` | Pared este |
+| `s4-rincon-lectura` (nuevo) | Furniture · `armchair`, `table_small`, `book_set`, `lamp_standing` | 1.212 | `rincon-lectura` | Rincón sureste |
+
+Nuevo hecho con primitiva: una alfombra vinotinto bajo el rincón de lectura (va en la malla fija).
+
+- **Superficies:** parqué (WoodFloor071) con tinte claro, pañete crema y techo de oficina.
+- **Acabados:** zócalo verde con franja ocre; la lámpara del oeste titila (alumbra el estante M y el libro), la del centro está encendida (carritos y pila) y la del mostrador, apagada; dos ventanas de noche en la pared norte, con luna en la del este.
+- **Luz:** cielo azul de luna y relleno neutro; la direccional entra desde el sureste.
+- **Medidas:** 10 GLB, 17.748 triángulos, 0,44 MB. Prueba del cooperativo: 39 de 40. Cada estante se armó con 16 piezas como máximo (el límite de `optimize-models`), solo con las repisas de adelante.
 
 ## Sala 5 · La rectoría
 
+Hecha en T19o, con KayKit y tres modelos de Kenney Furniture Kit que KayKit no tiene (televisor, computador y matera alta). La urna, los dispensadores, el botón de las parejas, la caja fuerte y la carta siguen como primitivas: su máquina los anima, su color es la pista o su texto se lee en 2D.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s5-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
-| `s5-mesa` · mesa 2 × 0,75 × 1 | Furniture · `table.glb` | 240 | `mesa` | — |
-| `s5-urna` · urna transparente | Primitiva | — | — | Por código (AGENTS.md); `urna.ts` pone fichas y mano |
-| `s5-dispensadores` · dispensadores de fichas | Mini Shop · `gacha-machine.glb` | s/d (70 KB) | `dispensador` | Dos copias con `instance` |
-| `s5-simulador` · simulador | Factory · `machine.glb` | s/d (25 KB) | `etiquetadora` | El mismo GLB de la sala 1, más pequeño |
-| `s5-ver-parejas` · botón | Factory · `button-floor-round-small.glb` | s/d (14 KB) | `boton` | Es un botón de piso: va de pie |
-| `s5-caja-fuerte` · caja fuerte | Primitiva | — | — | Kenney no tiene; `caja-fuerte.ts` le pone puerta y llave |
-| `s5-escritorio` · escritorio 1,4 × 0,75 × 0,7 | Furniture · `desk.glb` | 352 | `escritorio` | — |
-| `s5-computador` · computador | Furniture · `computerScreen.glb` + `computerKeyboard.glb` | 144 + 64 | `computador` | — |
-| `s5-carta` · carta | Primitiva | — | — | Papel; se lee en 2D |
+| `s5-puerta` | Restaurant · `door_A` | 188 | `puerta` | La misma de las otras salas |
+| `s5-mesa` · 2 × 0,75 × 1 | Furniture · `table_medium_long` | 168 | `mesa` | Mesa de juntas |
+| `s5-simulador` · 0,3 × 0,2 × 0,2 | Kenney Furniture · `televisionVintage` | 280 | `simulador` | El televisor viejo; su caja pasó de 0,25³ a la forma del aparato |
+| `s5-escritorio` · 1,4 × 0,75 × 0,7 | Furniture · `cabinet_medium` | 428 | `escritorio` | Cajones hacia la sala |
+| `s5-computador` · 0,5 × 0,375 × 0,3 | Kenney Furniture · `computerScreen` + `computerKeyboard` | 104 | `computador` | Pantalla y teclado sobre el escritorio |
+| `s5-estante` (nuevo) | Furniture · `cabinet_medium_decorated` + `shelf_B_large_decorated` | 1.500 | `estante` | Aparador con adornos y repisa, contra la pared oeste |
+| `s5-silla` (nueva) | Furniture · `chair_C` | 288 | `silla` | Silla del rector, arrimada al escritorio |
+| `s5-sofa` (nuevo) | Furniture · `couch` | 636 | `sofa` | Sofá de visitas bajo la ventana del este |
+| `s5-planta` (nueva) | Kenney Furniture · `pottedPlant` | 60 | `planta` | Matera alta junto a la ventana grande |
+| `s5-diplomas` (nuevos) | Furniture · tres `pictureframe` | 180 | `diplomas` | Sin texto, sobre el escritorio |
+
+Nuevo hecho con primitivas: el parlante de La Voz, alto en la esquina noreste (va en la malla fija).
+
+- **Superficies:** parqué (WoodFloor071, `compartido/piso-madera`) con tinte nogal, pañete color pergamino y techo de oficina.
+- **Acabados:** zócalo verde salvia con franja dorada; la lámpara del oeste encendida (sobre la urna) y la del este titilando; una ventana grande en la pared norte, con la luna, y otra en la pared este, sobre el sofá.
+- **Luz:** penumbra cálida de oficina con luz de luna fría desde el sureste.
+- **Medidas:** 10 GLB, 3.832 triángulos, 145 KB. Prueba del cooperativo: 38 de 40.
 
 ## Texturas de piso, paredes y techo
 
 Solo se usa el mapa de color de cada zip, por ejemplo `Tiles040_1K-JPG_Color.jpg`. ambientCG avisó en octubre de 2025 que reempaquetaría sus assets y que a veces cambiaría los nombres de archivo, así que hay que confirmar el nombre al abrir el zip. Los ids siguen el formato de la sesión A (T19g): `<carpeta>/<nombre>`. Cada una se publica como `public/assets/salas/compartido/<nombre>.<hash>.ktx2`, con su entrada en `art/credits.json` (`sala: "compartido"`, `fuente: "ambientcg"`), y en `salas.json` se pide así: `"texturas": { "piso": "compartido/piso-baldosa", "paredes": "compartido/paredes", "techo": "compartido/techo", "metros": 2 }`.
 
-| Uso | Textura | Id propuesto | Salas |
+Así quedaron con el arte de las seis salas (T19h a T19o); el tinte de cada sala está en su `texturas.tinte`:
+
+| Uso | Textura | Id | Salas |
 | --- | --- | --- | --- |
-| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería, cooperativa, laboratorio, rectoría |
-| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio, y las graderías |
-| Piso de la biblioteca | WoodFloor071 (parqué claro) | `compartido/piso-biblioteca` | Biblioteca |
+| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería y laboratorio |
+| Piso de parqué | WoodFloor071 (parqué claro) | `compartido/piso-madera` | Cooperativa, biblioteca y rectoría |
+| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio |
 | Paredes | PaintedPlaster017 (pañete pintado blanco) | `compartido/paredes` | Todas; el color de cada sala se da con el tinte del material |
 | Techo | OfficeCeiling001 (cielo raso de oficina) | `compartido/techo` | Todas menos el gimnasio, que tiene 9 m de alto (ahí basta un color) |
 
@@ -281,12 +306,12 @@ El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 dr
 | --- | --- | --- | --- | --- |
 | Portería | 6 GLB | ~3.000 | ~0,1 MB de modelos + ~0,6 MB de texturas | Sí |
 | Cooperativa | 9 GLB | ~12.000 | ~0,3 MB + ~0,6 MB | Sí |
-| Laboratorio | 6 GLB | ~6.000 | ~0,1 MB + ~0,6 MB | Sí |
-| Gimnasio | 4 GLB | ~3.000 | ~0,05 MB + ~0,4 MB (sin techo) | Sí |
-| Biblioteca | 8 GLB | ~5.500 | ~0,1 MB + ~0,6 MB | Sí |
-| Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
+| Laboratorio (medido, T19l) | 8 GLB | 3.172 | 0,14 MB + texturas compartidas | Sí |
+| Gimnasio (medido, T19m) | 5 GLB | 1.882 | 0,09 MB + piso nuevo de 0,15 MB | Sí |
+| Biblioteca (medido, T19n) | 10 GLB | 17.748 | 0,44 MB + texturas compartidas | Sí |
+| Rectoría (medido, T19o) | 10 GLB | 3.832 | 0,15 MB + texturas compartidas | Sí |
 
-Ninguna sala pasa de 1 MB ni de 15.000 triángulos. Lo que sí puede pasarse son las **draw calls**:
+Ninguna sala pasa de 1 MB; la biblioteca es la de más triángulos (unos 17.700), lejos del límite de 90.000. Lo que sí puede pasarse son las **draw calls**:
 
 - Los modelos del Furniture Kit traen un material por color, de 2 a 5 cada uno. En una sala con 10 modelos son 20 a 50 llamadas, más las paredes y los mecanismos.
 - Por eso el perfil `kenney` aplica `join`, `instance` y `palette` antes de la etapa común. `check-budget` lo comprueba con los archivos reales.
