@@ -5,6 +5,7 @@ import { expect, test } from '@playwright/test';
 // Kenney) y texturas de ambientCG. Cada objeto con `modelo` en salas.json muestra su GLB (la
 // primitiva queda como caja que choca), y el piso, las paredes y el techo piden su KTX2.
 // T19j: cada sala pide las texturas que dice su campo `texturas` (la sala 1 tiene parqué).
+// T19l en adelante: lo mismo en cada sala que recibe su arte (el laboratorio, con KayKit).
 
 interface SalaJson {
   id: string;
@@ -38,6 +39,7 @@ const TEXTURAS = /^\/assets\/salas\/compartido\/([a-z0-9-]+)\.[0-9a-f]{8}\.ktx2$
 for (const [sala, url, objetos] of [
   ['porteria', '/jugar', PORTERIA],
   ['s1-cooperativa', '/jugar?sala=s1-cooperativa', SALA_1],
+  ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio')],
 ] as const) {
   test(`${sala}: modelos CC0 y texturas de ambientCG`, async ({ page }) => {
     const errores: string[] = [];

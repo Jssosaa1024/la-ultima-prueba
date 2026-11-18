@@ -538,6 +538,154 @@
         "drawCalls": 15,
         "bytesGpu": 784460
       }
+    },
+    "s2-laboratorio": {
+      "archivos": [
+        {
+          "archivo": "salas/s2-laboratorio/gabinete.621920dd.glb",
+          "sha256": "621920ddf3967fb0118db3daf4ae8432bf455ed52de0b9cf6192c8d72df45810",
+          "bytes": 16860,
+          "triangulos": 312,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/incubadora.46bddf4f.glb",
+          "sha256": "46bddf4f7ce20311f5ad9e6f21e4b6e5d742651f915df0b37ad0c484be43b944",
+          "bytes": 18388,
+          "triangulos": 426,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/meson.f7fc7659.glb",
+          "sha256": "f7fc76598a84fb70f75f1c99006c1da92086f51d1a231b68e06c7e4b336e0823",
+          "bytes": 15124,
+          "triangulos": 236,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/poceta.a0f44f28.glb",
+          "sha256": "a0f44f28bcb5cb5d6d5f38dd86e2550f5b88cf18864dd19577ed96712ef90298",
+          "bytes": 22272,
+          "triangulos": 742,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/puerta.3adb0fcd.glb",
+          "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
+          "bytes": 15276,
+          "triangulos": 188,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/repisa-frascos.94f234f3.glb",
+          "sha256": "94f234f3dcf8472892f27ecfdf2de63d9680002c0e5d4d3eefd6fd711e9b7dce",
+          "bytes": 24328,
+          "triangulos": 828,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/tablero.942b94d5.glb",
+          "sha256": "942b94d566c6ecc499ee76c1e34bdeca94afdd88d11ff93b5311409e78f37d25",
+          "bytes": 14116,
+          "triangulos": 168,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s2-laboratorio/taburete.7d4b82e3.glb",
+          "sha256": "7d4b82e3a90635e1928e7450b17f963770bff6723a76dcb1c3b943decd06d7e3",
+          "bytes": 15104,
+          "triangulos": 272,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        }
+      ],
+      "audio": [],
+      "totales": {
+        "bytes": 141468,
+        "bytesAudio": 0,
+        "triangulos": 3172,
+        "drawCalls": 8,
+        "bytesGpu": 348648
+      }
     }
   }
 }

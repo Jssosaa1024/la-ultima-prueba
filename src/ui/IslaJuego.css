@@ -76,3 +76,7 @@
   font-size: 0.875rem;
   line-height: 1.4;
 }
+
+.juego-canvas[data-sala='s2-laboratorio'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(4 22 26 / 0%) 54%, rgb(4 22 26 / 40%) 100%);
+}

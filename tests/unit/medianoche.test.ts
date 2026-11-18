@@ -20,10 +20,12 @@ import type { Titileo } from '../../src/engine/salas/acabados';
 import { construirSala, LUZ_INICIAL } from '../../src/engine/salas/construir';
 import { animarLamparas, CICLO_TITILEO_S, nivelTitileo } from '../../src/engine/salas/lamparas';
 import { alturaCerros } from '../../src/engine/salas/ventanas';
+import { CON_ARTE } from './sin-arte';
 
-// T19k: medianoche en la portería y la sala 1 (luz por sala, lámparas con estado, ventanas).
+// T19k: medianoche en las salas con arte (luz por sala, lámparas con estado, ventanas). Desde
+// T19l, cada sala que recibe su arte entra en `CON_ARTE` (tests/unit/sin-arte.ts).
 
-const NOCHE = ['porteria', 's1-cooperativa'] as const;
+const NOCHE = CON_ARTE;
 
 const nombrada = (raiz: Object3D, nombre: string): Mesh => {
   const m = raiz.getObjectByName(nombre) as Mesh | undefined;
@@ -44,7 +46,7 @@ const luces = (raiz: Object3D) => {
 const hex = (c: Color): string => `#${c.getHexString()}`;
 
 describe('luz por sala (T19k)', () => {
-  it('la portería y la sala 1 tienen su luz; las demás quedan con la de T19i', () => {
+  it('las salas con arte tienen su luz; las demás quedan con la de T19i', () => {
     for (const l of LUGARES) {
       const sala = salaPorId(l);
       const { hemi, dir } = luces(construirSala(sala).raiz);
@@ -82,7 +84,7 @@ describe('luz por sala (T19k)', () => {
 
   it('la exposición es la de la sala por el brillo del jugador', () => {
     expect(exposicionDe({}, 1)).toBe(EXPOSICION);
-    expect(exposicionDe(salaPorId('s2-laboratorio'), 1.2)).toBeCloseTo(EXPOSICION * 1.2);
+    expect(exposicionDe({}, 1.2)).toBeCloseTo(EXPOSICION * 1.2);
     const porteria = salaPorId('porteria');
     expect(exposicionDe(porteria, 0.85)).toBeCloseTo((porteria.luz?.exposicion ?? 0) * 0.85);
   });
@@ -238,7 +240,7 @@ describe('lámparas con estado (T19k)', () => {
 });
 
 describe('ventanas de noche (T19k)', () => {
-  it('la portería y la sala 1 tienen dos ventanas en la pared del fondo, con luna en una', () => {
+  it('las salas con arte tienen dos ventanas en la pared del fondo, con luna en una', () => {
     for (const l of NOCHE) {
       const ventanas = salaPorId(l).acabados?.ventanas ?? [];
       expect(ventanas).toHaveLength(2);

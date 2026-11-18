@@ -13,6 +13,7 @@ import {
   oclusionDe,
 } from '../../src/engine/salas/acabados';
 import { construirSala } from '../../src/engine/salas/construir';
+import { CON_ARTE } from './sin-arte';
 
 // T19j: acabados por código (zócalo, rodapié, cornisa, marcos, lámparas y rincones oscuros).
 
@@ -35,8 +36,8 @@ const nombrada = (raiz: Object3D, nombre: string): Mesh => {
 };
 
 describe('acabados de sala (T19j)', () => {
-  it('la portería y la sala 1 los tienen, y el esquema rechaza un color raro', () => {
-    for (const l of ['porteria', 's1-cooperativa'] as const) {
+  it('las salas con arte los tienen, y el esquema rechaza un color raro', () => {
+    for (const l of CON_ARTE) {
       expect(salaPorId(l).acabados).toBeDefined();
     }
     const s1 = salaPorId('s1-cooperativa');
@@ -47,9 +48,7 @@ describe('acabados de sala (T19j)', () => {
   });
 
   it('una sala sin acabados se arma igual que antes', () => {
-    const s2 = salaPorId('s2-laboratorio');
-    expect(s2.acabados).toBeUndefined();
-    const { raiz } = construirSala(s2);
+    const { raiz } = construirSala(sinAcabados(salaPorId('s2-laboratorio')));
     expect(raiz.getObjectByName('difusores')).toBeUndefined();
     expect(raiz.getObjectByName('brillos')).toBeUndefined();
   });
@@ -96,7 +95,7 @@ describe('acabados de sala (T19j)', () => {
   });
 
   it('lo de color plano queda dentro de la sala, pegado a las paredes', () => {
-    for (const l of ['porteria', 's1-cooperativa'] as const) {
+    for (const l of CON_ARTE) {
       const sala = salaPorId(l);
       const { fijas } = crearAcabados(
         sala,
