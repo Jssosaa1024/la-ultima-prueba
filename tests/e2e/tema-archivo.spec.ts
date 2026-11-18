@@ -107,6 +107,24 @@ test.describe('final en 740 × 360 (T41e)', () => {
   });
 });
 
+test.describe('paneles de la partida en 740 × 360 (T41f)', () => {
+  test.use({ viewport: { width: 740, height: 360 } });
+
+  test('el cuaderno es una carpeta de noche, con letra de 14 px o más', async ({ page }) => {
+    await continuarEn(page, { sala: 's1-cooperativa', inventario: ['porteria-cuaderno'] });
+    await page.getByRole('button', { name: 'Cuaderno' }).click();
+    const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
+    await expect(cuaderno).toBeVisible();
+    await expect(page.locator('.dialogo-fondo')).toHaveClass(/tema-archivo/);
+    await expect(page.locator('.dialogo-fondo')).not.toHaveClass(/dialogo-papel/);
+    expect(await letraMinima(page, '.dialogo')).toBeGreaterThanOrEqual(14);
+    const cerrar = cuaderno.getByRole('button', { name: 'Cerrar' });
+    const caja = await cerrar.boundingBox();
+    expect(caja?.height ?? 0).toBeGreaterThanOrEqual(44);
+    expect((caja?.y ?? 0) + (caja?.height ?? 0)).toBeLessThanOrEqual(360);
+  });
+});
+
 test.describe('con menos movimiento', () => {
   test.use({ reducedMotion: 'reduce' });
 

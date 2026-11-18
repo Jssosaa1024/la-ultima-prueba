@@ -21,8 +21,9 @@ interface Props {
    */
   retorno?: string;
   /**
-   * `archivo`: el panel es una ficha de papel del tema «Archivo del colegio de noche» (ola 6) y
-   * entra deslizándose. Sin `tema`, el panel se ve como siempre.
+   * Todos los paneles llevan el tema «Archivo del colegio de noche» (ola 6): sin `tema` son una
+   * carpeta oscura (máquinas, cuaderno, inspección, pistas); con `archivo`, una ficha de papel
+   * (pausa, ajustes, elección de final). Los dos entran deslizándose.
    */
   tema?: 'archivo';
   children: ComponentChildren;
@@ -117,10 +118,10 @@ export default function Dialogo({
   };
 
   return (
-    <div class={tema ? 'dialogo-fondo tema-archivo' : 'dialogo-fondo'}>
+    <div class={`dialogo-fondo tema-archivo${tema ? ' dialogo-papel' : ''}`}>
       <div
         ref={ref}
-        class={tema ? 'dialogo dialogo-entra' : 'dialogo'}
+        class="dialogo dialogo-entra"
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${id}-titulo`}

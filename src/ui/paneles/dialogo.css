@@ -9,8 +9,8 @@
   place-items: center;
   padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right))
     calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
-  background: rgb(0 0 0 / 70%);
-  color: #f2f2f2;
+  background: var(--tema-linterna), rgb(10 8 6 / 72%);
+  color: var(--tema-claro);
   /* Dentro del panel sí se hace scroll con el dedo y se puede seleccionar texto. */
   touch-action: pan-y;
   user-select: text;
@@ -23,14 +23,20 @@
   width: 100%;
   max-width: 34rem;
   max-height: 100%;
-  border-radius: 16px;
-  background: #1c2229;
-  box-shadow: 0 12px 40px rgb(0 0 0 / 50%);
+  /* Carpeta de noche (ola 6): fondo cálido con grano, borde fino y una luz ámbar arriba. */
+  border: 1px solid var(--tema-noche-borde);
+  border-top: 3px solid var(--tema-ambar);
+  border-radius: var(--tema-radio);
+  background:
+    var(--tema-grano),
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgb(255 190 110 / 9%), rgb(0 0 0 / 0%) 70%),
+    var(--tema-noche-2);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 60%);
   outline: none;
 }
 
 .dialogo:focus-visible {
-  outline: 3px solid #e8a33d;
+  outline: 3px solid var(--tema-ambar);
   outline-offset: 2px;
 }
 
@@ -40,17 +46,21 @@
 
 .dialogo-antetitulo {
   margin: 0;
-  font-size: 0.8125rem;
-  letter-spacing: 0.08em;
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 .dialogo-titulo {
   margin: 2px 0 0;
   font-size: 1.375rem;
   line-height: 1.25;
-  color: #e8a33d;
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+  color: var(--tema-ambar);
 }
 
 .dialogo-cuerpo {
@@ -67,7 +77,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 20px 16px;
-  border-top: 1px solid #2f3843;
+  border-top: 1px dashed var(--tema-noche-borde);
 }
 
 /* Celular en horizontal (T41b): poca altura. El panel aprovecha el ancho y el encabezado y el
@@ -106,32 +116,30 @@
 }
 
 /*
- * Tema del archivo (ola 6, T41d): con `tema="archivo"`, el panel es una ficha de papel
- * envejecido sobre la noche, con títulos de máquina de escribir. Lo usan la pausa, los ajustes y
- * la elección de final; los demás paneles no cambian. Colores y texturas de `ui/tema.css`.
+ * Ficha de papel (ola 6, T41d): con `tema="archivo"`, el panel es una ficha de papel envejecido
+ * con títulos de máquina de escribir. La usan la pausa, los ajustes y la elección de final; los
+ * demás paneles son la carpeta de noche de arriba. Colores y texturas de `ui/tema.css`.
  */
-.dialogo-fondo.tema-archivo {
+.dialogo-fondo.dialogo-papel {
   background: var(--tema-linterna), rgb(10 8 6 / 80%);
   color: var(--tema-tinta);
 }
 
-.tema-archivo .dialogo {
+.dialogo-papel .dialogo {
   border: 1px solid var(--tema-papel-borde);
   border-radius: var(--tema-radio);
+  border-top-width: 1px;
+  border-top-color: var(--tema-papel-borde);
   background: var(--tema-grano), var(--tema-envejecido), var(--tema-papel);
   color: var(--tema-tinta);
   box-shadow: var(--tema-sombra-papel);
 }
 
-.tema-archivo .dialogo-entra {
-  animation: tema-ficha-entra 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
-}
-
-.tema-archivo .dialogo:focus-visible {
+.dialogo-papel .dialogo:focus-visible {
   outline-color: var(--tema-sello-azul);
 }
 
-.tema-archivo .dialogo-antetitulo {
+.dialogo-papel .dialogo-antetitulo {
   font-family: var(--tema-letra-maquina);
   font-size: 0.875rem;
   font-weight: 700;
@@ -139,30 +147,35 @@
   color: var(--tema-tinta-suave);
 }
 
-.tema-archivo .dialogo-titulo {
+.dialogo-papel .dialogo-titulo {
   font-family: var(--tema-letra-maquina);
   font-weight: 700;
   color: var(--tema-tinta);
 }
 
-.tema-archivo .dialogo-pie {
+.dialogo-papel .dialogo-pie {
   border-top: 1px dashed var(--tema-papel-borde);
 }
 
 /* Sobre el papel, el botón secundario va con tinta y el foco en azul de sello. */
-.tema-archivo .dialogo .boton-secundario {
+.dialogo-papel .dialogo .boton-secundario {
   border-color: var(--tema-tinta-suave);
   background: rgb(255 255 255 / 25%);
   color: var(--tema-tinta);
 }
 
-.tema-archivo .dialogo .boton:focus-visible {
+.dialogo-papel .dialogo .boton:focus-visible {
   outline-color: var(--tema-sello-azul);
   box-shadow: 0 0 0 6px var(--tema-papel);
 }
 
+/* Todo panel entra deslizándose, como una ficha que se saca del cajón. */
+.dialogo-entra {
+  animation: tema-ficha-entra 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .tema-archivo .dialogo-entra {
+  .dialogo-entra {
     animation: none;
   }
 }

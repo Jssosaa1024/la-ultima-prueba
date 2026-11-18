@@ -8,14 +8,14 @@
   gap: 6px;
   min-height: 64px;
   padding: 12px;
-  border: 2px solid #6b7785;
+  border: 2px solid var(--tema-noche-linea);
   border-radius: 12px 12px 24px 24px;
   background: rgb(255 255 255 / 6%);
 }
 
 .urna-vacia {
   align-self: center;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 /* Azules redondas y amarillas cuadradas: se distinguen también por la forma. */
@@ -24,7 +24,7 @@
   width: 22px;
   height: 22px;
   box-sizing: border-box;
-  border: 2px solid #111418;
+  border: 2px solid var(--tema-tinta);
 }
 
 .urna-ficha-azul {
@@ -69,7 +69,7 @@
   gap: 2px;
   padding: 4px 6px;
   border-radius: 8px;
-  background: #252d36;
+  background: var(--tema-noche-3);
 }
 
 .pareja .urna-ficha {
