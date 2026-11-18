@@ -265,7 +265,7 @@ Hecha en T19o, con KayKit y tres modelos de Kenney Furniture Kit que KayKit no t
 
 Nuevo hecho con primitivas: el parlante de La Voz, alto en la esquina noreste (va en la malla fija).
 
-- **Superficies:** parqué con tinte nogal, pañete color pergamino y techo de oficina.
+- **Superficies:** parqué (WoodFloor071, `compartido/piso-madera`) con tinte nogal, pañete color pergamino y techo de oficina.
 - **Acabados:** zócalo verde salvia con franja dorada; la lámpara del oeste encendida (sobre la urna) y la del este titilando; una ventana grande en la pared norte, con la luna, y otra en la pared este, sobre el sofá.
 - **Luz:** penumbra cálida de oficina con luz de luna fría desde el sureste.
 - **Medidas:** 10 GLB, 3.832 triángulos, 145 KB. Prueba del cooperativo: 38 de 40.
@@ -274,11 +274,13 @@ Nuevo hecho con primitivas: el parlante de La Voz, alto en la esquina noreste (v
 
 Solo se usa el mapa de color de cada zip, por ejemplo `Tiles040_1K-JPG_Color.jpg`. ambientCG avisó en octubre de 2025 que reempaquetaría sus assets y que a veces cambiaría los nombres de archivo, así que hay que confirmar el nombre al abrir el zip. Los ids siguen el formato de la sesión A (T19g): `<carpeta>/<nombre>`. Cada una se publica como `public/assets/salas/compartido/<nombre>.<hash>.ktx2`, con su entrada en `art/credits.json` (`sala: "compartido"`, `fuente: "ambientcg"`), y en `salas.json` se pide así: `"texturas": { "piso": "compartido/piso-baldosa", "paredes": "compartido/paredes", "techo": "compartido/techo", "metros": 2 }`.
 
-| Uso | Textura | Id propuesto | Salas |
+Así quedaron con el arte de las seis salas (T19h a T19o); el tinte de cada sala está en su `texturas.tinte`:
+
+| Uso | Textura | Id | Salas |
 | --- | --- | --- | --- |
-| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería, cooperativa, laboratorio, rectoría |
-| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio, y las graderías |
-| Piso de la biblioteca | WoodFloor071 (parqué claro) | `compartido/piso-biblioteca` | Biblioteca |
+| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería y laboratorio |
+| Piso de parqué | WoodFloor071 (parqué claro) | `compartido/piso-madera` | Cooperativa, biblioteca y rectoría |
+| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio |
 | Paredes | PaintedPlaster017 (pañete pintado blanco) | `compartido/paredes` | Todas; el color de cada sala se da con el tinte del material |
 | Techo | OfficeCeiling001 (cielo raso de oficina) | `compartido/techo` | Todas menos el gimnasio, que tiene 9 m de alto (ahí basta un color) |
 
