@@ -11,7 +11,7 @@ Alex eligió el estilo **«Archivo del colegio de noche»**: el jugador revisa e
 Resumen honesto:
 
 - **No probé en un celular real.** Todo se revisó con Playwright en 740 × 360 (celular en horizontal), 802 × 293 (Pixel 5, el perfil de las e2e), 667 × 375 (iPhone SE) y 360 × 740 (vertical).
-- **Las fuentes todavía no están.** Mientras Alex no las guarde, se ve la letra del sistema (Courier New y la normal del celular). Los pasos están en el punto 3.
+- **Las fuentes ya están** (T41g, 18 de noviembre): Courier Prime y Atkinson Hyperlegible, autoalojadas en `public/fonts/` (punto 3).
 - Las capturas de antes y después están en cada PR y en `docs/capturas/ola-6-menus/`.
 
 ## 1. Qué hice
@@ -54,33 +54,16 @@ Resumen honesto:
 
 ## 3. Lo que necesita Alex
 
-### Fuentes (licencia SIL OFL 1.1)
+### Fuentes (licencia SIL OFL 1.1) · hecho
 
-Propuesta:
+Alex autorizó descargarlas el 18 de noviembre de 2026 (T41g). Están en `public/fonts/`:
 
-- **Courier Prime** (máquina de escribir, para títulos y etiquetas). Hecha para leerse bien en pantalla, con tildes y eñes.
-- **Atkinson Hyperlegible** (textos y botones). Del Braille Institute, pensada para lectores con baja visión: distingue bien 1, l e I, y 0 y O, útil para los códigos de partida.
+- **Courier Prime** (máquina de escribir, para títulos y etiquetas): `courier-prime-latin-400-normal.woff2` y `courier-prime-latin-700-normal.woff2`.
+- **Atkinson Hyperlegible** (textos y botones): `atkinson-hyperlegible-latin-400-normal.woff2` y `atkinson-hyperlegible-latin-700-normal.woff2`. Del Braille Institute, pensada para lectores con baja visión: distingue bien 1, l e I, y 0 y O, útil para los códigos de partida.
+- Sus licencias van al lado: `OFL-courier-prime.txt` y `OFL-atkinson-hyperlegible.txt`.
+- Capturas de la licencia del día de la descarga: `art/evidencia/fuente-courier-prime.png` y `art/evidencia/fuente-atkinson-hyperlegible.png`.
 
-Pasos:
-
-1. Abre cada enlace; el navegador descarga el archivo.
-2. Guárdalo en la carpeta `public/fonts/` del repositorio con **este nombre exacto**:
-
-| Enlace | Nombre del archivo |
-| --- | --- |
-| https://cdn.jsdelivr.net/fontsource/fonts/courier-prime@latest/latin-400-normal.woff2 | `courier-prime-latin-400-normal.woff2` |
-| https://cdn.jsdelivr.net/fontsource/fonts/courier-prime@latest/latin-700-normal.woff2 | `courier-prime-latin-700-normal.woff2` |
-| https://cdn.jsdelivr.net/fontsource/fonts/atkinson-hyperlegible@latest/latin-400-normal.woff2 | `atkinson-hyperlegible-latin-400-normal.woff2` |
-| https://cdn.jsdelivr.net/fontsource/fonts/atkinson-hyperlegible@latest/latin-700-normal.woff2 | `atkinson-hyperlegible-latin-700-normal.woff2` |
-| https://raw.githubusercontent.com/google/fonts/main/ofl/courierprime/OFL.txt | `OFL-courier-prime.txt` |
-| https://raw.githubusercontent.com/google/fonts/main/ofl/atkinsonhyperlegible/OFL.txt | `OFL-atkinson-hyperlegible.txt` |
-
-3. Guarda una captura de cada página de licencia en `art/evidencia/` (como con los modelos).
-4. Pídele a una sesión que haga el PR: no hay que cambiar código, el tema ya busca esos nombres. Son unos 73 KB en total y solo se descargan cuando una pantalla los usa.
-
-Mientras no estén, cada página pide esos archivos y recibe un 404 (no rompe nada; se ve la letra del sistema).
-
-Pendiente para esa sesión: decidir si las fuentes van también en `/creditos` (hoy `check-credits` solo revisa modelos y audio).
+Origen: subconjunto latino de Fontsource (`https://cdn.jsdelivr.net/fontsource/fonts/<fuente>@latest/latin-<peso>-normal.woff2`), unos 73 KB en total; solo se descargan cuando una pantalla las usa.
 
 ### Celular real
 
