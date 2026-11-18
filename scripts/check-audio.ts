@@ -5,6 +5,8 @@
  *
  * - Ningún `.ogg` ni `.oga` en `public/`: Safari en iPhone no los reproduce.
  * - Cada `.m4a` de `public/assets/audio/` está a −16 LUFS ± 1 LU (lo mide con ffmpeg).
+ *   Los efectos de sonido (`efecto-*.m4a`, T42c) van por pico: a −2 dBTP, sin pasar de
+ *   −1,5 dBTP ni de −15 LUFS (decisión de Alex, 18 de noviembre de 2026).
  *
  * Sin `.m4a` no hace falta ffmpeg. Si hay audio y ffmpeg no está, falla, salvo en el build de
  * Cloudflare Pages (variable `CF_PAGES`), que no lo trae: ahí solo avisa, porque el volumen ya
@@ -13,7 +15,15 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { cumpleSonoridad, hayFfmpeg, LUFS_OBJETIVO, medir } from './audio/sonoridad.ts';
+import {
+  cumpleEfecto,
+  cumpleSonoridad,
+  esArchivoDeEfecto,
+  hayFfmpeg,
+  LUFS_OBJETIVO,
+  medir,
+  PICO_EFECTOS_DBTP,
+} from './audio/sonoridad.ts';
 
 /** Extensiones de Ogg que no se pueden publicar. */
 const PROHIBIDAS = ['.ogg', '.oga'];
@@ -60,10 +70,14 @@ async function principal(): Promise<number> {
       for (const a of m4a) {
         const m = await medir(a);
         const texto = `${a}: ${m.lufs.toFixed(1)} LUFS, pico ${m.picoDbtp.toFixed(1)} dBTP`;
-        if (cumpleSonoridad(m)) {
+        const efecto = esArchivoDeEfecto(a);
+        if (efecto ? cumpleEfecto(m) : cumpleSonoridad(m)) {
           console.log(`  ✓ ${texto}`);
         } else {
-          console.error(`  ✗ ${texto} (debe estar a ${LUFS_OBJETIVO} ± 1 LU)`);
+          const regla = efecto
+            ? `efecto: pico a ${PICO_EFECTOS_DBTP} dBTP, sin pasar de −1,5 dBTP ni de −15 LUFS`
+            : `debe estar a ${LUFS_OBJETIVO} ± 1 LU`;
+          console.error(`  ✗ ${texto} (${regla})`);
           problemas++;
         }
       }
@@ -79,7 +93,7 @@ async function principal(): Promise<number> {
   console.log(
     m4a.length === 0
       ? 'check-audio: sin Ogg y todavía sin audio publicado.'
-      : `check-audio: ${m4a.length} archivo(s) a ${LUFS_OBJETIVO} LUFS ± 1 LU y sin Ogg.`,
+      : `check-audio: ${m4a.length} archivo(s) a ${LUFS_OBJETIVO} LUFS ± 1 LU (los efectos, por pico) y sin Ogg.`,
   );
   return 0;
 }
