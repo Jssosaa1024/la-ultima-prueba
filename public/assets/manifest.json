@@ -980,6 +980,188 @@
         "drawCalls": 10,
         "bytesGpu": 435810
       }
+    },
+    "s5-rectoria": {
+      "archivos": [
+        {
+          "archivo": "salas/s5-rectoria/computador.713a7a3b.glb",
+          "sha256": "713a7a3b84f7f9cb137590b0c4d47e3f3fb23c530749897db18a6384ae93f115",
+          "bytes": 4776,
+          "triangulos": 104,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "PaletteBaseColor",
+              "ancho": 16,
+              "alto": 4,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/diplomas.00e00fd7.glb",
+          "sha256": "00e00fd76d550a1c38a5c97b63485706130fb54e665609f681f0077eabb37e42",
+          "bytes": 13516,
+          "triangulos": 180,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/escritorio.c19dfd8c.glb",
+          "sha256": "c19dfd8cfe4a390e88c80ccc9963a9743422b67535cce14836064d48c39cf215",
+          "bytes": 18892,
+          "triangulos": 428,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/estante.9303818f.glb",
+          "sha256": "9303818f33fe3e3be731cf7a0a49dacaf98d032fba82e7a8333d73a6b8374421",
+          "bytes": 38744,
+          "triangulos": 1500,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/mesa.ac4e64b8.glb",
+          "sha256": "ac4e64b83b7eff5bd06ecfe556b71190bd85840ecd8b39714e45f640adc8f08d",
+          "bytes": 13472,
+          "triangulos": 168,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/planta.39c30097.glb",
+          "sha256": "39c300977fc14f09feceefeffa4ca1fcc9a4318c203a03aa7a2e71fa9e2d1f42",
+          "bytes": 4500,
+          "triangulos": 60,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "PaletteBaseColor",
+              "ancho": 16,
+              "alto": 4,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/puerta.3adb0fcd.glb",
+          "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
+          "bytes": 15276,
+          "triangulos": 188,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "restaurantbits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/silla.e632ac5c.glb",
+          "sha256": "e632ac5c4f72560262b026519a328a15a62b0b3e071067f137f4ba8695351a6c",
+          "bytes": 15148,
+          "triangulos": 288,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/simulador.f7da091f.glb",
+          "sha256": "f7da091f645422be9af308537d8cd0ff2c367ed7d5a99b47ab82e14e40082ea1",
+          "bytes": 6152,
+          "triangulos": 280,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "PaletteBaseColor",
+              "ancho": 16,
+              "alto": 4,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43
+            }
+          ]
+        },
+        {
+          "archivo": "salas/s5-rectoria/sofa.fe610bdf.glb",
+          "sha256": "fe610bdf7ef3eda8b0fa501ca3667817abb5e34a5898027d912f25d8ef9930e9",
+          "bytes": 18440,
+          "triangulos": 636,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        }
+      ],
+      "audio": [],
+      "totales": {
+        "bytes": 148916,
+        "bytesAudio": 0,
+        "triangulos": 3832,
+        "drawCalls": 10,
+        "bytesGpu": 305196
+      }
     }
   }
 }

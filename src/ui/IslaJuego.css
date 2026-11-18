@@ -88,3 +88,7 @@
 .juego-canvas[data-sala='s4-biblioteca'] ~ .juego-vineta {
   background: radial-gradient(ellipse at center, rgb(8 20 18 / 0%) 52%, rgb(8 20 18 / 42%) 100%);
 }
+
+.juego-canvas[data-sala='s5-rectoria'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(10 16 14 / 0%) 54%, rgb(10 16 14 / 40%) 100%);
+}
