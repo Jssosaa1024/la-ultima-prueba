@@ -2,7 +2,7 @@
   margin: 0 0 12px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: #2a3340;
+  background: var(--tema-noche-3);
   font-size: 0.9375rem;
 }
 
@@ -11,13 +11,14 @@
 }
 
 .cuaderno-subtitulo {
+  font-family: var(--tema-letra-maquina);
   margin: 0 0 8px;
   font-size: 1.0625rem;
 }
 
 .cuaderno-vacio {
   margin: 0;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 .cuaderno-datos {
@@ -28,7 +29,7 @@
 
 .cuaderno-dato {
   border-radius: 8px;
-  background: #252d36;
+  background: var(--tema-noche-3);
 }
 
 /* El resumen es el objetivo táctil para abrir o cerrar cada dato. */
@@ -60,7 +61,7 @@
   gap: 8px;
   padding: 8px 8px 8px 12px;
   border-radius: 8px;
-  background: #252d36;
+  background: var(--tema-noche-3);
 }
 
 .cuaderno-nota-texto {
@@ -91,17 +92,17 @@
   box-sizing: border-box;
   width: 100%;
   padding: 10px 12px;
-  border: 2px solid #6b7785;
+  border: 2px solid var(--tema-noche-linea);
   border-radius: 8px;
-  background: #111418;
-  color: #f2f2f2;
+  background: var(--tema-tinta);
+  color: var(--tema-claro);
   font: inherit;
   font-size: 1rem;
   resize: vertical;
 }
 
 .cuaderno-texto:focus-visible {
-  outline: 3px solid #e8a33d;
+  outline: 3px solid var(--tema-ambar);
   outline-offset: 1px;
 }
 
@@ -115,13 +116,13 @@
 
 .cuaderno-cuenta {
   font-size: 0.875rem;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 /* Lo que el cuaderno escribe solo al resolver cada etapa (T38). */
 .cuaderno-descubrimiento {
   padding: 10px 14px;
   border-radius: 8px;
-  background: #252d36;
+  background: var(--tema-noche-3);
 }
 
 .cuaderno-descubrimiento + .cuaderno-descubrimiento {
@@ -145,7 +146,7 @@
 .cuaderno-concepto {
   margin: 10px 0 4px;
   font-weight: 700;
-  color: #e8a33d;
+  color: var(--tema-ambar);
 }
 
 .cuaderno-concepto-texto {

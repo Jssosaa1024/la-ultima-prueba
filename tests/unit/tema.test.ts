@@ -47,7 +47,20 @@ const PARES: [string, string, string][] = [
   ['sello azul', 'sello-azul', 'papel'],
   ['sello verde', 'sello-verde', 'papel'],
   ['sello verde sobre papel viejo', 'sello-verde', 'papel-2'],
+  // Paneles de carpeta de noche (máquinas, cuaderno, pistas): cajas elevadas y textareas.
+  ['texto sobre la caja elevada', 'claro', 'noche-3'],
+  ['texto suave sobre la caja elevada', 'claro-suave', 'noche-3'],
+  ['ámbar sobre la carpeta de noche', 'ambar', 'noche-2'],
+  ['texto sobre la tinta (campos para escribir)', 'claro', 'tinta'],
 ];
+
+describe('tema del archivo: bordes de botones y casillas (3:1)', () => {
+  for (const fondo of ['noche-2', 'noche-3']) {
+    it(`borde sobre ${fondo}`, () => {
+      expect(contraste(color('noche-linea'), color(fondo))).toBeGreaterThanOrEqual(3);
+    });
+  }
+});
 
 describe('tema del archivo: contraste AA', () => {
   for (const [nombre, texto, fondo] of PARES) {
@@ -64,6 +77,17 @@ const HOJAS = [
   'src/ui/carga/carga.css',
   'src/ui/paneles/pausa.css',
   'src/ui/finales/finales.css',
+  // Paneles (T41f). Quedan fuera tanques.css y reflector.css: sus px son de texto dentro de un
+  // SVG que se escala con el panel.
+  'src/ui/paneles/dialogo.css',
+  'src/ui/mecanismos/mecanismos.css',
+  'src/ui/mecanismos/etiquetadora/etiquetadora.css',
+  'src/ui/mecanismos/carritos/carritos.css',
+  'src/ui/mecanismos/urna/urna.css',
+  'src/ui/cuaderno/cuaderno.css',
+  'src/ui/inspeccion/inspeccion.css',
+  'src/ui/pistas/pistas.css',
+  'src/ui/grabaciones/grabaciones.css',
 ];
 
 describe('tema del archivo: texto de 14 px o más', () => {

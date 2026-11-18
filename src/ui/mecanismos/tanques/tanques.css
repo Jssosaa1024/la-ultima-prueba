@@ -21,7 +21,7 @@
   width: 2.25rem;
   min-height: 7rem;
   overflow: hidden;
-  border: 2px solid #b8c2cc;
+  border: 2px solid var(--tema-claro-suave);
   border-top-style: dashed;
   border-radius: 4px 4px 10px 10px;
   background: rgb(255 255 255 / 6%);
@@ -52,13 +52,17 @@
 /* El tanque tapado: cinta gris, sin nivel a la vista. */
 .tanque-tapado .tanque-vidrio {
   border-style: solid;
-  background: repeating-linear-gradient(-45deg, #6b7785 0 8px, #56616d 8px 16px);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--tema-noche-linea) 0 8px,
+    var(--tema-noche-borde) 8px 16px
+  );
 }
 
 .tanque-nombre {
   margin: 4px 0 0;
-  font-size: 0.8125rem;
-  color: #b8c2cc;
+  font-size: 0.875rem;
+  color: var(--tema-claro-suave);
 }
 
 .tanque-nivel {
@@ -74,12 +78,12 @@
   min-width: 0;
   height: auto;
   border-radius: 8px;
-  background: #f4efe3;
+  background: var(--tema-papel);
 }
 
 .graficador-papel {
   fill: #fbf8f0;
-  stroke: #4a4336;
+  stroke: var(--tema-tinta-suave);
   stroke-width: 1;
 }
 
@@ -90,13 +94,13 @@
 
 .graficador-numero,
 .graficador-rotulo {
-  fill: #4a4336;
+  fill: var(--tema-tinta-suave);
   font-size: 9px;
   font-variant-numeric: tabular-nums;
 }
 
 .graficador-campana {
-  stroke: #4a4336;
+  stroke: var(--tema-tinta-suave);
   stroke-width: 1.2;
   stroke-dasharray: 2 3;
 }
@@ -146,7 +150,7 @@
   margin: 10px 0 0;
   padding-left: 1.2rem;
   font-size: 0.9375rem;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 .tanques-datos li + li {

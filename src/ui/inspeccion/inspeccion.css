@@ -1,14 +1,14 @@
 /* Ficha de inspección: papel claro con texto oscuro, para que se lea como un documento. */
 .ficha-descripcion {
   margin: 0 0 12px;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 .ficha {
   padding: 14px 16px;
   border-radius: 8px;
-  background: #f4efe3;
-  color: #1d1d1d;
+  background: var(--tema-papel);
+  color: var(--tema-tinta);
   font-size: 1.0625rem;
 }
 
@@ -58,5 +58,5 @@
 
 .ficha-tabla th {
   font-size: 0.875rem;
-  color: #4a4438;
+  color: var(--tema-tinta-suave);
 }

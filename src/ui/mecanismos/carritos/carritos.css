@@ -10,7 +10,7 @@
   gap: 6px;
   margin: 0 -4px;
   padding: 8px 4px;
-  background: #1c2229;
+  background: var(--tema-noche-2);
 }
 
 .carritos-lamparas .indicador,
@@ -23,25 +23,25 @@
 .carritos-tapada {
   display: inline-flex;
   align-items: center;
-  border: 2px dashed #4a5563;
+  border: 2px dashed var(--tema-noche-linea);
   border-radius: 999px;
-  color: #8a96a3;
+  color: var(--tema-noche-linea);
 }
 
 .carritos-instruccion {
   min-height: 3em;
   margin: 6px 0 8px;
   font-size: 0.9375rem;
-  color: #d5dbe1;
+  color: var(--tema-claro);
 }
 
 /* Un lugar con libros: la pila o un carrito. Botones grandes, para el pulgar. */
 .carritos-lugar {
   box-sizing: border-box;
-  border: 2px solid #6b7785;
+  border: 2px solid var(--tema-noche-linea);
   border-radius: 10px;
   background: transparent;
-  color: #f2f2f2;
+  color: var(--tema-claro);
   font: inherit;
   cursor: pointer;
   touch-action: manipulation;
@@ -54,14 +54,14 @@
 
 /* De aquí salen los libros: borde y fondo, y además la palabra «sale». */
 .carritos-origen {
-  border-color: #e8a33d;
+  border-color: var(--tema-ambar);
   background: rgb(232 163 61 / 18%);
 }
 
 .carritos-lugar:focus-visible {
   outline: 3px solid #ffffff;
   outline-offset: 3px;
-  box-shadow: 0 0 0 6px #111418;
+  box-shadow: 0 0 0 6px var(--tema-tinta);
 }
 
 .carritos-cuenta {
@@ -71,9 +71,9 @@
 }
 
 .carritos-marca {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
-  color: #e8a33d;
+  color: var(--tema-ambar);
 }
 
 .carritos-pila {
@@ -136,7 +136,7 @@
   gap: 1px;
   width: 72%;
   min-height: 82px;
-  border-bottom: 3px solid #6b7785;
+  border-bottom: 3px solid var(--tema-noche-linea);
 }
 
 .carritos-libro {
