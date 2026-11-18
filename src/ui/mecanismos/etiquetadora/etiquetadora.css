@@ -12,13 +12,13 @@
   margin: 0;
   padding: 10px 12px;
   border-radius: 8px;
-  background: #f4efe3;
-  color: #1d1d1d;
+  background: var(--tema-papel);
+  color: var(--tema-tinta);
 }
 
 .etiqueta dt {
-  font-size: 0.8125rem;
-  color: #4a4336;
+  font-size: 0.875rem;
+  color: var(--tema-tinta-suave);
 }
 
 .etiqueta dd {
@@ -31,7 +31,7 @@
 /* La pizarra es oscura, con tiza. */
 .etiqueta-pizarra {
   background: #1e3d32;
-  color: #f2f2f2;
+  color: var(--tema-claro);
 }
 
 .etiqueta-pizarra dt {
@@ -51,7 +51,7 @@
 .ranura {
   flex: 1 1 8rem;
   padding: 8px 12px;
-  border: 2px solid #e8a33d;
+  border: 2px solid var(--tema-ambar);
   border-radius: 8px;
   font-size: 1.125rem;
   font-weight: 700;
@@ -60,16 +60,16 @@
 
 .ranura-vacia {
   border-style: dashed;
-  border-color: #6b7785;
-  color: #b8c2cc;
+  border-color: var(--tema-noche-linea);
+  color: var(--tema-claro-suave);
   font-weight: 400;
 }
 
 .ranura-nombre {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 /* La etiqueta recién impresa. */

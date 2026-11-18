@@ -67,6 +67,10 @@
   --tema-noche: #14110d;
   --tema-noche-2: #201a14;
   --tema-noche-borde: #4a3d2e;
+  /* Superficie elevada sobre la noche (cajas dentro de un panel). */
+  --tema-noche-3: #2b231b;
+  /* Bordes de botones y casillas sobre la noche: 3:1 o más con --tema-noche-2 (WCAG 1.4.11). */
+  --tema-noche-linea: #8a7558;
   /* Texto sobre la noche: 15,7:1 y 10:1 con --tema-noche. */
   --tema-claro: #f3ead6;
   --tema-claro-suave: #cbbd9f;
@@ -198,7 +202,7 @@
 }
 
 .tema-archivo .boton-secundario {
-  border-color: var(--tema-noche-borde);
+  border-color: var(--tema-noche-linea);
   background: rgb(0 0 0 / 30%);
   color: var(--tema-claro);
 }

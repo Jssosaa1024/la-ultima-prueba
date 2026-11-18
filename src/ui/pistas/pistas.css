@@ -2,7 +2,7 @@
 .pistas {
   margin: 16px 0 0;
   padding: 12px 14px;
-  border: 1px solid #2f3843;
+  border: 1px solid var(--tema-noche-borde);
   border-radius: 12px;
 }
 
@@ -23,7 +23,7 @@
 .pistas-nota {
   margin: 0;
   font-size: 0.9375rem;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 /* Lo que el cuaderno anota al resolver una etapa, dentro del panel de la máquina. */
@@ -31,15 +31,15 @@
   margin: 12px 0 0;
   padding: 12px 14px;
   border-radius: 8px;
-  background: #252d36;
+  background: var(--tema-noche-3);
 }
 
 .anotacion-titulo {
   margin: 0 0 4px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #b8c2cc;
+  color: var(--tema-claro-suave);
 }
 
 .anotacion p {
@@ -52,5 +52,5 @@
 
 .anotacion-concepto {
   font-weight: 700;
-  color: #e8a33d;
+  color: var(--tema-ambar);
 }
