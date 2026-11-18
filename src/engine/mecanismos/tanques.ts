@@ -235,6 +235,8 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
       }
       // La bandeja espera a que termine la corrida que ganó el sello.
       if (conSello && !corrida && apertura < 1) {
+        // La incubadora suena al empezar a abrirse (T42c).
+        if (apertura === 0) sonar('incubadora');
         apertura = Math.min(1, apertura + dt / DURACION_BANDEJA_S);
         colocarBandeja();
       }

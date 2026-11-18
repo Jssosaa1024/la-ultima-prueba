@@ -435,6 +435,8 @@ test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera 
   await tocarHasta(page, await enPantalla(page, caja, [-2.96, 1.1, 2.8]), conDedo, puerta1);
   await puerta1.click();
   await expect(canvas).toHaveAttribute('data-sala', 's1-cooperativa');
+  // La puerta suena al abrirse (T42c).
+  await expect(canvas).toHaveAttribute('data-sonidos', /(^| )puerta( |$)/);
 
   // En la cooperativa se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
   // La posición se publica con el cuadro siguiente al cambio de sala: se espera a que llegue.

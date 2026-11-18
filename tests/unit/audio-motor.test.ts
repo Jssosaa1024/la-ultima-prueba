@@ -8,6 +8,7 @@ import {
   crearMezcla,
   niveles,
   TECHO_AMBIENTE,
+  TECHO_EFECTOS,
   volumenesDeAjustes,
 } from '../../src/engine/audio/mezcla';
 import { AJUSTES_INICIALES, ajustes } from '../../src/signals/ajustes';
@@ -180,14 +181,20 @@ describe('desbloqueo del audio', () => {
 });
 
 describe('mezcla', () => {
-  it('los volúmenes de voz y ambiente salen de los ajustes del jugador (T39)', () => {
-    expect(volumenesDeAjustes({ volumenVoz: 100, volumenAmbiente: 70 })).toMatchObject({
+  it('los volúmenes de voz, ambiente y efectos salen de los ajustes del jugador (T39, T42c)', () => {
+    expect(
+      volumenesDeAjustes({ volumenVoz: 100, volumenAmbiente: 70, volumenEfectos: 100 }),
+    ).toMatchObject({
       voz: 1,
       ambiente: 0.7 * TECHO_AMBIENTE,
+      efectos: TECHO_EFECTOS,
     });
-    expect(volumenesDeAjustes({ volumenVoz: 0, volumenAmbiente: 0 })).toMatchObject({
+    expect(
+      volumenesDeAjustes({ volumenVoz: 0, volumenAmbiente: 0, volumenEfectos: 50 }),
+    ).toMatchObject({
       voz: 0,
       ambiente: 0,
+      efectos: 0.5 * TECHO_EFECTOS,
     });
   });
 
@@ -270,10 +277,12 @@ describe('qué suena cuando responde una máquina', () => {
   });
 
   it('palanca, polea, manija y clic según la máquina; el sello al final', () => {
-    expect(efectosDeResultado(r('s1-etiquetadora'))).toEqual(['palanca']);
+    expect(efectosDeResultado(r('s1-etiquetadora'))).toEqual(['palanca', 'imprenta']);
     expect(efectosDeResultado(r('s3-reflector', 0))).toEqual(['clic']);
     expect(efectosDeResultado(r('s3-reflector', 2, true))).toEqual(['polea', 'sello']);
     expect(efectosDeResultado(r('s4-carritos'))).toEqual(['clic']);
+    // T42c: con el sello de la biblioteca se abre la pared de casilleros.
+    expect(efectosDeResultado(r('s4-carritos', 2, true))).toEqual(['clic', 'casilleros', 'sello']);
     expect(efectosDeResultado(r('s5-urna', 2, true))).toEqual(['manija', 'fichas', 'sello']);
   });
 
@@ -315,7 +324,8 @@ describe('iniciarAudio', () => {
       resuelta: true,
       sello: true,
     };
-    expect(sonidos).toEqual(['palanca', 'sello']);
+    // Entrar a la sala jugando abre su puerta (T42c).
+    expect(sonidos).toEqual(['puerta', 'palanca', 'imprenta', 'sello']);
 
     sonar('mano');
     expect(sonidos.at(-1)).toBe('mano');

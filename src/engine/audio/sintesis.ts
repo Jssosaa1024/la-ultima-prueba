@@ -1,7 +1,8 @@
 /**
  * Sonidos generados por código con Web Audio (T43): los efectos de las máquinas y de la
- * rectoría, y una voz provisional mientras llega la voz real de La Voz. No pesan nada, no
- * tienen licencia que registrar y se arman en el momento con osciladores y ruido.
+ * rectoría, y (T42c) los de las puertas, los objetos importantes y los controles de cada sala.
+ * No pesan nada, no tienen licencia que registrar y se arman en el momento con osciladores y
+ * ruido.
  *
  * Cada efecto recibe el contexto, el canal de destino y el instante de inicio, y devuelve
  * cuánto dura en segundos. Todos los nodos se desconectan solos al terminar.
@@ -185,6 +186,109 @@ export const cajaFuerte: Efecto = (c, d, t) => {
   return 1.4;
 };
 
+// --- Puertas, objetos y controles de todas las salas (T42c). ------------------------------
+
+/** Una puerta se abre: el pestillo y la bisagra que chirría un momento. */
+export const puerta: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 900, q: 3, pico: 0.5, dura: 0.06 });
+  tono(c, d, t + 0.08, { frecuencia: 300, hasta: 170, tipo: 'sawtooth', pico: 0.04, dura: 0.6 });
+  tono(c, d, t + 0.1, { frecuencia: 110, hasta: 70, pico: 0.3, dura: 0.2 });
+  return 0.75;
+};
+
+/** Una puerta con seguro: el pomo traquetea y no gira. */
+export const puertaCerrada: Efecto = (c, d, t) => {
+  tono(c, d, t, { frecuencia: 110, hasta: 80, pico: 0.35, dura: 0.12 });
+  [0, 0.08, 0.16].forEach((u, i) => {
+    chasquido(c, d, t + u, { frecuencia: i === 1 ? 1300 : 1500, q: 8, pico: 0.45, dura: 0.05 });
+  });
+  return 0.25;
+};
+
+/** Un control que se mueve con un tope firme: el pestillo de una máquina al empezar a usarla. */
+export const clac: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 1200, q: 2.5, pico: 0.45, dura: 0.06 });
+  tono(c, d, t, { frecuencia: 200, hasta: 120, pico: 0.25, dura: 0.08 });
+  return 0.1;
+};
+
+/** Las teclas de la registradora: tres golpes y la campanita de la caja. */
+export const teclas: Efecto = (c, d, t) => {
+  [0, 0.09, 0.18].forEach((u, i) => {
+    chasquido(c, d, t + u, { frecuencia: 2200 + i * 200, q: 5, pico: 0.35, dura: 0.035 });
+  });
+  tono(c, d, t + 0.27, { frecuencia: 2093, tipo: 'triangle', pico: 0.12, dura: 0.3 });
+  return 0.6;
+};
+
+/** La registradora se abre: la campana de la caja («¡tin!») y el cajón que sale. */
+export const registradora: Efecto = (c, d, t) => {
+  tono(c, d, t, { frecuencia: 1568, tipo: 'triangle', pico: 0.25, dura: 1 });
+  tono(c, d, t + 0.06, { frecuencia: 2637, tipo: 'triangle', pico: 0.2, dura: 0.9 });
+  chasquido(c, d, t + 0.05, { frecuencia: 400, q: 1, pico: 0.3, dura: 0.25 });
+  tono(c, d, t + 0.3, { frecuencia: 180, hasta: 90, pico: 0.35, dura: 0.15 });
+  return 1.05;
+};
+
+/** La etiquetadora imprime: el golpe del sello de tinta sobre la etiqueta. */
+export const imprenta: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 300, q: 1, pico: 0.6, dura: 0.08 });
+  chasquido(c, d, t + 0.06, { frecuencia: 1200, q: 3, pico: 0.3, dura: 0.05 });
+  return 0.15;
+};
+
+/** La incubadora se abre: el cierre, el aire tibio que sale y un aviso suave. */
+export const incubadora: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 800, q: 3, pico: 0.45, dura: 0.06 });
+  chasquido(c, d, t + 0.05, { frecuencia: 5000, q: 0.7, pico: 0.2, dura: 0.6 });
+  tono(c, d, t + 0.5, { frecuencia: 1318.5, pico: 0.15, dura: 0.5 });
+  return 1.05;
+};
+
+/** La pared de casilleros se abre: dos puertas de lata que golpean. */
+export const casilleros: Efecto = (c, d, t) => {
+  [0, 0.15].forEach((u) => {
+    chasquido(c, d, t + u, { frecuencia: 600, q: 2, pico: 0.45, dura: 0.1 });
+    tono(c, d, t + u, { frecuencia: 420, tipo: 'triangle', pico: 0.12, dura: 0.5 });
+    tono(c, d, t + u, { frecuencia: 1130, tipo: 'triangle', pico: 0.06, dura: 0.35 });
+  });
+  return 0.7;
+};
+
+/** Un sensor o una lámpara que se enciende: un bip corto. */
+export const bip: Efecto = (c, d, t) => {
+  tono(c, d, t, { frecuencia: 1760, pico: 0.22, dura: 0.12 });
+  return 0.15;
+};
+
+/** Se recoge algo: un roce y un tono que sube. */
+export const recoger: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 3000, q: 1, pico: 0.2, dura: 0.12 });
+  tono(c, d, t + 0.02, { frecuencia: 660, hasta: 990, tipo: 'triangle', pico: 0.2, dura: 0.15 });
+  return 0.2;
+};
+
+/** Un libro que se pone o se quita de un carrito: un golpe sordo de papel. */
+export const libro: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 350, q: 1, pico: 0.5, dura: 0.09 });
+  tono(c, d, t, { frecuencia: 120, hasta: 70, pico: 0.3, dura: 0.1 });
+  return 0.12;
+};
+
+/** Una ficha de plástico que cae en la urna o sale de ella. */
+export const ficha: Efecto = (c, d, t) => {
+  chasquido(c, d, t, { frecuencia: 4000, q: 8, pico: 0.35, dura: 0.03 });
+  chasquido(c, d, t + 0.04, { frecuencia: 3600, q: 8, pico: 0.2, dura: 0.03 });
+  return 0.08;
+};
+
+/** El intercomunicador: un zumbido corto antes de hablar. */
+export const interfono: Efecto = (c, d, t) => {
+  tono(c, d, t, { frecuencia: 220, tipo: 'square', pico: 0.05, dura: 0.35 });
+  chasquido(c, d, t + 0.36, { frecuencia: 1500, q: 3, pico: 0.3, dura: 0.04 });
+  return 0.42;
+};
+
 /** Los efectos que se pueden pedir por su nombre (`sonar('palanca')`). */
 export const EFECTOS = {
   clic,
@@ -196,6 +300,19 @@ export const EFECTOS = {
   fichas,
   mano,
   'caja-fuerte': cajaFuerte,
+  puerta,
+  'puerta-cerrada': puertaCerrada,
+  clac,
+  teclas,
+  registradora,
+  imprenta,
+  incubadora,
+  casilleros,
+  bip,
+  recoger,
+  libro,
+  ficha,
+  interfono,
 } satisfies Record<string, Efecto>;
 
 export type NombreEfecto = keyof typeof EFECTOS;

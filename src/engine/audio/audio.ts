@@ -5,8 +5,10 @@
  * - **Mezcla.** Voz, ambiente y efectos, cada uno con su volumen (voz y ambiente, de los
  *   ajustes del jugador, T39); el ambiente baja mientras habla La Voz.
  * - **Ambiente.** Un fondo por sala durante la partida; en el menú y los finales, silencio.
- * - **Efectos.** Lo que hace cada máquina al responder (signal `resultado`), el sello ganado y
- *   lo que piden las animaciones con `sonar()` (la mano de la urna, la caja fuerte, la campana).
+ * - **Efectos.** Lo que hace cada máquina al responder (signal `resultado`), el sello ganado,
+ *   lo que piden las animaciones con `sonar()` (la mano de la urna, la caja fuerte, la campana,
+ *   la registradora, la incubadora) y, desde T42c, las puertas, los objetos que se usan o se
+ *   recogen y los controles de las máquinas (`momentos.ts`). Su volumen es el de los ajustes.
  * - **Voz.** La línea de La Voz que la interfaz muestra (`lineaEnPantalla`: un subtítulo, una
  *   grabación o un final) suena con la voz grabada (T42b, `voz.ts`). Mientras se juega, se
  *   bajan de antemano las líneas de la sala actual.
@@ -27,6 +29,7 @@ import { crearAmbiente, type Ambiente } from './ambiente';
 import { desbloquearAlPrimerToque, type DocumentoAudio } from './desbloqueo';
 import { escucharSonidos } from './eventos';
 import { crearMezcla, volumenesDeAjustes, type Mezcla } from './mezcla';
+import { escucharMomentos } from './momentos';
 import { EFECTOS, type NombreEfecto } from './sintesis';
 import { crearVoz, type OpcionesVoz, type Voz } from './voz';
 
@@ -40,15 +43,19 @@ export function lineasDeLugar(lugar: string): string[] {
     return l.momento !== 'final' && (carpeta === lugar || carpeta === 'compartido');
   }).map((l) => l.id);
 }
-/** Espera entre el sonido de la máquina y el del sello. */
-const ESPERA_SELLO_S = 0.45;
+/**
+ * Cuánto esperan algunos efectos desde que responde la máquina, en segundos: el sello, a que
+ * termine la máquina; la imprenta, a que la palanca de la etiquetadora llegue abajo (T42c).
+ */
+export const RETRASOS: Partial<Record<NombreEfecto, number>> = { sello: 0.45, imprenta: 0.36 };
 
 /** Qué suena cuando responde la máquina de cada puzzle. */
 export function efectosDeResultado(r: ResultadoMecanismo): NombreEfecto[] {
   const maquina = ((): NombreEfecto[] => {
     switch (r.puzzle) {
       case 's1-etiquetadora':
-        return ['palanca'];
+        // La palanca baja y la etiqueta se imprime (T42c).
+        return ['palanca', 'imprenta'];
       case 's2-tanques':
         // La campana (y el sello) suenan al final de la corrida: los pide la animación.
         return ['palanca'];
@@ -57,6 +64,9 @@ export function efectosDeResultado(r: ResultadoMecanismo): NombreEfecto[] {
         return r.etapa === 2 ? ['polea'] : ['clic'];
       case 's5-urna':
         return ['manija', 'fichas'];
+      case 's4-carritos':
+        // Con las cuatro lámparas en verde, la pared de casilleros se abre (T42c).
+        return r.sello ? ['clic', 'casilleros'] : ['clic'];
       default:
         return ['clic'];
     }
@@ -107,7 +117,7 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
     audioDesbloqueado.value = true;
 
     efectos.push(
-      // Los volúmenes de voz y ambiente de la pantalla de ajustes (T39).
+      // Los volúmenes de voz, ambiente y efectos de la pantalla de ajustes (T39, T42c).
       effect(() => mezcla?.aplicar(volumenesDeAjustes(ajustes.value))),
       effect(() => {
         const lugar: Lugar | null = fase.value === 'jugando' ? sala.value : null;
@@ -124,10 +134,12 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
         if (!r || r.n === ultimo) return;
         ultimo = r.n;
         efectosDeResultado(r).forEach((nombre) => {
-          tocar(nombre, nombre === 'sello' ? ESPERA_SELLO_S : 0);
+          tocar(nombre, RETRASOS[nombre] ?? 0);
         });
       }),
     );
+    // Puertas, objetos y controles (T42c).
+    efectos.push(escucharMomentos((nombre) => tocar(nombre)));
     // La línea que la interfaz muestra ahora: un subtítulo (T34), una grabación o un final.
     // La que ya se veía al desbloquear también suena: es la presentación de La Voz, pedida en
     // el mismo toque de «Jugar solo». Si se deja de ver (se abre un panel), se calla; al

@@ -290,6 +290,11 @@ test('la puerta 2 sigue cerrada hasta tener el sello de la sala 1', async ({ pag
 
   await expect(page.locator('.hud-aviso')).toContainText('La puerta 2 está cerrada');
   await expect(page.getByLabel('Escena del juego')).toHaveAttribute('data-sala', 'porteria');
+  // El pomo traquetea (T42c).
+  await expect(page.getByLabel('Escena del juego')).toHaveAttribute(
+    'data-sonidos',
+    /puerta-cerrada/,
+  );
 });
 
 test('la puerta de salida pide los sellos y el intercomunicador lleva a «Pedir ayuda»', async ({
