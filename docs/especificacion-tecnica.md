@@ -237,7 +237,7 @@ Todo el audio publicado es AAC en `.m4a`, normalizado a −16 LUFS; nunca Ogg, p
 | Kenney (CC0) | Llega en OGG o WAV: se convierte siempre desde el WAV a AAC |
 | Freesound | Solo CC0 y CC BY; nada NC ni Sampling+. Se descarga el original (WAV o FLAC), no la vista previa |
 | Web Audio por código | Efectos de la rectoría generados al vuelo: no pesan ni tienen licencia; `AudioContext` se reanuda en el primer toque (T43) |
-| ElevenLabs | Voz final de La Voz solo con plan de pago activo el día de la generación; todo lo generado en plan gratis se regenera. Se descarga en WAV y se comprime con el pipeline propio |
+| ElevenLabs | Voz final de La Voz solo con plan de pago activo el día de la generación; todo lo generado en plan gratis se regenera. Se genera en MP3 de 128 kbps con `npm run voz` (T42b) y se comprime con el pipeline propio |
 
 `optimize-audio` normaliza con EBU R128 a −16 LUFS integrados y pico real de −1,5 dBTP, a 48 kHz, y luego codifica a AAC. El build falla si encuentra un `.ogg` en `public/` o si un archivo se desvía más de 1 LU del objetivo. El −16 LUFS es una convención habitual en móviles, no una norma de juegos; lo importante es que todas las fuentes suenen parejas.
 
@@ -809,6 +809,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 
 - [x] **T42** Script `optimize-audio`: WAV a AAC mono normalizado a −16 LUFS (v1.1) — 40 min
 - [x] **T43** Desbloqueo de audio en iOS tras el primer toque y mezcla de voz y ambiente — 40 min
+- [x] **T42b** (nueva, ola 6) Voz de La Voz con ElevenLabs (plan de pago): `npm run voz` lee `src/content/guion.json` y la voz elegida en `art/audio/voz/voz.json` (modelo multilingüe), dice cuántos caracteres va a gastar, salta las líneas que ya existen salvo con `--forzar` y guarda `art/audio/voz/originales/<id>.mp3` (Git LFS); `--muestras` compara voces con `voz-intro-1`. `optimize-audio` las pasa a `public/assets/audio/es-CO/<sala>/<id>.m4a` (las de cualquier sala, a `compartido/`). En el juego, la línea que se ve (subtítulo, grabación o final) suena por el canal de voz y el subtítulo sigue al audio; si no carga, sale su duración estimada — 50 min
 
 ### Fase 6 · Recorte vertical: portería y sala 1
 

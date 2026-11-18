@@ -19,3 +19,4 @@ art/**/*.[eE][xX][rR] filter=lfs diff=lfs merge=lfs -text
 art/**/*.[kK][tT][xX]2 filter=lfs diff=lfs merge=lfs -text
 art/**/*.[wW][aA][vV] filter=lfs diff=lfs merge=lfs -text
 art/**/*.[fF][lL][aA][cC] filter=lfs diff=lfs merge=lfs -text
+art/**/*.[mM][pP]3 filter=lfs diff=lfs merge=lfs -text
