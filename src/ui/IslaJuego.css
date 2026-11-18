@@ -76,3 +76,19 @@
   font-size: 0.875rem;
   line-height: 1.4;
 }
+
+.juego-canvas[data-sala='s2-laboratorio'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(4 22 26 / 0%) 54%, rgb(4 22 26 / 40%) 100%);
+}
+
+.juego-canvas[data-sala='s3-gimnasio'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(8 16 26 / 0%) 52%, rgb(8 16 26 / 42%) 100%);
+}
+
+.juego-canvas[data-sala='s4-biblioteca'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(8 20 18 / 0%) 52%, rgb(8 20 18 / 42%) 100%);
+}
+
+.juego-canvas[data-sala='s5-rectoria'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(10 16 14 / 0%) 54%, rgb(10 16 14 / 40%) 100%);
+}
