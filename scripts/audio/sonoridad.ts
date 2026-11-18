@@ -180,10 +180,74 @@ export function argumentosCodificacion(
   ];
 }
 
+/**
+ * Los efectos de sonido (T42c) se normalizan por pico, no a −16 LUFS: en un golpe corto casi
+ * todo el volumen es el golpe, y llevarlo a −16 LUFS sin pasarse del pico exige aplastarlo
+ * (decisión de Alex, 18 de noviembre de 2026). Su pico real queda a −2 dBTP
+ * (medio dB de margen para el AAC) y nunca suenan más fuerte que la voz: si un efecto largo
+ * pasaría de −15 LUFS, se baja hasta −16. El juego pone el nivel de cada uno al tocarlo.
+ */
+export const PICO_EFECTOS_DBTP = -2;
+/** Prefijo de los archivos de efectos publicados (`compartido/efecto-puerta.m4a`). */
+export const PREFIJO_EFECTO = 'efecto-';
+
+/** Si un archivo publicado es un efecto de sonido, por su nombre. */
+export const esArchivoDeEfecto = (archivo: string): boolean =>
+  path.basename(archivo).startsWith(PREFIJO_EFECTO);
+
+/** La ganancia que lleva un efecto a su pico, sin pasar de −16 LUFS. */
+export function gananciaDeEfecto(m: Medida): number {
+  return Math.min(PICO_EFECTOS_DBTP - m.picoDbtp, LUFS_OBJETIVO - m.lufs);
+}
+
+/**
+ * Si un efecto publicado cumple: el pico no pasa de −1,5 dBTP, no suena más fuerte que la voz
+ * (−15 LUFS) y no quedó bajito por error (su pico a menos de 1,5 dB del objetivo, o ya a −16
+ * LUFS si lo limitó la sonoridad).
+ */
+export function cumpleEfecto(m: Medida): boolean {
+  if (!Number.isFinite(m.lufs) || !Number.isFinite(m.picoDbtp)) return false;
+  const lleno = m.picoDbtp >= PICO_EFECTOS_DBTP - 1.5 || m.lufs >= LUFS_OBJETIVO - TOLERANCIA_LU;
+  return m.picoDbtp <= PICO_MAX_DBTP && m.lufs <= LUFS_OBJETIVO + TOLERANCIA_LU && lleno;
+}
+
+/** Argumentos para codificar un efecto (T42c): mono a 48 kHz, con una ganancia fija y en AAC. */
+export function argumentosEfecto(
+  entrada: string,
+  salida: string,
+  gananciaDb: number,
+  kbps: number,
+): string[] {
+  return [
+    '-hide_banner',
+    '-nostats',
+    '-y',
+    '-i',
+    entrada,
+    '-af',
+    `aformat=sample_fmts=flt,volume=${gananciaDb.toFixed(2)}dB,aformat=channel_layouts=mono,aresample=${FRECUENCIA_HZ}`,
+    '-ar',
+    String(FRECUENCIA_HZ),
+    '-ac',
+    '1',
+    '-c:a',
+    'aac',
+    '-b:a',
+    `${kbps}k`,
+    '-map_metadata',
+    '-1',
+    '-movflags',
+    '+faststart',
+    salida,
+  ];
+}
+
 export interface Plan {
   /** Ruta de salida, relativa a la carpeta de salida (`<sala>/<nombre>.m4a`). */
   salida: string;
   kbps: number;
+  /** Efecto de sonido (T42c): se normaliza por pico en vez de a −16 LUFS. */
+  efecto?: boolean;
 }
 
 /**

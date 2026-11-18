@@ -14,21 +14,30 @@
  *
  * Necesita ffmpeg instalado (https://ffmpeg.org). Después se corre `npm run build-manifest`.
  */
-import { mkdir, readdir, readFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import {
   argumentosCodificacion,
+  argumentosEfecto,
+  cumpleEfecto,
+  gananciaDeEfecto,
   argumentosMedicion,
   correr,
   hayFfmpeg,
+  KBPS_AMBIENTE,
   KBPS_VOZ,
   leerLoudnorm,
+  LUFS_OBJETIVO,
+  PICO_EFECTOS_DBTP,
   medir,
   planDeCodificacion,
+  type Medida,
   type Plan,
 } from './audio/sonoridad.ts';
 import { archivoDeAudio } from '../src/content/audio-guion.ts';
+import { archivoDeEfecto } from '../src/content/audio-efectos.ts';
+import { efectoDeOriginal } from './efectos/plan.ts';
 
 const GUION_JSON = path.join('src', 'content', 'guion.json');
 
@@ -73,6 +82,72 @@ async function trabajosDeVoz(
     });
   }
   return { trabajos, problemas };
+}
+
+/**
+ * Los efectos de sonido de ElevenLabs (T42c), que genera `npm run efectos`:
+ * `<carpeta>/<nombre>.mp3` va a `compartido/efecto-<nombre>.m4a`, a la calidad del ambiente.
+ */
+async function trabajosDeEfectos(
+  carpeta: string,
+): Promise<{ trabajos: Trabajo[]; problemas: string[] }> {
+  const entradas = await readdir(carpeta, { withFileTypes: true }).catch(() => []);
+  const trabajos: Trabajo[] = [];
+  const problemas: string[] = [];
+  for (const e of entradas.filter((x) => x.isFile()).sort((a, b) => a.name.localeCompare(b.name))) {
+    if (path.extname(e.name).toLowerCase() !== '.mp3') continue;
+    const nombre = efectoDeOriginal(e.name);
+    if (!nombre) {
+      problemas.push(`${e.name}: no está en EFECTOS_GRABADOS (src/content/audio-efectos.ts)`);
+      continue;
+    }
+    trabajos.push({
+      nombre: `efectos/${e.name}`,
+      entrada: path.join(carpeta, e.name),
+      plan: { salida: archivoDeEfecto(nombre), kbps: KBPS_AMBIENTE, efecto: true },
+    });
+  }
+  return { trabajos, problemas };
+}
+
+/** Cuánto se mueve la ganancia de un efecto si el AAC lo deja fuera de la regla (en dB). */
+const DESVIOS_EFECTO_DB = [0, -0.5, 0.5, -1, -1.5, 1, -2, -3] as const;
+
+/** Cuánto se baja la versión mono que se mide primero: así ningún pico pasa de 0 dB y se mide bien. */
+const BAJADA_MEDICION_DB = 10;
+
+/**
+ * Codifica un efecto normalizado por pico (T42c). La ganancia sale de medir la versión mono;
+ * después se corrige con lo que mide la salida, porque el AAC mueve el pico un poco.
+ */
+async function codificarEfecto(
+  entrada: string,
+  salida: string,
+  kbps: number,
+): Promise<{ antes: Medida; final: Medida; ganancia: number } | null> {
+  const mono = salida.replace(/\.m4a$/, '.mono.m4a');
+  if (mono === salida) return null;
+  // Primero, la versión mono: así se mide lo que de verdad se publica.
+  const medicion = argumentosEfecto(entrada, mono, -BAJADA_MEDICION_DB, kbps);
+  if ((await correr('ffmpeg', medicion)).codigo !== 0) return null;
+  const bajada = await medir(mono);
+  await rm(mono, { force: true });
+  const antes: Medida = {
+    lufs: bajada.lufs + BAJADA_MEDICION_DB,
+    picoDbtp: bajada.picoDbtp + BAJADA_MEDICION_DB,
+  };
+  const base = gananciaDeEfecto(antes);
+  // El AAC no mueve el pico de forma pareja: se prueban ganancias cercanas y queda la primera
+  // que cumple.
+  for (const desvio of DESVIOS_EFECTO_DB) {
+    const ganancia = base + desvio;
+    if ((await correr('ffmpeg', argumentosEfecto(entrada, salida, ganancia, kbps))).codigo !== 0) {
+      return null;
+    }
+    const final = await medir(salida);
+    if (cumpleEfecto(final)) return { antes, final, ganancia };
+  }
+  return null;
 }
 
 /** Los .wav de la carpeta, con su ruta relativa a ella. */
@@ -120,6 +195,10 @@ async function principal(): Promise<number> {
   for (const p of voz.problemas) console.error(`  ✗ ${p}`);
   errores += voz.problemas.length;
   trabajos.push(...voz.trabajos);
+  const efectos = await trabajosDeEfectos(path.join(values.entrada, 'efectos', 'originales'));
+  for (const p of efectos.problemas) console.error(`  ✗ ${p}`);
+  errores += efectos.problemas.length;
+  trabajos.push(...efectos.trabajos);
 
   if (trabajos.length === 0 && errores === 0) {
     console.log(
@@ -130,6 +209,23 @@ async function principal(): Promise<number> {
 
   for (const { nombre: relativo, entrada, plan } of trabajos) {
     const salida = path.join(values.salida, plan.salida);
+    if (plan.efecto) {
+      await mkdir(path.dirname(salida), { recursive: true });
+      const r = await codificarEfecto(entrada, salida, plan.kbps);
+      if (!r) {
+        console.error(
+          `  ✗ ${relativo}: no quedó a ${PICO_EFECTOS_DBTP} dBTP sin pasar de ${LUFS_OBJETIVO} LUFS`,
+        );
+        errores++;
+        continue;
+      }
+      console.log(
+        `  ✓ ${relativo} → ${plan.salida} (${plan.kbps} kbps): ` +
+          `${r.antes.lufs.toFixed(1)} → ${r.final.lufs.toFixed(1)} LUFS, ` +
+          `pico ${r.final.picoDbtp.toFixed(1)} dBTP (ganancia ${r.ganancia.toFixed(1)} dB)`,
+      );
+      continue;
+    }
     const primera = await correr('ffmpeg', argumentosMedicion(entrada));
     const medida = primera.codigo === 0 ? leerLoudnorm(primera.stderr) : null;
     if (!medida) {

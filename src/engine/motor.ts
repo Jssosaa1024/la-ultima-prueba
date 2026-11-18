@@ -261,10 +261,14 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   });
 
   // Audio (T43): suena después del primer toque. El último efecto queda en un atributo del
-  // canvas para las pruebas e2e.
+  // canvas para las pruebas e2e y, desde T42c, los últimos doce en orden (`data-sonidos`).
+  const sonidos: string[] = [];
   const detenerAudio = iniciarAudio({
     alSonar: (nombre) => {
       canvas.dataset['sonido'] = nombre;
+      sonidos.push(nombre);
+      if (sonidos.length > 12) sonidos.shift();
+      canvas.dataset['sonidos'] = sonidos.join(' ');
     },
   });
   const dejarDeSeguirAudio = effect(() => {

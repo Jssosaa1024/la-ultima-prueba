@@ -100,6 +100,15 @@ function ControlesAjustes() {
         texto={`${a.volumenAmbiente} %`}
         alCambiar={(v) => cambiarAjustes({ volumenAmbiente: v })}
       />
+      <Pasos
+        etiqueta="Volumen de los efectos"
+        valor={a.volumenEfectos}
+        min={0}
+        max={100}
+        paso={PASO_VOLUMEN}
+        texto={`${a.volumenEfectos} %`}
+        alCambiar={(v) => cambiarAjustes({ volumenEfectos: v })}
+      />
     </div>
   );
 }

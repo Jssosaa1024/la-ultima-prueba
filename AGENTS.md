@@ -104,7 +104,7 @@ Sin Blender ni lightmap: los materiales son Lambert y los ilumina la luz hemisf�
 
 `/creditos` y `asset.copyright` se generan desde el manifiesto: no los edites a mano.
 
-**Audio.** Solo AAC (`.m4a`) normalizado a −16 LUFS (EBU R128, pico −1,5 dBTP). Nunca Ogg: `check-audio` falla si encuentra uno. Para Freesound, solo CC0 y CC BY. La voz final se hace con ElevenLabs y únicamente con plan de pago: su clave vive en una variable de entorno local, nunca en el repositorio.
+**Audio.** Solo AAC (`.m4a`) normalizado a −16 LUFS (EBU R128, pico −1,5 dBTP). Los efectos de sonido (`efecto-*.m4a`) van por pico: a −2 dBTP, sin pasar de −1,5 dBTP ni de −15 LUFS, y el juego pone el nivel de cada uno (decisión de Alex, 18 de noviembre de 2026: un golpe corto no llega a −16 LUFS sin aplastarlo). Nunca Ogg: `check-audio` falla si encuentra uno. Para Freesound, solo CC0 y CC BY. La voz final y los efectos grabados (`npm run voz`, `npm run efectos`) se hacen con ElevenLabs y únicamente con plan de pago: su clave vive en una variable de entorno local, nunca en el repositorio.
 
 **Antes de agregar un asset:** sin logos, productos ni personajes reconocibles. Si es de IA, usa prompts genéricos y revisa el resultado. No uses los nombres ni los logos del ICFES o del Saber 11: el juego no tiene relación con ellos.
 

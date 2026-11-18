@@ -3,7 +3,8 @@
  *
  * Cada vez que la máquina responde (signal `resultado`), la palanca baja y vuelve a subir y
  * una etiqueta nueva sale por el frente. Cuando la sala gana su sello, el cajón de la
- * registradora se abre con la moneda del sello, y se queda abierto.
+ * registradora se abre con la moneda del sello, y se queda abierto: suena la campanita de la
+ * caja (T42c).
  *
  * Son tres mallas más en la sala (etiqueta, cajón y moneda), y solo se dibujan cuando se ven.
  */
@@ -12,6 +13,7 @@ import { BoxGeometry, CylinderGeometry, Mesh, MeshLambertMaterial } from 'three'
 import type { Object3D } from 'three';
 import { resultado } from '../../signals/mecanismo';
 import { sellos } from '../../signals/partida';
+import { sonar } from '../audio/eventos';
 import { idaYVuelta, mezclar, suave } from './curvas';
 import type { AnimacionSala } from './tipos';
 
@@ -121,6 +123,7 @@ export function animarEtiquetadora(raiz: Object3D): AnimacionSala {
       }
       // El cajón espera a que termine la impresión que ganó el sello.
       if (conSello && impresion === null && apertura < 1) {
+        if (apertura === 0) sonar('registradora');
         apertura = Math.min(1, apertura + dt / DURACION_CAJON_S);
         colocarCajon();
       }

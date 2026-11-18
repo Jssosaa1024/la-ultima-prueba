@@ -34,6 +34,7 @@ describe('validarAjustes (T39)', () => {
       texto: 'muy-grande',
       volumenVoz: 40,
       volumenAmbiente: 0,
+      volumenEfectos: 50,
       brillo: 1.2,
     };
     expect(validarAjustes(a)).toEqual(a);
@@ -53,7 +54,18 @@ describe('validarAjustes (T39)', () => {
   it('rechaza volúmenes fuera de 0 a 100, decimales y textos', () => {
     for (const v of [-10, 110, 50.5, '50', null, Number.NaN, Infinity]) {
       expect(validarAjustes({ volumenVoz: v }).volumenVoz).toBe(AJUSTES_INICIALES.volumenVoz);
+      expect(validarAjustes({ volumenEfectos: v }).volumenEfectos).toBe(
+        AJUSTES_INICIALES.volumenEfectos,
+      );
     }
+  });
+
+  it('el volumen de los efectos (T42c) empieza en 100 y se guarda aparte de los demás', () => {
+    expect(AJUSTES_INICIALES.volumenEfectos).toBe(100);
+    expect(validarAjustes({ volumenEfectos: 0 })).toEqual({
+      ...AJUSTES_INICIALES,
+      volumenEfectos: 0,
+    });
   });
 
   it('el brillo (T19k) solo toma uno de sus tres pasos', () => {

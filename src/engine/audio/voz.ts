@@ -46,7 +46,7 @@ export interface Voz {
   detener(): void;
 }
 
-async function bajarConLimite(url: string): Promise<ArrayBuffer> {
+export async function bajarConLimite(url: string): Promise<ArrayBuffer> {
   const control = new AbortController();
   const t = setTimeout(() => control.abort(), LIMITE_DESCARGA_MS);
   try {

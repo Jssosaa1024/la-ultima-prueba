@@ -1,0 +1,83 @@
+{
+  "modelo": "eleven_text_to_sound_v2",
+  "formato": "mp3_44100_128",
+  "influencia": 0.5,
+  "efectos": {
+    "puerta": {
+      "texto": "An old wooden classroom door: the metal latch clicks and the hinges creak briefly as the door swings open. Close-up, dry room, no music, no voices.",
+      "duracion": 1.5
+    },
+    "puerta-cerrada": {
+      "texto": "Someone tries to open a locked wooden door: the metal doorknob rattles three times and does not turn. Close-up, dry, no music, no voices.",
+      "duracion": 1
+    },
+    "clac": {
+      "texto": "A single firm click of a metal latch on an old machine being unlocked. Very short, close-up, dry, no music.",
+      "duracion": 0.5
+    },
+    "teclas": {
+      "texto": "Three keys pressed on an old mechanical cash register, then a small bright bell ding. Close-up, dry, no music, no voices.",
+      "duracion": 1.2
+    },
+    "registradora": {
+      "texto": "A vintage cash register bell rings and the metal cash drawer slides open with a clunk. Close-up, dry, no music, no voices.",
+      "duracion": 1.5
+    },
+    "imprenta": {
+      "texto": "A small hand label printer stamps a label: one quick mechanical press and thump. Close-up, dry, no music.",
+      "duracion": 0.6
+    },
+    "incubadora": {
+      "texto": "A small laboratory incubator door unlatches and opens with a soft hiss of warm air, then a gentle electronic chime. Close-up, no music.",
+      "duracion": 1.5
+    },
+    "casilleros": {
+      "texto": "Two metal school lockers swing open one after the other with clanky metallic bangs. Close-up, indoor, no music, no voices.",
+      "duracion": 1.2
+    },
+    "recoger": {
+      "texto": "Picking up a small object from a wooden desk: a quick soft rustle and tap. Very short, close-up, no music.",
+      "duracion": 0.5
+    },
+    "libro": {
+      "texto": "A hardcover book placed on a metal library cart: a soft dull paper thud. Very short, close-up, no music.",
+      "duracion": 0.5
+    },
+    "ficha": {
+      "texto": "A small plastic token drops into a plastic box: a short light click and rattle. Very short, close-up, no music.",
+      "duracion": 0.5
+    },
+    "interfono": {
+      "texto": "An old school intercom: a short electric buzz followed by a speaker click. Close-up, no music, no voices.",
+      "duracion": 0.8
+    },
+    "palanca": {
+      "texto": "A heavy metal lever pulled down on an old machine: a ratcheting clunk. Close-up, dry, no music.",
+      "duracion": 0.8
+    },
+    "campana": {
+      "texto": "A single small brass desk bell rings once and fades out slowly. Close-up, dry, no music.",
+      "duracion": 2
+    },
+    "polea": {
+      "texto": "A rope runs quickly through a squeaky metal pulley and a small weight lands with a thud. Close-up, indoor, no music.",
+      "duracion": 1.2
+    },
+    "manija": {
+      "texto": "A metal crank handle on a box is turned: six quick ratchet clicks. Close-up, dry, no music.",
+      "duracion": 0.8
+    },
+    "fichas": {
+      "texto": "Many small plastic tokens tumble and rattle inside a rotating plastic drum. Close-up, dry, no music.",
+      "duracion": 1.2
+    },
+    "mano": {
+      "texto": "A small robotic arm moves down and back up: a servo motor whirs and changes pitch. Close-up, no music.",
+      "duracion": 1.5
+    },
+    "caja-fuerte": {
+      "texto": "A small metal safe opens: two heavy bolt clacks and the door hinge creaks. Close-up, dry, no music, no voices.",
+      "duracion": 1.4
+    }
+  }
+}

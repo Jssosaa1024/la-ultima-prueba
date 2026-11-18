@@ -66,6 +66,19 @@ export async function textoAVoz(
   return new Uint8Array(await r.arrayBuffer());
 }
 
+/** Efecto de sonido a partir de una descripción (T42c): devuelve el audio en el formato pedido. */
+export async function efectoDeSonido(
+  formato: string,
+  cuerpo: Record<string, unknown>,
+): Promise<Uint8Array> {
+  const r = await pedir(`/v1/sound-generation?output_format=${encodeURIComponent(formato)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+    body: JSON.stringify(cuerpo),
+  });
+  return new Uint8Array(await r.arrayBuffer());
+}
+
 export interface Suscripcion {
   tier: string;
   plan: 'gratis' | 'pago';
