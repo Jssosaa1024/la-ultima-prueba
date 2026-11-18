@@ -81,6 +81,120 @@
       ],
       "audio": [
         {
+          "archivo": "audio/es-CO/compartido/efecto-caja-fuerte.m4a",
+          "idioma": "es-CO",
+          "sha256": "b4c7829ed49d4cfcc73f2595fb8ed0cd6c54eaa26f40bf336966a6e718d4ff8c",
+          "bytes": 12443
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-campana.m4a",
+          "idioma": "es-CO",
+          "sha256": "95840e9be3b0d4364ef77bd3a60a9c9c579861b1e67a21a7072c91d620b91f88",
+          "bytes": 17529
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-casilleros.m4a",
+          "idioma": "es-CO",
+          "sha256": "0dc371c9623db683bb92e24dd35a423a9accfca1a31eca90bb3633ad12c03dde",
+          "bytes": 11142
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-clac.m4a",
+          "idioma": "es-CO",
+          "sha256": "9526b1c288660dc353316a796b0eed1af3ec523f27c7a91035ffdb5d7d204429",
+          "bytes": 5170
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-ficha.m4a",
+          "idioma": "es-CO",
+          "sha256": "68879282c0fba862ce35ad996b045c54fc3705405e4b81846b0c87d594396ff3",
+          "bytes": 5265
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-fichas.m4a",
+          "idioma": "es-CO",
+          "sha256": "79acf04b9e8fda4d05c4a79649b3bfa2ebc1c8fd4514615585f284abb75a96bb",
+          "bytes": 11315
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-imprenta.m4a",
+          "idioma": "es-CO",
+          "sha256": "6c251a823ac19a47c22a1d333114c86dfb989d1cfbabe3f43d266a36abc98c0c",
+          "bytes": 6197
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-incubadora.m4a",
+          "idioma": "es-CO",
+          "sha256": "64381e2abdc62fbd2e4b18813af31030818870ddd962c054db24691f9cab9f3b",
+          "bytes": 13515
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-interfono.m4a",
+          "idioma": "es-CO",
+          "sha256": "959bbd3c5271921e240c620100a5f64418ce6b74591a92aa1c5e50adf838a594",
+          "bytes": 7793
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-libro.m4a",
+          "idioma": "es-CO",
+          "sha256": "f9f55293c742fb2f66e79ac199f46c15bbb6f9bade056542846c6411f2ddd8ff",
+          "bytes": 5235
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-manija.m4a",
+          "idioma": "es-CO",
+          "sha256": "b9d2fed6efad8546dc009775e7e38ab12109add2d5ba4ccea79105c56e39ee68",
+          "bytes": 7905
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-mano.m4a",
+          "idioma": "es-CO",
+          "sha256": "d7770a93e9577ebd8d88f57522f60555e0163903c81da44adcc3ebc81156e005",
+          "bytes": 13359
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-palanca.m4a",
+          "idioma": "es-CO",
+          "sha256": "cd7683fff66f893b96438470b4110c2f7f48d5338c4b7b392e79d9eed3e9f804",
+          "bytes": 7845
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-polea.m4a",
+          "idioma": "es-CO",
+          "sha256": "e2be1f2b6c7f660ab0f255b6189320652f848ceff731dbf295fc56af6ebdaa29",
+          "bytes": 11100
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-puerta-cerrada.m4a",
+          "idioma": "es-CO",
+          "sha256": "329d5925e2ce0d1ad84aef5bf9ada2e19fe62c42f15a1c17987a68382ac096f9",
+          "bytes": 9394
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-puerta.m4a",
+          "idioma": "es-CO",
+          "sha256": "1564f112bf57d762523c98c70d5aa80a7eedeb2680fcd55476257f07f27ef3a8",
+          "bytes": 13473
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-recoger.m4a",
+          "idioma": "es-CO",
+          "sha256": "4a5935e050d9d47671c966a4f86812e6033f302027c4788c8cb90c10cf8ff3d2",
+          "bytes": 5224
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-registradora.m4a",
+          "idioma": "es-CO",
+          "sha256": "9eede5fae6b5f14c42d659cdc6934ebc1237b07dcbc869335496edc584bacf11",
+          "bytes": 13428
+        },
+        {
+          "archivo": "audio/es-CO/compartido/efecto-teclas.m4a",
+          "idioma": "es-CO",
+          "sha256": "a6a7c1ed6e89e7bad5208428769843fa3211ad67687b2360c82da6ce07eb2eb3",
+          "bytes": 10963
+        },
+        {
           "archivo": "audio/es-CO/compartido/voz-espera.m4a",
           "idioma": "es-CO",
           "sha256": "c6f64805fb5a671cc19c3bfc73feb2cc47d78fb1b5520275aeec15f3bd8bab29",
@@ -95,7 +209,7 @@
       ],
       "totales": {
         "bytes": 589704,
-        "bytesAudio": 61386,
+        "bytesAudio": 249681,
         "triangulos": 0,
         "drawCalls": 0,
         "bytesGpu": 3137864

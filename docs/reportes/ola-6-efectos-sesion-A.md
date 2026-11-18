@@ -2,7 +2,7 @@
 
 Una tarea: **T42c**, a pedido de Alex: «agregar más efectos de sonido, por ejemplo cuando se abren las puertas, y se usan objetos importantes, tipo la máquina registradora». No estaba en la especificación: la agregué en la fase 5 (Audio), después de T42b, y quedó marcada como hecha en este PR.
 
-Resumen honesto: **nada se probó en un celular real** y los sonidos solo se revisaron en el código y en las pruebas, no con audífonos. Son sonidos hechos con código: si alguno suena feo, se cambian unos números en `src/engine/audio/sintesis.ts`.
+Resumen honesto: **nada se probó en un celular real** y los sonidos solo se revisaron en el código y en las pruebas, no con audífonos. Los efectos de objetos y máquinas se grabaron con ElevenLabs. Si alguno suena feo, se cambia su descripción en `art/audio/efectos/efectos.json` y se vuelve a generar solo ese.
 
 ## Qué hice
 
@@ -22,7 +22,24 @@ Resumen honesto: **nada se probó en un celular real** y los sonidos solo se rev
 - Lo que se abre con un sello suena desde su animación (`etiquetadora.ts`, `tanques.ts`), como ya hacía la caja fuerte.
 - Empezar, continuar o salir de una partida no suena como una puerta. Pasar de etapa no suena como un clic: eso lo anuncia el sello.
 
-## Volumen: los efectos se oían muy bajito
+## Efectos grabados con ElevenLabs
+
+Alex pidió que los efectos también se hicieran con ElevenLabs, igual que la voz. Usé la misma clave, que está en la variable de entorno `ELEVENLABS_API_KEY`, y la API de efectos de sonido.
+
+- **`npm run efectos`** (`scripts/efectos.ts`) genera 19 efectos a partir de `art/audio/efectos/efectos.json`, con una descripción en inglés y la duración de cada uno. Los originales quedan en `art/audio/efectos/originales/` (Git LFS).
+- **Cuáles:** puerta, puerta cerrada, pestillo, teclas y cajón de la registradora, imprenta, incubadora, casilleros, recoger, libro, ficha e intercomunicador. También los siete efectos de T43: palanca, campana, polea, manija, fichas, mano mecánica y caja fuerte. El clic, el bip y el sello siguen hechos con código, porque son señales del juego y no objetos.
+- **`npm run optimize-audio`** los pasa a `compartido/efecto-*.m4a` (mono, AAC a 64 kbps). En total pesan 224 KB, y el audio compartido queda en 0,25 de 0,6 MB.
+- **En el juego** (`src/engine/audio/grabados.ts`), los efectos se bajan después del primer toque y se decodifican una vez. Si un archivo todavía no ha llegado o no carga, suena el mismo efecto hecho con código. Cada uno tiene su nivel en `NIVEL_GRABADO_DB`.
+- **Créditos:** 19 entradas en `art/credits.json` con fuente `elevenlabs`, licencia `elevenlabs-pago`, plan de pago, la descripción usada y la misma captura del plan que la voz.
+
+**Regla de volumen nueva (decisión de Alex, 18 de noviembre de 2026).** Un golpe corto no llega a −16 LUFS sin aplastarlo: con la puerta, subir 20 dB con un limitador apenas la llevó a −19,6 LUFS. Por eso:
+
+- los efectos se normalizan por pico, a −2 dBTP;
+- ninguno puede pasar de −1,5 dBTP ni de −15 LUFS, para que nunca suenen más fuerte que la voz;
+- `check-audio` revisa así los archivos `efecto-*`, mientras la voz y el ambiente siguen a −16 LUFS ± 1 LU;
+- AGENTS.md lo dice en la sección de audio.
+
+## Volumen: los efectos de código se oían muy bajito
 
 Alex probó y no oyó los efectos. Esa vez probó sin este PR, que no estaba fusionado ni tenía vista previa. Aun así, al medirlos encontré que de verdad sonaban muy bajito.
 

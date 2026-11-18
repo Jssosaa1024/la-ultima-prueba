@@ -13,7 +13,9 @@
  *   grabación o un final) suena con la voz grabada (T42b, `voz.ts`). Mientras se juega, se
  *   bajan de antemano las líneas de la sala actual.
  *
- * Ambiente y efectos se generan con Web Audio; la voz se baja de `public/assets/audio/`.
+ * El ambiente se genera con Web Audio. La voz y, desde T42c, los efectos grabados con
+ * ElevenLabs (`grabados.ts`) se bajan de `public/assets/audio/`; mientras un efecto grabado no
+ * ha llegado, suena el hecho con código del mismo nombre (`sintesis.ts`).
  * Lee signals y no escribe más que `audioDesbloqueado` y, desde `voz.ts`, `sonidoVoz`.
  */
 import { effect } from '@preact/signals';
@@ -28,6 +30,7 @@ import { lineaEnPantalla } from '../../signals/voz';
 import { crearAmbiente, type Ambiente } from './ambiente';
 import { desbloquearAlPrimerToque, type DocumentoAudio } from './desbloqueo';
 import { escucharSonidos } from './eventos';
+import { crearEfectosGrabados, type EfectosGrabados } from './grabados';
 import { crearMezcla, volumenesDeAjustes, type Mezcla } from './mezcla';
 import { escucharMomentos } from './momentos';
 import { EFECTOS, type NombreEfecto } from './sintesis';
@@ -83,6 +86,8 @@ export interface OpcionesAudio {
   alSonar?: (nombre: string) => void;
   /** Cómo se bajan los archivos de voz (las pruebas lo reemplazan). Por defecto, `fetch`. */
   bajarVoz?: OpcionesVoz['bajar'];
+  /** Cómo se bajan los efectos grabados (T42c). Por defecto, `fetch`. */
+  bajarEfectos?: OpcionesVoz['bajar'];
 }
 
 /** Empieza a escuchar. Devuelve la función que lo apaga todo y cierra el contexto. */
@@ -92,11 +97,14 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
   let mezcla: Mezcla | null = null;
   let ambiente: Ambiente | null = null;
   let voz: Voz | null = null;
+  let grabados: EfectosGrabados | null = null;
   const efectos: (() => void)[] = [];
 
   const tocar = (nombre: NombreEfecto, retraso = 0): void => {
     if (!contexto || !mezcla) return;
-    EFECTOS[nombre](contexto, mezcla.efectos, contexto.currentTime + retraso);
+    const t = contexto.currentTime + retraso;
+    // El grabado con ElevenLabs si ya llegó; si no, el hecho con código (T42c).
+    if (!grabados?.tocar(nombre, t)) EFECTOS[nombre](contexto, mezcla.efectos, t);
     opciones.alSonar?.(nombre);
   };
 
@@ -113,6 +121,11 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
         opciones.alSonar?.('voz');
       },
       alTerminar: () => mezcla?.hablando(false),
+    });
+    grabados = crearEfectosGrabados({
+      contexto: c,
+      destino: mezcla.efectos,
+      ...(opciones.bajarEfectos ? { bajar: opciones.bajarEfectos } : {}),
     });
     audioDesbloqueado.value = true;
 
@@ -165,6 +178,7 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
     dejarDeEscuchar();
     efectos.forEach((dejar) => dejar());
     voz?.detener();
+    grabados?.detener();
     ambiente?.detener();
     mezcla?.desconectar();
     void desbloqueo.contexto?.close().catch(() => undefined);

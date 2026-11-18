@@ -28,6 +28,7 @@
     "taza-prueba": "node scripts/taza-prueba.ts",
     "exportar-guion": "node scripts/exportar-guion.ts",
     "voz": "node scripts/voz.ts",
+    "efectos": "node scripts/efectos.ts",
     "iconos-pwa": "node scripts/iconos-pwa.ts",
     "prueba-carga": "node scripts/prueba-carga.ts",
     "textura-estres": "node scripts/textura-estres.ts",

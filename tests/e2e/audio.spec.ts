@@ -44,9 +44,12 @@ test('la etiquetadora suena al usarla y al imprimir; con el sello, la registrado
 
 test('la registradora suena con sus teclas al usarla', async ({ page }, info) => {
   const conDedo = info.project.use.hasTouch === true;
+  // Después del primer toque se bajan los efectos grabados con ElevenLabs (T42c).
+  const grabado = page.waitForResponse((r) => r.url().endsWith('/compartido/efecto-teclas.m4a'));
   const caja = await continuarEn(page, { sala: 's1-cooperativa' });
   const canvas = page.getByLabel('Escena del juego');
   await expect(canvas).toHaveAttribute('data-audio', 'listo');
+  expect((await grabado).status()).toBe(200);
   await tocarObjeto(page, caja, REGISTRADORA, conDedo, /Usar.*Registradora/);
   await page.getByRole('button', { name: /Usar.*Registradora/ }).click();
   await expect(page.getByRole('dialog', { name: 'La etiquetadora' })).toBeVisible();
