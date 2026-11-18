@@ -12,7 +12,7 @@ import {
   volumenesDeAjustes,
 } from '../../src/engine/audio/mezcla';
 import { AJUSTES_INICIALES, ajustes } from '../../src/signals/ajustes';
-import { EFECTOS } from '../../src/engine/audio/sintesis';
+import { EFECTOS, reforzado, type Efecto } from '../../src/engine/audio/sintesis';
 import { audioDesbloqueado } from '../../src/signals/audio';
 
 const VOLUMENES_INICIALES = volumenesDeAjustes(AJUSTES_INICIALES);
@@ -230,6 +230,26 @@ describe('sonidos por código', () => {
       const dura = efecto(comoContexto(c), nodo() as unknown as AudioNode, 0);
       expect(dura, nombre).toBeGreaterThan(0);
       expect(c.creados, nombre).toBeGreaterThan(0);
+    }
+  });
+
+  it('un efecto reforzado suena más fuerte por su propio nodo y lo suelta al terminar', () => {
+    vi.useFakeTimers();
+    try {
+      const c = contextoFalso('running');
+      const destino = nodo() as unknown as AudioNode;
+      let recibido: unknown = null;
+      const base: Efecto = (_c, d) => ((recibido = d), 0.5);
+      const dura = reforzado(base, 2)(comoContexto(c), destino, 0);
+      expect(dura).toBe(0.5);
+      const g = recibido as ReturnType<typeof nodo>;
+      expect(g).not.toBe(destino);
+      expect(g.gain.value).toBe(2);
+      expect(g.disconnect).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1100);
+      expect(g.disconnect).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
     }
   });
 

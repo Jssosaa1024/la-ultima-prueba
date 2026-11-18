@@ -22,6 +22,30 @@ Resumen honesto: **nada se probó en un celular real** y los sonidos solo se rev
 - Lo que se abre con un sello suena desde su animación (`etiquetadora.ts`, `tanques.ts`), como ya hacía la caja fuerte.
 - Empezar, continuar o salir de una partida no suena como una puerta. Pasar de etapa no suena como un clic: eso lo anuncia el sello.
 
+## Volumen: los efectos se oían muy bajito
+
+Alex probó y no oyó los efectos. Esa vez probó sin este PR, que no estaba fusionado ni tenía vista previa. Aun así, al medirlos encontré que de verdad sonaban muy bajito.
+
+**Cómo medí:** en el navegador, con `OfflineAudioContext`. Usé un filtro de 300 Hz, porque el parlante de un celular casi no da graves, y tomé el nivel promedio más alto en ventanas de 0,3 s.
+
+**Antes:**
+
+- La Voz quedaba en −13 dB.
+- La puerta, en −41 dB; las teclas de la registradora, en −38 dB; la ficha de la urna, en −53 dB.
+- Algunos efectos viejos también estaban muy bajos: la palanca en −35 dB y la manija de la caja fuerte en −47 dB.
+
+**Qué cambié:**
+
+- **Sonidos más llenos:** el ruido se filtra más ancho, y la puerta y el libro ya no dependen de tonos de 70 a 170 Hz, que el parlante no reproduce.
+- **`reforzado(efecto, veces)`** en `sintesis.ts`: sube cada efecto con su propio nodo de volumen, que se desconecta solo al terminar. Lo apliqué también a siete sonidos que ya existían y estaban igual de bajos: clic, palanca, polea, manija, fichas, mano y caja fuerte. No toqué el sello ni la campana, que ya se oían.
+
+**Ahora:**
+
+- Las puertas, la registradora y lo que abre cada sello quedan entre −19 y −25 dB.
+- Los controles, entre −25 y −34 dB.
+- Ningún pico pasa de −3 dB, así que no saturan.
+- Todo sigue bajo el ajuste «Volumen de los efectos».
+
 ## Qué decidí (Alex puede cambiarlo)
 
 1. **En la etiquetadora, los tanques y la urna no suena el bip** cuando los ajustes ya están bien: delataría la respuesta antes de bajar la palanca. Solo suena donde el jugador ya lo ve en la sala (sensores y lámparas).
@@ -43,7 +67,7 @@ Resumen honesto: **nada se probó en un celular real** y los sonidos solo se rev
 ## Qué necesita Alex
 
 1. **Escuchar los sonidos en el celular** y decir cuáles cambiar (más suave, más corto, otro).
-2. **Fusionar primero el PR 145 (la voz).** Esta rama parte de él: hasta que se fusione, este PR también muestra sus cambios.
+2. **Probar en la vista previa de este PR**, no en la principal: los efectos solo llegan a la principal cuando este PR se fusione. (El PR 145 de la voz ya está fusionado.)
 3. **Decidir si se abre una tarea para las dos pruebas inestables de `main`**: la sala que no termina de mostrarse después de la puerta 1 y el clic que no bloquea el ratón. No son de esta tarea y no las toqué.
 
 ## Cómo probarlo en el celular
