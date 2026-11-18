@@ -3,7 +3,8 @@ import type { Almacen } from '../game/guardado';
 
 /**
  * Ajustes del jugador (T39): sensibilidad de la mirada, modo zurdo, tamaño del texto,
- * volumen de la voz y del ambiente y, desde T19k, brillo de la imagen. Se guardan en `localStorage` de este equipo, aparte de la
+ * volumen de la voz y del ambiente, desde T19k brillo de la imagen y desde T42c volumen de
+ * los efectos. Se guardan en `localStorage` de este equipo, aparte de la
  * partida: sobreviven a un final y a «Jugar solo».
  *
  * Lo guardado es texto no confiable (lo puede cambiar cualquiera): cada campo se revisa contra
@@ -41,6 +42,8 @@ export interface Ajustes {
   volumenVoz: number;
   /** De 0 a 100. Lo aplicará la mezcla de audio (T43). */
   volumenAmbiente: number;
+  /** De 0 a 100: máquinas, puertas, objetos y sellos (T42c). */
+  volumenEfectos: number;
   /** Multiplica la exposición de la escena (T19k). */
   brillo: Brillo;
 }
@@ -51,6 +54,7 @@ export const AJUSTES_INICIALES: Readonly<Ajustes> = {
   texto: 'normal',
   volumenVoz: 100,
   volumenAmbiente: 70,
+  volumenEfectos: 100,
   brillo: 1,
 };
 
@@ -72,12 +76,14 @@ export function validarAjustes(dato: unknown): Ajustes {
   const zurdo = campo('zurdo');
   const voz = campo('volumenVoz');
   const ambiente = campo('volumenAmbiente');
+  const efectos = campo('volumenEfectos');
   return {
     sensibilidad: sensibilidad ?? AJUSTES_INICIALES.sensibilidad,
     zurdo: typeof zurdo === 'boolean' ? zurdo : AJUSTES_INICIALES.zurdo,
     texto: texto ?? AJUSTES_INICIALES.texto,
     volumenVoz: esVolumen(voz) ? voz : AJUSTES_INICIALES.volumenVoz,
     volumenAmbiente: esVolumen(ambiente) ? ambiente : AJUSTES_INICIALES.volumenAmbiente,
+    volumenEfectos: esVolumen(efectos) ? efectos : AJUSTES_INICIALES.volumenEfectos,
     brillo: brillo ?? AJUSTES_INICIALES.brillo,
   };
 }

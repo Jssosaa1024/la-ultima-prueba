@@ -32,6 +32,7 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
   await panel.getByRole('button', { name: 'Más: Sensibilidad de la mirada' }).click();
   await panel.getByRole('button', { name: 'Menos: Volumen de la voz' }).click();
   await panel.getByRole('button', { name: 'Menos: Volumen del ambiente' }).click();
+  await panel.getByRole('button', { name: 'Menos: Volumen de los efectos' }).click();
 
   // Detrás del menú ya está la portería: el brillo la aclara en el acto, sin recargar (T19k).
   const escena = page.getByLabel('Escena del juego');
@@ -52,6 +53,7 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
   );
   await expect(panel.getByRole('group', { name: 'Volumen de la voz' })).toContainText('90 %');
   await expect(panel.getByRole('group', { name: 'Volumen del ambiente' })).toContainText('60 %');
+  await expect(panel.getByRole('group', { name: 'Volumen de los efectos' })).toContainText('90 %');
   await expect(page.locator('html')).toHaveAttribute('data-texto', 'muy-grande');
 
   // Cerrar devuelve el foco al botón «Ajustes», y el menú explica los controles del zurdo.
@@ -70,6 +72,7 @@ test('desde el menú se cambian los ajustes y se recuerdan al recargar', async (
     'true',
   );
   await expect(panel.getByRole('group', { name: 'Volumen de la voz' })).toContainText('90 %');
+  await expect(panel.getByRole('group', { name: 'Volumen de los efectos' })).toContainText('90 %');
 
   // «Restablecer» vuelve a los valores iniciales.
   await panel.getByRole('button', { name: 'Restablecer' }).click();

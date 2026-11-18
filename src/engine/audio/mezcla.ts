@@ -11,7 +11,7 @@ export interface Volumenes {
   voz: number;
   /** El fondo de cada sala, en bucle. */
   ambiente: number;
-  /** Máquinas, sellos y la rectoría. */
+  /** Máquinas, sellos, puertas y objetos. */
   efectos: number;
 }
 
@@ -20,16 +20,21 @@ export interface Volumenes {
  * entiende. Con el 70 % inicial queda en 0,35.
  */
 export const TECHO_AMBIENTE = 0.5;
-/** Los efectos no tienen ajuste propio: van a un volumen fijo, por debajo de la voz. */
-export const VOLUMEN_EFECTOS = 0.7;
+/**
+ * Los efectos al 100 % de los ajustes (T42c) suenan un poco por debajo de la voz, como antes
+ * de tener su propio ajuste.
+ */
+export const TECHO_EFECTOS = 0.7;
 
-/** Los volúmenes de la mezcla según los ajustes del jugador (T39, de 0 a 100). */
-export function volumenesDeAjustes(a: Pick<Ajustes, 'volumenVoz' | 'volumenAmbiente'>): Volumenes {
+/** Los volúmenes de la mezcla según los ajustes del jugador (T39 y T42c, de 0 a 100). */
+export function volumenesDeAjustes(
+  a: Pick<Ajustes, 'volumenVoz' | 'volumenAmbiente' | 'volumenEfectos'>,
+): Volumenes {
   return {
     general: 1,
     voz: a.volumenVoz / 100,
     ambiente: (a.volumenAmbiente / 100) * TECHO_AMBIENTE,
-    efectos: VOLUMEN_EFECTOS,
+    efectos: (a.volumenEfectos / 100) * TECHO_EFECTOS,
   };
 }
 
