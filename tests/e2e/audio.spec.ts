@@ -31,12 +31,15 @@ test('la etiquetadora suena al usarla y al imprimir; con el sello, la registrado
   await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
   await page.getByRole('button', { name: /Usar.*Etiquetadora/ }).click();
   // Usarla abre su panel con el pestillo de la máquina (T42c).
-  await expect(canvas).toHaveAttribute('data-sonidos', /clac/);
+  await expect(canvas).toHaveAttribute('data-sonidos', /(^| )clac( |$)/);
   const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
   await panel.getByRole('button', { name: 'Bajar la palanca' }).click();
   // La palanca, la imprenta, el arpegio del sello y, cuando termina la impresión, la campanita
   // del cajón de la registradora. La Voz puede hablar en medio.
-  await expect(canvas).toHaveAttribute('data-sonidos', /palanca imprenta sello.*registradora/);
+  await expect(canvas).toHaveAttribute(
+    'data-sonidos',
+    /(^| )palanca imprenta sello( .*)? registradora( |$)/,
+  );
 });
 
 test('la registradora suena con sus teclas al usarla', async ({ page }, info) => {
@@ -47,5 +50,5 @@ test('la registradora suena con sus teclas al usarla', async ({ page }, info) =>
   await tocarObjeto(page, caja, REGISTRADORA, conDedo, /Usar.*Registradora/);
   await page.getByRole('button', { name: /Usar.*Registradora/ }).click();
   await expect(page.getByRole('dialog', { name: 'La etiquetadora' })).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-sonidos', /teclas/);
+  await expect(canvas).toHaveAttribute('data-sonidos', /(^| )teclas( |$)/);
 });

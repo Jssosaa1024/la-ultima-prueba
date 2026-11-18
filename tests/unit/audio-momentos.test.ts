@@ -95,7 +95,7 @@ describe('escucharMomentos', () => {
     const { sonidos, dejar } = escuchar();
     enfocado.value = { id: 's1-registradora', nombre: 'Registradora', accion: 'usar' };
     abrirPanel('mecanismo');
-    abrirPanel('cuaderno');
+    abrirPanel('pistas');
     abrirPanel('pausa');
     enfocado.value = { id: 'porteria-salida', nombre: 'Salida', accion: 'usar' };
     abrirPanel('salida');

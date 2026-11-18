@@ -293,7 +293,7 @@ test('la puerta 2 sigue cerrada hasta tener el sello de la sala 1', async ({ pag
   // El pomo traquetea (T42c).
   await expect(page.getByLabel('Escena del juego')).toHaveAttribute(
     'data-sonidos',
-    /puerta-cerrada/,
+    /(^| )puerta-cerrada( |$)/,
   );
 });
 
