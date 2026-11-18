@@ -29,6 +29,7 @@
     "exportar-guion": "node scripts/exportar-guion.ts",
     "voz": "node scripts/voz.ts",
     "iconos-pwa": "node scripts/iconos-pwa.ts",
+    "capturar-portada": "node scripts/capturar-portada.ts",
     "prueba-carga": "node scripts/prueba-carga.ts",
     "textura-estres": "node scripts/textura-estres.ts",
     "basis-sin-eval": "node scripts/csp/basis-sin-eval.ts"

@@ -34,6 +34,7 @@ Hoy el sitio vive en `https://la-ultima-prueba-duz.pages.dev` (rama `main`) y ca
 
 - [ ] Abre `https://<dominio>/` y `https://<dominio>/jugar` en un celular.
 - [ ] La dirección `*.pages.dev` sigue funcionando; no hace falta apagarla. Para el salón, comparte siempre el dominio propio (el QR del piloto se rehace).
+- [ ] Pide a una sesión de Claude cambiar `site` en `astro.config.mjs` por el dominio propio: la imagen que se ve al compartir el enlace (Open Graph, T41h) usa esa dirección.
 - [ ] En Supabase no hay que cambiar nada: la sesión anónima no usa redirecciones y las reglas no dependen del dominio. La CSP (`public/_headers`) tampoco: solo permite el propio sitio y `*.supabase.co`.
 
 ## 2. Versión de contenido

@@ -9,5 +9,8 @@ import csp from './scripts/csp/integracion.ts';
 // `csp` agrega a dist/_headers los hashes de lo que queda en línea y la usa en preview (T02b).
 export default defineConfig({
   output: 'static',
+  // URL pública (T41h): Open Graph necesita la imagen para compartir con URL absoluta.
+  // Si el sitio pasa a un dominio propio (docs/lanzamiento.md), se cambia aquí.
+  site: 'https://la-ultima-prueba-duz.pages.dev',
   integrations: [preact(), serviceWorker(), csp()],
 });
