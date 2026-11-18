@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { PerspectiveCamera, Scene } from 'three';
-import type { Mesh, Object3D } from 'three';
+import type { Camera, Light, Mesh, Object3D } from 'three';
 import { salaPorId } from '../../src/content/salas';
 import { adelante } from '../../src/engine/jugador/camara';
 import { crearCargadorSalas } from '../../src/engine/salas/cargador';
@@ -8,13 +8,33 @@ import { construirSala } from '../../src/engine/salas/construir';
 import { puntoDeEntrada, siguienteSala } from '../../src/engine/salas/recorrido';
 import { carga } from '../../src/signals/interfaz';
 
+/** Tipos de las luces visibles en `raices`, ordenados (como las junta three para dibujar). */
+function lucesVisibles(...raices: Object3D[]): string[] {
+  const tipos: string[] = [];
+  for (const raiz of raices) {
+    raiz.traverseVisible((o) => {
+      if ((o as Light).isLight) tipos.push(o.type);
+    });
+  }
+  return tipos.sort();
+}
+
 /** Renderer falso: cada compilación queda pendiente hasta que la prueba la suelte. */
 function rendererFalso() {
   const pendientes: (() => void)[] = [];
   return {
     compilados: 0,
     automatico: true,
-    compileAsync(): Promise<void> {
+    /**
+     * Las luces con que se compiló cada sala, juntadas como `WebGLRenderer.compile` de three
+     * r187: las visibles de la escena destino y, si es otro objeto, las de lo que se compila.
+     */
+    lucesCompiladas: [] as string[][],
+    compileAsync(objeto: Object3D, _camara: Camera, escena?: Scene | null): Promise<void> {
+      const destino = escena ?? objeto;
+      this.lucesCompiladas.push(
+        destino === objeto ? lucesVisibles(destino) : lucesVisibles(destino, objeto),
+      );
       this.compilados++;
       if (this.automatico) return Promise.resolve();
       return new Promise<void>((r) => pendientes.push(r));
@@ -119,6 +139,44 @@ describe('cargador de salas', () => {
     expect((await segunda)?.id).toBe('s3-gimnasio');
     expect(escena.children).toHaveLength(1);
     expect(cargador.actual?.id).toBe('s3-gimnasio');
+  });
+
+  it('compila cada sala solo con sus luces: una hemisférica y una direccional (T20d)', async () => {
+    const { renderer, escena, cargador } = montar();
+    const UNA_DE_CADA = ['DirectionalLight', 'HemisphereLight'];
+    const recorrido = [
+      'porteria',
+      's1-cooperativa',
+      'porteria',
+      's2-laboratorio',
+      'porteria',
+      's3-gimnasio',
+      'porteria',
+      's4-biblioteca',
+      'porteria',
+      's5-rectoria',
+    ] as const;
+    for (const lugar of recorrido) {
+      await cargador.entrar(lugar);
+      // La compilación vio las mismas luces que el primer cuadro: three no recompila al dibujar.
+      expect(renderer.lucesCompiladas.at(-1), lugar).toEqual(UNA_DE_CADA);
+      expect(lucesVisibles(escena), lugar).toEqual(UNA_DE_CADA);
+    }
+    expect(renderer.lucesCompiladas).toHaveLength(recorrido.length);
+  });
+
+  it('mientras la sala nueva compila, la actual se sigue dibujando con sus luces', async () => {
+    const { renderer, escena, cargador } = montar();
+    const porteria = await cargador.entrar('porteria');
+    renderer.automatico = false;
+    const entrando = cargador.entrar('s1-cooperativa');
+    // compileAsync ya se llamó (sin `vestir` no hay nada que esperar antes).
+    expect(renderer.lucesCompiladas.at(-1)).toEqual(['DirectionalLight', 'HemisphereLight']);
+    // Un cuadro dibujado mientras tanto todavía muestra la portería con sus dos luces.
+    expect(escena.children).toEqual([porteria?.raiz]);
+    expect(lucesVisibles(escena)).toEqual(['DirectionalLight', 'HemisphereLight']);
+    renderer.soltarTodo();
+    expect((await entrando)?.id).toBe('s1-cooperativa');
   });
 
   it('liberar suelta todo', async () => {

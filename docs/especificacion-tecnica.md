@@ -767,6 +767,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T19o** (nueva, ola 6) Arte y medianoche de la rectoría (sala 5): 10 GLB (puerta, mesa de juntas, escritorio, aparador con repisa, silla, sofá y diplomas de KayKit; televisor del simulador, computador y matera de Kenney Furniture Kit, que KayKit no tiene), el parlante de La Voz con primitivas, texturas con tinte, dos lámparas (una encendida sobre la urna y otra que titila), una ventana grande al norte y otra al este, luz y viñeta. El simulador y el computador cambian su caja a la forma del aparato. 3.832 triángulos, 145 KB; prueba del cooperativo 38 de 40. Con esta tarea, las seis salas tienen su arte — 55 min
 - [x] **T20** Cargador de salas: `compileAsync`, liberación de memoria y precarga de la siguiente — 55 min
 - [x] **T20b** (nueva) El motor no dibuja mientras `fase` no sea `jugando` (menú y finales) y la interfaz muestra «Cargando sala…» mientras el signal `carga` está activo — 45 min
+- [x] **T20d** (nueva) El cargador compila la sala nueva solo con sus luces: mientras corre la parte síncrona de `compileAsync` se apagan las luces de la sala actual, que sigue en la escena. Antes three veía dos hemisféricas y dos direccionales, guardaba esos programas sin usarlos y en el primer cuadro (una de cada una) compilaba lo que faltara, como la registradora de doble cara de la sala 1. Prueba en `tests/unit/cargador-salas.test.ts` — 30 min
 
 ### Fase 3 · Lógica de juego (sin gráficos)
 
