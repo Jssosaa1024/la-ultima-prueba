@@ -185,43 +185,6 @@ export const cajaFuerte: Efecto = (c, d, t) => {
   return 1.4;
 };
 
-/**
- * Voz provisional de La Voz (hasta que llegue la grabada con ElevenLabs): sílabas sin
- * palabras, con un tono de voz grave que sube y baja, para probar la mezcla de voz y
- * ambiente. Dura lo que se le pida.
- */
-export function murmullo(
-  c: ContextoSintesis,
-  d: AudioNode,
-  t: number,
-  duracion: number,
-  semilla = 3,
-): number {
-  const r = azar(semilla);
-  let u = t;
-  while (u < t + duracion) {
-    const larga = 0.09 + r() * 0.12;
-    const osc = c.createOscillator();
-    const formante = c.createBiquadFilter();
-    const g = c.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(120 + r() * 50, u);
-    formante.type = 'bandpass';
-    formante.frequency.value = 500 + r() * 900;
-    formante.Q.value = 3;
-    g.gain.setValueAtTime(0.0001, u);
-    g.gain.exponentialRampToValueAtTime(0.5, u + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, u + larga);
-    osc.connect(formante).connect(g).connect(d);
-    osc.start(u);
-    osc.stop(u + larga + 0.02);
-    osc.onended = () => g.disconnect();
-    // Entre palabras, a veces, una pausa más larga.
-    u += larga + (r() < 0.2 ? 0.18 : 0.03);
-  }
-  return u - t;
-}
-
 /** Los efectos que se pueden pedir por su nombre (`sonar('palanca')`). */
 export const EFECTOS = {
   clic,

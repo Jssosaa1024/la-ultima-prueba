@@ -1,11 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { crearAmbiente, FONDOS } from '../../src/engine/audio/ambiente';
-import {
-  DURACION_MURMULLO_S,
-  duracionDe,
-  efectosDeResultado,
-  iniciarAudio,
-} from '../../src/engine/audio/audio';
+import { efectosDeResultado, iniciarAudio, lineasDeLugar } from '../../src/engine/audio/audio';
 import { desbloquearAlPrimerToque, GESTOS } from '../../src/engine/audio/desbloqueo';
 import { sonar } from '../../src/engine/audio/eventos';
 import {
@@ -16,18 +11,18 @@ import {
   volumenesDeAjustes,
 } from '../../src/engine/audio/mezcla';
 import { AJUSTES_INICIALES, ajustes } from '../../src/signals/ajustes';
-import { EFECTOS, murmullo } from '../../src/engine/audio/sintesis';
+import { EFECTOS } from '../../src/engine/audio/sintesis';
 import { audioDesbloqueado } from '../../src/signals/audio';
 
 const VOLUMENES_INICIALES = volumenesDeAjustes(AJUSTES_INICIALES);
-import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
+import { reiniciarInterfaz } from '../../src/signals/interfaz';
 import {
   reiniciarMecanismo,
   resultado,
   type ResultadoMecanismo,
 } from '../../src/signals/mecanismo';
 import { fase, reiniciarPartida, sala } from '../../src/signals/partida';
-import { colaVoz, reiniciarVoz } from '../../src/signals/voz';
+import { lineaEnPantalla, reiniciarVoz, sonidoVoz } from '../../src/signals/voz';
 
 // T43: módulo de audio del motor (desbloqueo en iOS, mezcla, ambiente y efectos por código).
 
@@ -86,6 +81,9 @@ function contextoFalso(estado = 'suspended') {
     createGain: () => (c.creados++, nodo()),
     createBiquadFilter: () => (c.creados++, nodo()),
     createBufferSource: () => (c.creados++, nodo()),
+    decodeAudioData: vi.fn((datos: ArrayBuffer) =>
+      Promise.resolve({ duration: datos.byteLength / 1000 } as AudioBuffer),
+    ),
   };
   return c;
 }
@@ -228,13 +226,6 @@ describe('sonidos por código', () => {
     }
   });
 
-  it('el murmullo de la voz provisional dura al menos lo pedido', () => {
-    const c = contextoFalso('running');
-    expect(murmullo(comoContexto(c), nodo() as unknown as AudioNode, 0, 2)).toBeGreaterThanOrEqual(
-      2,
-    );
-  });
-
   it('el ambiente cambia de fondo por sala y calla con null', () => {
     const c = contextoFalso('running');
     const a = crearAmbiente(comoContexto(c), nodo() as unknown as AudioNode);
@@ -251,11 +242,18 @@ describe('sonidos por código', () => {
   });
 });
 
-describe('voz provisional', () => {
-  it('dura lo que dice el guion, o 4 s si la línea no está', () => {
-    expect(duracionDe('grab-1')).toBeGreaterThan(0);
-    expect(duracionDe('no-existe')).toBe(DURACION_MURMULLO_S);
-    expect(duracionDe(undefined)).toBe(DURACION_MURMULLO_S);
+describe('voz de cada lugar (T42b)', () => {
+  it('se bajan las líneas del lugar y las de cualquier sala, sin las de los finales', () => {
+    expect(lineasDeLugar('s1-cooperativa')).toEqual([
+      'voz-s1-entrar',
+      'voz-s1-sello',
+      'voz-espera',
+      'voz-fallo',
+    ]);
+    expect(lineasDeLugar('s2-laboratorio')).toContain('grab-1');
+    const porteria = lineasDeLugar('porteria');
+    expect(porteria).toContain('voz-intro-1');
+    expect(porteria.some((id) => id.startsWith('voz-fin-'))).toBe(false);
   });
 });
 
@@ -285,14 +283,16 @@ describe('qué suena cuando responde una máquina', () => {
 });
 
 describe('iniciarAudio', () => {
-  it('después del primer toque suenan las máquinas, la voz provisional y lo que pide el motor', async () => {
+  it('después del primer toque suenan las máquinas, la voz y lo que pide el motor', async () => {
     const documento = documentoFalso();
     const contexto = contextoFalso();
     const sonidos: string[] = [];
+    const bajadas: string[] = [];
     const detener = iniciarAudio({
       documento,
       crear: () => comoContexto(contexto),
       alSonar: (n) => sonidos.push(n),
+      bajarVoz: (url) => (bajadas.push(url), Promise.resolve(new ArrayBuffer(4000))),
     });
     // Antes del toque nada suena.
     sonar('mano');
@@ -317,28 +317,29 @@ describe('iniciarAudio', () => {
     };
     expect(sonidos).toEqual(['palanca', 'sello']);
 
-    panel.value = 'grabacion';
-    expect(sonidos.at(-1)).toBe('voz');
-    expect(DURACION_MURMULLO_S).toBeGreaterThan(0);
-
     sonar('mano');
     expect(sonidos.at(-1)).toBe('mano');
 
-    // Cada subtítulo nuevo de La Voz (T34) suena con la voz provisional.
+    // La línea que muestra la interfaz (T42b) suena con su audio.
     const antes = sonidos.length;
-    colaVoz.value = ['voz-s1-sello'];
+    lineaEnPantalla.value = 'voz-s1-sello';
+    expect(sonidoVoz.value).toEqual({ id: 'voz-s1-sello', estado: 'cargando' });
+    await esperar();
+    await esperar();
     expect(sonidos.slice(antes)).toEqual(['voz']);
-    colaVoz.value = ['voz-s1-sello', 'voz-final'];
-    expect(sonidos.length).toBe(antes + 1);
-    colaVoz.value = ['voz-final'];
-    expect(sonidos.length).toBe(antes + 2);
+    expect(sonidoVoz.value).toMatchObject({ id: 'voz-s1-sello', estado: 'sonando' });
+    // Se baja de public/assets/audio/es-CO/<sala>/<id>.m4a.
+    expect(bajadas).toContain('/assets/audio/es-CO/s1-cooperativa/voz-s1-sello.m4a');
+    // Al entrar a la sala se bajaron de antemano sus líneas.
+    expect(bajadas).toContain('/assets/audio/es-CO/compartido/voz-espera.m4a');
 
     detener();
     expect(contexto.close).toHaveBeenCalled();
     expect(audioDesbloqueado.value).toBe(false);
     // Apagado, ya nada suena.
     sonar('clic');
-    colaVoz.value = ['voz-espera'];
-    expect(sonidos.length).toBe(antes + 2);
+    lineaEnPantalla.value = 'voz-espera';
+    await esperar();
+    expect(sonidos.length).toBe(antes + 1);
   });
 });

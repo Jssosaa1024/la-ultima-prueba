@@ -7,34 +7,39 @@
  * - **Ambiente.** Un fondo por sala durante la partida; en el menú y los finales, silencio.
  * - **Efectos.** Lo que hace cada máquina al responder (signal `resultado`), el sello ganado y
  *   lo que piden las animaciones con `sonar()` (la mano de la urna, la caja fuerte, la campana).
- * - **Voz provisional.** Cada línea de La Voz que muestra un subtítulo (cola `colaVoz`, T34)
- *   y cada grabación que se abre suenan con un murmullo sin palabras de la misma duración del
- *   guion, hasta que llegue la voz grabada (ElevenLabs, plan de pago).
+ * - **Voz.** La línea de La Voz que la interfaz muestra (`lineaEnPantalla`: un subtítulo, una
+ *   grabación o un final) suena con la voz grabada (T42b, `voz.ts`). Mientras se juega, se
+ *   bajan de antemano las líneas de la sala actual.
  *
- * Todo se genera con Web Audio: no hay archivos que descargar todavía. Lee signals y no
- * escribe más que `audioDesbloqueado`.
+ * Ambiente y efectos se generan con Web Audio; la voz se baja de `public/assets/audio/`.
+ * Lee signals y no escribe más que `audioDesbloqueado` y, desde `voz.ts`, `sonidoVoz`.
  */
 import { effect } from '@preact/signals';
 import type { Lugar } from '../../content/esquema-salas';
-import { lineaPorId } from '../../content/guion';
+import { carpetaDeAudio } from '../../content/audio-guion';
+import { GUION } from '../../content/guion';
 import { ajustes } from '../../signals/ajustes';
 import { audioDesbloqueado } from '../../signals/audio';
-import { panel } from '../../signals/interfaz';
 import { resultado, type ResultadoMecanismo } from '../../signals/mecanismo';
-import { fase, grabaciones, sala } from '../../signals/partida';
-import { colaVoz } from '../../signals/voz';
+import { fase, sala } from '../../signals/partida';
+import { lineaEnPantalla } from '../../signals/voz';
 import { crearAmbiente, type Ambiente } from './ambiente';
 import { desbloquearAlPrimerToque, type DocumentoAudio } from './desbloqueo';
 import { escucharSonidos } from './eventos';
 import { crearMezcla, volumenesDeAjustes, type Mezcla } from './mezcla';
-import { EFECTOS, murmullo, type NombreEfecto } from './sintesis';
+import { EFECTOS, type NombreEfecto } from './sintesis';
+import { crearVoz, type OpcionesVoz, type Voz } from './voz';
 
-/** Lo que dura la voz provisional si la línea no está en el guion, en segundos. */
-export const DURACION_MURMULLO_S = 4;
-
-/** Lo que dura una línea del guion (`duracion_s`), o el valor por defecto. */
-export const duracionDe = (id: string | undefined): number =>
-  (id ? lineaPorId(id)?.duracion_s : undefined) ?? DURACION_MURMULLO_S;
+/**
+ * Las líneas que conviene tener bajadas en un lugar: las suyas y las que suenan en cualquier
+ * sala (espera y fallo). Las de un final se bajan cuando llega el final.
+ */
+export function lineasDeLugar(lugar: string): string[] {
+  return GUION.filter((l) => {
+    const carpeta = carpetaDeAudio(l.sala);
+    return l.momento !== 'final' && (carpeta === lugar || carpeta === 'compartido');
+  }).map((l) => l.id);
+}
 /** Espera entre el sonido de la máquina y el del sello. */
 const ESPERA_SELLO_S = 0.45;
 
@@ -66,6 +71,8 @@ export interface OpcionesAudio {
   crear?: () => AudioContext;
   /** Se llama con el nombre de cada efecto que suena (atributo para las pruebas e2e). */
   alSonar?: (nombre: string) => void;
+  /** Cómo se bajan los archivos de voz (las pruebas lo reemplazan). Por defecto, `fetch`. */
+  bajarVoz?: OpcionesVoz['bajar'];
 }
 
 /** Empieza a escuchar. Devuelve la función que lo apaga todo y cierra el contexto. */
@@ -74,7 +81,7 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
   let contexto: AudioContext | null = null;
   let mezcla: Mezcla | null = null;
   let ambiente: Ambiente | null = null;
-  let finVoz: ReturnType<typeof setTimeout> | undefined;
+  let voz: Voz | null = null;
   const efectos: (() => void)[] = [];
 
   const tocar = (nombre: NombreEfecto, retraso = 0): void => {
@@ -83,19 +90,20 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
     opciones.alSonar?.(nombre);
   };
 
-  const hablar = (segundos: number): void => {
-    if (!contexto || !mezcla) return;
-    mezcla.hablando(true);
-    murmullo(contexto, mezcla.voz, contexto.currentTime + 0.1, segundos);
-    opciones.alSonar?.('voz');
-    clearTimeout(finVoz);
-    finVoz = setTimeout(() => mezcla?.hablando(false), (segundos + 0.3) * 1000);
-  };
-
   const alDesbloquear = (c: AudioContext): void => {
     contexto = c;
     mezcla = crearMezcla(c, volumenesDeAjustes(ajustes.peek()));
     ambiente = crearAmbiente(c, mezcla.ambiente);
+    voz = crearVoz({
+      contexto: c,
+      destino: mezcla.voz,
+      ...(opciones.bajarVoz ? { bajar: opciones.bajarVoz } : {}),
+      alEmpezar: () => {
+        mezcla?.hablando(true);
+        opciones.alSonar?.('voz');
+      },
+      alTerminar: () => mezcla?.hablando(false),
+    });
     audioDesbloqueado.value = true;
 
     efectos.push(
@@ -104,6 +112,8 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
       effect(() => {
         const lugar: Lugar | null = fase.value === 'jugando' ? sala.value : null;
         ambiente?.cambiar(lugar);
+        // La voz de la sala queda bajada antes de que la pida un subtítulo.
+        if (lugar) voz?.precargar(lineasDeLugar(lugar));
       }),
     );
     // Lo que respondió la máquina antes del desbloqueo ya pasó: no se toca.
@@ -118,23 +128,15 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
         });
       }),
     );
-    // La grabación recién recogida: su texto está en el guion con el id `grab-N`.
-    let grabacionAbierta = panel.peek() === 'grabacion';
+    // La línea que la interfaz muestra ahora: un subtítulo (T34), una grabación o un final.
+    // La que ya se veía al desbloquear también suena: es la presentación de La Voz, pedida en
+    // el mismo toque de «Jugar solo». Si se deja de ver (se abre un panel), se calla; al
+    // volver a verse, empieza otra vez.
     efectos.push(
       effect(() => {
-        const abierta = panel.value === 'grabacion';
-        if (abierta && !grabacionAbierta) hablar(duracionDe(grabaciones.peek().at(-1)));
-        grabacionAbierta = abierta;
-      }),
-    );
-    // La línea cuyo subtítulo se está viendo (T34). La que ya se veía al desbloquear también
-    // suena: es la presentación de La Voz, pedida en el mismo toque de «Jugar solo».
-    let lineaActual: string | null = null;
-    efectos.push(
-      effect(() => {
-        const id = colaVoz.value[0] ?? null;
-        if (id && id !== lineaActual) hablar(duracionDe(id));
-        lineaActual = id;
+        const id = lineaEnPantalla.value;
+        if (id) voz?.decir(id);
+        else voz?.callar();
       }),
     );
   };
@@ -150,7 +152,7 @@ export function iniciarAudio(opciones: OpcionesAudio = {}): () => void {
     desbloqueo.detener();
     dejarDeEscuchar();
     efectos.forEach((dejar) => dejar());
-    clearTimeout(finVoz);
+    voz?.detener();
     ambiente?.detener();
     mezcla?.desconectar();
     void desbloqueo.contexto?.close().catch(() => undefined);

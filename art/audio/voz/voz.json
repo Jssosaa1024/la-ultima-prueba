@@ -1,0 +1,30 @@
+{
+  "modelo": "eleven_multilingual_v2",
+  "formato": "mp3_44100_128",
+  "semilla": 4210,
+  "ajustes": {
+    "stability": 0.5,
+    "similarity_boost": 0.8,
+    "style": 0.15,
+    "use_speaker_boost": true,
+    "speed": 0.95
+  },
+  "candidatas": [
+    {
+      "voice_id": "9TcPbUAhHnAV8mzFDAWU",
+      "nombre": "El Faraon 2 - Abuelo Narrador De Historias",
+      "nota": "Hombre mayor con acento colombiano; el más cercano al profe de un colegio de aquí."
+    },
+    {
+      "voice_id": "wfTWLJ20rcMqvU8gIiAB",
+      "nombre": "Salvatore - Conversations & Storyteller",
+      "nota": "Hombre mayor latinoamericano, natural y conversacional: el más fácil para la ironía seca."
+    },
+    {
+      "voice_id": "crXOIS13NaTVLeuWd3Dp",
+      "nombre": "Mario C.",
+      "nota": "Hombre mayor latinoamericano, calmado y con autoridad de maestro."
+    }
+  ],
+  "elegida": "wfTWLJ20rcMqvU8gIiAB"
+}
