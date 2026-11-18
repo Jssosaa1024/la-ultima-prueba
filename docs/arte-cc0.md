@@ -248,28 +248,39 @@ Nuevo hecho con primitiva: una alfombra vinotinto bajo el rincón de lectura (va
 
 ## Sala 5 · La rectoría
 
+Hecha en T19o, con KayKit y tres modelos de Kenney Furniture Kit que KayKit no tiene (televisor, computador y matera alta). La urna, los dispensadores, el botón de las parejas, la caja fuerte y la carta siguen como primitivas: su máquina los anima, su color es la pista o su texto se lee en 2D.
+
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
-| `s5-puerta` · puerta | Furniture · `doorway.glb` | 216 | `puerta` | — |
-| `s5-mesa` · mesa 2 × 0,75 × 1 | Furniture · `table.glb` | 240 | `mesa` | — |
-| `s5-urna` · urna transparente | Primitiva | — | — | Por código (AGENTS.md); `urna.ts` pone fichas y mano |
-| `s5-dispensadores` · dispensadores de fichas | Mini Shop · `gacha-machine.glb` | s/d (70 KB) | `dispensador` | Dos copias con `instance` |
-| `s5-simulador` · simulador | Factory · `machine.glb` | s/d (25 KB) | `etiquetadora` | El mismo GLB de la sala 1, más pequeño |
-| `s5-ver-parejas` · botón | Factory · `button-floor-round-small.glb` | s/d (14 KB) | `boton` | Es un botón de piso: va de pie |
-| `s5-caja-fuerte` · caja fuerte | Primitiva | — | — | Kenney no tiene; `caja-fuerte.ts` le pone puerta y llave |
-| `s5-escritorio` · escritorio 1,4 × 0,75 × 0,7 | Furniture · `desk.glb` | 352 | `escritorio` | — |
-| `s5-computador` · computador | Furniture · `computerScreen.glb` + `computerKeyboard.glb` | 144 + 64 | `computador` | — |
-| `s5-carta` · carta | Primitiva | — | — | Papel; se lee en 2D |
+| `s5-puerta` | Restaurant · `door_A` | 188 | `puerta` | La misma de las otras salas |
+| `s5-mesa` · 2 × 0,75 × 1 | Furniture · `table_medium_long` | 168 | `mesa` | Mesa de juntas |
+| `s5-simulador` · 0,3 × 0,2 × 0,2 | Kenney Furniture · `televisionVintage` | 280 | `simulador` | El televisor viejo; su caja pasó de 0,25³ a la forma del aparato |
+| `s5-escritorio` · 1,4 × 0,75 × 0,7 | Furniture · `cabinet_medium` | 428 | `escritorio` | Cajones hacia la sala |
+| `s5-computador` · 0,5 × 0,375 × 0,3 | Kenney Furniture · `computerScreen` + `computerKeyboard` | 104 | `computador` | Pantalla y teclado sobre el escritorio |
+| `s5-estante` (nuevo) | Furniture · `cabinet_medium_decorated` + `shelf_B_large_decorated` | 1.500 | `estante` | Aparador con adornos y repisa, contra la pared oeste |
+| `s5-silla` (nueva) | Furniture · `chair_C` | 288 | `silla` | Silla del rector, arrimada al escritorio |
+| `s5-sofa` (nuevo) | Furniture · `couch` | 636 | `sofa` | Sofá de visitas bajo la ventana del este |
+| `s5-planta` (nueva) | Kenney Furniture · `pottedPlant` | 60 | `planta` | Matera alta junto a la ventana grande |
+| `s5-diplomas` (nuevos) | Furniture · tres `pictureframe` | 180 | `diplomas` | Sin texto, sobre el escritorio |
+
+Nuevo hecho con primitivas: el parlante de La Voz, alto en la esquina noreste (va en la malla fija).
+
+- **Superficies:** parqué (WoodFloor071, `compartido/piso-madera`) con tinte nogal, pañete color pergamino y techo de oficina.
+- **Acabados:** zócalo verde salvia con franja dorada; la lámpara del oeste encendida (sobre la urna) y la del este titilando; una ventana grande en la pared norte, con la luna, y otra en la pared este, sobre el sofá.
+- **Luz:** penumbra cálida de oficina con luz de luna fría desde el sureste.
+- **Medidas:** 10 GLB, 3.832 triángulos, 145 KB. Prueba del cooperativo: 38 de 40.
 
 ## Texturas de piso, paredes y techo
 
 Solo se usa el mapa de color de cada zip, por ejemplo `Tiles040_1K-JPG_Color.jpg`. ambientCG avisó en octubre de 2025 que reempaquetaría sus assets y que a veces cambiaría los nombres de archivo, así que hay que confirmar el nombre al abrir el zip. Los ids siguen el formato de la sesión A (T19g): `<carpeta>/<nombre>`. Cada una se publica como `public/assets/salas/compartido/<nombre>.<hash>.ktx2`, con su entrada en `art/credits.json` (`sala: "compartido"`, `fuente: "ambientcg"`), y en `salas.json` se pide así: `"texturas": { "piso": "compartido/piso-baldosa", "paredes": "compartido/paredes", "techo": "compartido/techo", "metros": 2 }`.
 
-| Uso | Textura | Id propuesto | Salas |
+Así quedaron con el arte de las seis salas (T19h a T19o); el tinte de cada sala está en su `texturas.tinte`:
+
+| Uso | Textura | Id | Salas |
 | --- | --- | --- | --- |
-| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería, cooperativa, laboratorio, rectoría |
-| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio, y las graderías |
-| Piso de la biblioteca | WoodFloor071 (parqué claro) | `compartido/piso-biblioteca` | Biblioteca |
+| Piso de baldosa | Tiles040 (terrazo blanco) | `compartido/piso-baldosa` | Portería y laboratorio |
+| Piso de parqué | WoodFloor071 (parqué claro) | `compartido/piso-madera` | Cooperativa, biblioteca y rectoría |
+| Piso del gimnasio | WoodFloor051 (tablas claras) | `compartido/piso-gimnasio` | Gimnasio |
 | Paredes | PaintedPlaster017 (pañete pintado blanco) | `compartido/paredes` | Todas; el color de cada sala se da con el tinte del material |
 | Techo | OfficeCeiling001 (cielo raso de oficina) | `compartido/techo` | Todas menos el gimnasio, que tiene 9 m de alto (ahí basta un color) |
 
@@ -298,7 +309,7 @@ El límite por sala es de 2 MB descargados y 90.000 triángulos, y además 40 dr
 | Laboratorio (medido, T19l) | 8 GLB | 3.172 | 0,14 MB + texturas compartidas | Sí |
 | Gimnasio (medido, T19m) | 5 GLB | 1.882 | 0,09 MB + piso nuevo de 0,15 MB | Sí |
 | Biblioteca (medido, T19n) | 10 GLB | 17.748 | 0,44 MB + texturas compartidas | Sí |
-| Rectoría | 6 GLB | ~5.000 | ~0,1 MB + ~0,6 MB | Sí |
+| Rectoría (medido, T19o) | 10 GLB | 3.832 | 0,15 MB + texturas compartidas | Sí |
 
 Ninguna sala pasa de 1 MB; la biblioteca es la de más triángulos (unos 17.700), lejos del límite de 90.000. Lo que sí puede pasarse son las **draw calls**:
 

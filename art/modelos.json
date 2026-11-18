@@ -781,6 +781,123 @@
     "caja": [2.25, 1.42, 0.96]
   },
   {
+    "archivo": "public/assets/salas/s5-rectoria/puerta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-restaurant-bits/KayKit_Restaurant_Bits_1.0_FREE.zip#KayKit_Restaurant_Bits_1.0_FREE/Assets/gltf/door_A.gltf"
+      }
+    ],
+    "caja": [1.1, 2.2, 0.12],
+    "nota": "La misma de las otras salas. Fondo de 12 cm: el modelo trae 57 cm y se metía en la sala."
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/mesa.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/table_medium_long.gltf"
+      }
+    ],
+    "caja": [2, 0.75, 1],
+    "nota": "Mesa de juntas del rector"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/escritorio.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium.gltf"
+      }
+    ],
+    "caja": [1.4, 0.75, 0.7],
+    "nota": "Escritorio con cajones hacia la sala"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/estante.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cabinet_medium_decorated.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/shelf_B_large_decorated.gltf",
+        "pos": [0, 2.1, -0.5]
+      }
+    ],
+    "caja": [0.5, 2.1, 1.5],
+    "giro": 90,
+    "nota": "Aparador con adornos y repisa encima, de lado contra la pared oeste"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/silla.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/chair_C.gltf"
+      }
+    ],
+    "caja": [0.56, 0.9, 0.7],
+    "nota": "Silla del rector, arrimada al escritorio"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/sofa.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/couch.gltf"
+      }
+    ],
+    "caja": [1.8, 0.75, 0.95],
+    "nota": "Sofá de visitas bajo la ventana del este"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/diplomas.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/pictureframe_small_A.gltf",
+        "pos": [-0.75, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/pictureframe_medium.gltf"
+      },
+      {
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/pictureframe_small_B.gltf",
+        "pos": [0.8, 0.1, 0]
+      }
+    ],
+    "caja": [1.2, 0.5, null],
+    "nota": "Diplomas y fotos sin texto sobre el escritorio"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/simulador.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/televisionVintage.glb"
+      }
+    ],
+    "caja": [0.3, 0.2, 0.2],
+    "nota": "Televisor viejo como simulador: KayKit no tiene pantallas"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/computador.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/computerScreen.glb"
+      },
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/computerKeyboard.glb",
+        "pos": [0.055, 0, 0.13]
+      }
+    ],
+    "caja": [0.5, 0.375, 0.3],
+    "nota": "Pantalla y teclado sobre el escritorio: KayKit no tiene computador"
+  },
+  {
+    "archivo": "public/assets/salas/s5-rectoria/planta.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-furniture-kit/kenney_furniture-kit.zip#Models/GLTF format/pottedPlant.glb"
+      }
+    ],
+    "caja": [0.45, 1.3, 0.5],
+    "nota": "Matera alta junto a la ventana grande: KayKit solo tiene cactus bajos"
+  },
+  {
     "archivo": "public/assets/salas/compartido/piso-baldosa.ktx2",
     "original": "art/compartido/originales/ambientcg/Tiles040_1K-JPG.zip#Tiles040_1K-JPG_Color.jpg"
   },

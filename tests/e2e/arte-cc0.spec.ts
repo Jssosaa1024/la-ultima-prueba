@@ -44,6 +44,7 @@ for (const [sala, url, objetos, minimo, nTexturas] of [
   ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio'), 9, 3],
   ['s3-gimnasio', '/jugar?sala=s3-gimnasio', conModelo('s3-gimnasio'), 5, 2],
   ['s4-biblioteca', '/jugar?sala=s4-biblioteca', conModelo('s4-biblioteca'), 9, 3],
+  ['s5-rectoria', '/jugar?sala=s5-rectoria', conModelo('s5-rectoria'), 9, 3],
 ] as const) {
   test(`${sala}: modelos CC0 y texturas de ambientCG`, async ({ page }) => {
     const errores: string[] = [];
