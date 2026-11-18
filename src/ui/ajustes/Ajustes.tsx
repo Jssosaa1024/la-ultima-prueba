@@ -2,6 +2,7 @@ import { useEffect } from 'preact/hooks';
 import {
   AJUSTES_INICIALES,
   ajustes,
+  BRILLOS,
   cambiarAjustes,
   PASO_VOLUMEN,
   SENSIBILIDADES,
@@ -15,6 +16,9 @@ import './ajustes.css';
 
 /** Nombre de cada sensibilidad, en el orden de `SENSIBILIDADES`. */
 const NOMBRES_SENSIBILIDAD = ['Muy lenta', 'Lenta', 'Normal', 'Rápida', 'Muy rápida'];
+
+/** Nombre de cada brillo, en el orden de `BRILLOS` (T19k). */
+const NOMBRES_BRILLO = ['Más oscuro', 'Normal', 'Más claro'];
 
 const OPCIONES_TEXTO: readonly { valor: TamanoTexto; texto: string }[] = [
   { valor: 'normal', texto: 'Normal' },
@@ -31,6 +35,7 @@ const OPCIONES_MANO: readonly { valor: 'izquierda' | 'derecha'; texto: string }[
 function ControlesAjustes() {
   const a = ajustes.value;
   const nivel = SENSIBILIDADES.indexOf(a.sensibilidad);
+  const brillo = BRILLOS.indexOf(a.brillo);
   return (
     <div class="ajustes">
       <Pasos
@@ -58,6 +63,17 @@ function ControlesAjustes() {
           ? 'Caminas con el pulgar derecho y miras arrastrando en la mitad izquierda.'
           : 'Caminas con el pulgar izquierdo y miras arrastrando en la mitad derecha.'}
       </p>
+      <Pasos
+        etiqueta="Brillo de la imagen"
+        valor={brillo}
+        min={0}
+        max={BRILLOS.length - 1}
+        texto={NOMBRES_BRILLO[brillo] ?? 'Normal'}
+        alCambiar={(n) => {
+          const b = BRILLOS[n];
+          if (b !== undefined) cambiarAjustes({ brillo: b });
+        }}
+      />
       <Opciones
         etiqueta="Tamaño del texto"
         opciones={OPCIONES_TEXTO}

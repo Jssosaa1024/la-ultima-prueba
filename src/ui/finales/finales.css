@@ -300,7 +300,7 @@
 }
 
 /* La elección de final frente a la puerta, sobre el papel. */
-.tema-archivo .eleccion-opcion {
+.dialogo-papel .eleccion-opcion {
   border: 1px dashed var(--tema-papel-borde);
   border-radius: var(--tema-radio);
   background: rgb(255 255 255 / 30%);

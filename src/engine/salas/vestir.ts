@@ -17,6 +17,7 @@ import type { Sala } from '../../content/esquema-salas';
 import { urlDeAsset } from '../carga/manifiesto';
 import type { IndiceAssets } from '../carga/manifiesto';
 import { SUPERFICIES, TEXTURA } from './construir';
+import type { Superficie } from './construir';
 import { aLambert, ponerModelos } from './modelos';
 
 /** De dónde salen los archivos. En el juego, el manifiesto y el cargador KTX2 (T10). */
@@ -52,16 +53,23 @@ export function urlsDeSala(sala: Sala, indice: IndiceAssets): string[] {
   return [...urls];
 }
 
-/** Pone el mapa de color en el material de la superficie, repetido y en sRGB. */
-function aplicarTextura(malla: Mesh, textura: Texture): void {
+/**
+ * Pone el mapa de color en el material de la superficie, repetido y en sRGB, con el tinte de
+ * la sala si lo tiene (T19k).
+ */
+function aplicarTextura(malla: Mesh, textura: Texture, tinte: string | undefined): void {
   const material = malla.material as MeshLambertMaterial;
   textura.wrapS = RepeatWrapping;
   textura.wrapT = RepeatWrapping;
   textura.colorSpace = SRGBColorSpace;
+  // T19k: las UV van en metros iguales a lo ancho y a lo alto; una imagen que no es cuadrada
+  // (la de las paredes mide 1024 × 512) se repite más a lo alto para que no se vea estirada.
+  const { width, height } = (textura.image ?? {}) as { width?: number; height?: number };
+  if (width && height) textura.repeat.set(1, width / height);
   textura.needsUpdate = true;
   material.map = textura;
-  // El color de respaldo ya no tiñe la textura.
-  material.color.set(0xffffff);
+  // El color de respaldo ya no tiñe la textura: solo el tinte de la sala, si lo pide.
+  material.color.set(tinte ?? 0xffffff);
   material.needsUpdate = true;
 }
 
@@ -106,7 +114,8 @@ export async function vestirSala(
     }
     try {
       const textura = await fuentes.textura(url);
-      for (const m of mallas) aplicarTextura(m, textura);
+      const tintes = sala.texturas?.tinte;
+      for (const m of mallas) aplicarTextura(m, textura, tintes?.[m.name as Superficie]);
     } catch (error) {
       console.warn(`No se pudo cargar la textura ${id}; queda el color de la sala`, error);
     }

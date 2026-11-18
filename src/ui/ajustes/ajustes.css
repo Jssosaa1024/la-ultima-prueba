@@ -31,36 +31,36 @@
  * Tema del archivo (T41d): los controles de los ajustes sobre el papel. Los de los paneles de
  * mecanismo (`mecanismos.css`) son para la noche; aquí pasan a tinta para tener contraste AA.
  */
-.tema-archivo .control-etiqueta {
+.dialogo-papel .control-etiqueta {
   font-family: var(--tema-letra-maquina);
   font-weight: 700;
   color: var(--tema-tinta-suave);
 }
 
-.tema-archivo .pasos-boton,
-.tema-archivo .opcion {
+.dialogo-papel .pasos-boton,
+.dialogo-papel .opcion {
   border-color: var(--tema-tinta-suave);
   background: rgb(255 255 255 / 25%);
   color: var(--tema-tinta);
 }
 
-.tema-archivo .opcion-puesta {
+.dialogo-papel .opcion-puesta {
   border-color: var(--tema-tinta);
   background: var(--tema-ambar);
   color: var(--tema-tinta);
 }
 
-.tema-archivo .pasos-valor {
+.dialogo-papel .pasos-valor {
   font-family: var(--tema-letra-maquina);
 }
 
-.tema-archivo .pasos-boton:focus-visible,
-.tema-archivo .opcion:focus-visible {
+.dialogo-papel .pasos-boton:focus-visible,
+.dialogo-papel .opcion:focus-visible {
   outline-color: var(--tema-sello-azul);
   box-shadow: 0 0 0 6px var(--tema-papel);
 }
 
-.tema-archivo .ajustes-nota,
-.tema-archivo .ajustes-pausa {
+.dialogo-papel .ajustes-nota,
+.dialogo-papel .ajustes-pausa {
   color: var(--tema-tinta-suave);
 }

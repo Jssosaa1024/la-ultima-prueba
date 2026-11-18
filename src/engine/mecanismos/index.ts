@@ -1,5 +1,6 @@
 import type { Object3D } from 'three';
 import type { Lugar } from '../../content/esquema-salas';
+import { animarLamparas } from '../salas/lamparas';
 import { animarBalones } from './balones';
 import { animarCajaFuerte } from './caja-fuerte';
 import { animarCarritos } from './carritos';
@@ -36,6 +37,32 @@ export function conDetalle(maquina: AnimacionSala, extra: AnimacionSala): Animac
   };
 }
 
+/**
+ * Junta la máquina de una sala con algo de ambiente que también se mueve (la lámpara que
+ * titila, T19k) sin cambiar su `estado` ni su `detalle`: las pruebas e2e siguen leyendo los
+ * de la máquina.
+ */
+export function conAmbiente(maquina: AnimacionSala, ambiente: AnimacionSala): AnimacionSala {
+  const junta: AnimacionSala = {
+    actualizar(dt) {
+      maquina.actualizar(dt);
+      ambiente.actualizar(dt);
+    },
+    get estado() {
+      return maquina.estado;
+    },
+    liberar() {
+      maquina.liberar();
+      ambiente.liberar();
+    },
+  };
+  // `detalle` solo si la máquina lo tiene: sin él, el motor no escribe `data-detalle`.
+  if ('detalle' in maquina) {
+    Object.defineProperty(junta, 'detalle', { get: () => maquina.detalle, enumerable: true });
+  }
+  return junta;
+}
+
 /** Lo que se anima en cada sala. Las salas que aún no tienen nada, no animan. */
 const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   // El mural con los sellos ganados y la luz sobre la puerta que toca abrir (hito 1, punto 16).
@@ -52,5 +79,8 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
 
 /** Prepara las animaciones de `lugar` sobre su sala ya construida, si las tiene. */
 export function animacionDeSala(lugar: Lugar, raiz: Object3D): AnimacionSala | null {
-  return ANIMACIONES[lugar]?.(raiz) ?? null;
+  const maquina = ANIMACIONES[lugar]?.(raiz) ?? null;
+  const lamparas = animarLamparas(raiz);
+  if (!lamparas) return maquina;
+  return maquina ? conAmbiente(maquina, lamparas) : lamparas;
 }

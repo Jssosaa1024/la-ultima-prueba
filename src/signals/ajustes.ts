@@ -2,8 +2,8 @@ import { signal } from '@preact/signals';
 import type { Almacen } from '../game/guardado';
 
 /**
- * Ajustes del jugador (T39): sensibilidad de la mirada, modo zurdo, tamaño del texto y
- * volumen de la voz y del ambiente. Se guardan en `localStorage` de este equipo, aparte de la
+ * Ajustes del jugador (T39): sensibilidad de la mirada, modo zurdo, tamaño del texto,
+ * volumen de la voz y del ambiente y, desde T19k, brillo de la imagen. Se guardan en `localStorage` de este equipo, aparte de la
  * partida: sobreviven a un final y a «Jugar solo».
  *
  * Lo guardado es texto no confiable (lo puede cambiar cualquiera): cada campo se revisa contra
@@ -17,6 +17,13 @@ const MAX_TEXTO = 512;
 /** Multiplicadores de la sensibilidad de la mirada, de la más lenta a la más rápida. */
 export const SENSIBILIDADES = [0.5, 0.75, 1, 1.5, 2] as const;
 export type Sensibilidad = (typeof SENSIBILIDADES)[number];
+
+/**
+ * Multiplicadores de la exposición (T19k), del más oscuro al más claro. Las salas de noche se
+ * ven en penumbra: en una pantalla barata, con sol o con el brillo bajo, el jugador las aclara.
+ */
+export const BRILLOS = [0.85, 1, 1.2] as const;
+export type Brillo = (typeof BRILLOS)[number];
 
 export const TAMANOS_TEXTO = ['normal', 'grande', 'muy-grande'] as const;
 export type TamanoTexto = (typeof TAMANOS_TEXTO)[number];
@@ -34,6 +41,8 @@ export interface Ajustes {
   volumenVoz: number;
   /** De 0 a 100. Lo aplicará la mezcla de audio (T43). */
   volumenAmbiente: number;
+  /** Multiplica la exposición de la escena (T19k). */
+  brillo: Brillo;
 }
 
 export const AJUSTES_INICIALES: Readonly<Ajustes> = {
@@ -42,6 +51,7 @@ export const AJUSTES_INICIALES: Readonly<Ajustes> = {
   texto: 'normal',
   volumenVoz: 100,
   volumenAmbiente: 70,
+  brillo: 1,
 };
 
 const esVolumen = (v: unknown): v is number =>
@@ -58,6 +68,7 @@ export function validarAjustes(dato: unknown): Ajustes {
     Object.hasOwn(objeto, k) ? (objeto as Record<string, unknown>)[k] : undefined;
   const sensibilidad = SENSIBILIDADES.find((s) => s === campo('sensibilidad'));
   const texto = TAMANOS_TEXTO.find((t) => t === campo('texto'));
+  const brillo = BRILLOS.find((b) => b === campo('brillo'));
   const zurdo = campo('zurdo');
   const voz = campo('volumenVoz');
   const ambiente = campo('volumenAmbiente');
@@ -67,6 +78,7 @@ export function validarAjustes(dato: unknown): Ajustes {
     texto: texto ?? AJUSTES_INICIALES.texto,
     volumenVoz: esVolumen(voz) ? voz : AJUSTES_INICIALES.volumenVoz,
     volumenAmbiente: esVolumen(ambiente) ? ambiente : AJUSTES_INICIALES.volumenAmbiente,
+    brillo: brillo ?? AJUSTES_INICIALES.brillo,
   };
 }
 

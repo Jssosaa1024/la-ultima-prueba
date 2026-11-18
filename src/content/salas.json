@@ -10,9 +10,27 @@
       "piso": "compartido/piso-baldosa",
       "paredes": "compartido/paredes",
       "techo": "compartido/techo",
-      "metros": 2
+      "metros": 2,
+      "tinte": { "paredes": "#e9e4d6" }
     },
-    "acabados": { "zocalo": "#35618c", "franja": "#e8b84a", "marcos": "#4a3626" },
+    "luz": {
+      "cielo": "#9fb0d0",
+      "suelo": "#525a68",
+      "fuerza": 1.1,
+      "direccional": "#a9bbff",
+      "fuerzaDireccional": 0.7,
+      "exposicion": 1.15
+    },
+    "acabados": {
+      "zocalo": "#35618c",
+      "franja": "#e8b84a",
+      "marcos": "#4a3626",
+      "lamparas": ["titila", "apagada", "encendida"],
+      "ventanas": [
+        { "pared": "norte", "centro": -1.95, "y": 2.2, "ancho": 1.4, "alto": 0.75 },
+        { "pared": "norte", "centro": 2, "y": 2.2, "ancho": 1.4, "alto": 0.75, "luna": true }
+      ]
+    },
     "inicio": { "x": 0, "z": 4.2, "giro": 0 },
     "objetos": [
       {
@@ -229,9 +247,26 @@
       "piso": "compartido/piso-madera",
       "paredes": "compartido/paredes",
       "techo": "compartido/techo",
-      "metros": 2
+      "metros": 2,
+      "tinte": { "paredes": "#e3eedb" }
     },
-    "acabados": { "zocalo": "#b4573a", "franja": "#f2d39b", "marcos": "#5a3d28" },
+    "luz": {
+      "cielo": "#ffe6c8",
+      "suelo": "#6a5a4a",
+      "fuerza": 1.25,
+      "direccional": "#ffd9b0",
+      "fuerzaDireccional": 0.9,
+      "exposicion": 1.05
+    },
+    "acabados": {
+      "zocalo": "#b4573a",
+      "franja": "#f2d39b",
+      "marcos": "#5a3d28",
+      "ventanas": [
+        { "pared": "norte", "centro": -1.6, "y": 2.4, "ancho": 1.5, "alto": 0.45, "luna": true },
+        { "pared": "norte", "centro": 1.3, "y": 2.4, "ancho": 1.5, "alto": 0.45 }
+      ]
+    },
     "inicio": { "x": 0, "z": 1.9, "giro": 0 },
     "objetos": [
       {
@@ -440,7 +475,33 @@
     "ancho": 9,
     "fondo": 6,
     "alto": 3.2,
-    "colores": { "piso": "#5f6a6a", "paredes": "#c9d4d6", "techo": "#dfe6e7" },
+    "colores": { "piso": "#a0a8a8", "paredes": "#9eabae", "techo": "#dbe1e3" },
+    "texturas": {
+      "piso": "compartido/piso-baldosa",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2,
+      "tinte": { "piso": "#b9c4c2", "paredes": "#d3e2ea", "techo": "#e2e8eb" }
+    },
+    "luz": {
+      "cielo": "#c2d6db",
+      "suelo": "#5f6a6c",
+      "fuerza": 1.4,
+      "direccional": "#e0e9ff",
+      "fuerzaDireccional": 0.75,
+      "desde": [-1, 4.5, 4.5],
+      "exposicion": 1.1
+    },
+    "acabados": {
+      "zocalo": "#2f6670",
+      "franja": "#d9ece6",
+      "marcos": "#56636a",
+      "lamparas": ["apagada", "encendida", "titila"],
+      "ventanas": [
+        { "pared": "norte", "centro": -3.4, "y": 2, "ancho": 1.2, "alto": 0.85, "luna": true },
+        { "pared": "norte", "centro": -1.3, "y": 2, "ancho": 1, "alto": 0.85 }
+      ]
+    },
     "inicio": { "x": 0, "z": 2.4, "giro": 0 },
     "objetos": [
       {
@@ -452,7 +513,8 @@
         "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
-        "puerta": "porteria"
+        "puerta": "porteria",
+        "modelo": "puerta"
       },
       {
         "id": "s2-tanque-a",
@@ -482,7 +544,8 @@
         "pos": [-1.3, 0, -1],
         "color": "#4d5656",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "tablero"
       },
       {
         "id": "s2-perilla-verde",
@@ -528,7 +591,8 @@
         "pos": [3.7, 0, -2.4],
         "color": "#aab7b8",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "incubadora"
       },
       {
         "id": "s2-campana",
@@ -545,15 +609,17 @@
         "tam": [2.4, 0.9, 0.8],
         "pos": [2.2, 0, 0.6],
         "color": "#5d6d7e",
-        "solido": true
+        "solido": true,
+        "modelo": "meson"
       },
       {
         "id": "s2-meson-2",
         "forma": "caja",
-        "tam": [2, 0.9, 0.8],
-        "pos": [-2.8, 0, 1],
+        "tam": [2.4, 0.9, 0.8],
+        "pos": [-3, 0, 1],
         "color": "#5d6d7e",
-        "solido": true
+        "solido": true,
+        "modelo": "meson"
       },
       {
         "id": "s2-taza",
@@ -581,7 +647,242 @@
         "pos": [-4.2, 0, -2.4],
         "color": "#4d5656",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "gabinete"
+      },
+      {
+        "id": "s2-poceta",
+        "forma": "caja",
+        "tam": [1.3, 1.6, 0.8],
+        "pos": [4.1, 0, 2.05],
+        "giro": -90,
+        "color": "#7a8489",
+        "solido": true,
+        "modelo": "poceta"
+      },
+      {
+        "id": "s2-repisa-frascos",
+        "forma": "caja",
+        "tam": [1.3, 1.18, 0.39],
+        "pos": [4.305, 1.68, 2.05],
+        "giro": -90,
+        "color": "#a7654c",
+        "modelo": "repisa-frascos"
+      },
+      {
+        "id": "s2-taburete-1",
+        "forma": "cilindro",
+        "tam": [0.4, 0.5, 0],
+        "pos": [1.6, 0, 1.35],
+        "color": "#d16c33",
+        "solido": true,
+        "modelo": "taburete"
+      },
+      {
+        "id": "s2-taburete-2",
+        "forma": "cilindro",
+        "tam": [0.4, 0.5, 0],
+        "pos": [2.5, 0, 1.35],
+        "color": "#d16c33",
+        "solido": true,
+        "modelo": "taburete"
+      },
+      {
+        "id": "s2-computador",
+        "forma": "grupo",
+        "tam": [0.48, 0.4, 0.34],
+        "pos": [2.15, 0.9, 0.55],
+        "color": "#2f3437",
+        "partes": [
+          { "forma": "caja", "tam": [0.2, 0.015, 0.14], "pos": [0, 0, -0.08] },
+          { "forma": "caja", "tam": [0.05, 0.1, 0.035], "pos": [0, 0.015, -0.1] },
+          { "forma": "caja", "tam": [0.48, 0.3, 0.035], "pos": [0, 0.1, -0.09] },
+          {
+            "forma": "caja",
+            "tam": [0.44, 0.26, 0.004],
+            "pos": [0, 0.12, -0.0705],
+            "color": "#8ecae6"
+          },
+          { "forma": "caja", "tam": [0.4, 0.02, 0.13], "pos": [0, 0, 0.09], "color": "#4a5256" }
+        ]
+      },
+      {
+        "id": "s2-tuberias",
+        "forma": "grupo",
+        "tam": [2.2, 3.21, 0.8],
+        "pos": [-1.3, 0, -1.8],
+        "color": "#7f8a90",
+        "partes": [
+          { "forma": "cilindro", "tam": [0.8, 0.05, 0], "pos": [-0.7, 0, 0], "color": "#5d666b" },
+          { "forma": "cilindro", "tam": [0.8, 0.05, 0], "pos": [0.7, 0, 0], "color": "#5d666b" },
+          { "forma": "cilindro", "tam": [0.76, 0.05, 0], "pos": [-0.7, 1.6, 0] },
+          { "forma": "cilindro", "tam": [0.76, 0.05, 0], "pos": [0.7, 1.6, 0] },
+          {
+            "forma": "cilindro",
+            "tam": [0.09, 1.56, 0],
+            "pos": [-0.7, 1.65, 0],
+            "color": "#9aa4aa"
+          },
+          { "forma": "cilindro", "tam": [0.09, 1.56, 0], "pos": [0.7, 1.65, 0], "color": "#9aa4aa" }
+        ]
+      },
+      {
+        "id": "s2-microscopio",
+        "forma": "grupo",
+        "tam": [0.16, 0.36, 0.2],
+        "pos": [-3.45, 0.9, 0.95],
+        "giro": 25,
+        "color": "#2b3034",
+        "partes": [
+          { "forma": "caja", "tam": [0.16, 0.03, 0.2], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.045, 0.26, 0.05], "pos": [0, 0.03, -0.075] },
+          { "forma": "caja", "tam": [0.13, 0.015, 0.12], "pos": [0, 0.11, 0.01] },
+          {
+            "forma": "cilindro",
+            "tam": [0.05, 0.13, 0],
+            "pos": [0, 0.17, -0.02],
+            "color": "#e9edf0"
+          },
+          { "forma": "cilindro", "tam": [0.032, 0.06, 0], "pos": [0, 0.3, -0.02] }
+        ]
+      },
+      {
+        "id": "s2-gradilla",
+        "forma": "grupo",
+        "tam": [0.3, 0.16, 0.09],
+        "pos": [-2.45, 0.9, 0.85],
+        "color": "#c9a46a",
+        "partes": [
+          { "forma": "caja", "tam": [0.3, 0.02, 0.09], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.3, 0.015, 0.09], "pos": [0, 0.075, 0] },
+          { "forma": "caja", "tam": [0.02, 0.075, 0.09], "pos": [-0.14, 0.02, 0] },
+          { "forma": "caja", "tam": [0.02, 0.075, 0.09], "pos": [0.14, 0.02, 0] },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [-0.1, 0.01, 0],
+            "color": "#58d68d"
+          },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [-0.05, 0.01, 0],
+            "color": "#a569bd"
+          },
+          { "forma": "cilindro", "tam": [0.024, 0.15, 0], "pos": [0, 0.01, 0], "color": "#5dade2" },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [0.05, 0.01, 0],
+            "color": "#f4d03f"
+          },
+          {
+            "forma": "cilindro",
+            "tam": [0.024, 0.15, 0],
+            "pos": [0.1, 0.01, 0],
+            "color": "#ec7063"
+          }
+        ]
+      },
+      {
+        "id": "s2-tabla-periodica",
+        "forma": "grupo",
+        "tam": [1.66, 0.95, 0.03],
+        "pos": [4.495, 1.3, -0.6],
+        "giro": -90,
+        "color": "#eef1ee",
+        "partes": [
+          { "forma": "caja", "tam": [1.62, 0.92, 0.012], "pos": [0, 0, 0.006] },
+          {
+            "forma": "caja",
+            "tam": [1.66, 0.025, 0.02],
+            "pos": [0, 0.92, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [1.66, 0.025, 0.02],
+            "pos": [0, -0.025, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.025, 0.92, 0.02],
+            "pos": [-0.8225, 0, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.025, 0.92, 0.02],
+            "pos": [0.8225, 0, 0.01],
+            "color": "#56636a"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.075, 0.525, 0.012],
+            "pos": [-0.6375, 0.315, 0.018],
+            "color": "#e57373"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.075, 0.45, 0.012],
+            "pos": [-0.5625, 0.315, 0.018],
+            "color": "#f0a35e"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.75, 0.3, 0.012],
+            "pos": [-0.15, 0.315, 0.018],
+            "color": "#5dade2"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.375, 0.45, 0.012],
+            "pos": [0.4125, 0.315, 0.018],
+            "color": "#9ccc65"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.075, 0.525, 0.012],
+            "pos": [0.6375, 0.315, 0.018],
+            "color": "#ba8fd6"
+          },
+          {
+            "forma": "caja",
+            "tam": [1.05, 0.15, 0.012],
+            "pos": [0.075, 0.105, 0.018],
+            "color": "#f7d774"
+          }
+        ]
+      },
+      {
+        "id": "s2-extintor",
+        "forma": "grupo",
+        "tam": [0.2, 0.56, 0.2],
+        "pos": [1.1, 0.75, 2.89],
+        "color": "#c0392b",
+        "partes": [
+          { "forma": "cilindro", "tam": [0.16, 0.45, 0], "pos": [0, 0, 0] },
+          { "forma": "cilindro", "tam": [0.06, 0.07, 0], "pos": [0, 0.45, 0], "color": "#2b2b2b" },
+          {
+            "forma": "caja",
+            "tam": [0.12, 0.025, 0.035],
+            "pos": [0.02, 0.52, 0],
+            "color": "#2b2b2b"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.025, 0.32, 0.025],
+            "pos": [0.095, 0.12, 0],
+            "color": "#2b2b2b"
+          },
+          {
+            "forma": "caja",
+            "tam": [0.1, 0.06, 0.02],
+            "pos": [0, 0.32, -0.085],
+            "color": "#6b7378"
+          }
+        ]
       }
     ]
   },
@@ -591,7 +892,36 @@
     "ancho": 20,
     "fondo": 12,
     "alto": 9,
-    "colores": { "piso": "#c8a165", "paredes": "#d5dbdb", "techo": "#aeb6bf" },
+    "colores": { "piso": "#9b7b5f", "paredes": "#b4b8b0", "techo": "#a3abb4" },
+    "texturas": {
+      "piso": "compartido/piso-gimnasio",
+      "paredes": "compartido/paredes",
+      "metros": 2,
+      "tinte": { "paredes": "#eef1ec" }
+    },
+    "luz": {
+      "cielo": "#aebee0",
+      "suelo": "#5c6472",
+      "fuerza": 1.8,
+      "direccional": "#bccaff",
+      "fuerzaDireccional": 0.7,
+      "desde": [-6, 12, 8],
+      "exposicion": 1.15
+    },
+    "acabados": {
+      "zocalo": "#4a8f72",
+      "franja": "#f1efe6",
+      "marcos": "#5b6674",
+      "lamparas": ["apagada", "titila", "apagada", "encendida", "apagada", "encendida"],
+      "ventanas": [
+        { "pared": "norte", "centro": -7.5, "y": 5.4, "ancho": 3, "alto": 1.5 },
+        { "pared": "norte", "centro": -2.5, "y": 5.4, "ancho": 3, "alto": 1.5 },
+        { "pared": "norte", "centro": 2.5, "y": 5.4, "ancho": 3, "alto": 1.5, "luna": true },
+        { "pared": "norte", "centro": 7.5, "y": 5.4, "ancho": 3, "alto": 1.5 },
+        { "pared": "sur", "centro": -6, "y": 5.4, "ancho": 3, "alto": 1.5 },
+        { "pared": "sur", "centro": 6, "y": 5.4, "ancho": 3, "alto": 1.5 }
+      ]
+    },
     "inicio": { "x": 0, "z": 5.2, "giro": 0 },
     "objetos": [
       {
@@ -603,7 +933,8 @@
         "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
-        "puerta": "porteria"
+        "puerta": "porteria",
+        "modelo": "puerta"
       },
       {
         "id": "s3-grada-1",
@@ -695,7 +1026,8 @@
         "tam": [3, 0.45, 0.5],
         "pos": [-6, 0, 3],
         "color": "#a04000",
-        "solido": true
+        "solido": true,
+        "modelo": "banca"
       },
       {
         "id": "s3-planilla",
@@ -713,7 +1045,8 @@
         "tam": [1, 0.9, 0.7],
         "pos": [-8.6, 0, 0],
         "color": "#2e86c1",
-        "solido": true
+        "solido": true,
+        "modelo": "carro-balones"
       },
       {
         "id": "s3-balon-1",
@@ -750,6 +1083,114 @@
         "pos": [-8.78, 0.9, -0.16],
         "color": "#f2f3f4",
         "accion": "usar"
+      },
+      {
+        "id": "s3-tablero-aro",
+        "forma": "plano",
+        "tam": [1.8, 1.05, 0],
+        "pos": [-9.98, 2.9, 0],
+        "giro": 90,
+        "color": "#e9eef2"
+      },
+      {
+        "id": "s3-aro",
+        "forma": "grupo",
+        "tam": [0.6, 0.05, 0.46],
+        "pos": [-9.62, 3.05, 0],
+        "color": "#f08a4b",
+        "partes": [
+          { "forma": "caja", "tam": [0.46, 0.05, 0.04], "pos": [0, 0, -0.21] },
+          { "forma": "caja", "tam": [0.46, 0.05, 0.04], "pos": [0, 0, 0.21] },
+          { "forma": "caja", "tam": [0.04, 0.05, 0.38], "pos": [-0.21, 0, 0] },
+          { "forma": "caja", "tam": [0.04, 0.05, 0.38], "pos": [0.21, 0, 0] },
+          {
+            "forma": "caja",
+            "tam": [0.14, 0.04, 0.12],
+            "pos": [-0.3, 0, 0],
+            "color": "#5b6674"
+          }
+        ]
+      },
+      {
+        "id": "s3-tablas-gradas",
+        "forma": "grupo",
+        "tam": [8, 0.55, 0.82],
+        "pos": [-4, 0.5, -4.8],
+        "color": "#b07a45",
+        "partes": [
+          { "forma": "caja", "tam": [8, 0.05, 0.32], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [8, 0.05, 0.32], "pos": [0, 0.5, -0.5] }
+        ]
+      },
+      {
+        "id": "s3-cerchas",
+        "forma": "grupo",
+        "tam": [13.54, 0.45, 12],
+        "pos": [0, 8.55, 0],
+        "color": "#8a929b",
+        "partes": [
+          { "forma": "caja", "tam": [0.2, 0.45, 12], "pos": [-6.67, 0, 0] },
+          { "forma": "caja", "tam": [0.2, 0.45, 12], "pos": [-3.33, 0, 0] },
+          { "forma": "caja", "tam": [0.2, 0.45, 12], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.2, 0.45, 12], "pos": [3.33, 0, 0] },
+          { "forma": "caja", "tam": [0.2, 0.45, 12], "pos": [6.67, 0, 0] }
+        ]
+      },
+      {
+        "id": "s3-colchonetas",
+        "forma": "grupo",
+        "tam": [2, 0.45, 1.2],
+        "pos": [-8.3, 0, 4.95],
+        "color": "#4a7cc4",
+        "solido": true,
+        "partes": [
+          { "forma": "caja", "tam": [2, 0.15, 1.2], "pos": [0, 0, 0] },
+          {
+            "forma": "caja",
+            "tam": [1.94, 0.15, 1.14],
+            "pos": [0.05, 0.15, -0.02],
+            "color": "#5a8bd0"
+          },
+          { "forma": "caja", "tam": [2, 0.15, 1.2], "pos": [-0.03, 0.3, 0.03] }
+        ]
+      },
+      {
+        "id": "s3-conos",
+        "forma": "caja",
+        "tam": [1.6, 0.3, 0.3],
+        "pos": [8, 0, -4.8],
+        "color": "#e67e22",
+        "solido": true,
+        "modelo": "conos"
+      },
+      {
+        "id": "s3-sillas",
+        "forma": "caja",
+        "tam": [1.96, 0.94, 0.7],
+        "pos": [-9.58, 0, -4.85],
+        "giro": 90,
+        "color": "#a0703f",
+        "solido": true,
+        "modelo": "sillas"
+      },
+      {
+        "id": "s3-extintor",
+        "forma": "cilindro",
+        "tam": [0.16, 0.45, 0],
+        "pos": [1.3, 1.1, 5.9],
+        "color": "#d0392b",
+        "solido": true
+      },
+      {
+        "id": "s3-cuerda",
+        "forma": "grupo",
+        "tam": [0.035, 6.1, 0.6],
+        "pos": [9.93, 1.3, -1.2],
+        "color": "#d8c9a3",
+        "partes": [
+          { "forma": "caja", "tam": [0.035, 6.1, 0.035], "pos": [0, 0, 0] },
+          { "forma": "caja", "tam": [0.035, 0.035, 0.6], "pos": [0, 0, 0.3] }
+        ]
       }
     ]
   },
@@ -760,6 +1201,32 @@
     "fondo": 8,
     "alto": 3.2,
     "colores": { "piso": "#7b5d3f", "paredes": "#e8dcc5", "techo": "#f2ede3" },
+    "texturas": {
+      "piso": "compartido/piso-madera",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2,
+      "tinte": { "piso": "#c4ae94", "paredes": "#f0e4c8", "techo": "#e2e2e6" }
+    },
+    "luz": {
+      "cielo": "#b8c3e6",
+      "suelo": "#6a6660",
+      "fuerza": 1.6,
+      "direccional": "#c4d0ff",
+      "fuerzaDireccional": 0.9,
+      "desde": [4, 4.5, 4],
+      "exposicion": 1.1
+    },
+    "acabados": {
+      "zocalo": "#447a60",
+      "franja": "#c9a45c",
+      "marcos": "#5a3a24",
+      "lamparas": ["titila", "encendida", "apagada"],
+      "ventanas": [
+        { "pared": "norte", "centro": -1.5, "y": 2.42, "ancho": 1.8, "alto": 0.6 },
+        { "pared": "norte", "centro": 2.5, "y": 2.42, "ancho": 2.4, "alto": 0.6, "luna": true }
+      ]
+    },
     "inicio": { "x": 0, "z": 3.4, "giro": 0 },
     "objetos": [
       {
@@ -771,7 +1238,8 @@
         "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
-        "puerta": "porteria"
+        "puerta": "porteria",
+        "modelo": "puerta"
       },
       {
         "id": "s4-estante-1",
@@ -779,7 +1247,8 @@
         "tam": [0.5, 2.2, 2.5],
         "pos": [-4.7, 0, -2],
         "color": "#6e2c00",
-        "solido": true
+        "solido": true,
+        "modelo": "estante-a"
       },
       {
         "id": "s4-estante-m",
@@ -788,16 +1257,18 @@
         "tam": [0.5, 2.2, 2],
         "pos": [-4.7, 0, 1.2],
         "color": "#784212",
-        "solido": true
+        "solido": true,
+        "modelo": "estante-m"
       },
       {
         "id": "s4-libro-m",
         "nombre": "Libro que sobresale del estante M",
         "forma": "caja",
-        "tam": [0.22, 0.32, 0.1],
-        "pos": [-4.36, 1.2, 1.5],
+        "tam": [0.25, 0.34, 0.14],
+        "pos": [-4.435, 1.41, 1.5],
         "color": "#c0392b",
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "libro"
       },
       {
         "id": "s4-casilleros",
@@ -807,7 +1278,8 @@
         "pos": [2.5, 0, -3.7],
         "color": "#7f8c8d",
         "solido": true,
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "casilleros"
       },
       {
         "id": "s4-lamparas",
@@ -826,16 +1298,18 @@
         "pos": [2.5, 0, 1],
         "color": "#6e2c00",
         "solido": true,
-        "accion": "examinar"
+        "accion": "examinar",
+        "modelo": "mostrador"
       },
       {
         "id": "s4-caja-devoluciones",
         "nombre": "Caja de devoluciones",
         "forma": "caja",
-        "tam": [0.5, 0.3, 0.35],
+        "tam": [0.45, 0.25, 0.4],
         "pos": [3.4, 1, 1],
         "color": "#a04000",
-        "accion": "examinar"
+        "accion": "examinar",
+        "modelo": "caja-devoluciones"
       },
       {
         "id": "s4-ficha-rota",
@@ -869,17 +1343,45 @@
         "forma": "caja",
         "tam": [0.4, 0.6, 0.3],
         "pos": [-0.6, 0, 1],
-        "color": "#922b21",
+        "color": "#d9822b",
         "solido": true,
         "accion": "usar"
       },
       {
         "id": "s4-mesa-lectura",
         "forma": "caja",
-        "tam": [1.6, 0.75, 0.8],
-        "pos": [-2.6, 0, 2.4],
+        "tam": [1.8, 1.52, 1.9],
+        "pos": [-2.6, 0, 2.95],
         "color": "#935116",
-        "solido": true
+        "solido": true,
+        "modelo": "mesa-lectura"
+      },
+      {
+        "id": "s4-estanteria-este",
+        "forma": "caja",
+        "tam": [0.5, 2.2, 2.5],
+        "pos": [4.7, 0, -1.95],
+        "giro": 180,
+        "color": "#6e2c00",
+        "solido": true,
+        "modelo": "estante-b"
+      },
+      {
+        "id": "s4-rincon-lectura",
+        "forma": "caja",
+        "tam": [2.25, 1.42, 0.96],
+        "pos": [4.47, 0, 2.84],
+        "giro": -90,
+        "color": "#4f7fa8",
+        "solido": true,
+        "modelo": "rincon-lectura"
+      },
+      {
+        "id": "s4-alfombra",
+        "forma": "caja",
+        "tam": [1.2, 0.02, 1.7],
+        "pos": [3.3, 0, 2.85],
+        "color": "#9c4b55"
       }
     ]
   },
@@ -890,6 +1392,32 @@
     "fondo": 5,
     "alto": 3,
     "colores": { "piso": "#5b4636", "paredes": "#d6cdb8", "techo": "#ece7dc" },
+    "texturas": {
+      "piso": "compartido/piso-madera",
+      "paredes": "compartido/paredes",
+      "techo": "compartido/techo",
+      "metros": 2,
+      "tinte": { "piso": "#a8957f", "paredes": "#f0e4cc" }
+    },
+    "luz": {
+      "cielo": "#e8d6be",
+      "suelo": "#5a5650",
+      "fuerza": 1.9,
+      "direccional": "#b8c6ff",
+      "fuerzaDireccional": 1,
+      "desde": [2.5, 4.2, 3.5],
+      "exposicion": 1.15
+    },
+    "acabados": {
+      "zocalo": "#5f8f78",
+      "franja": "#d4b064",
+      "marcos": "#4a3020",
+      "lamparas": ["encendida", "titila"],
+      "ventanas": [
+        { "pared": "norte", "centro": 0.45, "y": 1.4, "ancho": 1.7, "alto": 1.1, "luna": true },
+        { "pared": "este", "centro": 0.55, "y": 1.4, "ancho": 1.4, "alto": 0.95 }
+      ]
+    },
     "inicio": { "x": 0, "z": 1.9, "giro": 0 },
     "objetos": [
       {
@@ -901,7 +1429,8 @@
         "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
-        "puerta": "porteria"
+        "puerta": "porteria",
+        "modelo": "puerta"
       },
       {
         "id": "s5-mesa",
@@ -909,7 +1438,8 @@
         "tam": [2, 0.75, 1],
         "pos": [-0.4, 0, -0.5],
         "color": "#5b3a1e",
-        "solido": true
+        "solido": true,
+        "modelo": "mesa"
       },
       {
         "id": "s5-urna",
@@ -929,18 +1459,29 @@
         "color": "#2e86c1",
         "accion": "usar",
         "partes": [
-          { "forma": "cilindro", "tam": [0.15, 0.3, 0], "pos": [-0.12, 0, 0], "color": "#2e86c1" },
-          { "forma": "cilindro", "tam": [0.15, 0.3, 0], "pos": [0.12, 0, 0], "color": "#f4d03f" }
+          {
+            "forma": "cilindro",
+            "tam": [0.15, 0.3, 0],
+            "pos": [-0.12, 0, 0],
+            "color": "#2e86c1"
+          },
+          {
+            "forma": "cilindro",
+            "tam": [0.15, 0.3, 0],
+            "pos": [0.12, 0, 0],
+            "color": "#f4d03f"
+          }
         ]
       },
       {
         "id": "s5-simulador",
         "nombre": "Simulador",
         "forma": "caja",
-        "tam": [0.25, 0.25, 0.25],
+        "tam": [0.3, 0.2, 0.2],
         "pos": [-1.15, 0.75, -0.5],
         "color": "#7f8c8d",
-        "accion": "usar"
+        "accion": "usar",
+        "modelo": "simulador"
       },
       {
         "id": "s5-ver-parejas",
@@ -967,16 +1508,18 @@
         "tam": [1.4, 0.75, 0.7],
         "pos": [-1.9, 0, -1.9],
         "color": "#4a2f1b",
-        "solido": true
+        "solido": true,
+        "modelo": "escritorio"
       },
       {
         "id": "s5-computador",
         "nombre": "Computador",
         "forma": "caja",
-        "tam": [0.5, 0.35, 0.05],
+        "tam": [0.5, 0.375, 0.3],
         "pos": [-2, 0.75, -2.05],
         "color": "#17202a",
-        "accion": "examinar"
+        "accion": "examinar",
+        "modelo": "computador"
       },
       {
         "id": "s5-carta",
@@ -986,6 +1529,68 @@
         "pos": [-1.5, 0.75, -1.8],
         "color": "#fdfefe",
         "accion": "examinar"
+      },
+      {
+        "id": "s5-estante",
+        "forma": "caja",
+        "tam": [0.5, 2.1, 1.5],
+        "pos": [-2.75, 0, 0.6],
+        "color": "#7a4a2c",
+        "solido": true,
+        "modelo": "estante"
+      },
+      {
+        "id": "s5-silla",
+        "forma": "caja",
+        "tam": [0.56, 0.9, 0.7],
+        "pos": [-2.4, 0, -1.2],
+        "giro": 180,
+        "color": "#3f6f9f",
+        "solido": true,
+        "modelo": "silla"
+      },
+      {
+        "id": "s5-sofa",
+        "forma": "caja",
+        "tam": [1.8, 0.75, 0.95],
+        "pos": [2.5, 0, 0.55],
+        "giro": -90,
+        "color": "#3f6f9f",
+        "solido": true,
+        "modelo": "sofa"
+      },
+      {
+        "id": "s5-planta",
+        "forma": "caja",
+        "tam": [0.45, 1.3, 0.5],
+        "pos": [1.75, 0, -2.2],
+        "color": "#4f8a5a",
+        "solido": true,
+        "modelo": "planta"
+      },
+      {
+        "id": "s5-diplomas",
+        "forma": "plano",
+        "tam": [1.2, 0.5, 0],
+        "pos": [-1.9, 1.4, -2.48],
+        "color": "#9a6b4a",
+        "modelo": "diplomas"
+      },
+      {
+        "id": "s5-parlante",
+        "forma": "grupo",
+        "tam": [0.32, 0.42, 0.16],
+        "pos": [2.45, 2.35, -2.42],
+        "color": "#2e3238",
+        "partes": [
+          { "forma": "caja", "tam": [0.32, 0.42, 0.16], "pos": [0, 0, 0], "color": "#2e3238" },
+          {
+            "forma": "caja",
+            "tam": [0.24, 0.28, 0.012],
+            "pos": [0, 0.08, 0.084],
+            "color": "#16181c"
+          }
+        ]
       }
     ]
   }

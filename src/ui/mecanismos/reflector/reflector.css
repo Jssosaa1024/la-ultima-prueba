@@ -6,36 +6,36 @@
   height: auto;
   margin: 4px 0 0;
   border-radius: 8px;
-  background: #10151b;
+  background: var(--tema-noche);
 }
 
 .reflector-regla line {
-  stroke: #8a96a3;
+  stroke: var(--tema-noche-linea);
   stroke-width: 1;
 }
 
 .reflector-regla text,
 .reflector-rotulo {
-  fill: #b8c2cc;
+  fill: var(--tema-claro-suave);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
 .reflector-poste {
-  stroke: #f2f2f2;
+  stroke: var(--tema-claro);
   stroke-width: 5;
   stroke-linecap: round;
 }
 
 .reflector-pared {
-  stroke: #6b7785;
+  stroke: var(--tema-noche-linea);
   stroke-width: 5;
   stroke-dasharray: 10 5;
 }
 
 /* La sombra: una franja oscura con borde claro, para que se vea sobre el fondo oscuro. */
 .reflector-sombra {
-  stroke: #e8a33d;
+  stroke: var(--tema-ambar);
   stroke-width: 6;
   stroke-linecap: butt;
   opacity: 0.85;
@@ -50,7 +50,7 @@
 
 /* El sensor no depende solo del color: apagado es un aro; cuando suena, un disco lleno. */
 .reflector-sensor {
-  fill: #10151b;
+  fill: var(--tema-noche);
   stroke: #8fd3a8;
   stroke-width: 2.5;
 }

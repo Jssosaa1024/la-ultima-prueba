@@ -13,6 +13,7 @@ import {
   oclusionDe,
 } from '../../src/engine/salas/acabados';
 import { construirSala } from '../../src/engine/salas/construir';
+import { CON_ARTE } from './sin-arte';
 
 // T19j: acabados por código (zócalo, rodapié, cornisa, marcos, lámparas y rincones oscuros).
 
@@ -35,8 +36,8 @@ const nombrada = (raiz: Object3D, nombre: string): Mesh => {
 };
 
 describe('acabados de sala (T19j)', () => {
-  it('la portería y la sala 1 los tienen, y el esquema rechaza un color raro', () => {
-    for (const l of ['porteria', 's1-cooperativa'] as const) {
+  it('las salas con arte los tienen, y el esquema rechaza un color raro', () => {
+    for (const l of CON_ARTE) {
       expect(salaPorId(l).acabados).toBeDefined();
     }
     const s1 = salaPorId('s1-cooperativa');
@@ -47,9 +48,7 @@ describe('acabados de sala (T19j)', () => {
   });
 
   it('una sala sin acabados se arma igual que antes', () => {
-    const s2 = salaPorId('s2-laboratorio');
-    expect(s2.acabados).toBeUndefined();
-    const { raiz } = construirSala(s2);
+    const { raiz } = construirSala(sinAcabados(salaPorId('s2-laboratorio')));
     expect(raiz.getObjectByName('difusores')).toBeUndefined();
     expect(raiz.getObjectByName('brillos')).toBeUndefined();
   });
@@ -96,18 +95,24 @@ describe('acabados de sala (T19j)', () => {
   });
 
   it('lo de color plano queda dentro de la sala, pegado a las paredes', () => {
-    for (const l of ['porteria', 's1-cooperativa'] as const) {
+    for (const l of CON_ARTE) {
       const sala = salaPorId(l);
       const { fijas } = crearAcabados(
         sala,
         sala.acabados ?? { zocalo: '', franja: '', marcos: '' },
       );
+      // T19k: las ventanas y los difusores de las lámparas apagadas, si la sala los tiene.
+      const extra = [
+        ...(sala.acabados?.ventanas?.length ? ['ventanas'] : []),
+        ...(sala.acabados?.lamparas?.includes('apagada') ? ['difusores-apagados'] : []),
+      ];
       expect(fijas.map((m) => m.name)).toEqual([
         'zocalo',
         'franja',
         'marcos',
         'cornisa',
         'carcasas',
+        ...extra,
       ]);
       for (const m of fijas) {
         m.geometry.computeBoundingBox();
@@ -157,9 +162,18 @@ describe('acabados de sala (T19j)', () => {
     const material = brillos.material as MeshBasicMaterial;
     expect(material.blending).toBe(AdditiveBlending);
     expect(material.depthWrite).toBe(false);
-    // Un rayo hacia el techo, justo debajo de una lámpara, las atraviesa.
-    const rayo = new Raycaster(new Vector3(0, 1.6, 0), new Vector3(0, 1, 0));
-    expect(rayo.intersectObjects([difusores, brillos])).toHaveLength(0);
+    // Un rayo hacia el techo, justo debajo de una lámpara encendida (desde T19k la del medio
+    // está apagada; la de la entrada, no), las atraviesa.
+    const encendida = lamparasDe(salaPorId('porteria'))[2];
+    if (!encendida) throw new Error('falta la lámpara de la entrada');
+    const rayo = new Raycaster(new Vector3(encendida.x, 1.6, encendida.z), new Vector3(0, 1, 0));
+    expect(rayo.intersectObjects([difusores])).toHaveLength(0);
+    expect(rayo.intersectObjects([brillos])).toHaveLength(0);
+    // Y uno hacia el cielo de una ventana (T19k), que también va en los difusores.
+    const ventana = new Raycaster(new Vector3(-1.95, 2.55, 0), new Vector3(0, 0, -1));
+    expect(ventana.intersectObjects([difusores, brillos])).toHaveLength(0);
+    difusores.geometry.computeBoundingBox();
+    expect(difusores.geometry.boundingBox?.min.z).toBeLessThan(-4.9);
     // Las sombras de contacto llevan también los 16 cuadros de la oclusión (4 vértices c/u).
     const sombras = nombrada(raiz, 'sombras');
     const conSombra = construirSala(sinAcabados(salaPorId('porteria'))).raiz;

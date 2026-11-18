@@ -59,16 +59,12 @@ test('la pista ofrecida llega a todos a la vez', async ({ page, context }, info)
   const { a, b } = await empezarCoop(context, page);
   const [cajaA, cajaB] = [await cajaDe(a), await cajaDe(b)];
 
-  // Jaguar (anfitrión) cruza la puerta 1 y Búho acepta: Búho queda con C y D.
-  await Promise.all([
-    cruzar(a, cajaA, conDedo, 'porteria-puerta-1'),
-    (async () => {
-      await expect(barra(b)).toContainText('Jaguar propone ir a La cooperativa', {
-        timeout: 120_000,
-      });
-      await barra(b).getByRole('button', { name: 'Aceptar' }).click();
-    })(),
-  ]);
+  // Jaguar (anfitrión) cruza la puerta 1 y Búho acepta: Búho queda con C y D. La sala nueva se
+  // espera desde que Búho acepta (T05e).
+  await cruzar(a, cajaA, conDedo, 'porteria-puerta-1', async () => {
+    await expect(barra(b)).toContainText('Jaguar propone ir a La cooperativa');
+    await barra(b).getByRole('button', { name: 'Aceptar' }).click();
+  });
   await expect(b.getByLabel('Escena del juego')).toHaveAttribute('data-sala', 's1-cooperativa');
   await expect(barra(b).getByRole('button', { name: 'Tus encargos: C y D' })).toBeVisible();
   await expect(a.locator('.hud-boton-aviso')).toHaveCount(0);

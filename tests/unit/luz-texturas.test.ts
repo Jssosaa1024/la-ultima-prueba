@@ -26,7 +26,7 @@ import {
 import { necesitaVestir, urlsDeSala, vestirSala } from '../../src/engine/salas/vestir';
 import type { FuentesAssets } from '../../src/engine/salas/vestir';
 import { carga } from '../../src/signals/interfaz';
-import { sinArte, sinTexturas } from './sin-arte';
+import { sinAcabados, sinArte, sinTexturas } from './sin-arte';
 
 // T19f (luz sin horneado y sombras de contacto) y T19g (texturas de piso, paredes y techo).
 
@@ -107,7 +107,8 @@ describe('luz sin horneado (T19f)', () => {
   });
 
   it('todas las sombras de una sala son UNA malla transparente pegada al piso', () => {
-    const { raiz } = construirSala(salaPorId('s2-laboratorio'));
+    // Sin acabados: la oclusión falsa de las esquinas (T19j) va en la misma malla y sube al techo.
+    const { raiz } = construirSala(sinAcabados(salaPorId('s2-laboratorio')));
     const sombras = nombrada(raiz, 'sombras');
     const n = objetosConSombra(salaPorId('s2-laboratorio').objetos).length;
     expect(sombras.geometry.getAttribute('position').count).toBe(16 * n);
@@ -303,6 +304,25 @@ describe('vestir la sala (T19g)', () => {
     expect(techo.map).toBeNull();
     expect(`#${techo.color.getHexString()}`).toBe(sala.colores.techo);
     expect(urlsDeSala(sala, indiceDeManifiesto(MANIFIESTO))).toHaveLength(2);
+  });
+
+  it('tiñe la superficie con el tinte de la sala y no estira una imagen que no es cuadrada (T19k)', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const base = conTexturas(salaPorId('porteria'));
+    const sala: Sala = { ...base, texturas: { ...base.texturas, tinte: { paredes: '#e9e4d6' } } };
+    const { raiz } = construirSala(sala);
+    const f: FuentesAssets = {
+      indice: () => Promise.resolve(indiceDeManifiesto(MANIFIESTO)),
+      // Una imagen el doble de ancha que de alta, como la de las paredes (1024 × 512).
+      textura: () => Promise.resolve(new DataTexture(new Uint8Array(4 * 8), 4, 2) as Texture),
+      modelo: () => Promise.reject(new Error('sin modelos')),
+    };
+    await vestirSala(raiz, sala, f);
+    const paredes = nombrada(raiz, 'paredes').material as MeshLambertMaterial;
+    expect(`#${paredes.color.getHexString()}`).toBe('#e9e4d6');
+    expect(paredes.map?.repeat.toArray()).toEqual([1, 2]);
+    // Sin tinte, blanco: la textura con sus propios colores.
+    expect((nombrada(raiz, 'piso').material as MeshLambertMaterial).color.getHex()).toBe(0xffffff);
   });
 
   it('si una textura no carga, la sala se queda con sus colores y no falla', async () => {

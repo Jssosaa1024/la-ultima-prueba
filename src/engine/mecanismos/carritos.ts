@@ -28,7 +28,7 @@ const PILA_MINIMA = 0.08;
 /** Las cuatro lámparas, en el orden de la pared. */
 export const LAMPARAS = ['media', 'mediana', 'moda', 'rango'] as const;
 
-const COLOR_LIBROS = 0x922b21;
+const COLOR_LIBROS = 0xd9822b;
 const COLOR_TAPADA = 0x20262d;
 const COLOR_ESPERA = 0x6b5a2a;
 const COLOR_VERDE = 0x4ee08a;

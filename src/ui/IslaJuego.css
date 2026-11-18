@@ -23,6 +23,15 @@
   background: radial-gradient(ellipse at center, rgb(0 0 0 / 0%) 58%, rgb(0 0 0 / 32%) 100%);
 }
 
+/* T19k: la viñeta toma el tono de la noche de cada sala (el canvas lleva `data-sala`). */
+.juego-canvas[data-sala='porteria'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(6 10 24 / 0%) 50%, rgb(6 10 24 / 45%) 100%);
+}
+
+.juego-canvas[data-sala='s1-cooperativa'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(24 12 4 / 0%) 55%, rgb(24 12 4 / 38%) 100%);
+}
+
 /* Capa del HUD: su padding es la zona segura (notch, esquinas redondeadas, barra de gestos). */
 .hud {
   position: absolute;
@@ -66,4 +75,20 @@
   background: rgb(0 0 0 / 55%);
   font-size: 0.875rem;
   line-height: 1.4;
+}
+
+.juego-canvas[data-sala='s2-laboratorio'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(4 22 26 / 0%) 54%, rgb(4 22 26 / 40%) 100%);
+}
+
+.juego-canvas[data-sala='s3-gimnasio'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(8 16 26 / 0%) 52%, rgb(8 16 26 / 42%) 100%);
+}
+
+.juego-canvas[data-sala='s4-biblioteca'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(8 20 18 / 0%) 52%, rgb(8 20 18 / 42%) 100%);
+}
+
+.juego-canvas[data-sala='s5-rectoria'] ~ .juego-vineta {
+  background: radial-gradient(ellipse at center, rgb(10 16 14 / 0%) 54%, rgb(10 16 14 / 40%) 100%);
 }
