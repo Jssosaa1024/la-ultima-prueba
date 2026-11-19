@@ -23,6 +23,7 @@ export const ALCANCE = 3;
 export const ALCANCE_SOLTAR = 3.5;
 
 const BRILLO = new Color(0x5a4210);
+const NEGRO = new Color(0x000000);
 
 export interface DatosInteractivo {
   id: string;
@@ -127,7 +128,11 @@ export function crearInteraccion(
     if (actual?.objeto === objeto && enfocado.value?.id === datosDe(objeto).id) return;
     quitarResaltado();
     const partes = resaltables(objeto);
-    for (const { material } of partes) material.emissive?.copy(BRILLO);
+    // Suma el brillo al que ya tenía (el marcador de una lámina brilla solo): reemplazarlo lo
+    // apagaría en vez de resaltarlo.
+    for (const { material, original } of partes) {
+      if (material.emissive) material.emissive.copy(original ?? NEGRO).add(BRILLO);
+    }
     actual = { objeto, partes };
     const { id, nombre, accion } = datosDe(objeto);
     const nuevo: ObjetoEnfocado = { id, nombre, accion };
