@@ -53,6 +53,38 @@ const pieza = z.strictObject({
   color: color.optional(),
 });
 
+/**
+ * Tipos de lámina (pulir las salas, sesión C): cómo se dibuja la cara de un plano legible.
+ * pizarra (de tiza, o blanca si su color es claro), corcho con notas, planilla en su tablilla,
+ * papel (hoja, ficha, carta), cuadrícula (papel de gráfica con ejes), marcador de dígitos y
+ * cartel. Los dibuja `src/engine/salas/laminas.ts`.
+ */
+export const TIPOS_LAMINA = [
+  'pizarra',
+  'corcho',
+  'planilla',
+  'papel',
+  'cuadricula',
+  'marcador',
+  'cartel',
+] as const;
+
+/**
+ * Lámina de un plano o de una hoja (pulir las salas): el motor dibuja su cara con marco,
+ * título y renglones. El `color` del objeto es el de su superficie. Lo que hace falta para
+ * resolver va en la vista 2D, no aquí: la lámina da el título y el aspecto.
+ */
+const lamina = z.strictObject({
+  tipo: z.enum(TIPOS_LAMINA),
+  /** Título con letra grande y clara. */
+  titulo: z.string().trim().min(1).max(28).optional(),
+  /**
+   * Opcional: renglones de texto corto. Sin ellos se dibujan garabatos. En la planilla, `|`
+   * separa columnas; en el marcador, cada línea es un tablero («LOCAL 12» o «12»).
+   */
+  lineas: z.array(z.string().trim().min(1).max(32)).min(1).max(8).optional(),
+});
+
 export const esquemaObjeto = z.strictObject({
   id: idObjeto,
   /** Nombre que se ve en el botón del HUD; obligatorio si el objeto tiene acción. */
@@ -72,6 +104,13 @@ export const esquemaObjeto = z.strictObject({
   partes: z.array(pieza).min(1).optional(),
   /** Modelo CC0 del manifiesto que reemplaza a la primitiva (T19d). */
   modelo: idModelo.optional(),
+  /** Opcional: lámina legible dibujada por código en su cara (planos y hojas). */
+  lamina: lamina.optional(),
+  /**
+   * Opcional: pieza por código que reemplaza a la primitiva (`src/engine/salas/piezas/`), con
+   * más detalle y en una sola malla. Cabe en `tam`; la forma queda de respaldo.
+   */
+  pieza: idModelo.optional(),
 });
 
 /**
@@ -228,6 +267,13 @@ export function problemasDeSala(sala: Sala): ProblemaSala[] {
     if ((o.forma === 'grupo') !== Boolean(o.partes)) {
       reportar(`${o.id}: un grupo necesita «partes» y solo un grupo las lleva`);
     }
+    if (o.lamina && o.forma !== 'plano' && o.forma !== 'caja') {
+      reportar(`${o.id}: una lámina va en un plano o en una caja`);
+    }
+    if (o.lamina && (o.modelo || o.pieza)) {
+      reportar(`${o.id}: una lámina no lleva modelo ni pieza: se dibuja en la primitiva`);
+    }
+    if (o.pieza && o.modelo) reportar(`${o.id}: una pieza por código no lleva modelo`);
 
     const m = medioTamano(o);
     const [x, y, z] = o.pos;
