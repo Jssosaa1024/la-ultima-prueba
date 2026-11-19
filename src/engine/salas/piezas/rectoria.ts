@@ -45,25 +45,17 @@ const BASE_DISPENSADOR = { ancho: 0.14, alto: 0.085, fondo: 0.12 } as const;
 const ALTO_FICHA = 0.012;
 const RADIO_FICHA = 0.025;
 
-/** Una ficha azul redonda (con el canto biselado) o amarilla cuadrada, con la base en y = 0. */
+/**
+ * Una ficha de la columna del dispensador, con la base en y = 0: azul redonda o amarilla
+ * cuadrada. Simples (sin bisel): son muchas y se ven chicas a través de las varillas.
+ */
 function ficha(azul: boolean, x: number, y: number, z: number, giro: number): Parte {
-  if (azul) {
-    const g = torno(
-      [
-        [0, 0],
-        [RADIO_FICHA - 0.003, 0],
-        [RADIO_FICHA, 0.003],
-        [RADIO_FICHA, ALTO_FICHA - 0.003],
-        [RADIO_FICHA - 0.003, ALTO_FICHA],
-        [0, ALTO_FICHA],
-      ],
-      14,
-    );
-    return parte(g, PALETA.fichaAzul, [x, y, z], [0, giro, 0]);
-  }
+  const g = azul
+    ? cilindro(RADIO_FICHA, RADIO_FICHA, ALTO_FICHA, 10)
+    : cajaBiselada(2 * RADIO_FICHA, ALTO_FICHA, 2 * RADIO_FICHA, 0);
   return parte(
-    cajaBiselada(2 * RADIO_FICHA, ALTO_FICHA, 2 * RADIO_FICHA, 0.003),
-    PALETA.fichaAmarilla,
+    g,
+    azul ? PALETA.fichaAzul : PALETA.fichaAmarilla,
     [x, y + ALTO_FICHA / 2, z],
     [0, giro, 0],
   );
@@ -80,16 +72,12 @@ function dispensador(x: number, azul: boolean, alto: number): Parte[] {
   const base = BASE_DISPENSADOR.alto;
   const partes: Parte[] = [
     parte(cajaBiselada(ancho, base, fondo, 0.015), color, [x, base / 2, 0]),
-    parte(cajaBiselada(ancho + 0.006, 0.012, fondo + 0.006, 0.004), oscuro, [x, 0.006, 0]),
+    parte(cajaBiselada(ancho + 0.006, 0.012, fondo + 0.006, 0), oscuro, [x, 0.006, 0]),
     // Boca de salida, al frente, con su bandejita.
-    parte(cajaBiselada(0.07, 0.03, 0.01, 0.004), PALETA.ranura, [x, 0.035, fondo / 2 - 0.003]),
-    parte(cajaBiselada(0.075, 0.008, 0.02, 0.003), PALETA.cromo, [x, 0.018, fondo / 2 + 0.001]),
+    parte(cajaBiselada(0.07, 0.03, 0.01, 0), PALETA.ranura, [x, 0.035, fondo / 2 - 0.003]),
+    parte(cajaBiselada(0.075, 0.008, 0.02, 0), PALETA.cromo, [x, 0.018, fondo / 2 + 0.001]),
     // Tecla para soltar una ficha.
-    parte(cajaBiselada(0.04, 0.014, 0.03, 0.005), PALETA.cromo, [
-      x,
-      base + 0.002,
-      fondo / 2 - 0.025,
-    ]),
+    parte(cajaBiselada(0.04, 0.014, 0.03, 0), PALETA.cromo, [x, base + 0.002, fondo / 2 - 0.025]),
   ];
   // Columna de fichas a la vista.
   const desde = base;
@@ -118,7 +106,7 @@ function dispensador(x: number, azul: boolean, alto: number): Parte[] {
           [0.044, alto],
           [0, alto],
         ],
-        16,
+        12,
       ),
       PALETA.cromo,
       [x, 0, -0.005],
@@ -154,11 +142,11 @@ const botonParejas: ConstructorPieza = (o) => {
             [r - 0.006, base],
             [0, base],
           ],
-          20,
+          14,
         ),
         PALETA.negro,
       ),
-      parte(new TorusGeometry(r * 0.72, 0.004, 6, 20).rotateX(Math.PI / 2), PALETA.cromo, [
+      parte(new TorusGeometry(r * 0.72, 0.004, 4, 14).rotateX(Math.PI / 2), PALETA.cromo, [
         0,
         base + 0.001,
         0,
@@ -173,11 +161,11 @@ const botonParejas: ConstructorPieza = (o) => {
             [r * 0.25, alto],
             [0, alto],
           ],
-          20,
+          14,
         ),
         PALETA.rojo,
       ),
-      parte(new CylinderGeometry(r * 0.6, r * 0.6, 0.004, 20), PALETA.rojoOscuro, [
+      parte(new CylinderGeometry(r * 0.6, r * 0.6, 0.004, 14), PALETA.rojoOscuro, [
         0,
         base + 0.002,
         0,
@@ -200,7 +188,7 @@ const parlante: ConstructorPieza = (o) => {
   const partes: Parte[] = [
     parte(cajaBiselada(ancho, alto, fondo - 0.03, 0.025), PALETA.parlante, [0, alto / 2, -0.015]),
     // Marco de la rejilla: una franja oscura alrededor del frente.
-    parte(cajaBiselada(ancho - 0.03, alto - 0.03, 0.004, 0.002), PALETA.negro, [
+    parte(cajaBiselada(ancho - 0.03, alto - 0.03, 0.004, 0), PALETA.negro, [
       0,
       alto / 2,
       frente + 0.002,
@@ -210,7 +198,7 @@ const parlante: ConstructorPieza = (o) => {
   const yWoofer = alto * 0.38;
   const rw = Math.min(ancho, alto) * 0.3;
   partes.push(
-    parte(new TorusGeometry(rw, 0.008, 6, 24), PALETA.rejilla, [0, yWoofer, frente + 0.012]),
+    parte(new TorusGeometry(rw, 0.008, 4, 16), PALETA.rejilla, [0, yWoofer, frente + 0.012]),
     parte(
       // Del borde hacia el centro: el cono se hunde y sus caras miran hacia el frente.
       torno(
@@ -220,7 +208,7 @@ const parlante: ConstructorPieza = (o) => {
           [rw * 0.2, 0.006],
           [0, 0],
         ],
-        20,
+        14,
       ).rotateX(Math.PI / 2),
       PALETA.ranura,
       [0, yWoofer, frente + 0.004],
@@ -229,7 +217,7 @@ const parlante: ConstructorPieza = (o) => {
   // Tweeter arriba.
   const yTweeter = alto * 0.8;
   partes.push(
-    parte(new TorusGeometry(0.03, 0.007, 6, 16), PALETA.rejilla, [0, yTweeter, frente + 0.011]),
+    parte(new TorusGeometry(0.03, 0.007, 4, 12), PALETA.rejilla, [0, yTweeter, frente + 0.011]),
     parte(
       torno(
         [
@@ -247,7 +235,7 @@ const parlante: ConstructorPieza = (o) => {
   for (const sx of [-1, 1]) {
     for (let fila = 0; fila < 5; fila++) {
       partes.push(
-        parte(cajaBiselada(0.012, 0.012, 0.004, 0.003), PALETA.ranura, [
+        parte(cajaBiselada(0.012, 0.012, 0.004, 0), PALETA.ranura, [
           sx * (ancho / 2 - 0.045),
           yWoofer - 0.08 + fila * 0.04,
           frente + 0.005,

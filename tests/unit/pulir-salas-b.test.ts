@@ -232,14 +232,17 @@ describe('rectoría pulida', () => {
     return n;
   };
 
-  it('suma solo la base de la urna, la carcasa va en lo fijo y pulirla otra vez no repite nada', () => {
+  it('suma solo la base de la urna (con la carcasa del techo) y no toca la malla fija', () => {
     const sala = armar();
     const antes = mallas(sala.raiz).length;
     const trisFija = triangulos(sala.raiz.getObjectByName('fija') as Mesh);
     pulirRectoria(sala.raiz);
     expect(mallas(sala.raiz)).toHaveLength(antes + 1);
     expect(sala.raiz.getObjectByName('s5-urna')?.getObjectByName(URNA_BASE)).toBeDefined();
-    expect(triangulos(sala.raiz.getObjectByName('fija') as Mesh)).toBeGreaterThan(trisFija);
+    // La malla fija queda igual: con índice y con los mismos triángulos.
+    const fija = sala.raiz.getObjectByName('fija') as Mesh;
+    expect(triangulos(fija)).toBe(trisFija);
+    expect(fija.geometry.index).not.toBeNull();
     const tris = total(sala.raiz);
     pulirRectoria(sala.raiz);
     expect(mallas(sala.raiz)).toHaveLength(antes + 1);
@@ -279,8 +282,9 @@ describe('rectoría pulida', () => {
     revisar.push(...((mano?.children.slice(0, 2) ?? []) as Mesh[]));
     for (const m of revisar) {
       expect(m, 'falta una malla').toBeDefined();
-      expect(carasAlReves(m.geometry), m.name).toBe(0);
-      expect(normalesSanas(m.geometry), m.name).toBe(true);
+      const g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry;
+      expect(carasAlReves(g), m.name).toBe(0);
+      expect(normalesSanas(g), m.name).toBe(true);
     }
     animacion?.liberar();
   });

@@ -9,8 +9,8 @@
  *   tocarlos es tocar la urna, y se resaltan con ella.
  * - **Manija:** palanca roja al costado de la urna, también hija de la urna, que se jala cuando
  *   la mano baja.
- * - **Mano mecánica:** brazo telescópico que sale de una carcasa en el techo (unida a lo fijo)
- *   y pinza de dos mandíbulas que sostiene las dos fichas entre ellas.
+ * - **Mano mecánica:** brazo telescópico que sale de una carcasa en el techo (va en la malla
+ *   de la base de la urna) y pinza de dos mandíbulas que sostiene las dos fichas entre ellas.
  * - **Fichas:** azules redondas con el canto biselado y el centro hundido; amarillas cuadradas
  *   con bisel y un cuadro en relieve.
  * - **Caja fuerte:** cuerpo hueco con forro oscuro y una repisa donde espera la llave; puerta
@@ -21,11 +21,37 @@
  */
 import { Mesh, MeshLambertMaterial } from 'three';
 import type { BufferGeometry, Object3D } from 'three';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { PALETA } from './piezas-comunes';
-import { Piezas, sumarAFija, vestirMalla } from './piezas-por-codigo';
+import { Piezas, vestirMalla } from './piezas-por-codigo';
 import type { PuntoPerfil, V3 } from './piezas-por-codigo';
 
 const C = PALETA;
+
+/**
+ * La geometría de unas piezas, con índice: los vértices repetidos (las dos mitades de cada
+ * cara plana) se comparten. Con el WebGL por software de las pruebas, y en GPU de gama baja,
+ * cada vértice cuenta.
+ */
+function indexada(p: Piezas): BufferGeometry {
+  const suelta = p.geometria();
+  const g = mergeVertices(suelta);
+  suelta.dispose();
+  g.computeBoundingBox();
+  g.computeBoundingSphere();
+  return g;
+}
+
+/** Viste una malla con unas piezas (como `vestirMalla`) y le deja la geometría con índice. */
+function vestirIndexada(objeto: Object3D, p: Piezas, tinte?: string): void {
+  const malla = vestirMalla(objeto, p, tinte);
+  if (!malla) return;
+  const suelta = malla.geometry;
+  malla.geometry = mergeVertices(suelta);
+  malla.geometry.computeBoundingBox();
+  malla.geometry.computeBoundingSphere();
+  suelta.dispose();
+}
 
 /** Radio de afuera del vidrio de la urna (la caja de `salas.json` mide 0,35 m de diámetro). */
 const RADIO_VIDRIO = 0.165;
@@ -56,7 +82,7 @@ function vidrioUrna(p: Piezas): void {
       [0, FONDO_URNA],
     ],
     '#ffffff',
-    { lados: 28 },
+    { lados: 22 },
   );
 }
 
@@ -76,7 +102,7 @@ function baseUrna(p: Piezas): void {
       [r, 0.048],
     ],
     C.metalOscuro,
-    { lados: 28 },
+    { lados: 22 },
   );
   p.torno(
     [
@@ -90,7 +116,7 @@ function baseUrna(p: Piezas): void {
       [r - GROSOR_VIDRIO, ALTO_URNA - 0.03],
     ],
     C.laton,
-    { lados: 28 },
+    { lados: 22 },
   );
   for (const grados of [45, 135, 225, 315]) {
     const a = (grados * Math.PI) / 180;
@@ -129,7 +155,7 @@ export function geometriaManija(): BufferGeometry {
   p.cilindro(0.012, 0.024, C.metal, { pos: [0.012, 0, 0], giro: [0, 0, 90], lados: 8 });
   p.barra([0.016, 0, 0], [0.016, 0.16, 0], 0.008, C.cromo, 8);
   p.esfera(0.022, C.rojo, { pos: [0.016, 0.175, 0], lados: 12, anillos: 6 });
-  return p.geometria();
+  return indexada(p);
 }
 
 /** Ángulo de la manija (radianes, alrededor de X) en reposo y jalada. */
@@ -149,7 +175,7 @@ export function geometriaBrazo(): BufferGeometry {
   p.cilindro(0.02, mitad + 0.02, C.cromo, { pos: [0, 0.03, 0], lados: 12 });
   p.cilindro(0.03, mitad, C.metal, { pos: [0, mitad, 0], lados: 12 });
   p.cilindro(0.034, 0.03, C.metalOscuro, { pos: [0, mitad - 0.01, 0], bisel: 0.006, lados: 12 });
-  return p.geometria();
+  return indexada(p);
 }
 
 /**
@@ -166,7 +192,7 @@ export function geometriaPinza(): BufferGeometry {
     p.caja([0.13, 0.012, 0.022], C.metalOscuro, { pos: [0, -0.076, s * 0.047], bisel: 0.004 });
     p.barra([0, 0.01, s * 0.04], [0, -0.01, s * 0.056], 0.006, C.cromo, 6);
   }
-  return p.geometria();
+  return indexada(p);
 }
 
 /** Ficha azul: redonda, con el canto biselado y el centro hundido. Centrada en su alto. */
@@ -183,7 +209,7 @@ export function geometriaFichaAzul(lado: number, alto: number): BufferGeometry {
     [r * 0.66, alto / 2 - b * 0.8],
     [0, alto / 2 - b * 0.8],
   ];
-  return new Piezas().torno(perfil, '#ffffff', { lados: 16 }).geometria();
+  return indexada(new Piezas().torno(perfil, '#ffffff', { lados: 12 }));
 }
 
 /** Ficha amarilla: cuadrada, con bisel y un cuadro en relieve. Centrada en su alto. */
@@ -194,7 +220,7 @@ export function geometriaFichaAmarilla(lado: number, alto: number): BufferGeomet
     pos: [0, alto * 0.42, 0],
     bisel: alto * 0.06,
   });
-  return p.geometria();
+  return indexada(p);
 }
 
 /** Medidas de la caja fuerte de `salas.json` (0,7 × 0,9 × 0,6 m; base en y = 0, frente hacia +Z). */
@@ -259,13 +285,13 @@ export function geometriaPuerta(ancho: number, alto: number): BufferGeometry {
   });
   // Bisagras: dos cilindros en el borde.
   for (const y of [0.1, alto - 0.24]) {
-    p.cilindro(0.014, 0.14, C.cromo, { pos: [-0.004, y, 0], bisel: 0.004, lados: 10 });
+    p.cilindro(0.014, 0.14, C.cromo, { pos: [-0.004, y, 0], lados: 8 });
   }
   // Dial: aro cromado, cara negra con 12 marcas, perilla y la flecha roja arriba.
   const dial: V3 = [ancho * 0.6, alto * 0.62, f + 0.007];
   p.en({ pos: dial, giro: [90, 0, 0] }, () => {
-    p.cilindro(0.075, 0.01, C.cromo, { bisel: 0.004, lados: 24 });
-    p.cilindro(0.062, 0.014, C.negro, { lados: 24 });
+    p.cilindro(0.075, 0.01, C.cromo, { bisel: 0.004, lados: 16 });
+    p.cilindro(0.062, 0.014, C.negro, { lados: 16 });
     p.cilindro(0.024, 0.032, C.metal, { bisel: 0.006, lados: 12 });
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2;
@@ -284,7 +310,7 @@ export function geometriaPuerta(ancho: number, alto: number): BufferGeometry {
     const a = (grados * Math.PI) / 180;
     const fin: V3 = [centro[0] + 0.085 * Math.cos(a), centro[1] + 0.085 * Math.sin(a), f + 0.03];
     p.barra([centro[0], centro[1], f + 0.03], fin, 0.008, C.cromo, 8);
-    p.esfera(0.015, C.cromo, { pos: fin, lados: 10, anillos: 5 });
+    p.esfera(0.015, C.cromo, { pos: fin, lados: 8, anillos: 4 });
   }
   // Cerradura y placa de latón.
   // Cerradura y placa de latón, delante del panel (que llega a z = f + 0,012).
@@ -297,47 +323,46 @@ export function geometriaPuerta(ancho: number, alto: number): BufferGeometry {
   p.caja([0.2, 0.05, 0.006], C.laton, { pos: [ancho * 0.5, alto * 0.88, f + 0.015], bisel: 0.003 });
   p.caja([0.16, 0.006, 0.002], C.latonOscuro, { pos: [ancho * 0.5, alto * 0.89, f + 0.019] });
   p.caja([0.12, 0.006, 0.002], C.latonOscuro, { pos: [ancho * 0.5, alto * 0.87, f + 0.019] });
-  return p.geometria();
+  return indexada(p);
 }
 
 /** La llave del sello: argolla, caña y paletón, de pie, con la base en y = 0 y mirando hacia +Z. */
 export function geometriaLlave(): BufferGeometry {
   const p = new Piezas();
-  p.toro(0.04, 0.011, '#ffffff', { pos: [0, 0.17, 0], giro: [90, 0, 0], lados: 16, tubo: 6 });
+  p.toro(0.04, 0.011, '#ffffff', { pos: [0, 0.17, 0], giro: [90, 0, 0], lados: 12, tubo: 4 });
   p.barra([0, 0.004, 0], [0, 0.13, 0], 0.011, '#ffffff', 8);
   // Paletón apoyado en la repisa y su segundo diente encima, pegado a él.
   p.caja([0.05, 0.022, 0.012], '#ffffff', { pos: [0.024, 0.011, 0], bisel: 0.003 });
   p.caja([0.02, 0.018, 0.012], '#ffffff', { pos: [0.039, 0.031, 0], bisel: 0.003 });
-  p.cilindro(0.016, 0.012, '#ffffff', { pos: [0, 0.122, 0], bisel: 0.003, lados: 10 });
-  return p.geometria();
+  p.cilindro(0.016, 0.012, '#ffffff', { pos: [0, 0.122, 0], lados: 8 });
+  return indexada(p);
 }
 
 /**
- * Viste la urna y la caja fuerte, cuelga de la urna su base y une a lo fijo la carcasa de la
- * mano. Se puede llamar varias veces con la misma sala: lo hecho no se repite.
+ * Viste la urna y la caja fuerte, y cuelga de la urna su base y la carcasa de la mano en el
+ * techo. Se puede llamar varias veces con la misma sala: lo hecho no se repite.
  */
 export function pulirRectoria(raiz: Object3D): void {
   const urna = raiz.getObjectByName('s5-urna');
   if (urna) {
     const vidrio = new Piezas();
     vidrioUrna(vidrio);
-    vestirMalla(urna, vidrio, '#d6eaf8');
+    vestirIndexada(urna, vidrio, '#d6eaf8');
     if (!urna.getObjectByName(URNA_BASE)) {
       const p = new Piezas();
       baseUrna(p);
-      const base = new Mesh(p.geometria(), new MeshLambertMaterial({ vertexColors: true }));
+      // La carcasa del techo va en la misma malla: es parte de la máquina, y así la malla fija
+      // de la sala queda como estaba (con índice y sin crecer).
+      p.en({ pos: [0, -urna.position.y, 0] }, () => carcasaMano(p));
+      const base = new Mesh(indexada(p), new MeshLambertMaterial({ vertexColors: true }));
       base.name = URNA_BASE;
       urna.add(base);
     }
-    // La carcasa del techo queda lejos de todo lo que se toca: va con lo fijo.
-    const fija = new Piezas();
-    fija.en({ pos: [urna.position.x, 0, urna.position.z] }, () => carcasaMano(fija));
-    sumarAFija(raiz, 'rectoria-mano', fija);
   }
   const caja = raiz.getObjectByName('s5-caja-fuerte');
   if (caja) {
     const p = new Piezas();
     cuerpoCaja(p);
-    vestirMalla(caja, p);
+    vestirIndexada(caja, p);
   }
 }
