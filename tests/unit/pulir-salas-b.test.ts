@@ -16,9 +16,15 @@ import { Piezas } from '../../src/engine/mecanismos/piezas-por-codigo';
 import {
   MANIJA_JALADA,
   MANIJA_REPOSO,
+  URNA_BASE,
   pulirRectoria,
 } from '../../src/engine/mecanismos/rectoria-piezas';
-import { anguloManija, DURACION_MANO } from '../../src/engine/mecanismos/urna';
+import {
+  alturaDeLaMano,
+  anguloManija,
+  DURACION_MANO,
+  posicionDeFicha,
+} from '../../src/engine/mecanismos/urna';
 import { construirSala } from '../../src/engine/salas/construir';
 import { interactivoDe } from '../../src/engine/interaccion/interaccion';
 import { reiniciarMecanismo } from '../../src/signals/mecanismo';
@@ -214,24 +220,44 @@ describe('biblioteca pulida', () => {
 describe('rectoría pulida', () => {
   const armar = () => construirSala(salaPorId('s5-rectoria'));
 
-  it('no suma mallas, cabe en el presupuesto y la base de la urna y la carcasa van en lo fijo', () => {
+  /** Triángulos que dibuja un objeto con todos sus hijos. */
+  const conHijos = (o: Object3D): number => {
+    let n = 0;
+    o.traverse((x) => {
+      const m = x as Mesh;
+      if (m.isMesh && m.visible && (m.material as MeshLambertMaterial).visible !== false) {
+        n += triangulos(m);
+      }
+    });
+    return n;
+  };
+
+  it('suma solo la base de la urna, la carcasa va en lo fijo y pulirla otra vez no repite nada', () => {
     const sala = armar();
     const antes = mallas(sala.raiz).length;
     const trisFija = triangulos(sala.raiz.getObjectByName('fija') as Mesh);
     pulirRectoria(sala.raiz);
-    expect(mallas(sala.raiz)).toHaveLength(antes);
+    expect(mallas(sala.raiz)).toHaveLength(antes + 1);
+    expect(sala.raiz.getObjectByName('s5-urna')?.getObjectByName(URNA_BASE)).toBeDefined();
     expect(triangulos(sala.raiz.getObjectByName('fija') as Mesh)).toBeGreaterThan(trisFija);
     const tris = total(sala.raiz);
     pulirRectoria(sala.raiz);
+    expect(mallas(sala.raiz)).toHaveLength(antes + 1);
     expect(total(sala.raiz)).toBe(tris);
   });
 
-  it('con la animación, la sala dibuja menos mallas que antes y cabe en el presupuesto', () => {
+  it('con la animación dibuja menos mallas que antes y cabe en el presupuesto', () => {
     const sala = armar();
     const animacion = animacionDeSala('s5-rectoria', sala.raiz);
-    // Antes del pulido eran 35 (T19o, con la urna, la mano y la caja fuerte).
+    // Antes del pulido eran 35 (con la urna, la mano y la caja fuerte).
     expect(dibujadas(sala.raiz)).toBeLessThanOrEqual(34);
     expect(total(sala.raiz) + TRIANGULOS_GLB_RECTORIA).toBeLessThan(MAX_TRIANGULOS_SALA);
+    // Cada objeto que se toca, con sus hijos (puerta y llave, base y manija), bajo 6.000.
+    sala.raiz.traverse((o) => {
+      if (o.userData['interactivo']) {
+        expect(conHijos(o), o.name).toBeLessThan(MAX_TRIANGULOS_INTERACTIVO);
+      }
+    });
     animacion?.liberar();
   });
 
@@ -241,6 +267,7 @@ describe('rectoría pulida', () => {
     const revisar = [
       'fija',
       's5-urna',
+      URNA_BASE,
       's5-caja-fuerte',
       'caja-fuerte-puerta',
       'caja-fuerte-llave',
@@ -258,11 +285,13 @@ describe('rectoría pulida', () => {
     animacion?.liberar();
   });
 
-  it('lo que se toca sigue con su id y su acción, en su caja y con menos de 6.000 triángulos', () => {
+  it('lo que se toca sigue con su id y su acción, y la urna y la caja caben en su caja', () => {
     const sala = armar();
     const antes = interactivos(sala.raiz);
-    pulirRectoria(sala.raiz);
+    const choques = JSON.stringify(sala.cajas);
+    animacionDeSala('s5-rectoria', sala.raiz)?.liberar();
     expect(interactivos(sala.raiz)).toEqual(antes);
+    expect(JSON.stringify(sala.cajas)).toBe(choques);
     const urna = sala.raiz.getObjectByName('s5-urna') as Mesh;
     const u = caja(urna);
     expect(Math.max(-u.min.x, u.max.x, -u.min.z, u.max.z)).toBeLessThanOrEqual(0.176);
@@ -274,19 +303,30 @@ describe('rectoría pulida', () => {
     expect(f.max.z).toBeLessThanOrEqual(0.301);
     for (const m of [urna, fuerte]) {
       expect((m.material as MeshLambertMaterial).vertexColors).toBe(true);
-      expect(triangulos(m)).toBeLessThan(MAX_TRIANGULOS_INTERACTIVO);
     }
   });
 
-  it('el toque de las e2e en el centro de la urna sigue pegando en el vidrio', () => {
+  it('el pie, el aro, las varillas y la manija de la urna se tocan como la urna', () => {
     const sala = armar();
-    animacionDeSala('s5-rectoria', sala.raiz)?.liberar();
+    const animacion = animacionDeSala('s5-rectoria', sala.raiz);
     sala.raiz.updateMatrixWorld(true);
-    const urna = sala.raiz.getObjectByName('s5-urna') as Mesh;
-    // Desde la puerta, hacia el punto que tocan caja-fuerte.spec.ts y partida.spec.ts.
-    const desde = new Vector3(0, 1.6, 2);
-    const hacia = new Vector3(-0.6, 0.98, -0.5).sub(desde).normalize();
-    expect(new Raycaster(desde, hacia).intersectObject(urna, false).length).toBeGreaterThan(0);
+    // Desde la puerta (donde empiezan las e2e) y desde un lado de la mesa.
+    for (const desde of [new Vector3(0, 1.6, 1.9), new Vector3(0.8, 1.5, 0.6)]) {
+      for (const punto of [
+        [-0.6, 0.98, -0.5], // el centro, que tocan caja-fuerte.spec.ts y partida.spec.ts
+        [-0.6, 0.78, -0.31], // el pie
+        [-0.6, 1.186, -0.32], // el aro de latón
+        [-0.48, 1.0, -0.38], // una varilla
+        [-0.372, 0.96, -0.56], // el pomo de la manija (en reposo, inclinada hacia atrás)
+      ] as const) {
+        const hacia = new Vector3(...punto).sub(desde).normalize();
+        const choque = new Raycaster(desde, hacia)
+          .intersectObject(sala.raiz, true)
+          .find((i) => i.object.visible);
+        expect(interactivoDe(choque?.object ?? null)?.name, `${punto.join(', ')}`).toBe('s5-urna');
+      }
+    }
+    animacion?.liberar();
   });
 
   it('la manija se jala cuando la mano baja y vuelve cuando sube', () => {
@@ -294,6 +334,23 @@ describe('rectoría pulida', () => {
     expect(anguloManija(0.3)).toBeCloseTo(MANIJA_JALADA);
     expect(anguloManija(0.75)).toBeGreaterThan(MANIJA_REPOSO);
     expect(anguloManija(DURACION_MANO)).toBe(MANIJA_REPOSO);
+  });
+
+  it('la pinza baja hasta justo encima de las fichas y el brazo no sale de su carcasa', () => {
+    const sala = armar();
+    const animacion = animacionDeSala('s5-rectoria', sala.raiz);
+    const grupo = sala.raiz.getObjectByName('urna-animacion');
+    const pinza = (sala.raiz.getObjectByName('mano-mecanica')?.children[1] ?? null) as Mesh | null;
+    const brazo = (sala.raiz.getObjectByName('mano-mecanica')?.children[0] ?? null) as Mesh | null;
+    const yGrupo = grupo?.position.y ?? 0;
+    const bajo = alturaDeLaMano(0.5);
+    // Lo más bajo de la pinza queda sobre el montón más alto (20 fichas, 5 pisos).
+    const tope = posicionDeFicha(19).y + 0.006;
+    expect(bajo + caja(pinza ?? undefined).min.y).toBeGreaterThan(tope);
+    expect(bajo + caja(pinza ?? undefined).min.y).toBeLessThan(tope + 0.03);
+    // La punta del brazo, con la mano abajo, sigue dentro de la carcasa del techo (boca en 2,3).
+    expect(yGrupo + bajo + caja(brazo ?? undefined).max.y).toBeGreaterThan(2.35);
+    animacion?.liberar();
   });
 
   it('la carta es una lámina de papel y el parlante, los dispensadores y el botón son piezas', () => {

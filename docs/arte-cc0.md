@@ -283,7 +283,7 @@ Para que ningún objeto se vea como caja gris, lo que anima la máquina de los c
 
 ## Sala 5 · La rectoría
 
-Hecha en T19o, con KayKit y tres modelos de Kenney Furniture Kit que KayKit no tiene (televisor, computador y matera alta). La urna, los dispensadores, el botón de las parejas, la caja fuerte y la carta siguen como primitivas: su máquina los anima, su color es la pista o su texto se lee en 2D.
+Hecha en T19o, con KayKit y tres modelos de Kenney Furniture Kit que KayKit no tiene (televisor, computador y matera alta). La urna, los dispensadores, el botón de las parejas, la caja fuerte, la carta y el parlante no tienen modelo: desde «Pulir las salas» (sesión B) se arman por código, ver abajo.
 
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
@@ -298,12 +298,23 @@ Hecha en T19o, con KayKit y tres modelos de Kenney Furniture Kit que KayKit no t
 | `s5-planta` (nueva) | Kenney Furniture · `pottedPlant` | 60 | `planta` | Matera alta junto a la ventana grande |
 | `s5-diplomas` (nuevos) | Furniture · tres `pictureframe` | 180 | `diplomas` | Sin texto, sobre el escritorio |
 
-Nuevo hecho con primitivas: el parlante de La Voz, alto en la esquina noreste (va en la malla fija).
+Nuevo: el parlante de La Voz, alto en la esquina noreste (va en la malla fija; desde la sesión B es una pieza por código).
 
 - **Superficies:** parqué (WoodFloor071, `compartido/piso-madera`) con tinte nogal, pañete color pergamino y techo de oficina.
 - **Acabados:** zócalo verde salvia con franja dorada; la lámpara del oeste encendida (sobre la urna) y la del este titilando; una ventana grande en la pared norte, con la luna, y otra en la pared este, sobre el sofá.
 - **Luz:** penumbra cálida de oficina con luz de luna fría desde el sureste.
 - **Medidas:** 10 GLB, 3.832 triángulos, 145 KB. Prueba del cooperativo: 38 de 40.
+
+### Pulido por código (sesión B)
+
+Lo que anima la máquina de la urna se rehizo por código en el estilo de KayKit, sin cambiar su id, su caja de choque ni su animación (`src/engine/mecanismos/rectoria-piezas.ts`, con las ayudas de `piezas-por-codigo.ts` de la sesión A):
+
+- **Urna:** vidrio de doble pared, abierto arriba para que entre la mano, sobre una base oscura con aro de latón, cuatro varillas y una placa. La base y la **manija** roja (que se jala cuando baja la mano y vuelve sola) son mallas hijas de la urna: tocarlas es tocar la urna y se resaltan con ella.
+- **Mano mecánica:** brazo telescópico que sale de una carcasa en el techo (unida a lo fijo) y pinza de dos mandíbulas, que ahora baja hasta justo encima de las fichas; las dos que saca se ven entre ellas.
+- **Fichas:** azules redondas con el canto biselado y el centro hundido; amarillas cuadradas con bisel y un cuadro en relieve, como en el panel 2D.
+- **Caja fuerte:** cuerpo hueco con forro oscuro y una repisa; la puerta lleva panel, bisagras, dial con 12 marcas, manija de tres rayos, cerradura y placa de latón. Al abrirse se ve la llave de pie sobre la repisa. La perilla va en la misma malla de la puerta y el fondo plano sobra: dos mallas menos.
+- **Dispensadores, botón «ver parejas» y parlante:** piezas del registro de la sesión C (`src/engine/salas/piezas/rectoria.ts`): dos dispensadores de monedero con su columna de fichas a la vista, un botón de hongo rojo con aro cromado y un parlante con rejilla, woofer, tweeter y piloto verde. La **carta** es una lámina de papel con el membrete «I. E. Los Almendros» (lo que dice se lee en 2D).
+- **Medidas:** de 1.538 a 13.544 triángulos por código, más los 3.832 de los GLB. De 35 a 34 mallas dibujadas: la base y la manija de la urna suman dos, y la perilla y el fondo de la caja fuerte, que ya no son mallas aparte, restan dos; los dispensadores pasan de dos mallas a una.
 
 ## Texturas de piso, paredes y techo
 

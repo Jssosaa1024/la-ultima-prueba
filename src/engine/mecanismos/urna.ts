@@ -23,7 +23,6 @@ import type { Material, Object3D } from 'three';
 import { panel } from '../../signals/interfaz';
 import { etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
 import { sonar } from '../audio/eventos';
-import { sinRayo } from './comunes';
 import { suave } from './curvas';
 import {
   EJE_MANIJA,
@@ -54,7 +53,8 @@ const SEPARACION = 0.045;
 /** Alto de la urna de `salas.json` y altura a la que descansa la mano sobre su borde. */
 const ALTO_URNA = 0.45;
 const ALTURA_REPOSO = ALTO_URNA + 0.35;
-const ALTURA_AGARRE = ALTO_URNA - 0.05;
+/** La pinza baja hasta las fichas: las que saca aparecen justo encima del montón. */
+const ALTURA_AGARRE = 0.17;
 
 /** Duración de cada tramo de la mano, en segundos. */
 const T_BAJAR = 0.5;
@@ -142,16 +142,16 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
     return { actualizar() {}, liberar() {}, estado: '', fichas: SIN_FICHAS, manoActiva: false };
   }
 
-  // La urna se ve por dentro. No escribe profundidad, para no tapar las fichas.
-  urna.traverse((o) => {
-    const malla = o as Mesh;
-    if (!malla.isMesh) return;
-    for (const m of ([] as Material[]).concat(malla.material)) {
+  // El vidrio de la urna se ve por dentro. No escribe profundidad, para no tapar las fichas.
+  // Solo el vidrio: su base y la manija (hijas de la urna) siguen opacas.
+  const vidrio = urna as Mesh;
+  if (vidrio.isMesh) {
+    for (const m of ([] as Material[]).concat(vidrio.material)) {
       m.transparent = true;
       m.opacity = 0.35;
       m.depthWrite = false;
     }
-  });
+  }
 
   const grupo = new Group();
   grupo.name = 'urna-animacion';
@@ -195,11 +195,15 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
   mano.position.y = ALTURA_REPOSO;
 
   // La manija al costado de la urna, con su eje donde la sostiene el soporte (rectoria-piezas).
-  const manija = sinRayo(new Mesh(geometriaManija(), metal));
+  // Cuelga de la urna: tocarla es tocar la urna. Tiene su propio material, para que el
+  // resaltado de la urna no ilumine también la mano.
+  const materialManija = new MeshLambertMaterial({ vertexColors: true });
+  const manija = new Mesh(geometriaManija(), materialManija);
   manija.name = 'urna-manija';
-  manija.position.set(EJE_MANIJA[0], EJE_MANIJA[1] - alzado, EJE_MANIJA[2]);
+  manija.position.set(EJE_MANIJA[0], EJE_MANIJA[1], EJE_MANIJA[2]);
   manija.rotation.x = MANIJA_REPOSO;
-  grupo.add(azules, amarillas, mano, manija);
+  urna.add(manija);
+  grupo.add(azules, amarillas, mano);
   raiz.add(grupo);
 
   let visibles: FichasEnUrna = SIN_FICHAS;
@@ -301,7 +305,9 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
       amarillas.dispose();
       brazo.geometry.dispose();
       pinza.geometry.dispose();
+      manija.removeFromParent();
       manija.geometry.dispose();
+      materialManija.dispose();
       metal.dispose();
     },
   };

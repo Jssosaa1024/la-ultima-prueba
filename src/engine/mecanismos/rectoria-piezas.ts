@@ -4,9 +4,11 @@
  * Lo que anima la máquina de la urna se rehace con más detalle sin cambiar su id, su caja de
  * choque ni su animación:
  * - **Urna:** vidrio de doble pared, abierto arriba para que entre la mano. Sigue siendo la
- *   malla que se toca; `urna.ts` la vuelve translúcida. La base, el aro de latón, las varillas
- *   y la placa van unidos a la malla fija.
- * - **Manija:** palanca roja al costado de la urna, que se jala cuando la mano baja.
+ *   malla que se toca; `urna.ts` vuelve translúcido solo el vidrio. La base, el aro de latón,
+ *   las varillas, la placa y el soporte de la manija son una malla hija de la urna (`URNA_BASE`):
+ *   tocarlos es tocar la urna, y se resaltan con ella.
+ * - **Manija:** palanca roja al costado de la urna, también hija de la urna, que se jala cuando
+ *   la mano baja.
  * - **Mano mecánica:** brazo telescópico que sale de una carcasa en el techo (unida a lo fijo)
  *   y pinza de dos mandíbulas que sostiene las dos fichas entre ellas.
  * - **Fichas:** azules redondas con el canto biselado y el centro hundido; amarillas cuadradas
@@ -17,6 +19,7 @@
  * Los dispensadores, el botón «ver parejas» y el parlante son piezas del registro de la sesión C
  * (`src/engine/salas/piezas/rectoria.ts`); la carta es una lámina de papel.
  */
+import { Mesh, MeshLambertMaterial } from 'three';
 import type { BufferGeometry, Object3D } from 'three';
 import { PALETA } from './piezas-comunes';
 import { Piezas, sumarAFija, vestirMalla } from './piezas-por-codigo';
@@ -57,8 +60,11 @@ function vidrioUrna(p: Piezas): void {
   );
 }
 
-/** Lo fijo de la urna, en el espacio de su base: base, aro de latón, varillas y placa. */
-function fijoUrna(p: Piezas): void {
+/** Nombre de la malla con la base, el aro y las varillas de la urna (hija de `s5-urna`). */
+export const URNA_BASE = 'urna-base';
+
+/** Lo opaco de la urna, en el espacio de su base: base, aro de latón, varillas y placa. */
+function baseUrna(p: Piezas): void {
   const r = RADIO_VIDRIO;
   p.torno(
     [
@@ -80,6 +86,8 @@ function fijoUrna(p: Piezas): void {
       [0.178, ALTO_URNA - 0.006],
       [0.171, ALTO_URNA],
       [r - GROSOR_VIDRIO, ALTO_URNA],
+      // Por dentro baja hasta el vidrio: el aro queda cerrado y no se ve a través de él.
+      [r - GROSOR_VIDRIO, ALTO_URNA - 0.03],
     ],
     C.laton,
     { lados: 28 },
@@ -107,11 +115,12 @@ function carcasaMano(p: Piezas): void {
   p.cilindro(0.09, 0.02, C.metalOscuro, { pos: [0, TECHO - 0.02, 0], bisel: 0.006, lados: 16 });
   p.caja([0.15, 0.12, 0.15], C.metal, { pos: [0, TECHO - 0.08, 0], bisel: 0.02 });
   p.caja([0.152, 0.02, 0.152], C.amarillo, { pos: [0, TECHO - 0.1, 0], bisel: 0.006 });
-  p.cilindro(0.045, TECHO - 0.14 - BOCA_CARCASA, C.metalOscuro, {
-    pos: [0, BOCA_CARCASA, 0],
+  p.cilindro(0.045, TECHO - 0.14 - BOCA_CARCASA - 0.01, C.metalOscuro, {
+    pos: [0, BOCA_CARCASA + 0.01, 0],
     lados: 14,
   });
-  p.cilindro(0.054, 0.03, C.cromo, { pos: [0, BOCA_CARCASA, 0], bisel: 0.006, lados: 14 });
+  // El collar baja un poco más que el tubo: sus tapas no quedan en el mismo plano.
+  p.cilindro(0.054, 0.03, C.cromo, { pos: [0, BOCA_CARCASA - 0.005, 0], bisel: 0.006, lados: 14 });
 }
 
 /** La manija, con su eje en el origen: brazo que sube y pomo rojo. */
@@ -127,12 +136,19 @@ export function geometriaManija(): BufferGeometry {
 export const MANIJA_REPOSO = -0.35;
 export const MANIJA_JALADA = 0.55;
 
-/** El brazo de la mano: dos tramos telescópicos con su collar, de y = 0 a 1,2 m. */
+/** Largo del brazo: en reposo su punta sube por encima del cielo raso (no se ve). */
+export const LARGO_BRAZO = 1.6;
+
+/**
+ * El brazo de la mano: dos tramos telescópicos con su collar, de y = 0 a `LARGO_BRAZO`. Con la
+ * mano abajo, en las fichas, la punta sigue dentro de la carcasa del techo.
+ */
 export function geometriaBrazo(): BufferGeometry {
   const p = new Piezas();
-  p.cilindro(0.02, 0.62, C.cromo, { pos: [0, 0.03, 0], lados: 12 });
-  p.cilindro(0.03, 0.6, C.metal, { pos: [0, 0.6, 0], lados: 12 });
-  p.cilindro(0.034, 0.03, C.metalOscuro, { pos: [0, 0.6, 0], bisel: 0.006, lados: 12 });
+  const mitad = LARGO_BRAZO / 2;
+  p.cilindro(0.02, mitad + 0.02, C.cromo, { pos: [0, 0.03, 0], lados: 12 });
+  p.cilindro(0.03, mitad, C.metal, { pos: [0, mitad, 0], lados: 12 });
+  p.cilindro(0.034, 0.03, C.metalOscuro, { pos: [0, mitad - 0.01, 0], bisel: 0.006, lados: 12 });
   return p.geometria();
 }
 
@@ -260,7 +276,7 @@ export function geometriaPuerta(ancho: number, alto: number): BufferGeometry {
       });
     }
   });
-  p.caja([0.008, 0.016, 0.004], C.rojo, { pos: [dial[0], dial[1] + 0.083, f + 0.004] });
+  p.caja([0.008, 0.016, 0.004], C.rojo, { pos: [dial[0], dial[1] + 0.083, f + 0.014] });
   // Manija de tres rayos con pomos.
   const centro: V3 = [ancho * 0.6, alto * 0.3, f];
   p.cilindro(0.022, 0.03, C.cromo, { pos: centro, giro: [90, 0, 0], bisel: 0.006, lados: 12 });
@@ -271,15 +287,16 @@ export function geometriaPuerta(ancho: number, alto: number): BufferGeometry {
     p.esfera(0.015, C.cromo, { pos: fin, lados: 10, anillos: 5 });
   }
   // Cerradura y placa de latón.
+  // Cerradura y placa de latón, delante del panel (que llega a z = f + 0,012).
   p.cilindro(0.02, 0.006, C.laton, {
-    pos: [ancho * 0.86, alto * 0.62, f],
+    pos: [ancho * 0.86, alto * 0.62, f + 0.01],
     giro: [90, 0, 0],
     lados: 12,
   });
-  p.caja([0.006, 0.02, 0.003], C.negro, { pos: [ancho * 0.86, alto * 0.62, f + 0.007] });
-  p.caja([0.2, 0.05, 0.006], C.laton, { pos: [ancho * 0.5, alto * 0.88, f + 0.006], bisel: 0.003 });
-  p.caja([0.16, 0.006, 0.002], C.latonOscuro, { pos: [ancho * 0.5, alto * 0.89, f + 0.01] });
-  p.caja([0.12, 0.006, 0.002], C.latonOscuro, { pos: [ancho * 0.5, alto * 0.87, f + 0.01] });
+  p.caja([0.006, 0.02, 0.003], C.negro, { pos: [ancho * 0.86, alto * 0.62, f + 0.017] });
+  p.caja([0.2, 0.05, 0.006], C.laton, { pos: [ancho * 0.5, alto * 0.88, f + 0.015], bisel: 0.003 });
+  p.caja([0.16, 0.006, 0.002], C.latonOscuro, { pos: [ancho * 0.5, alto * 0.89, f + 0.019] });
+  p.caja([0.12, 0.006, 0.002], C.latonOscuro, { pos: [ancho * 0.5, alto * 0.87, f + 0.019] });
   return p.geometria();
 }
 
@@ -287,16 +304,17 @@ export function geometriaPuerta(ancho: number, alto: number): BufferGeometry {
 export function geometriaLlave(): BufferGeometry {
   const p = new Piezas();
   p.toro(0.04, 0.011, '#ffffff', { pos: [0, 0.17, 0], giro: [90, 0, 0], lados: 16, tubo: 6 });
-  p.barra([0, 0.03, 0], [0, 0.13, 0], 0.011, '#ffffff', 8);
-  p.caja([0.05, 0.022, 0.012], '#ffffff', { pos: [0.024, 0.02, 0], bisel: 0.003 });
-  p.caja([0.022, 0.016, 0.012], '#ffffff', { pos: [0.04, 0.045, 0], bisel: 0.003 });
+  p.barra([0, 0.004, 0], [0, 0.13, 0], 0.011, '#ffffff', 8);
+  // Paletón apoyado en la repisa y su segundo diente encima, pegado a él.
+  p.caja([0.05, 0.022, 0.012], '#ffffff', { pos: [0.024, 0.011, 0], bisel: 0.003 });
+  p.caja([0.02, 0.018, 0.012], '#ffffff', { pos: [0.039, 0.031, 0], bisel: 0.003 });
   p.cilindro(0.016, 0.012, '#ffffff', { pos: [0, 0.122, 0], bisel: 0.003, lados: 10 });
   return p.geometria();
 }
 
 /**
- * Viste la urna y la caja fuerte, y une a lo fijo la base de la urna y la carcasa de la mano.
- * Se puede llamar varias veces con la misma sala: lo hecho no se repite.
+ * Viste la urna y la caja fuerte, cuelga de la urna su base y une a lo fijo la carcasa de la
+ * mano. Se puede llamar varias veces con la misma sala: lo hecho no se repite.
  */
 export function pulirRectoria(raiz: Object3D): void {
   const urna = raiz.getObjectByName('s5-urna');
@@ -304,11 +322,17 @@ export function pulirRectoria(raiz: Object3D): void {
     const vidrio = new Piezas();
     vidrioUrna(vidrio);
     vestirMalla(urna, vidrio, '#d6eaf8');
+    if (!urna.getObjectByName(URNA_BASE)) {
+      const p = new Piezas();
+      baseUrna(p);
+      const base = new Mesh(p.geometria(), new MeshLambertMaterial({ vertexColors: true }));
+      base.name = URNA_BASE;
+      urna.add(base);
+    }
+    // La carcasa del techo queda lejos de todo lo que se toca: va con lo fijo.
     const fija = new Piezas();
-    const [x, y, z] = [urna.position.x, urna.position.y, urna.position.z];
-    fija.en({ pos: [x, y, z] }, () => fijoUrna(fija));
-    fija.en({ pos: [x, 0, z] }, () => carcasaMano(fija));
-    sumarAFija(raiz, 'rectoria-urna', fija);
+    fija.en({ pos: [urna.position.x, 0, urna.position.z] }, () => carcasaMano(fija));
+    sumarAFija(raiz, 'rectoria-mano', fija);
   }
   const caja = raiz.getObjectByName('s5-caja-fuerte');
   if (caja) {
