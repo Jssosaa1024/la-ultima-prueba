@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { Box3 } from 'three';
-import type { Mesh, Object3D } from 'three';
+import type { Mesh, MeshLambertMaterial, Object3D } from 'three';
 import { salaPorId } from '../../src/content/salas';
+import { BALONES } from '../../src/content/grabaciones';
 import { animacionDeSala } from '../../src/engine/mecanismos';
+import { pulirGimnasio } from '../../src/engine/mecanismos/gimnasio-piezas';
 import { pulirLaboratorio } from '../../src/engine/mecanismos/laboratorio-piezas';
 import { construirSala } from '../../src/engine/salas/construir';
 import { carasAlReves, normalesSanas } from './geometria-sana';
@@ -36,6 +38,7 @@ const medidas = (o: Object3D | undefined): [number, number, number] => {
 
 const PULIR = {
   's2-laboratorio': pulirLaboratorio,
+  's3-gimnasio': pulirGimnasio,
 } as const;
 
 describe.each(Object.entries(PULIR))('%s pulido', (id, pulir) => {
@@ -122,5 +125,37 @@ describe('laboratorio: las piezas de la máquina conservan su tamaño', () => {
       g.computeBoundingBox();
       expect(g.boundingBox?.min.y ?? -1, id).toBeGreaterThanOrEqual(-0.03);
     }
+  });
+});
+
+describe('gimnasio: las piezas de la máquina conservan su tamaño', () => {
+  const sala = construirSala(salaPorId('s3-gimnasio'));
+  const colores = BALONES.map((id) =>
+    ((sala.raiz.getObjectByName(id) as Mesh).material as MeshLambertMaterial).color.getHex(),
+  );
+  pulirGimnasio(sala.raiz);
+
+  it('los postes miden 1, 2 y 3 m y el riel 5 m', () => {
+    const postes = sala.raiz.getObjectByName('s3-postes');
+    const altos = postes?.children.slice(1).map((p) => medidas(p)[1]);
+    expect(altos?.map((a) => Math.round(a * 100) / 100)).toEqual([1, 2, 3]);
+    expect(medidas(postes?.children[0])[0]).toBeCloseTo(5.01, 1);
+  });
+
+  it('los balones miden 24 cm, conservan su color y tienen costuras', () => {
+    BALONES.forEach((id, i) => {
+      const balon = sala.raiz.getObjectByName(id) as Mesh;
+      const [ancho, alto] = medidas(balon);
+      expect(ancho, id).toBeCloseTo(0.24, 1);
+      expect(alto, id).toBeCloseTo(0.24, 1);
+      const material = balon.material as MeshLambertMaterial;
+      expect(material.color.getHex(), id).toBe(colores[i]);
+      expect(material.vertexColors, id).toBe(true);
+    });
+  });
+
+  it('el reflector gira en su bisagra y mide menos de 60 cm', () => {
+    const [, alto] = medidas(sala.raiz.getObjectByName('s3-reflector'));
+    expect(alto).toBeLessThan(0.62);
   });
 });
