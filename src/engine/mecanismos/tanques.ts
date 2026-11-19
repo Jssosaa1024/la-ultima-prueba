@@ -9,16 +9,13 @@
  * Un tanque tapado con cinta se ve gris y opaco: no deja ver su nivel.
  *
  * Son cuatro mallas más en la sala (dos líquidos, la bandeja de la incubadora y su gota).
+ *
+ * Pulir salas (sesión A): el vidrio es más redondo y casi incoloro, para que el color lo dé el
+ * líquido; el líquido tiene la superficie más clara (el menisco) y la bandeja, bordes y asa.
+ * Las bases, tapas, varillas y regla de los tanques las pone `laboratorio-piezas.ts`.
  */
 import { effect } from '@preact/signals';
-import {
-  BoxGeometry,
-  Color,
-  CylinderGeometry,
-  Mesh,
-  MeshLambertMaterial,
-  SphereGeometry,
-} from 'three';
+import { Color, CylinderGeometry, Mesh, MeshLambertMaterial, SphereGeometry } from 'three';
 import type { Object3D } from 'three';
 import type { PuzzleDe } from '../../content/esquema';
 import { PUZZLES } from '../../content/puzzles';
@@ -26,6 +23,8 @@ import { duracionCorridaS, nivelEn } from '../../game/puzzles';
 import { etapa, mecanismo, resultado } from '../../signals/mecanismo';
 import { sellos } from '../../signals/partida';
 import { idaYVuelta, mezclar, suave } from './curvas';
+import { PALETA } from './piezas-comunes';
+import { Piezas } from './piezas-por-codigo';
 import { sonar } from '../audio/eventos';
 import type { AnimacionSala } from './tipos';
 
@@ -43,8 +42,14 @@ const ANGULO_PALANCA = 1.1;
 
 /** Alto del líquido con el tanque lleno, en metros (el tanque mide 1,6 m). */
 const ALTO_LIQUIDO = 1.5;
-const OPACIDAD_VIDRIO = 0.35;
+const OPACIDAD_VIDRIO = 0.3;
 const COLOR_CINTA = new Color(0x8a9199);
+/** Cuánto se acerca el vidrio al blanco: un tinte apenas, el color fuerte es el del líquido. */
+const BLANQUEO_VIDRIO = 0.55;
+/** Lados del cilindro de vidrio (la primitiva tiene 16). */
+const LADOS_VIDRIO = 32;
+/** Radio del líquido, por dentro del vidrio (0,35 m). */
+const RADIO_LIQUIDO = 0.3;
 
 const BANDEJA_DENTRO = 0.1;
 const BANDEJA_FUERA = 0.55;
@@ -78,13 +83,54 @@ interface Vidrio {
   mostrar(nivel: number | null, alturaCm: number, tapado: boolean): void;
 }
 
+/**
+ * El líquido de alto 1 (la animación lo estira): cuerpo un poco más oscuro y la superficie
+ * clara, con el borde redondeado del menisco. El color lo pone el material.
+ */
+function geometriaLiquido(): Piezas {
+  return new Piezas()
+    .torno(
+      [
+        [0, 0],
+        [RADIO_LIQUIDO, 0],
+        [RADIO_LIQUIDO, 0.965],
+      ],
+      '#e2e2e2',
+      { lados: 24 },
+    )
+    .torno(
+      [
+        [RADIO_LIQUIDO, 0.965],
+        [RADIO_LIQUIDO - 0.012, 1],
+        [0, 1],
+      ],
+      '#ffffff',
+      { lados: 24 },
+    );
+}
+
+/** Vidrio más redondo que la primitiva, del mismo tamaño y con la base en y = 0. */
+function redondearVidrio(malla: Mesh): void {
+  const g = malla.geometry as CylinderGeometry;
+  if (g.type !== 'CylinderGeometry') return;
+  const { radiusTop, radiusBottom, height } = g.parameters;
+  g.dispose();
+  malla.geometry = new CylinderGeometry(radiusTop, radiusBottom, height, LADOS_VIDRIO).translate(
+    0,
+    height / 2,
+    0,
+  );
+}
+
 function crearVidrio(tanque: Object3D | undefined): Vidrio {
   const malla = tanque as Mesh | undefined;
   const material = malla?.isMesh ? (malla.material as MeshLambertMaterial) : null;
   const color = material ? material.color.clone() : new Color(0xffffff);
+  const vidrio = color.clone().lerp(new Color(0xffffff), BLANQUEO_VIDRIO);
+  if (malla?.isMesh) redondearVidrio(malla);
   const liquido = new Mesh(
-    new CylinderGeometry(0.3, 0.3, 1, 16).translate(0, 0.5, 0),
-    new MeshLambertMaterial({ color }),
+    geometriaLiquido().geometria(),
+    new MeshLambertMaterial({ color, vertexColors: true }),
   );
   liquido.name = `liquido-${tanque?.name ?? ''}`;
   liquido.position.y = 0.03;
@@ -99,7 +145,7 @@ function crearVidrio(tanque: Object3D | undefined): Vidrio {
     mostrar(nivel, alturaCm, tapado) {
       if (material) {
         material.opacity = tapado ? 1 : OPACIDAD_VIDRIO;
-        material.color.copy(tapado ? COLOR_CINTA : color);
+        material.color.copy(tapado ? COLOR_CINTA : vidrio);
       }
       const lleno = nivel === null || tapado ? 0 : Math.min(1, Math.max(0, nivel / alturaCm));
       liquido.visible = lleno > 0;
@@ -107,6 +153,20 @@ function crearVidrio(tanque: Object3D | undefined): Vidrio {
       if (lleno > 0) liquido.scale.y = lleno * ALTO_LIQUIDO;
     },
   };
+}
+
+/** La bandeja de la incubadora (70 × 6 × 50 cm, centrada): fondo, bordes y un asa al frente. */
+function geometriaBandeja(): Piezas {
+  const p = new Piezas().caja([0.7, 0.016, 0.5], PALETA.metal, {
+    pos: [0, -0.022, 0],
+    bisel: 0.005,
+  });
+  for (const s of [1, -1]) {
+    p.caja([0.7, 0.06, 0.018], PALETA.cromo, { pos: [0, 0, s * 0.241], bisel: 0.005 });
+    p.caja([0.018, 0.06, 0.5], PALETA.cromo, { pos: [s * 0.341, 0, 0], bisel: 0.005 });
+    p.barra([s * 0.12, 0.005, 0.25], [s * 0.12, 0.005, 0.285], 0.009, PALETA.metalOscuro, 6);
+  }
+  return p.barra([-0.13, 0.005, 0.285], [0.13, 0.005, 0.285], 0.011, PALETA.metalOscuro, 8);
 }
 
 /**
@@ -122,8 +182,8 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
   const vidrioB = crearVidrio(raiz.getObjectByName('s2-tanque-b'));
 
   const bandeja = new Mesh(
-    new BoxGeometry(0.7, 0.06, 0.5),
-    new MeshLambertMaterial({ color: 0x7f8c8d }),
+    geometriaBandeja().geometria(),
+    new MeshLambertMaterial({ vertexColors: true }),
   );
   bandeja.name = 'bandeja-incubadora';
   bandeja.position.set(0, 0.55, BANDEJA_DENTRO);
