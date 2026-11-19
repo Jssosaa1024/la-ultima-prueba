@@ -23,6 +23,10 @@
  *   fijo y el cielo de noche con los difusores, sin mallas nuevas.
  * - Luz por sala (T19k): `luz` en salas.json cambia colores, fuerza y lado de las mismas dos
  *   luces, y la exposición que pone el motor al entrar.
+ * - Láminas y piezas por código (pulir las salas): un objeto con `lamina` lleva su cara
+ *   dibujada en un lienzo (`laminas.ts`) y uno con `pieza` se arma con más detalle en una sola
+ *   malla con colores por vértice (`piezas/`). Lo que lleva textura no se une a lo fijo; una
+ *   pieza sin textura que no se toca, sí, con sus colores.
  */
 import {
   BoxGeometry,
@@ -45,6 +49,8 @@ import { EXPOSICION } from '../renderer';
 import type { Caja } from '../jugador/colision';
 import { crearAcabados } from './acabados';
 import { cajasDeColision, marcarSolido } from './colisiones';
+import { LAMINA, caraDeLamina, materialLamina, texturaLamina, uvLamina } from './laminas';
+import { crearPieza, materialPieza } from './piezas';
 import { crearSombras, objetosConSombra } from './sombras';
 
 /** Grosor de las paredes, por fuera del piso. */
@@ -71,6 +77,8 @@ const SUPERFICIE = 'superficie';
 export const TEXTURA = 'textura';
 /** En `userData` de un objeto con modelo (T19e): el nombre del GLB en la carpeta de la sala. */
 export const MODELO = 'modelo';
+/** En `userData` de un objeto armado por código (pulir las salas): el nombre de su pieza. */
+export const PIEZA = 'pieza';
 
 export interface SalaConstruida {
   id: Sala['id'];
@@ -100,9 +108,49 @@ function geometria(
   return g.translate(0, alto / 2, 0);
 }
 
+/** La malla de un objeto que no es grupo: su primitiva con la lámina dibujada, o de un color. */
+function mallaDe(o: ObjetoSala & { forma: 'caja' | 'cilindro' | 'esfera' | 'plano' }): Mesh {
+  const g = geometria(o.forma, o.tam);
+  const textura = texturaLamina(o);
+  if (o.lamina && textura) {
+    uvLamina(g, caraDeLamina(o));
+    const malla = new Mesh(g, materialLamina(o.lamina.tipo, textura));
+    malla.userData[LAMINA] = o.lamina.tipo;
+    return malla;
+  }
+  return new Mesh(g, new MeshLambertMaterial({ color: o.color }));
+}
+
+/** La caja que ocupa un grupo (su `tam`), para chocar y tocar cuando una pieza lo reemplaza. */
+function cajaDeGrupo(o: ObjetoSala): Mesh {
+  return new Mesh(geometria('caja', o.tam), new MeshLambertMaterial({ color: o.color }));
+}
+
+function mallasDe(o: Object3D): Mesh[] {
+  const mallas: Mesh[] = [];
+  o.traverse((x) => {
+    if ((x as Mesh).isMesh) mallas.push(x as Mesh);
+  });
+  return mallas;
+}
+
 function crearObjeto(o: ObjetoSala): Object3D {
   let objeto: Object3D;
-  if (o.forma === 'grupo') {
+  // Una pieza por código; si no está registrada, la primitiva.
+  const pieza = crearPieza(o);
+  if (pieza && (o.accion || o.solido)) {
+    // Lo que se toca o choca conserva su primitiva, invisible (sin draw call): sigue siendo la
+    // caja que choca (T17) y la que se toca (T18), como con un modelo. La pieza va adentro.
+    objeto = o.forma === 'grupo' ? cajaDeGrupo(o) : mallaDe({ ...o, forma: o.forma });
+    for (const m of mallasDe(objeto)) (m.material as MeshLambertMaterial).visible = false;
+    const vista = new Mesh(pieza.geometria, materialPieza(pieza));
+    vista.name = `${o.id}-pieza`;
+    objeto.add(vista);
+    objeto.userData[PIEZA] = o.pieza;
+  } else if (pieza) {
+    objeto = new Mesh(pieza.geometria, materialPieza(pieza));
+    objeto.userData[PIEZA] = o.pieza;
+  } else if (o.forma === 'grupo') {
     objeto = new Group();
     for (const p of o.partes ?? []) {
       const malla = new Mesh(
@@ -113,7 +161,7 @@ function crearObjeto(o: ObjetoSala): Object3D {
       objeto.add(malla);
     }
   } else {
-    objeto = new Mesh(geometria(o.forma, o.tam), new MeshLambertMaterial({ color: o.color }));
+    objeto = mallaDe({ ...o, forma: o.forma });
   }
   objeto.name = o.id;
   objeto.position.set(o.pos[0], o.pos[1], o.pos[2]);
@@ -219,8 +267,19 @@ function unirFijas(raiz: Group, sala: Sala): void {
   const fijas: Mesh[] = [];
   raiz.traverse((o) => {
     const malla = o as Mesh;
-    // Lo que se toca y lo que lleva modelo (T19e) quedan aparte.
-    if (malla.isMesh && !conMarca(malla, 'interactivo') && !conMarca(malla, MODELO)) {
+    // Lo que se toca, lo que lleva modelo (T19e) y lo que lleva textura propia (una lámina,
+    // una pieza con etiqueta) quedan aparte.
+    const material = malla.material as MeshLambertMaterial | undefined;
+    const conMapa = Boolean(material?.map);
+    // La caja invisible de una pieza sólida tampoco: no se dibuja.
+    const invisible = material?.visible === false;
+    if (
+      malla.isMesh &&
+      !conMapa &&
+      !invisible &&
+      !conMarca(malla, 'interactivo') &&
+      !conMarca(malla, MODELO)
+    ) {
       fijas.push(malla);
     }
   });
@@ -232,7 +291,10 @@ function unirFijas(raiz: Group, sala: Sala): void {
     .filter((m) => !conTextura(m))
     .map((malla) => {
       const g = enMundo(malla);
-      const c = (malla.material as MeshLambertMaterial).color;
+      const material = malla.material as MeshLambertMaterial;
+      // Una pieza por código ya trae sus colores por vértice: se quedan.
+      if (material.vertexColors && g.getAttribute('color')) return g;
+      const c = material.color;
       const n = g.getAttribute('position').count;
       const colores = new Float32Array(n * 3);
       for (let i = 0; i < n; i++) colores.set([c.r, c.g, c.b], i * 3);
@@ -323,6 +385,9 @@ export function construirSala(sala: Sala): SalaConstruida {
   raiz.traverse((o) => {
     const malla = o as Mesh;
     if (!malla.isMesh) return;
+    // Lo invisible (la caja de una pieza que se toca) no se dibuja: no cuenta.
+    const materiales = Array.isArray(malla.material) ? malla.material : [malla.material];
+    if (materiales.every((m) => !m.visible)) return;
     mallas++;
     const g = malla.geometry;
     triangulos += (g.index ? g.index.count : g.getAttribute('position').count) / 3;
