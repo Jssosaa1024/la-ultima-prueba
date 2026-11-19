@@ -11,6 +11,7 @@ import { pulirGimnasio } from './gimnasio-piezas';
 import { pulirLaboratorio } from './laboratorio-piezas';
 import { animarPorteria } from './porteria';
 import { animarReflector } from './reflector';
+import { pulirRectoria } from './rectoria-piezas';
 import { animarTanques } from './tanques';
 import type { AnimacionSala } from './tipos';
 import { animarUrna } from './urna';
@@ -89,8 +90,12 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
     pulirBiblioteca(raiz);
     return animarCarritos(raiz);
   },
-  // La urna y, con el sello, la caja fuerte que se abre (hito 1, punto 17).
-  's5-rectoria': (raiz) => conDetalle(animarUrna(raiz), animarCajaFuerte(raiz)),
+  // La urna y, con el sello, la caja fuerte que se abre (hito 1, punto 17). Antes, la urna, la
+  // carcasa de la mano y el cuerpo de la caja fuerte se pulen por código (pulir salas, sesión B).
+  's5-rectoria': (raiz) => {
+    pulirRectoria(raiz);
+    return conDetalle(animarUrna(raiz), animarCajaFuerte(raiz));
+  },
 };
 
 /** Prepara las animaciones de `lugar` sobre su sala ya construida, si las tiene. */
