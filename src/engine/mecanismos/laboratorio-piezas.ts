@@ -11,7 +11,8 @@
  * válvula que une los tanques, la caja de la palanca, los pilotos del tablero, la base de la
  * campana con su temporizador, el microscopio, el computador, la gradilla con sus tubos y el extintor.
  *
- * La taza y la hoja de ayer se tocan: se visten igual que las piezas de la máquina.
+ * La taza se toca: se viste igual que las piezas de la máquina. El graficador y la hoja de ayer
+ * son láminas de papel cuadriculado (`lamina` en `salas.json`, de la sesión C).
  */
 import type { Object3D } from 'three';
 import { extintor, PALETA } from './piezas-comunes';
@@ -278,32 +279,6 @@ function taza(): Piezas {
     .caja([0.012, 0.016, 0.002], C.azul, { pos: [0.009, 0.06, 0.045] });
 }
 
-/** La hoja del graficador de ayer: papel milimetrado con la curva en rojo. */
-function hoja(): Piezas {
-  const p = new Piezas().caja([0.3, 0.004, 0.22], C.papel, { pos: [0, 0.002, 0] });
-  for (let i = -3; i <= 3; i++) {
-    p.caja([0.28, 0.0008, 0.0015], C.cuadricula, { pos: [0, 0.0044, i * 0.03] });
-  }
-  for (let i = -4; i <= 4; i++) {
-    p.caja([0.0015, 0.0008, 0.2], C.cuadricula, { pos: [i * 0.033, 0.0044, 0] });
-  }
-  p.caja([0.27, 0.001, 0.003], C.negro, { pos: [0, 0.0046, 0.09] });
-  p.caja([0.003, 0.001, 0.19], C.negro, { pos: [-0.13, 0.0046, 0] });
-  const curva: [number, number][] = [
-    [-0.13, 0.09],
-    [-0.07, 0.06],
-    [-0.01, 0.02],
-    [0.05, -0.02],
-    [0.12, -0.08],
-  ];
-  for (let i = 0; i + 1 < curva.length; i++) {
-    const [x0, z0] = curva[i] ?? [0, 0];
-    const [x1, z1] = curva[i + 1] ?? [0, 0];
-    p.barra([x0, 0.005, z0], [x1, 0.005, z1], 0.0018, C.rojo, 4);
-  }
-  return p;
-}
-
 /** Una perilla: base negra con su dial, perilla de color con raya blanca. */
 function perilla(color: string, bloqueada: boolean): Piezas {
   const p = new Piezas().cilindro(0.07, 0.012, C.negro, { bisel: 0.004, lados: 16 });
@@ -405,7 +380,6 @@ export function pulirLaboratorio(raiz: Object3D): void {
   vestirMalla(raiz.getObjectByName('s2-palanca'), palanca());
   vestirMalla(raiz.getObjectByName('s2-campana'), campana());
   vestirMalla(raiz.getObjectByName('s2-taza'), taza());
-  vestirMalla(raiz.getObjectByName('s2-hoja-ayer'), hoja());
 
   const fijas = new Piezas();
   for (const x of TANQUES_X) tanque(fijas, x);
