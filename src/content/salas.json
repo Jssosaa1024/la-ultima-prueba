@@ -1121,7 +1121,12 @@
         "tam": [2.4, 0.6, 0],
         "pos": [-1.5, 1.6, -3.98],
         "color": "#34495e",
-        "accion": "examinar"
+        "accion": "examinar",
+        "lamina": {
+          "tipo": "tablero",
+          "titulo": "RESUMEN SEMANAL",
+          "lineas": ["MEDIA", "MEDIANA", "MODA", "RANGO"]
+        }
       },
       {
         "id": "s4-mostrador",
@@ -1151,7 +1156,8 @@
         "tam": [0.15, 0.01, 0.1],
         "pos": [1.7, 1, 1],
         "color": "#fdfefe",
-        "accion": "recoger"
+        "accion": "recoger",
+        "pieza": "ficha-rota"
       },
       {
         "id": "s4-carritos",
@@ -1214,7 +1220,8 @@
         "forma": "caja",
         "tam": [1.2, 0.02, 1.7],
         "pos": [3.3, 0, 2.85],
-        "color": "#9c4b55"
+        "color": "#9c4b55",
+        "pieza": "alfombra"
       }
     ]
   },

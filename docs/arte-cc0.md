@@ -248,7 +248,7 @@ Igual que en el laboratorio (`src/engine/mecanismos/gimnasio-piezas.ts`): lo que
 
 ## Sala 4 · La biblioteca
 
-Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos y la ficha rota siguen como primitivas: su máquina los anima o su texto se lee en 2D. La pila de libros también sigue como caja, en el naranja de los libros de los carritos.
+Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos, la pila de libros, la ficha rota y la alfombra no tienen modelo: desde «Pulir las salas» (sesión B) se arman por código, ver abajo.
 
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
@@ -259,17 +259,27 @@ Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen se
 | `s4-casilleros` · 4 × 2 × 0,5 | Restaurant · `kitchencabinet` × 6 | 936 | `casilleros` | |
 | `s4-mostrador` · 2,4 × 1 × 0,7 | Furniture · `cabinet_medium` × 2 | 856 | `mostrador` | |
 | `s4-caja-devoluciones` | Restaurant · `crate` | 132 | `caja-devoluciones` | |
-| `s4-pila-libros` | Primitiva | — | — | Sigue como caja: un modelo dejaría contar 10 libros y el puzzle dice que son 20. Va en el naranja de los libros de los carritos (`COLOR_LIBROS`) |
+| `s4-pila-libros` | Por código | — | — | 20 libros de colores sobre una tarima (pulir las salas, sesión B): se cuentan los 20 del puzzle |
 | `s4-mesa-lectura` · 1,8 × 1,52 × 1,9 | Furniture · `table_medium_long`, 4 sillas, `book_set` y `lamp_table` | 2.140 | `mesa-lectura` | Las sillas quedaron metidas bajo la mesa |
 | `s4-estanteria-este` (nuevo) | Como `estante-a`, con otra disposición | 4.236 | `estante-b` | Pared este |
 | `s4-rincon-lectura` (nuevo) | Furniture · `armchair`, `table_small`, `book_set`, `lamp_standing` | 1.212 | `rincon-lectura` | Rincón sureste |
 
-Nuevo hecho con primitiva: una alfombra vinotinto bajo el rincón de lectura (va en la malla fija).
+Nuevo: una alfombra vinotinto bajo el rincón de lectura (va en la malla fija; desde la sesión B es una pieza por código, ver abajo).
 
 - **Superficies:** parqué (WoodFloor071) con tinte claro, pañete crema y techo de oficina.
 - **Acabados:** zócalo verde con franja ocre; la lámpara del oeste titila (alumbra el estante M y el libro), la del centro está encendida (carritos y pila) y la del mostrador, apagada; dos ventanas de noche en la pared norte, con luna en la del este.
 - **Luz:** cielo azul de luna y relleno neutro; la direccional entra desde el sureste.
 - **Medidas:** 10 GLB, 17.748 triángulos, 0,44 MB. Prueba del cooperativo: 39 de 40. Cada estante se armó con 16 piezas como máximo (el límite de `optimize-models`), solo con las repisas de adelante.
+
+### Pulido por código (sesión B)
+
+Para que ningún objeto se vea como caja gris, lo que anima la máquina de los carritos se rehizo por código en el estilo de KayKit (bordes biselados, colores planos), sin cambiar su id, su caja de choque ni su animación (`src/engine/mecanismos/biblioteca-piezas.ts`, con las ayudas de `piezas-por-codigo.ts` de la sesión A):
+
+- **Carritos de préstamo:** ruedas giratorias, costados y espaldar azules, tres repisas de madera con ceja, manija cromada y portaetiqueta de latón. El espaldar cubre la parte de atrás, así que el toque no atraviesa el carrito.
+- **Montones y pila:** columnas de 20 libros de colores (tapas, lomo y hojas), en la misma malla de cada carrito y de la pila, de las que se dibujan solo los que tiene cada lugar (`setDrawRange`): los libros aparecen de a uno y se pueden contar, sin mallas aparte. La pila va sobre una tarima baja que se sigue viendo y tocando cuando queda vacía.
+- **Resumen semanal:** lámina `tablero` de la sesión C con la placa «RESUMEN SEMANAL» y los rótulos MEDIA, MEDIANA, MODA y RANGO. Cada foco es un domo de vidrio en su carcasa (placa con tornillos y aro cromado), centrado sobre su rótulo. Las carcasas son una malla hija del tablero: tocarlas es examinar el resumen semanal.
+- **Ficha rota y alfombra:** piezas del registro de la sesión C (`src/engine/salas/piezas/biblioteca.ts`): la ficha en dos pedazos con el borde roto, renglones y trazos de letra (lo que dice se lee en 2D); la alfombra con borde, filete dorado, medallón, esquineros y flecos, unida a lo fijo.
+- **Medidas:** de 1.156 a 9.244 triángulos por código como mucho (la pila llena y 20 libros en un carrito), más los 17.748 de los GLB. De 34 a 30 mallas dibujadas: los montones ya no son mallas aparte y la carcasa de los focos suma una. El grupo de los carritos, con sus libros, queda bajo los 6.000 triángulos de un objeto que se toca.
 
 ## Sala 5 · La rectoría
 
