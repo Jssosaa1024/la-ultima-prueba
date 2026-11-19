@@ -9,7 +9,7 @@
  *
  * Lo fijo nuevo va unido a la malla fija de la sala (sin draw calls nuevas): tablas, narices de
  * aluminio, franja, costados y barandas de las gradas; la base del reflector con su cuadrante de
- * muescas y su cable; el aro con su red; las guías de la cuerda; las cerchas del techo; las colchonetas y el
+ * muescas y su cable; el tablero y el aro con su red; las guías de la cuerda; las cerchas del techo; las colchonetas y el
  * extintor.
  * El gancho y los discos de los sensores los arma `reflector.ts`.
  */
@@ -38,6 +38,8 @@ const REFLECTOR = { x: -4, y: 1.5, z: -5.75 } as const;
 /** Las alturas de los postes, en el orden de `salas.json` (como `ALTURAS_POSTES`). */
 const ALTURAS = [1, 2, 3] as const;
 const ALTO_RIEL = 0.04;
+/** Altura del aro de baloncesto (su centro). */
+const Y_ARO = 3.075;
 
 /** Tablas, narices, franja, costados y barandas de las gradas. */
 function gradas(p: Piezas): void {
@@ -301,10 +303,30 @@ function guiasCuerda(p: Piezas): void {
   }
 }
 
+/** Tablero de baloncesto en la pared oeste: blanco, con borde y cuadro rojos y un cojín abajo. */
+function tablero(p: Piezas): void {
+  const x = -9.96;
+  const abajo = 2.9;
+  const alto = 1.05;
+  const ancho = 1.8;
+  const cara = x + 0.0215;
+  p.caja([0.04, alto, ancho], C.blanco, { pos: [x, abajo + alto / 2, 0], bisel: 0.012 });
+  p.caja([0.05, 0.08, ancho], C.colchoneta, { pos: [x + 0.005, abajo + 0.02, 0], bisel: 0.02 });
+  const linea = 0.035;
+  const marco = (y0: number, y1: number, z0: number, z1: number): void => {
+    p.caja([0.004, linea, z1 - z0], C.rojo, { pos: [cara, y0, (z0 + z1) / 2] });
+    p.caja([0.004, linea, z1 - z0], C.rojo, { pos: [cara, y1, (z0 + z1) / 2] });
+    p.caja([0.004, y1 - y0, linea], C.rojo, { pos: [cara, (y0 + y1) / 2, z0] });
+    p.caja([0.004, y1 - y0, linea], C.rojo, { pos: [cara, (y0 + y1) / 2, z1] });
+  };
+  marco(abajo + 0.1, abajo + alto - 0.05, -ancho / 2 + 0.06, ancho / 2 - 0.06);
+  marco(Y_ARO + 0.05, Y_ARO + 0.5, -0.3, 0.3);
+}
+
 /** El aro de baloncesto: aro naranja, soporte y red de cuerdas blancas. */
 function aro(p: Piezas): void {
   const x = -9.62;
-  const y = 3.075;
+  const y = Y_ARO;
   p.toro(0.23, 0.018, C.aro, { pos: [x, y, 0], lados: 20, tubo: 5 });
   p.caja([0.16, 0.04, 0.12], C.metalOscuro, { pos: [-9.89, y, 0], bisel: 0.01 });
   p.barra([-9.96, y - 0.25, 0], [-9.84, y - 0.02, 0], 0.012, C.metalOscuro, 6);
@@ -440,6 +462,7 @@ export function pulirGimnasio(raiz: Object3D): void {
   gradas(fijas);
   baseReflector(fijas);
   guiasCuerda(fijas);
+  tablero(fijas);
   aro(fijas);
   colchonetas(fijas);
   cerchas(fijas);
