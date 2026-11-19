@@ -7,24 +7,23 @@
  * - en la pared, las cuatro lámparas del resumen semanal: apagada si está tapada en esta
  *   etapa, tenue si cuenta y verde cuando los carritos cumplen con su número.
  *
- * Los números salen de las mismas reglas del panel (`game/puzzles`). Son nueve mallas más.
+ * Los números salen de las mismas reglas del panel (`game/puzzles`). Son cuatro mallas más
+ * (los focos).
  *
- * Pulir salas (sesión B): los montones y la pila son columnas de libros de verdad
- * (`biblioteca-piezas.ts`), de las que se dibujan tantos libros como tiene cada lugar, y los
- * focos son domos de vidrio en su carcasa. La carcasa y los carritos los arma `pulirBiblioteca`.
+ * Pulir salas (sesión B): los montones y la pila son columnas de libros de verdad, en la misma
+ * malla de cada carrito y de la pila (`biblioteca-piezas.ts`), de las que se dibujan tantos
+ * libros como tiene cada lugar; los focos son domos de vidrio en su carcasa. Los carritos, la
+ * pila y la carcasa los arma `pulirBiblioteca` antes de esta animación.
  */
 import { effect } from '@preact/signals';
-import { Mesh, MeshBasicMaterial, MeshLambertMaterial } from 'three';
+import { Mesh, MeshBasicMaterial } from 'three';
 import type { Object3D } from 'three';
 import { puzzleDeSala } from '../../content/puzzles';
 import { esEstadoCarritos, librosEnPila } from '../../game/puzzles';
 import { condiciones, etapa, mecanismo } from '../../signals/mecanismo';
 import { sellos } from '../../signals/partida';
 import {
-  ALTURA_BANDEJA,
   LIBROS_MAXIMOS,
-  comoColumna,
-  geometriaMonton,
   geometriaVidrio,
   mostrarLibros,
   xDeFoco,
@@ -55,25 +54,21 @@ export function animarCarritos(raiz: Object3D): AnimacionSala {
     return { actualizar: () => undefined, estado: 'sin-piezas', liberar: () => undefined };
   }
 
-  // Un montón por carrito: una columna de 20 libros de la que se dibujan los que tiene. Cada
-  // una lleva su geometría (el rango de dibujo es de la geometría) y comparten el material.
-  const tapas = new MeshLambertMaterial({ vertexColors: true });
-  const montones = grupo.children.slice(0, 5).map((carrito, i) => {
-    const { geometria, cortes } = geometriaMonton(i);
-    const monton = comoColumna(sinRayo(new Mesh(geometria, tapas)), cortes);
-    // Sobre la bandeja de arriba del carrito, que tiene la base en el piso.
-    monton.position.set(carrito.position.x, ALTURA_BANDEJA, carrito.position.z);
-    monton.visible = false;
-    grupo.add(monton);
-    return { malla: monton, meta: 0, alto: 0 };
-  });
+  // Un montón por carrito: la columna de 20 libros que lleva su malla (pulirBiblioteca), de la
+  // que se dibujan los que tiene.
+  const montones = (grupo.children.slice(0, 5) as Mesh[]).map((malla) => ({
+    malla,
+    meta: 0,
+    alto: 0,
+  }));
 
   // Las lámparas: el vidrio de cada foco, delante del resumen semanal (que mira hacia +Z).
   const vidrio = geometriaVidrio();
-  const lamparas = LAMPARAS.map((_, i) => {
+  const lamparas = LAMPARAS.map((id, i) => {
     const malla = sinRayo(
       new Mesh(vidrio, new MeshBasicMaterial({ color: COLOR_TAPADA, vertexColors: true })),
     );
+    malla.name = `foco-${id}`;
     malla.position.set(xDeFoco(i), Y_FOCO, Z_VIDRIO);
     pared.add(malla);
     return malla;
@@ -124,9 +119,7 @@ export function animarCarritos(raiz: Object3D): AnimacionSala {
         m.alto = acercar(m.alto, m.meta, dt);
         falta ||= m.alto !== m.meta;
         // Los libros aparecen de a uno a medida que el montón sube.
-        const libros = Math.round(m.alto / GROSOR_LIBRO);
-        m.malla.visible = libros > 0;
-        mostrarLibros(m.malla, libros);
+        mostrarLibros(m.malla, Math.round(m.alto / GROSOR_LIBRO));
       }
       enPila = acercar(enPila, metaPila, dt, 8);
       falta ||= enPila !== metaPila;

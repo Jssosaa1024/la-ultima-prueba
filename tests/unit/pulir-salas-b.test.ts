@@ -4,13 +4,17 @@ import type { Mesh, MeshLambertMaterial, Object3D } from 'three';
 import { salaPorId } from '../../src/content/salas';
 import { animacionDeSala } from '../../src/engine/mecanismos';
 import {
+  CARCASA_FOCOS,
   LIBROS_MAXIMOS,
-  geometriaMonton,
+  carrito,
+  carritoConLibros,
   librosVisibles,
   mostrarLibros,
   pulirBiblioteca,
 } from '../../src/engine/mecanismos/biblioteca-piezas';
+import { Piezas } from '../../src/engine/mecanismos/piezas-por-codigo';
 import { construirSala } from '../../src/engine/salas/construir';
+import { interactivoDe } from '../../src/engine/interaccion/interaccion';
 import { reiniciarMecanismo } from '../../src/signals/mecanismo';
 import { reiniciarPartida } from '../../src/signals/partida';
 import { carasAlReves, normalesSanas } from './geometria-sana';
@@ -36,8 +40,12 @@ function mallas(raiz: Object3D): Mesh[] {
   return lista;
 }
 
+/** Triángulos que dibuja una malla (con su rango de dibujo). */
 const triangulos = (m: Mesh): number =>
-  (m.geometry.index?.count ?? m.geometry.getAttribute('position').count) / 3;
+  Math.min(
+    m.geometry.index?.count ?? m.geometry.getAttribute('position').count,
+    m.geometry.drawRange.count,
+  ) / 3;
 const total = (raiz: Object3D): number => mallas(raiz).reduce((s, m) => s + triangulos(m), 0);
 
 /** Medidas de una malla en su propio espacio (sin su posición ni su giro). */
@@ -58,26 +66,39 @@ const interactivos = (raiz: Object3D): Map<string, unknown> => {
 describe('biblioteca pulida', () => {
   const armar = () => construirSala(salaPorId('s4-biblioteca'));
 
-  it('no suma mallas, cabe en el presupuesto y la carcasa de los focos va en la malla fija', () => {
+  it('suma solo la carcasa de los focos y pulirla otra vez no repite nada', () => {
     const sala = armar();
     const antes = mallas(sala.raiz).length;
-    const fija = sala.raiz.getObjectByName('fija') as Mesh;
-    const trisFija = triangulos(fija);
     pulirBiblioteca(sala.raiz);
-    expect(mallas(sala.raiz)).toHaveLength(antes);
-    expect(triangulos(sala.raiz.getObjectByName('fija') as Mesh)).toBeGreaterThan(trisFija);
+    expect(mallas(sala.raiz)).toHaveLength(antes + 1);
+    expect(sala.raiz.getObjectByName('s4-lamparas')?.getObjectByName(CARCASA_FOCOS)).toBeDefined();
     const tris = total(sala.raiz);
     // Pulirla otra vez (la sala vuelve de la caché) no repite nada.
     pulirBiblioteca(sala.raiz);
+    expect(mallas(sala.raiz)).toHaveLength(antes + 1);
     expect(total(sala.raiz)).toBe(tris);
   });
 
-  it('con la animación y los montones llenos, la sala sigue en el presupuesto', () => {
+  it('con la animación, la sala dibuja menos mallas que antes del pulido', () => {
+    const sala = armar();
+    const animacion = animacionDeSala('s4-biblioteca', sala.raiz);
+    const dibujadas = mallas(sala.raiz).filter(
+      (m) => (m.material as MeshLambertMaterial).visible !== false,
+    );
+    // Antes del pulido eran 34 (los cinco montones eran mallas aparte).
+    expect(dibujadas.length).toBeLessThanOrEqual(30);
+    animacion?.liberar();
+  });
+
+  it('con 20 libros repartidos como sea, la sala y los carritos caben en el presupuesto', () => {
     const sala = armar();
     const animacion = animacionDeSala('s4-biblioteca', sala.raiz);
     const grupo = sala.raiz.getObjectByName('s4-carritos');
-    // El peor caso: cada montón con sus 20 libros dibujados.
-    for (const m of (grupo?.children.slice(5) ?? []) as Mesh[]) mostrarLibros(m, LIBROS_MAXIMOS);
+    const carritos = (grupo?.children ?? []) as Mesh[];
+    // El peor caso del puzzle: los 20 libros en un mismo carrito y la pila llena.
+    carritos.forEach((m, i) => mostrarLibros(m, i === 0 ? LIBROS_MAXIMOS : 0));
+    const grupoTris = carritos.reduce((s, m) => s + triangulos(m), 0);
+    expect(grupoTris).toBeLessThan(MAX_TRIANGULOS_INTERACTIVO);
     expect(total(sala.raiz) + TRIANGULOS_GLB_BIBLIOTECA).toBeLessThan(MAX_TRIANGULOS_SALA);
     animacion?.liberar();
   });
@@ -86,36 +107,42 @@ describe('biblioteca pulida', () => {
     const sala = armar();
     animacionDeSala('s4-biblioteca', sala.raiz)?.liberar();
     const revisar = [
-      sala.raiz.getObjectByName('fija') as Mesh,
       sala.raiz.getObjectByName('s4-pila-libros') as Mesh,
       ...((sala.raiz.getObjectByName('s4-carritos')?.children ?? []) as Mesh[]),
       ...((sala.raiz.getObjectByName('s4-lamparas')?.children ?? []) as Mesh[]),
     ];
     for (const m of revisar) {
+      // Las caras de toda la columna, aunque solo se dibuje una parte.
+      m.geometry.setDrawRange(0, Infinity);
       expect(m.geometry.index, m.name).toBeNull();
       expect(carasAlReves(m.geometry), m.name).toBe(0);
       expect(normalesSanas(m.geometry), m.name).toBe(true);
     }
   });
 
-  it('lo que se toca sigue con su id y su acción, en su caja y con menos de 6.000 triángulos', () => {
+  it('lo que se toca sigue con su id, su acción y sus choques, y cabe en su caja', () => {
     const sala = armar();
     const antes = interactivos(sala.raiz);
     const choques = JSON.stringify(sala.cajas);
-    pulirBiblioteca(sala.raiz);
+    animacionDeSala('s4-biblioteca', sala.raiz)?.liberar();
     expect(interactivos(sala.raiz)).toEqual(antes);
-    expect(JSON.stringify(construirSala(salaPorId('s4-biblioteca')).cajas)).toBe(choques);
+    // El juego choca con las cajas que se calculan al armar la sala (motor.ts usa
+    // `cargador.actual.cajas`), con las primitivas y antes de pulir: pulir y animar no las cambia.
+    expect(JSON.stringify(sala.cajas)).toBe(choques);
 
     const carritos = sala.raiz.getObjectByName('s4-carritos');
     for (const carro of (carritos?.children ?? []) as Mesh[]) {
       expect((carro.material as MeshLambertMaterial).vertexColors).toBe(true);
-      const b = caja(carro);
-      // El carrito cabe en la caja de 0,5 × 0,7 × 0,4 m (la manija sobresale 1 cm atrás).
+    }
+    // El carrito (sin su montón, que va encima como antes) cabe en su caja de 0,5 × 0,7 × 0,4 m.
+    const solo = new Piezas();
+    carrito(solo);
+    {
+      const b = solo.geometria().boundingBox ?? new Box3();
       expect(b.min.y).toBeGreaterThanOrEqual(-0.001);
       expect(b.max.y).toBeLessThanOrEqual(0.701);
       expect(Math.max(-b.min.x, b.max.x)).toBeLessThanOrEqual(0.251);
-      expect(Math.max(-b.min.z, b.max.z)).toBeLessThanOrEqual(0.22);
-      expect(triangulos(carro)).toBeLessThan(MAX_TRIANGULOS_INTERACTIVO);
+      expect(Math.max(-b.min.z, b.max.z)).toBeLessThanOrEqual(0.201);
     }
     const pila = sala.raiz.getObjectByName('s4-pila-libros') as Mesh;
     const b = caja(pila);
@@ -126,7 +153,9 @@ describe('biblioteca pulida', () => {
   });
 
   it('un montón dibuja tantos libros como tiene, y cada libro tiene la misma forma', () => {
-    const { geometria, cortes } = geometriaMonton(0);
+    const p = new Piezas();
+    const cortes = carritoConLibros(p, 0);
+    const geometria = p.geometria();
     expect(cortes).toHaveLength(LIBROS_MAXIMOS + 1);
     const pasos = cortes.slice(1).map((c, i) => c - (cortes[i] ?? 0));
     expect(new Set(pasos).size).toBe(1);
@@ -149,6 +178,19 @@ describe('biblioteca pulida', () => {
     mostrarLibros(pila, 0);
     expect(altura()).toBeGreaterThan(0.03);
     expect(altura()).toBeLessThan(0.08);
+  });
+
+  it('tocar la carcasa de un foco es tocar el resumen semanal', () => {
+    const sala = armar();
+    animacionDeSala('s4-biblioteca', sala.raiz)?.liberar();
+    sala.raiz.updateMatrixWorld(true);
+    // Desde el centro de la sala hacia el centro de cada foco (x del tablero ± 0,29 y ± 0,88).
+    for (const dx of [-0.8775, -0.2925, 0.2925, 0.8775]) {
+      const desde = new Vector3(-1.5, 1.6, -1.5);
+      const hacia = new Vector3(-1.5 + dx, 1.87, -3.95).sub(desde).normalize();
+      const choque = new Raycaster(desde, hacia).intersectObject(sala.raiz, true)[0];
+      expect(interactivoDe(choque?.object ?? null)?.name, `foco en ${dx}`).toBe('s4-lamparas');
+    }
   });
 
   it('el resumen semanal es una lámina con los cuatro rótulos de los focos', () => {

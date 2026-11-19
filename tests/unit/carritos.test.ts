@@ -223,9 +223,12 @@ describe('carritos: animación en la biblioteca (T64)', () => {
     const pila = sala.raiz.getObjectByName('s4-pila-libros');
     const pared = sala.raiz.getObjectByName('s4-lamparas');
     if (!grupo || !pila || !pared) throw new Error('faltan piezas de la biblioteca');
-    // Los cinco carritos son las primeras piezas del grupo; los montones se agregan después.
-    const montones = grupo.children.slice(5) as Mesh[];
-    const lamparas = pared.children as Mesh<BufferGeometry, MeshBasicMaterial>[];
+    // Pulir salas (sesión B): cada carrito lleva su montón de libros en su propia malla.
+    const montones = grupo.children.slice(0, 5) as Mesh[];
+    const lamparas = pared.children.filter((o) => o.name.startsWith('foco-')) as Mesh<
+      BufferGeometry,
+      MeshBasicMaterial
+    >[];
     const colores = (): number[] => lamparas.map((l) => l.material.color.getHex());
     return { sala, animacion, asentar, pila, montones, colores, antes };
   }
@@ -236,10 +239,11 @@ describe('carritos: animación en la biblioteca (T64)', () => {
     condiciones.value = evaluar(puzzle, n, estado)?.condiciones ?? {};
   }
 
-  it('la sala no pasa de 40 mallas con las nueve de la animación', () => {
+  it('la sala no pasa de 40 mallas con las cinco de la animación (focos y su carcasa)', () => {
     const { sala, antes, montones } = montar();
     expect(montones).toHaveLength(5);
-    expect(contarMallas(sala.raiz) - antes).toBe(9);
+    expect(sala.raiz.getObjectByName('s4-carritos')?.children).toHaveLength(5);
+    expect(contarMallas(sala.raiz) - antes).toBe(5);
     expect(contarMallas(sala.raiz)).toBeLessThanOrEqual(40);
   });
 
@@ -248,14 +252,13 @@ describe('carritos: animación en la biblioteca (T64)', () => {
     poner(1, con(1, 2, 3, 3, 11));
     asentar();
     expect(montones.map(librosVisibles)).toEqual([1, 2, 3, 3, 11]);
-    expect(montones.every((m) => m.visible)).toBe(true);
     // Sin libros en la pila queda solo su tarima.
     expect(librosVisibles(pila)).toBe(0);
     expect(animacion.estado).toBe('lamparas-2');
 
     poner(0, con(0, 0, 0, 0, 0));
     asentar();
-    expect(montones.some((m) => m.visible)).toBe(false);
+    expect(montones.map(librosVisibles)).toEqual([0, 0, 0, 0, 0]);
     expect(librosVisibles(pila)).toBe(20);
     expect(animacion.estado).toBe('lamparas-0');
   });
@@ -285,8 +288,8 @@ describe('carritos: animación en la biblioteca (T64)', () => {
     expect(animacion.estado).toBe('lamparas-4');
   });
 
-  it('al liberarse deja de seguir los signals, y sus mallas no reciben toques', () => {
-    const { animacion, asentar, montones } = montar();
+  it('al liberarse deja de seguir los signals, y los focos no reciben toques', () => {
+    const { animacion, asentar, montones, sala } = montar();
     poner(0, con(4, 4, 4, 4, 4));
     asentar();
     const alto = montones[0] && librosVisibles(montones[0]);
@@ -294,6 +297,9 @@ describe('carritos: animación en la biblioteca (T64)', () => {
     poner(0, con(0, 4, 4, 4, 4));
     asentar();
     expect(montones[0] && librosVisibles(montones[0])).toBe(alto);
-    for (const m of montones) expect(m.raycast.toString()).not.toContain('intersect');
+    const pared = sala.raiz.getObjectByName('s4-lamparas');
+    const focos = pared?.children.filter((o) => o.name.startsWith('foco-')) ?? [];
+    expect(focos).toHaveLength(4);
+    for (const m of focos) expect(m.raycast.toString()).not.toContain('intersect');
   });
 });
