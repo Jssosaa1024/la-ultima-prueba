@@ -7,8 +7,9 @@
  * `lamina` (ver `esquema-salas.ts`); el color del objeto es el de su superficie (el verde de la
  * pizarra, el corcho, el papel).
  *
- * - **Sin draw calls nuevas.** La textura va en el mismo material de la primitiva, y las otras
- *   caras toman el color del borde del lienzo: sigue siendo una malla y una draw call.
+ * - **Draw calls.** La textura va en el mismo material de la primitiva, y las otras caras toman
+ *   el color del borde del lienzo: una lámina que se toca sigue siendo una malla y una draw call.
+ *   Una que no se toca ya no se une a lo fijo (lleva su textura): suma una draw call.
  * - **Texto.** El título y las líneas salen del contenido del juego (`salas.json`), nunca de la
  *   red. Lo que hace falta para resolver un puzzle se lee en la vista 2D de inspección, no en
  *   la lámina (AGENTS.md): la lámina da el título y el aspecto. Sin `lineas`, se dibujan
@@ -21,14 +22,15 @@
  *   (presupuesto: nada mayor de 1024²). Una pizarra de 1,8 × 1 m pesa unos 0,9 MB en la GPU
  *   con sus mipmaps. La textura se libera con la sala (`liberar.ts`).
  *
- * Sin `document` (las pruebas de unidad corren en Node) no hay lienzo: el objeto queda con su
- * color, como antes.
+ * Sin `document` (las pruebas de unidad corren en Node) no hay lienzo: la lámina lleva una
+ * textura vacía, para que la sala se arme igual que en el juego y las pruebas cuenten bien.
  */
 import {
   CanvasTexture,
   LinearMipmapLinearFilter,
   MeshLambertMaterial,
   SRGBColorSpace,
+  Texture,
 } from 'three';
 import type { BufferGeometry } from 'three';
 import type { ObjetoSala } from '../../content/esquema-salas';
@@ -37,7 +39,7 @@ export type Lamina = NonNullable<ObjetoSala['lamina']>;
 export type TipoLamina = Lamina['tipo'];
 type Ctx = CanvasRenderingContext2D;
 /** La textura de un lienzo, del documento o fuera de pantalla. */
-export type TexturaLienzo = CanvasTexture<HTMLCanvasElement | OffscreenCanvas>;
+export type TexturaLienzo = Texture;
 
 /** Resolución de la lámina en la pared. */
 export const PX_POR_METRO = 320;
@@ -100,9 +102,15 @@ export function contraste(a: string, b: string): number {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-/** La letra que se lee mejor sobre `fondo`: la oscura o la clara de cada tipo. */
+/**
+ * La letra que se lee mejor sobre `fondo`: la oscura o la clara de cada tipo, o negro o blanco
+ * si ninguna llega al contraste mínimo.
+ */
 export function tintaPara(fondo: string, oscura = '#1d1a16', clara = '#fbf8ef'): string {
-  return contraste(fondo, oscura) >= contraste(fondo, clara) ? oscura : clara;
+  const mejor = contraste(fondo, oscura) >= contraste(fondo, clara) ? oscura : clara;
+  if (contraste(fondo, mejor) >= CONTRASTE_MINIMO) return mejor;
+  // Un fondo de tono medio: ni la tinta oscura ni la clara alcanzan; negro o blanco puro.
+  return contraste(fondo, '#000000') >= contraste(fondo, '#ffffff') ? '#000000' : '#ffffff';
 }
 
 // ---------- Azar con semilla (la misma lámina se dibuja igual siempre) ----------
@@ -388,7 +396,8 @@ function pizarra({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
     );
     ctx.fill();
   }
-  const tinta = blanca ? '#1f3b73' : '#f4f1e6';
+  // Tiza clara o marcador azul: la que más contraste dé con el fondo.
+  const tinta = tintaPara(base, '#1f3b73', '#f4f1e6');
   const margen = panel.w * 0.06;
   const alto = panel.h;
   let y = panel.y + alto * 0.08;
@@ -418,7 +427,7 @@ function pizarra({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
     lamina.lineas,
     { x: panel.x + margen, y, w: panel.w - 2 * margen, h: panel.y + alto * 0.84 - y },
     4,
-    blanca ? tinta : 'rgba(244,241,230,0.85)',
+    tinta,
   );
   // Repisa de la tiza: una tiza y un borrador.
   const repisa = Math.max(2, m * 0.9);
@@ -510,8 +519,10 @@ function corcho({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
   ctx.fillRect(panel.x, panel.y, panel.w, panel.h);
   // Grano del corcho.
   const granos = Math.round((panel.w * panel.h) / 90);
+  const oscuro = oscurecer(base, 0.25);
+  const claro = aclarar(base, 0.2);
   for (let i = 0; i < granos; i++) {
-    ctx.fillStyle = rnd() < 0.5 ? oscurecer(base, 0.25) : aclarar(base, 0.2);
+    ctx.fillStyle = rnd() < 0.5 ? oscuro : claro;
     const s = 1 + rnd() * 2;
     ctx.fillRect(panel.x + rnd() * panel.w, panel.y + rnd() * panel.h, s, s);
   }
@@ -811,6 +822,7 @@ function marcador({ ctx, w, h, base, lamina }: Dibujo): void {
   ctx.fillRect(panel.x, panel.y, panel.w, panel.h);
   const encendido = '#ffb02e';
   const apagado = mezclar(base, encendido, 0.1);
+  const rotulos = tintaPara(base, '#1d1a16', '#f7f4ea');
   let arriba = panel.y + panel.h * 0.05;
   if (lamina.titulo) {
     const alto = panel.h * 0.16;
@@ -822,13 +834,13 @@ function marcador({ ctx, w, h, base, lamina }: Dibujo): void {
       panel.w * 0.9,
       alto * 0.78,
       LETRA_TITULO,
-      '#f7f4ea',
+      rotulos,
     );
     arriba += alto * 1.1;
   }
   // Cada línea es un tablero: «LOCAL 12» tiene rótulo y número; «12» solo el número.
   const tableros = (lamina.lineas?.length ? lamina.lineas : ['00', '00']).map((l) => {
-    const partes = /^(.*?)\s*([0-9: -]+)$/.exec(l.trim());
+    const partes = /^([^\d.,$]*?)\s*([0-9][0-9: -]*)$/.exec(l.trim());
     return { rotulo: partes?.[1]?.trim() ?? '', cifras: (partes?.[2] ?? l).replace(/\s/g, '') };
   });
   const conRotulo = tableros.some((t) => t.rotulo);
@@ -846,7 +858,7 @@ function marcador({ ctx, w, h, base, lamina }: Dibujo): void {
         ancho * 0.85,
         altoRotulo * 0.75,
         LETRA_TITULO,
-        '#f7f4ea',
+        rotulos,
       );
     }
     const top = arriba + altoRotulo + panel.h * 0.03;
@@ -911,6 +923,77 @@ function cartel({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
   );
 }
 
+/**
+ * Tablero pintado: la superficie con pinceladas suaves, una franja de adorno y una placa de
+ * latón con el título arriba. El centro queda libre para lo que pone la máquina (los huecos
+ * del mural de sellos). Las líneas van como rótulos repartidos abajo, una por columna.
+ */
+function tablero({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, w, h);
+  // Pinceladas verticales, apenas visibles.
+  for (let i = 0; i < Math.round(w / 14); i++) {
+    ctx.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,0.018)' : 'rgba(0,0,0,0.022)';
+    ctx.fillRect(rnd() * w, 0, 4 + rnd() * 10, h);
+  }
+  const m = Math.min(w, h) * 0.05;
+  ctx.strokeStyle = aclarar(base, 0.35);
+  ctx.globalAlpha = 0.6;
+  ctx.lineWidth = Math.max(1, m * 0.18);
+  caminoRedondeado(ctx, m, m, w - 2 * m, h - 2 * m, m * 0.6);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  if (lamina.titulo) {
+    const ph = h * 0.15;
+    ctx.font = `700 ${Math.round(ph * 0.62)}px ${LETRA_TITULO}`;
+    const pw = Math.min(w * 0.6, ctx.measureText(lamina.titulo).width + ph * 1.6);
+    const px = (w - pw) / 2;
+    const py = m * 1.6;
+    rectRedondeado(ctx, px + 2, py + 3, pw, ph, ph * 0.18, 'rgba(0,0,0,0.25)');
+    rectRedondeado(ctx, px, py, pw, ph, ph * 0.18, '#c9973f');
+    rectRedondeado(
+      ctx,
+      px + ph * 0.08,
+      py + ph * 0.08,
+      pw - ph * 0.16,
+      ph * 0.84,
+      ph * 0.14,
+      '#e0b25a',
+    );
+    ctx.fillStyle = '#8c6420';
+    for (const x of [px + ph * 0.32, px + pw - ph * 0.32]) {
+      ctx.beginPath();
+      ctx.arc(x, py + ph / 2, ph * 0.09, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    textoAjustado(
+      ctx,
+      lamina.titulo,
+      w / 2,
+      py + ph * 0.53,
+      pw - ph * 1.2,
+      ph * 0.62,
+      LETRA_TITULO,
+      '#3b2a14',
+    );
+  }
+  const rotulos = lamina.lineas ?? [];
+  const tinta = tintaPara(base);
+  rotulos.forEach((r, i) => {
+    const ancho = (w - 2 * m) / rotulos.length;
+    textoAjustado(
+      ctx,
+      r,
+      m + ancho * (i + 0.5),
+      h - m * 2.2,
+      ancho * 0.9,
+      h * 0.07,
+      LETRA_RENGLON,
+      tinta,
+    );
+  });
+}
+
 const TIPOS: Record<TipoLamina, (d: Dibujo) => void> = {
   pizarra,
   corcho,
@@ -919,6 +1002,7 @@ const TIPOS: Record<TipoLamina, (d: Dibujo) => void> = {
   cuadricula,
   marcador,
   cartel,
+  tablero,
 };
 
 /**
@@ -946,8 +1030,10 @@ interface LienzoConCtx {
   ctx: Ctx;
 }
 
-/** Un lienzo 2D, o `null` si no hay navegador (pruebas de unidad en Node). */
-export function crearLienzo(w: number, h: number): LienzoConCtx | null {
+/** Un lienzo 2D, o `null` si no hay navegador (pruebas de unidad en Node). Lados de 1 a 1024. */
+export function crearLienzo(ancho: number, alto: number): LienzoConCtx | null {
+  const w = Math.max(1, Math.min(LADO_MAXIMO, Math.round(ancho)));
+  const h = Math.max(1, Math.min(LADO_MAXIMO, Math.round(alto)));
   if (typeof document !== 'undefined') {
     const lienzo = document.createElement('canvas');
     lienzo.width = w;
@@ -972,15 +1058,24 @@ function fuentesListas(): boolean {
 /**
  * Textura de un lienzo dibujado por `pintar`: sRGB, con mipmaps y filtrado anisótropo, para
  * que la letra se lea también de lado. Si las fuentes del tema llegan después, se vuelve a
- * pintar una vez. `null` sin navegador.
+ * pintar una vez. Los lados se limitan a 1024 px (presupuesto).
+ *
+ * Sin navegador (pruebas en Node) devuelve una textura vacía: así la malla queda aparte de lo
+ * fijo igual que en el juego, y las pruebas cuentan las draw calls de verdad.
  */
 export function texturaDibujada(
-  w: number,
-  h: number,
+  ancho: number,
+  alto: number,
   pintar: (ctx: Ctx, w: number, h: number) => void,
-): TexturaLienzo | null {
+): TexturaLienzo {
+  const w = Math.max(1, Math.min(LADO_MAXIMO, Math.round(ancho)));
+  const h = Math.max(1, Math.min(LADO_MAXIMO, Math.round(alto)));
   const hecho = crearLienzo(w, h);
-  if (!hecho) return null;
+  if (!hecho) {
+    const vacia = new Texture();
+    vacia.name = 'lamina-sin-lienzo';
+    return vacia;
+  }
   pintar(hecho.ctx, w, h);
   const textura: TexturaLienzo = new CanvasTexture(hecho.lienzo);
   textura.colorSpace = SRGBColorSpace;
@@ -1003,7 +1098,7 @@ export function texturaDibujada(
   return textura;
 }
 
-/** La textura de la lámina de un objeto, o `null` si el objeto no tiene o no hay navegador. */
+/** La textura de la lámina de un objeto, o `null` si el objeto no tiene lámina. */
 export function texturaLamina(o: ObjetoSala): TexturaLienzo | null {
   if (!o.lamina) return null;
   const lamina = o.lamina;
@@ -1034,28 +1129,35 @@ export function uvLamina(g: BufferGeometry, cara: CaraLamina): void {
   uv.needsUpdate = true;
 }
 
-/** Cuánto brilla sola cada lámina de noche (las salas están en penumbra); el marcador, sus luces. */
-const BRILLO_PROPIO: Record<TipoLamina, number> = {
-  pizarra: 0.12,
-  corcho: 0.1,
-  planilla: 0.12,
-  papel: 0.14,
-  cuadricula: 0.14,
-  marcador: 0.75,
-  cartel: 0.12,
+/**
+ * Cuánto más clara se ve cada lámina, para leerla en la penumbra de medianoche: multiplica la
+ * textura (1 = como la pinta la luz de la sala).
+ */
+export const REALCE: Record<TipoLamina, number> = {
+  pizarra: 1.15,
+  corcho: 1.1,
+  planilla: 1.1,
+  papel: 1.1,
+  cuadricula: 1.1,
+  marcador: 1,
+  cartel: 1.1,
+  tablero: 1.1,
 };
 
+/** Luz propia de los dígitos del marcador (en espacio lineal): se ven aunque la sala esté oscura. */
+export const LUZ_MARCADOR = 0.45;
+
 /**
- * El material de una lámina: blanco con la textura (y algo de brillo propio con la misma
- * textura, para leerla en la penumbra). El resaltado (T18) cambia `emissive` y lo devuelve a
- * este valor al soltar.
+ * El material de una lámina: la textura, un poco realzada. El marcador brilla solo, con su
+ * propia textura como mapa de emisión: sus dígitos ámbar se encienden y la carcasa oscura casi
+ * no. El resaltado (T18) suma su brillo al `emissive` y lo devuelve a este valor al soltar.
  */
 export function materialLamina(tipo: TipoLamina, textura: TexturaLienzo): MeshLambertMaterial {
-  const brillo = BRILLO_PROPIO[tipo];
-  return new MeshLambertMaterial({
-    color: 0xffffff,
-    map: textura,
-    emissive: (Math.round(brillo * 255) * 0x010101) & 0xffffff,
-    emissiveMap: textura,
-  });
+  const material = new MeshLambertMaterial({ map: textura });
+  material.color.setScalar(REALCE[tipo]);
+  if (tipo === 'marcador') {
+    material.emissiveMap = textura;
+    material.emissive.setScalar(LUZ_MARCADOR);
+  }
+  return material;
 }

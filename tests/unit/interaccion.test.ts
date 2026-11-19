@@ -56,6 +56,20 @@ describe('interacción con objetos', () => {
     interaccion.liberar();
   });
 
+  it('el resaltado suma su brillo al que el objeto ya tenía y lo devuelve al soltar', () => {
+    // Un marcador dibujado por código brilla solo (pulir las salas): resaltarlo no lo apaga.
+    const { camara, sala, libro } = montar();
+    const material = libro.material as MeshLambertMaterial;
+    material.emissive.setScalar(0.45);
+    const interaccion = crearInteraccion(camara, sala);
+    interaccion.tocar(0, 0);
+    expect(material.emissive.r).toBeGreaterThan(0.45);
+    expect(material.emissive.g).toBeGreaterThan(0.45);
+    interaccion.tocar(0, 0.95);
+    expect(material.emissive.r).toBeCloseTo(0.45, 5);
+    interaccion.liberar();
+  });
+
   it('no alcanza objetos a más de 3 m', () => {
     const { camara, sala, libro } = montar();
     libro.position.z = -4;

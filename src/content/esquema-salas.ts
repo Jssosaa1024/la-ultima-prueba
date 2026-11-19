@@ -56,8 +56,8 @@ const pieza = z.strictObject({
 /**
  * Tipos de lámina (pulir las salas, sesión C): cómo se dibuja la cara de un plano legible.
  * pizarra (de tiza, o blanca si su color es claro), corcho con notas, planilla en su tablilla,
- * papel (hoja, ficha, carta), cuadrícula (papel de gráfica con ejes), marcador de dígitos y
- * cartel. Los dibuja `src/engine/salas/laminas.ts`.
+ * papel (hoja, ficha, carta), cuadrícula (papel de gráfica con ejes), marcador de dígitos,
+ * cartel y tablero pintado (placa con el título arriba y el centro libre para una máquina). Los dibuja `src/engine/salas/laminas.ts`.
  */
 export const TIPOS_LAMINA = [
   'pizarra',
@@ -67,6 +67,7 @@ export const TIPOS_LAMINA = [
   'cuadricula',
   'marcador',
   'cartel',
+  'tablero',
 ] as const;
 
 /**
@@ -80,7 +81,8 @@ const lamina = z.strictObject({
   titulo: z.string().trim().min(1).max(28).optional(),
   /**
    * Opcional: renglones de texto corto. Sin ellos se dibujan garabatos. En la planilla, `|`
-   * separa columnas; en el marcador, cada línea es un tablero («LOCAL 12» o «12»).
+   * separa columnas; en el marcador, cada línea es un tablero («LOCAL 12» o «12»: solo
+   * dígitos, «:» y «-» al final); en la cuadrícula, solo dos (eje horizontal y vertical).
    */
   lineas: z.array(z.string().trim().min(1).max(32)).min(1).max(8).optional(),
 });
@@ -249,6 +251,12 @@ export function medioTamano(o: Pick<ObjetoSala, 'forma' | 'tam' | 'giro'>): {
 
 const TOLERANCIA = 0.05;
 
+/**
+ * Una línea del marcador: un rótulo opcional sin números ni signos («LOCAL») y después solo
+ * dígitos, «:», «-» o espacios. Sin coma decimal ni «$»: son dígitos de siete segmentos.
+ */
+export const LINEA_MARCADOR = /^([^\d.,$]*?)\s*([0-9][0-9: -]*)$/;
+
 /** Problemas de una sala: objetos fuera de la sala, ids repetidos o de otra sala, nombres. */
 export function problemasDeSala(sala: Sala): ProblemaSala[] {
   const problemas: ProblemaSala[] = [];
@@ -274,6 +282,15 @@ export function problemasDeSala(sala: Sala): ProblemaSala[] {
       reportar(`${o.id}: una lámina no lleva modelo ni pieza: se dibuja en la primitiva`);
     }
     if (o.pieza && o.modelo) reportar(`${o.id}: una pieza por código no lleva modelo`);
+    const lineas = o.lamina?.lineas ?? [];
+    if (o.lamina?.tipo === 'marcador') {
+      for (const l of lineas.filter((x) => !LINEA_MARCADOR.test(x))) {
+        reportar(`${o.id}: «${l}» no cabe en el marcador (rótulo y dígitos, «LOCAL 12»)`);
+      }
+    }
+    if (o.lamina?.tipo === 'cuadricula' && lineas.length > 2) {
+      reportar(`${o.id}: la cuadrícula solo dibuja dos líneas (eje horizontal y vertical)`);
+    }
 
     const m = medioTamano(o);
     const [x, y, z] = o.pos;

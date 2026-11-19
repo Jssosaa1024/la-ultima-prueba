@@ -121,11 +121,33 @@ function mallaDe(o: ObjetoSala & { forma: 'caja' | 'cilindro' | 'esfera' | 'plan
   return new Mesh(g, new MeshLambertMaterial({ color: o.color }));
 }
 
+/** La caja que ocupa un grupo (su `tam`), para chocar y tocar cuando una pieza lo reemplaza. */
+function cajaDeGrupo(o: ObjetoSala): Mesh {
+  return new Mesh(geometria('caja', o.tam), new MeshLambertMaterial({ color: o.color }));
+}
+
+function mallasDe(o: Object3D): Mesh[] {
+  const mallas: Mesh[] = [];
+  o.traverse((x) => {
+    if ((x as Mesh).isMesh) mallas.push(x as Mesh);
+  });
+  return mallas;
+}
+
 function crearObjeto(o: ObjetoSala): Object3D {
   let objeto: Object3D;
-  // Una pieza por código (también en lugar de un grupo); si no está registrada, la primitiva.
+  // Una pieza por código; si no está registrada, la primitiva.
   const pieza = crearPieza(o);
-  if (pieza) {
+  if (pieza && (o.accion || o.solido)) {
+    // Lo que se toca o choca conserva su primitiva, invisible (sin draw call): sigue siendo la
+    // caja que choca (T17) y la que se toca (T18), como con un modelo. La pieza va adentro.
+    objeto = o.forma === 'grupo' ? cajaDeGrupo(o) : mallaDe({ ...o, forma: o.forma });
+    for (const m of mallasDe(objeto)) (m.material as MeshLambertMaterial).visible = false;
+    const vista = new Mesh(pieza.geometria, materialPieza(pieza));
+    vista.name = `${o.id}-pieza`;
+    objeto.add(vista);
+    objeto.userData[PIEZA] = o.pieza;
+  } else if (pieza) {
     objeto = new Mesh(pieza.geometria, materialPieza(pieza));
     objeto.userData[PIEZA] = o.pieza;
   } else if (o.forma === 'grupo') {
@@ -247,8 +269,17 @@ function unirFijas(raiz: Group, sala: Sala): void {
     const malla = o as Mesh;
     // Lo que se toca, lo que lleva modelo (T19e) y lo que lleva textura propia (una lámina,
     // una pieza con etiqueta) quedan aparte.
-    const conMapa = Boolean((malla.material as MeshLambertMaterial | undefined)?.map);
-    if (malla.isMesh && !conMapa && !conMarca(malla, 'interactivo') && !conMarca(malla, MODELO)) {
+    const material = malla.material as MeshLambertMaterial | undefined;
+    const conMapa = Boolean(material?.map);
+    // La caja invisible de una pieza sólida tampoco: no se dibuja.
+    const invisible = material?.visible === false;
+    if (
+      malla.isMesh &&
+      !conMapa &&
+      !invisible &&
+      !conMarca(malla, 'interactivo') &&
+      !conMarca(malla, MODELO)
+    ) {
       fijas.push(malla);
     }
   });
@@ -354,6 +385,9 @@ export function construirSala(sala: Sala): SalaConstruida {
   raiz.traverse((o) => {
     const malla = o as Mesh;
     if (!malla.isMesh) return;
+    // Lo invisible (la caja de una pieza que se toca) no se dibuja: no cuenta.
+    const materiales = Array.isArray(malla.material) ? malla.material : [malla.material];
+    if (materiales.every((m) => !m.visible)) return;
     mallas++;
     const g = malla.geometry;
     triangulos += (g.index ? g.index.count : g.getAttribute('position').count) / 3;

@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { BoxGeometry, CylinderGeometry, Mesh } from 'three';
+import { BoxGeometry, CylinderGeometry, Mesh, Raycaster, Texture, Vector3 } from 'three';
 import type { MeshLambertMaterial } from 'three';
-import { TIPOS_LAMINA, esquemaSala } from '../../src/content/esquema-salas';
+import { LUGARES, TIPOS_LAMINA, esquemaSalaValidada } from '../../src/content/esquema-salas';
 import type { ObjetoSala, Sala } from '../../src/content/esquema-salas';
 import { salaPorId } from '../../src/content/salas';
 import { construirSala } from '../../src/engine/salas/construir';
 import {
   CONTRASTE_MINIMO,
   LADO_MAXIMO,
+  LUZ_MARCADOR,
+  REALCE,
   LADO_MINIMO,
   caraDeLamina,
   contraste,
   dibujarLamina,
+  materialLamina,
   medidasCara,
   medidasLienzo,
   textoAjustado,
@@ -27,6 +30,7 @@ import {
   unirPartes,
 } from '../../src/engine/salas/piezas/comunes';
 import { PIEZAS } from '../../src/engine/salas/piezas';
+import type { ConstructorPieza } from '../../src/engine/salas/piezas';
 
 // Pulir las salas (sesión C): láminas legibles dibujadas por código y piezas por código.
 
@@ -69,12 +73,6 @@ function lienzoFalso(): { ctx: CanvasRenderingContext2D; llamadas: Llamada[] } {
 
 const textos = (llamadas: Llamada[]) => llamadas.filter((l) => l.metodo === 'fillText');
 const tamDe = (font: string) => Number(/(\d+)px/.exec(font)?.[1] ?? 0);
-
-const objeto = (sala: Sala, id: string): ObjetoSala => {
-  const o = sala.objetos.find((x) => x.id === id);
-  if (!o) throw new Error(`falta ${id}`);
-  return o;
-};
 
 describe('láminas: medidas del lienzo', () => {
   it('320 px por metro, sin pasar de 1024 ni bajar de 128 en el lado corto', () => {
@@ -202,38 +200,107 @@ describe('láminas en la sala', () => {
     }
   });
 
-  it('el esquema acepta una lámina en un plano y la rechaza con modelo o en un cilindro', () => {
+  it('el esquema acepta una lámina en un plano y rechaza tipos, títulos y usos que no sirven', () => {
     const base = salaPorId('s1-cooperativa');
-    const conLamina = (cambio: Partial<ObjetoSala>): Sala => ({
+    const con = (id: string, cambio: Partial<ObjetoSala>): Sala => ({
       ...base,
-      objetos: base.objetos.map((o) => (o.id === 's1-pizarra' ? { ...o, ...cambio } : o)),
+      objetos: base.objetos.map((o) => (o.id === id ? { ...o, ...cambio } : o)),
     });
-    expect(
-      esquemaSala.safeParse(conLamina({ lamina: { tipo: 'pizarra', titulo: 'PRECIOS' } })).success,
-    ).toBe(true);
-    expect(esquemaSala.safeParse(conLamina({ lamina: { tipo: 'mapa' as 'cartel' } })).success).toBe(
+    const valida = (sala: Sala) => esquemaSalaValidada.safeParse(sala).success;
+    expect(valida(con('s1-pizarra', { lamina: { tipo: 'pizarra', titulo: 'PRECIOS' } }))).toBe(
+      true,
+    );
+    expect(valida(con('s1-pizarra', { lamina: { tipo: 'mapa' as 'cartel' } }))).toBe(false);
+    expect(valida(con('s1-pizarra', { lamina: { tipo: 'cartel', titulo: 'x'.repeat(29) } }))).toBe(
       false,
     );
+    // Con modelo, en un cilindro o con pieza: no.
+    expect(valida(con('s1-mesa', { lamina: { tipo: 'papel' } }))).toBe(false);
+    expect(valida(con('s1-palanca', { lamina: { tipo: 'papel' } }))).toBe(false);
+    expect(valida(con('s1-pizarra', { lamina: { tipo: 'papel' }, pieza: 'linterna' }))).toBe(false);
+    expect(valida(con('s1-mesa', { pieza: 'mesa' }))).toBe(false);
+    // El marcador solo muestra dígitos; la cuadrícula, dos ejes.
+    const marcador = (lineas: string[]) =>
+      con('s1-pizarra', { lamina: { tipo: 'marcador', lineas } });
+    expect(valida(marcador(['LOCAL 12', '08', '12:30']))).toBe(true);
+    expect(valida(marcador(['0,75']))).toBe(false);
+    expect(valida(marcador(['$1.600']))).toBe(false);
     expect(
-      esquemaSala.safeParse(conLamina({ lamina: { tipo: 'cartel', titulo: 'x'.repeat(29) } }))
-        .success,
+      valida(con('s1-pizarra', { lamina: { tipo: 'cuadricula', lineas: ['x', 'y', 'z'] } })),
     ).toBe(false);
   });
 
-  it('sin navegador la lámina queda con su color y la sala se arma igual', () => {
+  it('sin navegador la lámina lleva una textura vacía y queda aparte de lo fijo, como en el juego', () => {
     const base = salaPorId('s1-cooperativa');
+    const sinModelo = (o: ObjetoSala): ObjetoSala => {
+      const copia = { ...o };
+      delete copia.modelo;
+      return copia;
+    };
+    // Un cuadro sin modelo ni acción va en lo fijo; con lámina, queda aparte.
+    const cuadroSolo = base.objetos.map((o) => (o.id === 's1-cuadro-1' ? sinModelo(o) : o));
+    const sinLamina = construirSala({ ...base, objetos: cuadroSolo });
     const sala: Sala = {
       ...base,
-      objetos: base.objetos.map((o) =>
-        o.id === 's1-pizarra'
-          ? { ...o, lamina: { tipo: 'pizarra' as const, titulo: 'PRECIOS' } }
-          : o,
-      ),
+      objetos: cuadroSolo.map((o) => {
+        if (o.id === 's1-pizarra') return { ...o, lamina: { tipo: 'pizarra', titulo: 'PRECIOS' } };
+        if (o.id === 's1-cuadro-1') return { ...o, lamina: { tipo: 'cartel', titulo: 'OFERTA' } };
+        return o;
+      }),
     };
     const armada = construirSala(sala);
     const pizarra = armada.raiz.getObjectByName('s1-pizarra') as Mesh;
-    expect((pizarra.material as MeshLambertMaterial).map).toBeNull();
-    expect(objeto(sala, 's1-pizarra').lamina?.tipo).toBe('pizarra');
+    expect((pizarra.material as MeshLambertMaterial).map).not.toBeNull();
+    expect(pizarra.userData['lamina']).toBe('pizarra');
+    expect(armada.raiz.getObjectByName('s1-cuadro-1')).toBeDefined();
+    expect(armada.mallas).toBe(sinLamina.mallas + 1);
+  });
+
+  it('las láminas se realzan para la penumbra; el marcador brilla solo con su textura', () => {
+    const textura = new Texture();
+    const pizarra = materialLamina('pizarra', textura);
+    expect(pizarra.color.r).toBeCloseTo(REALCE.pizarra, 5);
+    expect(pizarra.emissiveMap).toBeNull();
+    expect(pizarra.emissive.getHex()).toBe(0);
+    const marcador = materialLamina('marcador', textura);
+    expect(marcador.emissiveMap).toBe(textura);
+    expect(marcador.emissive.r).toBeCloseTo(LUZ_MARCADOR, 5);
+  });
+
+  it('la letra de la pizarra y del marcador contrasta con su fondo', () => {
+    for (const [tipo, base] of [
+      ['pizarra', '#1e3d32'],
+      ['pizarra', '#eef1f2'],
+      ['pizarra', '#7a8a80'],
+      ['marcador', '#17202a'],
+      ['marcador', '#d5dde3'],
+    ] as const) {
+      const { ctx, llamadas } = lienzoFalso();
+      dibujarLamina(ctx, { tipo, titulo: 'HOY' }, 576, 320, base, 1);
+      const titulo = textos(llamadas).find((l) => l.args[0] === 'HOY');
+      expect(contraste(String(titulo?.fillStyle), base), `${tipo} ${base}`).toBeGreaterThanOrEqual(
+        CONTRASTE_MINIMO,
+      );
+    }
+  });
+
+  it('las láminas y los dibujos de cada sala caben en 4 MB de GPU (con mipmaps)', () => {
+    for (const lugar of LUGARES) {
+      let bytes = 0;
+      for (const o of salaPorId(lugar).objetos) {
+        if (o.lamina) {
+          const [a, h] = medidasCara(o);
+          const px = medidasLienzo(a, h);
+          bytes += px.ancho * px.alto * 4 * (4 / 3);
+        }
+        const dibujo = o.pieza ? PIEZAS[o.pieza]?.(o).dibujo : undefined;
+        if (dibujo) {
+          bytes +=
+            Math.min(dibujo.ancho, LADO_MAXIMO) * Math.min(dibujo.alto, LADO_MAXIMO) * 4 * (4 / 3);
+        }
+      }
+      expect(bytes, lugar).toBeLessThanOrEqual(4 * 1024 * 1024);
+    }
   });
 });
 
@@ -266,15 +333,54 @@ describe('piezas por código', () => {
     expect(costado).toBe(18);
   });
 
+  it('una pieza que se toca conserva su caja invisible para chocar y tocar, sin draw call', () => {
+    const registro = PIEZAS as Record<string, ConstructorPieza>;
+    registro['prueba-palanca'] = (o) => ({
+      geometria: unirPartes([
+        parte(cajaBiselada(0.02, o.tam[1], 0.02), '#c0392b', [0, o.tam[1] / 2, 0]),
+      ]),
+      dibujo: { ancho: 4096, alto: 64, pintar: () => undefined },
+    });
+    try {
+      const base = salaPorId('s1-cooperativa');
+      const sala: Sala = {
+        ...base,
+        objetos: base.objetos.map((o) =>
+          o.id === 's1-palanca' ? { ...o, pieza: 'prueba-palanca' } : o,
+        ),
+      };
+      const antes = construirSala(base);
+      const armada = construirSala(sala);
+      const palanca = armada.raiz.getObjectByName('s1-palanca') as Mesh;
+      expect((palanca.material as MeshLambertMaterial).visible).toBe(false);
+      expect(palanca.userData['pieza']).toBe('prueba-palanca');
+      const vista = palanca.getObjectByName('s1-palanca-pieza') as Mesh;
+      expect((vista.material as MeshLambertMaterial).map).not.toBeNull();
+      // La caja invisible no cuenta como draw call: la pieza reemplaza a la primitiva.
+      expect(armada.mallas).toBe(antes.mallas);
+      // El rayo pega en la caja del tam (6 cm de diámetro) aunque la pieza mida 2 cm.
+      armada.raiz.updateMatrixWorld(true);
+      const rayo = new Raycaster(new Vector3(0.95 + 0.022, 1.2, 1), new Vector3(0, 0, -1));
+      const golpes = rayo.intersectObject(palanca, true);
+      expect(golpes.map((g) => g.object.name)).toEqual(['s1-palanca']);
+    } finally {
+      delete registro['prueba-palanca'];
+    }
+  });
+
+  it('los dibujos de las piezas registradas no pasan de 1024 px', () => {
+    for (const lugar of LUGARES) {
+      for (const o of salaPorId(lugar).objetos) {
+        const dibujo = o.pieza ? PIEZAS[o.pieza]?.(o).dibujo : undefined;
+        if (!dibujo) continue;
+        expect(dibujo.ancho, o.id).toBeLessThanOrEqual(LADO_MAXIMO);
+        expect(dibujo.alto, o.id).toBeLessThanOrEqual(LADO_MAXIMO);
+      }
+    }
+  });
+
   it('cada pieza de salas.json está registrada y cabe en el tam de su objeto', () => {
-    for (const lugar of [
-      'porteria',
-      's1-cooperativa',
-      's2-laboratorio',
-      's3-gimnasio',
-      's4-biblioteca',
-      's5-rectoria',
-    ] as const) {
+    for (const lugar of LUGARES) {
       for (const o of salaPorId(lugar).objetos) {
         if (!o.pieza) continue;
         const constructor = PIEZAS[o.pieza];
