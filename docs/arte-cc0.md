@@ -202,6 +202,18 @@ Objetos nuevos hechos con primitivas (van en la malla fija): computador, tuberí
 - **Luz:** noche fría, verde agua, con la direccional entrando desde el pasillo.
 - **Medidas:** 8 GLB, 3.172 triángulos, 138 KB. Prueba del cooperativo: 36 de 40.
 
+### Pulido por código (pulir salas, sesión A)
+
+Para que ningún objeto se vea como caja gris, lo que la máquina anima se rehizo por código en el estilo de KayKit (bordes biselados, colores planos), sin cambiar su malla, su id, su pivote ni su caja de choque (`src/engine/mecanismos/laboratorio-piezas.ts`, con las ayudas de `piezas-por-codigo.ts`):
+
+- **Perillas:** base negra con dial de 7 marcas, perilla de color con raya blanca; la morada lleva un candado de latón.
+- **Palanca:** rótula, varilla cromada y mango rojo, girando desde su base dentro de una caja con ranura.
+- **Campana:** cúpula de latón con botón, sobre una base de madera con un temporizador de cocina.
+- **Tanques:** vidrio de 32 lados casi incoloro (el color lo da el líquido), líquido con la superficie más clara, base, collares con tornillos, tapa en domo, varillas a los lados y atrás, y una regla pintada por dentro que se lee a través del vidrio. La bandeja de la incubadora tiene bordes y asa.
+- **Lo fijo nuevo** va unido a la malla fija (sin draw calls nuevas): tuberías con bridas, codos y manómetro; la válvula que une los tanques; los pilotos del tablero; el microscopio, la gradilla con tubos de ensayo, el computador con una gráfica en la pantalla y el extintor. Reemplazan a las primitivas `s2-tuberias`, `s2-microscopio`, `s2-gradilla`, `s2-computador` y `s2-extintor`, que salieron de `salas.json`.
+- La taza («T. R.», con café y oreja) y la hoja de ayer se visten igual.
+- **Medidas:** de 1.640 a 10.954 triángulos por código (más los 3.172 de los GLB), con las mismas 26 mallas.
+
 ## Sala 3 · El gimnasio
 
 Hecha en T19m, con KayKit y los conos de Kenney Factory Kit (KayKit no tiene). Gradas, reflector, postes, sensores, cinta métrica, marcador, polea, planilla y balones siguen como primitivas: el reflector y los balones los animan sus máquinas y lo demás se lee en 2D.
