@@ -8,25 +8,34 @@
  * - **Mano mecánica.** Cada vez que se tira de la manija (un `resultado` nuevo de esta sala),
  *   baja a la urna, sube con dos fichas y las muestra un momento. Si el panel está abierto,
  *   espera a que se cierre: detrás del panel no se vería.
- * - **Urna.** El cilindro de `salas.json` se vuelve translúcido para que se vean las fichas.
+ * - **Urna.** El vidrio (`rectoria-piezas.ts`) se vuelve translúcido para que se vean las fichas.
+ * - **Manija.** Al costado de la urna: se jala cuando la mano empieza a bajar y vuelve sola.
+ *
+ * Pulir salas (sesión B): las fichas, la mano y la manija tienen la forma que arma
+ * `rectoria-piezas.ts` (fichas biseladas, brazo telescópico y pinza de dos mandíbulas).
  *
  * Todo cuelga de la raíz de la sala, así que se libera con ella al salir. El motor la crea con
  * `animacionDeSala()` (`./index.ts`), igual que las de las otras salas.
  */
 import { effect } from '@preact/signals';
-import {
-  BoxGeometry,
-  CylinderGeometry,
-  Group,
-  InstancedMesh,
-  Matrix4,
-  Mesh,
-  MeshLambertMaterial,
-} from 'three';
+import { Group, InstancedMesh, Matrix4, Mesh, MeshLambertMaterial } from 'three';
 import type { Material, Object3D } from 'three';
 import { panel } from '../../signals/interfaz';
 import { etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
 import { sonar } from '../audio/eventos';
+import { sinRayo } from './comunes';
+import { suave } from './curvas';
+import {
+  EJE_MANIJA,
+  FONDO_URNA,
+  MANIJA_JALADA,
+  MANIJA_REPOSO,
+  geometriaBrazo,
+  geometriaFichaAmarilla,
+  geometriaFichaAzul,
+  geometriaManija,
+  geometriaPinza,
+} from './rectoria-piezas';
 import type { AnimacionSala } from './tipos';
 
 const SALA = 's5-rectoria';
@@ -36,7 +45,6 @@ export const MAX_POR_COLOR = 10;
 
 const COLOR_AZUL = 0x5aa9e6;
 const COLOR_AMARILLA = 0xf1c40f;
-const COLOR_MANO = 0x8a96a3;
 
 /** Tamaño de una ficha, en metros. */
 const LADO_FICHA = 0.05;
@@ -89,6 +97,16 @@ export function alturaDeLaMano(t: number): number {
   return ALTURA_REPOSO;
 }
 
+/** Lo que tarda en jalarse la manija, en segundos (vuelve mientras la mano sube). */
+const T_JALAR = 0.25;
+
+/** Ángulo de la manija (alrededor de X) a los `t` segundos de empezar a bajar la mano. */
+export function anguloManija(t: number | null): number {
+  if (t === null || t <= 0 || t >= T_BAJAR + T_SUBIR) return MANIJA_REPOSO;
+  const f = t < T_BAJAR ? suave(Math.min(1, t / T_JALAR)) : 1 - suave((t - T_BAJAR) / T_SUBIR);
+  return MANIJA_REPOSO + (MANIJA_JALADA - MANIJA_REPOSO) * f;
+}
+
 /**
  * Las dos fichas que saca la mano de una urna con esas fichas, sin devolver la primera.
  * `null` si hay menos de dos. `true` es azul.
@@ -138,14 +156,17 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
   const grupo = new Group();
   grupo.name = 'urna-animacion';
   grupo.position.copy(urna.position);
+  // Las fichas se apoyan en el fondo de vidrio, un poco más arriba que la base de la urna.
+  const alzado = FONDO_URNA - 0.01;
+  grupo.position.y += alzado;
 
   const azules = new InstancedMesh(
-    new CylinderGeometry(LADO_FICHA / 2, LADO_FICHA / 2, ALTO_FICHA, 12),
+    geometriaFichaAzul(LADO_FICHA, ALTO_FICHA),
     new MeshLambertMaterial({ color: COLOR_AZUL }),
     MAX_POR_COLOR,
   );
   const amarillas = new InstancedMesh(
-    new BoxGeometry(LADO_FICHA, ALTO_FICHA, LADO_FICHA),
+    geometriaFichaAmarilla(LADO_FICHA, ALTO_FICHA),
     new MeshLambertMaterial({ color: COLOR_AMARILLA }),
     MAX_POR_COLOR,
   );
@@ -154,17 +175,12 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
   azules.count = 0;
   amarillas.count = 0;
 
-  // La mano: un brazo que baja del techo, una pinza y las dos fichas que saca.
+  // La mano: un brazo que baja de su carcasa en el techo, una pinza y las dos fichas que saca.
   const mano = new Group();
   mano.name = 'mano-mecanica';
-  const brazo = new Mesh(
-    new BoxGeometry(0.03, 1.2, 0.03).translate(0, 0.6, 0),
-    new MeshLambertMaterial({ color: COLOR_MANO }),
-  );
-  const pinza = new Mesh(
-    new BoxGeometry(0.16, 0.03, 0.08),
-    new MeshLambertMaterial({ color: COLOR_MANO }),
-  );
+  const metal = new MeshLambertMaterial({ vertexColors: true });
+  const brazo = new Mesh(geometriaBrazo(), metal);
+  const pinza = new Mesh(geometriaPinza(), metal);
   // Cada ficha sacada tiene las dos formas; se muestra la del color que salió.
   const sacadas = [-0.045, 0.045].map((x) => {
     const redonda = new Mesh(azules.geometry, azules.material);
@@ -177,7 +193,13 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
   });
   mano.add(brazo, pinza, ...sacadas.flatMap((s) => [s.redonda, s.cuadrada]));
   mano.position.y = ALTURA_REPOSO;
-  grupo.add(azules, amarillas, mano);
+
+  // La manija al costado de la urna, con su eje donde la sostiene el soporte (rectoria-piezas).
+  const manija = sinRayo(new Mesh(geometriaManija(), metal));
+  manija.name = 'urna-manija';
+  manija.position.set(EJE_MANIJA[0], EJE_MANIJA[1] - alzado, EJE_MANIJA[2]);
+  manija.rotation.x = MANIJA_REPOSO;
+  grupo.add(azules, amarillas, mano, manija);
   raiz.add(grupo);
 
   let visibles: FichasEnUrna = SIN_FICHAS;
@@ -248,11 +270,13 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
       if (tiempo === null) return;
       tiempo += dt;
       mano.position.y = alturaDeLaMano(tiempo);
+      manija.rotation.x = anguloManija(tiempo);
       // Las fichas aparecen en la pinza al tocar el fondo y se sueltan al terminar.
       mostrarSacadas(tiempo >= T_BAJAR && tiempo < DURACION_MANO);
       if (tiempo >= DURACION_MANO) {
         tiempo = null;
         pareja = null;
+        manija.rotation.x = MANIJA_REPOSO;
         // Si se tiró otra vez de la manija mientras la mano jugaba, juega de nuevo.
         if (panel.peek() === null) empezarSiHayPendiente();
       }
@@ -276,9 +300,9 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
       azules.dispose();
       amarillas.dispose();
       brazo.geometry.dispose();
-      (brazo.material as Material).dispose();
       pinza.geometry.dispose();
-      (pinza.material as Material).dispose();
+      manija.geometry.dispose();
+      metal.dispose();
     },
   };
 }

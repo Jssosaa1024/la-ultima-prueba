@@ -13,19 +13,27 @@ import {
   pulirBiblioteca,
 } from '../../src/engine/mecanismos/biblioteca-piezas';
 import { Piezas } from '../../src/engine/mecanismos/piezas-por-codigo';
+import {
+  MANIJA_JALADA,
+  MANIJA_REPOSO,
+  pulirRectoria,
+} from '../../src/engine/mecanismos/rectoria-piezas';
+import { anguloManija, DURACION_MANO } from '../../src/engine/mecanismos/urna';
 import { construirSala } from '../../src/engine/salas/construir';
 import { interactivoDe } from '../../src/engine/interaccion/interaccion';
 import { reiniciarMecanismo } from '../../src/signals/mecanismo';
 import { reiniciarPartida } from '../../src/signals/partida';
 import { carasAlReves, normalesSanas } from './geometria-sana';
 
-// Pulir salas (sesión B): la biblioteca gana detalle por código sin draw calls nuevas, sin
+// Pulir salas (sesión B): la biblioteca y la rectoría ganan detalle por código sin draw calls nuevas, sin
 // cambiar ids ni choques, y dentro del presupuesto de AGENTS.md.
 
 const MAX_TRIANGULOS_SALA = 90_000;
 const MAX_TRIANGULOS_INTERACTIVO = 6_000;
 /** Triángulos de los GLB de la biblioteca (docs/arte-cc0.md, T19n). */
 const TRIANGULOS_GLB_BIBLIOTECA = 17_748;
+/** Triángulos de los GLB de la rectoría (docs/arte-cc0.md, T19o). */
+const TRIANGULOS_GLB_RECTORIA = 3_832;
 
 afterEach(() => {
   reiniciarMecanismo();
@@ -47,6 +55,9 @@ const triangulos = (m: Mesh): number =>
     m.geometry.drawRange.count,
   ) / 3;
 const total = (raiz: Object3D): number => mallas(raiz).reduce((s, m) => s + triangulos(m), 0);
+/** Mallas que se dibujan: sin las cajas invisibles de las piezas que se tocan. */
+const dibujadas = (raiz: Object3D): number =>
+  mallas(raiz).filter((m) => (m.material as MeshLambertMaterial).visible !== false).length;
 
 /** Medidas de una malla en su propio espacio (sin su posición ni su giro). */
 function caja(o: Object3D | undefined): Box3 {
@@ -197,5 +208,100 @@ describe('biblioteca pulida', () => {
     const o = salaPorId('s4-biblioteca').objetos.find((x) => x.id === 's4-lamparas');
     expect(o?.lamina?.tipo).toBe('tablero');
     expect(o?.lamina?.lineas).toEqual(['MEDIA', 'MEDIANA', 'MODA', 'RANGO']);
+  });
+});
+
+describe('rectoría pulida', () => {
+  const armar = () => construirSala(salaPorId('s5-rectoria'));
+
+  it('no suma mallas, cabe en el presupuesto y la base de la urna y la carcasa van en lo fijo', () => {
+    const sala = armar();
+    const antes = mallas(sala.raiz).length;
+    const trisFija = triangulos(sala.raiz.getObjectByName('fija') as Mesh);
+    pulirRectoria(sala.raiz);
+    expect(mallas(sala.raiz)).toHaveLength(antes);
+    expect(triangulos(sala.raiz.getObjectByName('fija') as Mesh)).toBeGreaterThan(trisFija);
+    const tris = total(sala.raiz);
+    pulirRectoria(sala.raiz);
+    expect(total(sala.raiz)).toBe(tris);
+  });
+
+  it('con la animación, la sala dibuja menos mallas que antes y cabe en el presupuesto', () => {
+    const sala = armar();
+    const animacion = animacionDeSala('s5-rectoria', sala.raiz);
+    // Antes del pulido eran 35 (T19o, con la urna, la mano y la caja fuerte).
+    expect(dibujadas(sala.raiz)).toBeLessThanOrEqual(34);
+    expect(total(sala.raiz) + TRIANGULOS_GLB_RECTORIA).toBeLessThan(MAX_TRIANGULOS_SALA);
+    animacion?.liberar();
+  });
+
+  it('las caras miran hacia afuera y las normales están sanas', () => {
+    const sala = armar();
+    const animacion = animacionDeSala('s5-rectoria', sala.raiz);
+    const revisar = [
+      'fija',
+      's5-urna',
+      's5-caja-fuerte',
+      'caja-fuerte-puerta',
+      'caja-fuerte-llave',
+      'urna-manija',
+      'fichas-azules',
+      'fichas-amarillas',
+    ].map((n) => sala.raiz.getObjectByName(n) as Mesh);
+    const mano = sala.raiz.getObjectByName('mano-mecanica');
+    revisar.push(...((mano?.children.slice(0, 2) ?? []) as Mesh[]));
+    for (const m of revisar) {
+      expect(m, 'falta una malla').toBeDefined();
+      expect(carasAlReves(m.geometry), m.name).toBe(0);
+      expect(normalesSanas(m.geometry), m.name).toBe(true);
+    }
+    animacion?.liberar();
+  });
+
+  it('lo que se toca sigue con su id y su acción, en su caja y con menos de 6.000 triángulos', () => {
+    const sala = armar();
+    const antes = interactivos(sala.raiz);
+    pulirRectoria(sala.raiz);
+    expect(interactivos(sala.raiz)).toEqual(antes);
+    const urna = sala.raiz.getObjectByName('s5-urna') as Mesh;
+    const u = caja(urna);
+    expect(Math.max(-u.min.x, u.max.x, -u.min.z, u.max.z)).toBeLessThanOrEqual(0.176);
+    expect(u.max.y).toBeLessThanOrEqual(0.451);
+    const fuerte = sala.raiz.getObjectByName('s5-caja-fuerte') as Mesh;
+    const f = caja(fuerte);
+    expect(f.max.x).toBeLessThanOrEqual(0.351);
+    expect(f.max.y).toBeLessThanOrEqual(0.901);
+    expect(f.max.z).toBeLessThanOrEqual(0.301);
+    for (const m of [urna, fuerte]) {
+      expect((m.material as MeshLambertMaterial).vertexColors).toBe(true);
+      expect(triangulos(m)).toBeLessThan(MAX_TRIANGULOS_INTERACTIVO);
+    }
+  });
+
+  it('el toque de las e2e en el centro de la urna sigue pegando en el vidrio', () => {
+    const sala = armar();
+    animacionDeSala('s5-rectoria', sala.raiz)?.liberar();
+    sala.raiz.updateMatrixWorld(true);
+    const urna = sala.raiz.getObjectByName('s5-urna') as Mesh;
+    // Desde la puerta, hacia el punto que tocan caja-fuerte.spec.ts y partida.spec.ts.
+    const desde = new Vector3(0, 1.6, 2);
+    const hacia = new Vector3(-0.6, 0.98, -0.5).sub(desde).normalize();
+    expect(new Raycaster(desde, hacia).intersectObject(urna, false).length).toBeGreaterThan(0);
+  });
+
+  it('la manija se jala cuando la mano baja y vuelve cuando sube', () => {
+    expect(anguloManija(null)).toBe(MANIJA_REPOSO);
+    expect(anguloManija(0.3)).toBeCloseTo(MANIJA_JALADA);
+    expect(anguloManija(0.75)).toBeGreaterThan(MANIJA_REPOSO);
+    expect(anguloManija(DURACION_MANO)).toBe(MANIJA_REPOSO);
+  });
+
+  it('la carta es una lámina de papel y el parlante, los dispensadores y el botón son piezas', () => {
+    const objetos = salaPorId('s5-rectoria').objetos;
+    const de = (id: string) => objetos.find((o) => o.id === id);
+    expect(de('s5-carta')?.lamina?.tipo).toBe('papel');
+    expect(de('s5-dispensadores')?.pieza).toBe('dispensadores');
+    expect(de('s5-ver-parejas')?.pieza).toBe('boton-parejas');
+    expect(de('s5-parlante')?.pieza).toBe('parlante');
   });
 });

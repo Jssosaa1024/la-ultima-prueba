@@ -11,6 +11,7 @@ import { pintarConBlanco } from './comunes';
 import type { ConstructorPieza, Pieza } from './comunes';
 import { PIEZAS_BIBLIOTECA } from './biblioteca';
 import { PIEZAS_PORTERIA } from './porteria';
+import { PIEZAS_RECTORIA } from './rectoria';
 import { PIEZAS_S1 } from './s1';
 
 export type { ConstructorPieza, Pieza } from './comunes';
@@ -20,6 +21,7 @@ export const PIEZAS: Readonly<Record<string, ConstructorPieza>> = {
   ...PIEZAS_PORTERIA,
   ...PIEZAS_S1,
   ...PIEZAS_BIBLIOTECA,
+  ...PIEZAS_RECTORIA,
 };
 
 /** La pieza del objeto, o `null` si no pide una o no está registrada (queda la primitiva). */
