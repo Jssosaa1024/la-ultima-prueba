@@ -7,6 +7,9 @@
  *   npm run voz -- --muestras           la línea voz-intro-1 con cada voz candidata
  *   npm run voz -- --en-seco            solo dice qué haría y cuántos caracteres gastaría
  *
+ * Una línea puede llevar su propio modelo, ajustes, semilla o un texto con marcas de
+ * entonación en `lineas` de voz.json (la bienvenida, por ejemplo, va con eleven_v3).
+ *
  * Lee `src/content/guion.json` y `art/audio/voz/voz.json` (modelo, ajustes, voces candidatas
  * y la elegida) y escribe `art/audio/voz/originales/<id>.mp3` (Git LFS) o, con --muestras,
  * `art/audio/voz/muestras/`. Antes de generar dice cuántos caracteres va a gastar.
@@ -28,7 +31,9 @@ import {
   idsDesconocidos,
   LINEA_MUESTRA,
   leerConfig,
+  lineasQueNoCuadran,
   nombreMuestra,
+  pedidoDeLinea,
   pendientes,
   rutaOriginal,
   type ConfigVoz,
@@ -67,14 +72,21 @@ async function revisarPlan(): Promise<boolean> {
   return true;
 }
 
-async function generar(
-  trabajos: { linea: LineaVoz; vozId: string; ruta: string }[],
-  config: ConfigVoz,
-): Promise<number> {
+interface Trabajo {
+  linea: LineaVoz;
+  vozId: string;
+  ruta: string;
+  /** Lo que se manda a la API (cobra por sus caracteres). */
+  texto: string;
+  modelo: string;
+  cuerpo: Record<string, unknown>;
+}
+
+async function generar(trabajos: Trabajo[], config: ConfigVoz): Promise<number> {
   let errores = 0;
-  for (const { linea, vozId, ruta } of trabajos) {
+  for (const { linea, vozId, ruta, cuerpo } of trabajos) {
     try {
-      const audio = await textoAVoz(vozId, config.formato, cuerpoPedido(linea.texto, config));
+      const audio = await textoAVoz(vozId, config.formato, cuerpo);
       if (audio.byteLength < 1000) throw new ErrorApi(0, 'la API devolvió un audio vacío');
       await guardar(ruta, audio);
       console.log(`  ✓ ${linea.id} → ${ruta} (${(audio.byteLength / 1024).toFixed(0)} KB)`);
@@ -106,8 +118,16 @@ async function principal(): Promise<number> {
     return 1;
   }
   const guion = (await leerJson(GUION_JSON)) as LineaVoz[];
+  const noCuadran = lineasQueNoCuadran(config, guion);
+  if (noCuadran.length > 0) {
+    console.error(
+      `voz: en ${ARCHIVO_CONFIG}, «lineas» no cuadra con el guion: ${noCuadran.join(', ')}\n` +
+        '     (el id no existe o texto_voz no dice las mismas palabras que el subtítulo).',
+    );
+    return 1;
+  }
 
-  let trabajos: { linea: LineaVoz; vozId: string; ruta: string }[];
+  let trabajos: Trabajo[];
   let saltadas: string[] = [];
   if (values.muestras) {
     const linea = guion.find((l) => l.id === LINEA_MUESTRA);
@@ -119,6 +139,9 @@ async function principal(): Promise<number> {
       linea,
       vozId: c.voice_id,
       ruta: path.join(CARPETA_MUESTRAS, nombreMuestra(linea.id, i + 1, c.nombre)),
+      texto: linea.texto,
+      modelo: config.modelo,
+      cuerpo: cuerpoPedido(linea.texto, config),
     }));
     if (!values.forzar) {
       saltadas = trabajos.filter((t) => existsSync(t.ruta)).map((t) => path.basename(t.ruta));
@@ -156,11 +179,13 @@ async function principal(): Promise<number> {
       linea,
       vozId: elegida,
       ruta: rutaOriginal(linea.id) as string,
+      ...pedidoDeLinea(linea, config),
     }));
     saltadas = p.saltadas;
   }
 
-  const total = trabajos.reduce((s, t) => s + caracteres(t.linea.texto), 0);
+  const total = trabajos.reduce((s, t) => s + caracteres(t.texto), 0);
+  const modelos = [...new Set(trabajos.map((t) => t.modelo))].join(' y ');
   if (saltadas.length > 0) {
     console.log(`  Se saltan ${saltadas.length} que ya existen (usa --forzar para rehacerlas).`);
   }
@@ -169,11 +194,11 @@ async function principal(): Promise<number> {
     return 0;
   }
   console.log(
-    `voz: ${trabajos.length} audio(s) con ${config.modelo}; ` +
+    `voz: ${trabajos.length} audio(s) con ${modelos}; ` +
       `se van a gastar ${total} caracteres (créditos de ElevenLabs).`,
   );
   if (values['en-seco']) {
-    for (const t of trabajos) console.log(`  · ${t.linea.id} → ${t.ruta}`);
+    for (const t of trabajos) console.log(`  · ${t.linea.id} (${t.modelo}) → ${t.ruta}`);
     return 0;
   }
   if (!hayClave()) {
