@@ -439,8 +439,8 @@
         {
           "archivo": "audio/es-CO/porteria/voz-intro-1.m4a",
           "idioma": "es-CO",
-          "sha256": "244149494629b3e0f5917cb41318474e3800005cd292f8fc1cbb803754b75232",
-          "bytes": 26870
+          "sha256": "b9b6ffcaa210781fdde4a9b443f7afa87381c1de8c1104a4b531a29b63c15d96",
+          "bytes": 38968
         },
         {
           "archivo": "audio/es-CO/porteria/voz-intro-2.m4a",
@@ -457,7 +457,7 @@
       ],
       "totales": {
         "bytes": 154112,
-        "bytesAudio": 258786,
+        "bytesAudio": 270884,
         "triangulos": 2616,
         "drawCalls": 11,
         "bytesGpu": 441258
