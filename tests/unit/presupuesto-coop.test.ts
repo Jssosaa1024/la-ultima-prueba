@@ -24,6 +24,8 @@ const lienzoMudo = (): Lienzo => ({
 /**
  * Draw calls como máximo: cada malla, una por material, aunque ahora esté oculta (una animación
  * la puede mostrar); la malla instanciada solo si tiene instancias, y cada `Sprite` visible.
+ * Un material con `visible = false` no se dibuja nunca (la caja invisible que choca y se toca
+ * de una pieza por código): no cuenta.
  */
 function maximoDeLlamadas(raiz: Object3D): number {
   let n = 0;
@@ -31,7 +33,8 @@ function maximoDeLlamadas(raiz: Object3D): number {
     const malla = o as Mesh & { isInstancedMesh?: boolean; count?: number };
     if (malla.isMesh) {
       if (malla.isInstancedMesh && malla.count === 0) return;
-      n += Array.isArray(malla.material) ? malla.material.length : 1;
+      const materiales = Array.isArray(malla.material) ? malla.material : [malla.material];
+      n += materiales.filter((m) => m.visible).length;
     }
     if ((o as Sprite).isSprite && o.visible) n++;
   });

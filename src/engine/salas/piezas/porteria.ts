@@ -172,22 +172,22 @@ function etiquetaCuaderno(ctx: Ctx, w: number, h: number): void {
   const alto = h * 0.84;
   ctx.fillStyle = PALETA.blanco;
   ctx.fillRect(0, 0, w, alto);
-  ctx.strokeStyle = PALETA.azul;
+  ctx.strokeStyle = PALETA.rojo;
   ctx.lineWidth = h * 0.04;
   ctx.strokeRect(h * 0.05, h * 0.05, w - h * 0.1, alto - h * 0.1);
-  ctx.fillStyle = PALETA.azulOscuro;
+  ctx.fillStyle = PALETA.rojoOscuro;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `700 ${Math.round(alto * 0.36)}px ${LETRA_TITULO}`;
   ctx.fillText('CUADERNO', w / 2, alto * 0.38);
-  ctx.strokeStyle = 'rgba(31,97,141,0.5)';
+  ctx.strokeStyle = 'rgba(146,43,33,0.5)';
   ctx.lineWidth = Math.max(1, h * 0.02);
   ctx.beginPath();
   ctx.moveTo(w * 0.15, alto * 0.75);
   ctx.lineTo(w * 0.85, alto * 0.75);
   ctx.stroke();
   ctx.font = `700 ${Math.round(alto * 0.16)}px ${LETRA_RENGLON}`;
-  ctx.fillStyle = 'rgba(23,63,95,0.8)';
+  ctx.fillStyle = 'rgba(120,30,25,0.85)';
   ctx.fillText('Nombre:', w * 0.27, alto * 0.64);
 }
 
@@ -199,13 +199,13 @@ const cuaderno: ConstructorPieza = (o: ObjetoSala): Pieza => {
   const anchoTapa = ancho - espiral;
   const cx = x0 + anchoTapa / 2;
   const partes: Parte[] = [
-    parte(cajaBiselada(anchoTapa, tapa, fondo, tapa * 0.4), PALETA.azul, [cx, tapa / 2, 0]),
+    parte(cajaBiselada(anchoTapa, tapa, fondo, tapa * 0.4), PALETA.rojo, [cx, tapa / 2, 0]),
     parte(
       cajaBiselada(anchoTapa * 0.96, alto - 2 * tapa - 0.002, fondo * 0.96, 0.002),
       PALETA.crema,
       [cx + anchoTapa * 0.015, alto / 2, 0],
     ),
-    parte(cajaBiselada(anchoTapa, tapa, fondo, tapa * 0.4), PALETA.azul, [
+    parte(cajaBiselada(anchoTapa, tapa, fondo, tapa * 0.4), PALETA.rojo, [
       cx,
       alto - tapa / 2 - 0.001,
       0,
@@ -230,7 +230,7 @@ const cuaderno: ConstructorPieza = (o: ObjetoSala): Pieza => {
       parte(
         etiqueta,
         PALETA.blanco,
-        [cx + anchoTapa * 0.04, alto + 0.0005, -fondo * 0.18],
+        [cx + anchoTapa * 0.04, alto + 0.0005, fondo * 0.05],
         [-90, 0, 0],
       ),
       [0, 0, 1, 0.84],

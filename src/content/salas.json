@@ -182,8 +182,8 @@
         "nombre": "Cuaderno",
         "forma": "caja",
         "tam": [0.2, 0.03, 0.28],
-        "pos": [-2.3, 0.45, 3.55],
-        "color": "#1f618d",
+        "pos": [-2.3, 0.47, 3.55],
+        "color": "#c0392b",
         "accion": "recoger",
         "pieza": "cuaderno"
       },
