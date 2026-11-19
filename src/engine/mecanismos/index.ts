@@ -2,6 +2,7 @@ import type { Object3D } from 'three';
 import type { Lugar } from '../../content/esquema-salas';
 import { animarLamparas } from '../salas/lamparas';
 import { animarBalones } from './balones';
+import { pulirBiblioteca } from './biblioteca-piezas';
 import { animarCajaFuerte } from './caja-fuerte';
 import { animarCarritos } from './carritos';
 import { animarEtiquetadora } from './etiquetadora';
@@ -82,7 +83,12 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
     pulirGimnasio(raiz);
     return conDetalle(animarReflector(raiz), animarBalones(raiz));
   },
-  's4-biblioteca': animarCarritos,
+  // Los carritos, la pila y los focos del resumen semanal. Antes, los carritos, la pila y la
+  // carcasa de los focos se pulen por código (pulir salas, sesión B).
+  's4-biblioteca': (raiz) => {
+    pulirBiblioteca(raiz);
+    return animarCarritos(raiz);
+  },
   // La urna y, con el sello, la caja fuerte que se abre (hito 1, punto 17).
   's5-rectoria': (raiz) => conDetalle(animarUrna(raiz), animarCajaFuerte(raiz)),
 };

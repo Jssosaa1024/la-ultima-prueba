@@ -9,6 +9,7 @@ import type { ObjetoSala } from '../../../content/esquema-salas';
 import { texturaDibujada } from '../laminas';
 import { pintarConBlanco } from './comunes';
 import type { ConstructorPieza, Pieza } from './comunes';
+import { PIEZAS_BIBLIOTECA } from './biblioteca';
 import { PIEZAS_PORTERIA } from './porteria';
 
 export type { ConstructorPieza, Pieza } from './comunes';
@@ -16,6 +17,7 @@ export type { ConstructorPieza, Pieza } from './comunes';
 /** Nombre de la pieza → cómo se arma. */
 export const PIEZAS: Readonly<Record<string, ConstructorPieza>> = {
   ...PIEZAS_PORTERIA,
+  ...PIEZAS_BIBLIOTECA,
 };
 
 /** La pieza del objeto, o `null` si no pide una o no está registrada (queda la primitiva). */
