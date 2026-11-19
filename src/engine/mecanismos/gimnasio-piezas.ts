@@ -5,7 +5,8 @@
  * su caja de choque: el reflector (cuerpo con aletas, aro y lente; gira en su bisagra), el riel
  * y los tres postes (base con peso, franjas cada medio metro y tapa), la franja de sensores,
  * la cinta métrica (marcas cada 10 cm y su carrete), la polea del marcador (malacate con
- * manivela), la planilla (tabla con pinza) y los cuatro balones, con sus costuras.
+ * manivela) y los cuatro balones, con sus costuras. El marcador y la planilla son láminas de
+ * la sesión C (`lamina` en `salas.json`).
  *
  * Lo fijo nuevo va unido a la malla fija de la sala (sin draw calls nuevas): tablas, narices de
  * aluminio, franja, costados y barandas de las gradas; la base del reflector con su cuadrante de
@@ -378,19 +379,6 @@ function colchonetas(p: Piezas): void {
   }
 }
 
-/** La planilla del torneo: tabla con pinza y la hoja con sus filas. */
-function planilla(): Piezas {
-  const p = new Piezas()
-    .caja([0.3, 0.008, 0.22], C.madera, { pos: [0, 0.004, 0], bisel: 0.003 })
-    .caja([0.25, 0.002, 0.19], C.papel, { pos: [0.015, 0.009, 0] });
-  for (let i = 0; i < 7; i++) {
-    p.caja([0.23, 0.0008, 0.0015], C.cuadricula, { pos: [0.015, 0.0104, -0.075 + i * 0.025] });
-  }
-  for (const x of [-0.04, 0.06])
-    p.caja([0.0015, 0.0008, 0.17], C.cuadricula, { pos: [x, 0.0104, 0] });
-  return p.caja([0.03, 0.014, 0.08], C.cromo, { pos: [-0.125, 0.012, 0], bisel: 0.004 });
-}
-
 /**
  * Un balón de 24 cm con la base en y = 0. El cuerpo va en blanco y las costuras en gris: el
  * color del balón lo pone el material (cada balón conserva el suyo).
@@ -449,7 +437,6 @@ export function pulirGimnasio(raiz: Object3D): void {
   vestirMalla(raiz.getObjectByName('s3-sensores'), sensores());
   vestirMalla(raiz.getObjectByName('s3-cinta-metrica'), cinta());
   vestirMalla(raiz.getObjectByName('s3-polea'), polea());
-  vestirMalla(raiz.getObjectByName('s3-planilla'), planilla());
   for (const id of BALONES) {
     const malla = raiz.getObjectByName(id);
     // Cada balón conserva su color en el material: las piezas son blancas y grises.
