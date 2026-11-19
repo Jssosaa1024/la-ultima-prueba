@@ -233,6 +233,19 @@ Objetos nuevos hechos con primitivas (van en la malla fija): tablero y aro de ba
 - **Luz:** luna azul fría desde el suroeste alto; los charcos de las lámparas dan el contraste cálido.
 - **Medidas:** 5 GLB, 1.882 triángulos, 93 KB. Prueba del cooperativo: 37 de 40.
 
+### Pulido por código (pulir salas, sesión A)
+
+Igual que en el laboratorio (`src/engine/mecanismos/gimnasio-piezas.ts`): lo que anima una máquina conserva su malla, su id, su pivote y su caja de choque.
+
+- **Reflector:** cuerpo amarillo con aletas oscuras, aro negro y lente claro; gira en su bisagra sobre una base con un cuadrante de muescas (una cada 10°) y su cable a la pared.
+- **Riel y postes:** placa con dos rieles, topes amarillos y la marca de cada poste; postes con base de peso, franjas blancas y rojas de medio metro (contadas desde el piso) y tapa amarilla. Miden 1, 2 y 3 m, como el puzzle.
+- **Sensores:** tapete negro con bordes verdes, una base por sensor, caja de conexión con piloto; cada sensor que se enciende es un lente sobre un aro.
+- **Cinta métrica:** marcas cada 10 cm (más largas cada 50 cm y cada metro) y el carrete al sur. **Polea:** malacate en la pared con tambor de cuerda y manivela roja; el gancho que sube es un gancho con grillete.
+- **Balones:** cada uno con su color y sus costuras (baloncesto, voleibol de franjas, gajos y voleibol).
+- **Lo fijo nuevo** va unido a la malla fija (sin draw calls nuevas): tablas de madera, narices de aluminio, franja, costados y barandas de las gradas (que pasan a azul); tablero de baloncesto con borde y cuadro, aro con red; guías de la cuerda; cerchas de acero; colchonetas biseladas y extintor. Reemplazan a `s3-tablas-gradas`, `s3-tablero-aro`, `s3-aro`, `s3-cerchas` y `s3-extintor`; `s3-colchonetas` queda como una caja de choque escondida dentro de las colchonetas.
+- El marcador y la planilla son láminas de la sesión C. El marcador suma una draw call (ya no va en lo fijo).
+- **Medidas:** de 2.410 a unos 15.000 triángulos por código (más los 1.882 de los GLB); 24 mallas más la del marcador.
+
 ## Sala 4 · La biblioteca
 
 Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen semanal (con sus cuatro focos), los carritos y la ficha rota siguen como primitivas: su máquina los anima o su texto se lee en 2D. La pila de libros también sigue como caja, en el naranja de los libros de los carritos.

@@ -6,6 +6,7 @@ import { animarCajaFuerte } from './caja-fuerte';
 import { animarCarritos } from './carritos';
 import { animarEtiquetadora } from './etiquetadora';
 import { animarFlechas } from './flechas';
+import { pulirGimnasio } from './gimnasio-piezas';
 import { pulirLaboratorio } from './laboratorio-piezas';
 import { animarPorteria } from './porteria';
 import { animarReflector } from './reflector';
@@ -75,8 +76,12 @@ const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
     pulirLaboratorio(raiz);
     return conDetalle(animarTanques(raiz), animarFlechas(raiz));
   },
-  // El reflector y los balones del carro, que rebotan al tocarlos (T75).
-  's3-gimnasio': (raiz) => conDetalle(animarReflector(raiz), animarBalones(raiz)),
+  // El reflector y los balones del carro, que rebotan al tocarlos (T75). Antes, las piezas
+  // que se mueven o se tocan y lo fijo se pulen por código (pulir salas, sesión A).
+  's3-gimnasio': (raiz) => {
+    pulirGimnasio(raiz);
+    return conDetalle(animarReflector(raiz), animarBalones(raiz));
+  },
   's4-biblioteca': animarCarritos,
   // La urna y, con el sello, la caja fuerte que se abre (hito 1, punto 17).
   's5-rectoria': (raiz) => conDetalle(animarUrna(raiz), animarCajaFuerte(raiz)),

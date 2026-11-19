@@ -10,14 +10,21 @@
  *
  * Los números salen de las mismas reglas del panel (`game/puzzles`). La escena es un
  * blockout: lo que no cabe en la cancha (una sombra de 16 m) se corta en la pared.
+ *
+ * Pulir salas (sesión A): cada sensor es un lente sobre un aro oscuro (el material le da el
+ * color de su estado) y el gancho es un gancho de verdad, con su grillete. El reflector, los
+ * postes y el riel los viste `gimnasio-piezas.ts` sin cambiar su malla ni su pivote.
  */
 import { effect } from '@preact/signals';
-import { BoxGeometry, CylinderGeometry, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
+import { Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry } from 'three';
+import type { BufferGeometry } from 'three';
 import type { Object3D } from 'three';
 import { puzzleDeSala } from '../../content/puzzles';
 import { esEstadoReflector, lecturaPostes, sombraMarcador } from '../../game/puzzles';
 import { condiciones, etapa, mecanismo, resultado } from '../../signals/mecanismo';
 import { acercar, sinRayo } from './comunes';
+import { PALETA } from './piezas-comunes';
+import { Piezas } from './piezas-por-codigo';
 import type { AnimacionSala } from './tipos';
 
 const GRADOS = Math.PI / 180;
@@ -45,11 +52,55 @@ interface PosteAnimado {
   /** Posición del poste en el riel, sin deslizar (z local del grupo). */
   zCasa: number;
   sombra: Mesh;
-  sensor: Mesh<CylinderGeometry, MeshBasicMaterial>;
+  sensor: Mesh<BufferGeometry, MeshBasicMaterial>;
   /** Metas, que escribe el efecto, y valores actuales, que acerca `actualizar`. */
   metaZ: number;
   metaSombra: number;
   largoSombra: number;
+}
+
+/**
+ * Un sensor en el piso, centrado en su altura: aro oscuro y lente abombado. Los vértices van
+ * en gris y blanco; el material (sin luz) les pone el color del estado.
+ */
+function geometriaSensor(): BufferGeometry {
+  return new Piezas()
+    .cilindro(0.2, 0.016, '#5a5a5a', { pos: [0, -0.01, 0], bisel: 0.004, lados: 16 })
+    .torno(
+      [
+        [0.15, 0.006],
+        [0.12, 0.016],
+        [0.06, 0.021],
+        [0, 0.022],
+      ],
+      '#ffffff',
+      { lados: 16, suave: true },
+    )
+    .geometria();
+}
+
+/** El gancho que sube con la polea, centrado: grillete, bloque amarillo, vástago y gancho. */
+function geometriaGancho(): BufferGeometry {
+  return new Piezas()
+    .toro(0.03, 0.008, PALETA.cromo, {
+      pos: [0, 0.09, 0],
+      giro: [90, 0, 0],
+      desde: 90,
+      arco: 180,
+      lados: 10,
+      tubo: 4,
+    })
+    .caja([0.1, 0.1, 0.05], PALETA.amarillo, { pos: [0, 0.04, 0], bisel: 0.014 })
+    .barra([0, -0.01, 0], [0, -0.055, 0], 0.012, PALETA.cromo, 6)
+    .toro(0.035, 0.01, PALETA.cromo, {
+      pos: [0, -0.09, 0],
+      giro: [90, 0, 0],
+      desde: 180,
+      arco: 300,
+      lados: 14,
+      tubo: 5,
+    })
+    .geometria();
 }
 
 export function animarReflector(raiz: Object3D): AnimacionSala {
@@ -65,7 +116,7 @@ export function animarReflector(raiz: Object3D): AnimacionSala {
   // hacia +Z con la escala.
   const franja = new PlaneGeometry(1, 1).rotateX(-Math.PI / 2).translate(0, 0, 0.5);
   const oscuro = new MeshBasicMaterial({ color: COLOR_SOMBRA });
-  const disco = new CylinderGeometry(0.2, 0.2, 0.02, 12);
+  const disco = geometriaSensor();
 
   const nuevaSombra = (ancho: number): Mesh => {
     const m = sinRayo(new Mesh(franja, oscuro));
@@ -79,7 +130,9 @@ export function animarReflector(raiz: Object3D): AnimacionSala {
   const postes: PosteAnimado[] = ALTURAS_POSTES.flatMap((_, i) => {
     const malla = grupoPostes.children[i + 1];
     if (!malla) return [];
-    const sensor = sinRayo(new Mesh(disco, new MeshBasicMaterial({ color: COLOR_SENSOR_APAGADO })));
+    const sensor = sinRayo(
+      new Mesh(disco, new MeshBasicMaterial({ color: COLOR_SENSOR_APAGADO, vertexColors: true })),
+    );
     sensor.visible = false;
     raiz.add(sensor);
     return [
@@ -98,7 +151,7 @@ export function animarReflector(raiz: Object3D): AnimacionSala {
   const sombraDelMarcador = nuevaSombra(0.5);
   sombraDelMarcador.position.set(MARCADOR.x, ALTO_SOBRE_PISO, MARCADOR.z);
   const gancho = sinRayo(
-    new Mesh(new BoxGeometry(0.18, 0.18, 0.18), new MeshBasicMaterial({ color: 0xd9b44a })),
+    new Mesh(geometriaGancho(), new MeshLambertMaterial({ vertexColors: true })),
   );
   gancho.position.set(GANCHO.x, GANCHO.reposo, GANCHO.z);
   gancho.visible = false;

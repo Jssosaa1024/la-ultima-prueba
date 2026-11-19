@@ -260,7 +260,10 @@ describe('reflector: animación en la escena (T58)', () => {
     const estado = conPolea(conMuesca(inicial(2), 53), 5);
     poner(2, estado);
     asentar();
-    const gancho = nuevas().find((m) => m.geometry.type === 'BoxGeometry');
+    // El gancho es la única pieza nueva con luz (las sombras y los sensores no la tienen).
+    const gancho = nuevas().find(
+      (m) => (m.material as { type: string }).type === 'MeshLambertMaterial',
+    );
     expect(gancho?.visible).toBe(true);
     expect(gancho?.position.y).toBeCloseTo(0.4, 2);
     // Poste de 2 m (1,5 m de sombra) y marcador (6 m de sombra).
