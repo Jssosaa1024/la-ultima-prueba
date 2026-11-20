@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "fecha": "2026-11-20T03:54:24-05:00",
+  "dispositivo": {
+    "userAgent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.8127.18 Mobile Safari/537.36",
+    "devicePixelRatio": 2.75,
+    "pantalla": [
+      2340,
+      1081
+    ],
+    "perfil": null,
+    "ahorro_energia": null
+  },
+  "sala": "s3-gimnasio",
+  "metricas": {
+    "mediana_ms": 30.7,
+    "p95_ms": 72.7,
+    "p1_ms": 79.5,
+    "triangulos": 4512,
+    "draw_calls": 23,
+    "mb_texturas": 1.35,
+    "mb_descargados": 0,
+    "carga_ms": 3057,
+    "pixel_ratio_usado": 1.25
+  },
+  "estres": null
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "fecha": "2026-11-20T03:53:23-05:00",
+  "dispositivo": {
+    "userAgent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.8127.18 Mobile Safari/537.36",
+    "devicePixelRatio": 2.75,
+    "pantalla": [
+      2340,
+      1081
+    ],
+    "perfil": null,
+    "ahorro_energia": null
+  },
+  "sala": "s2-laboratorio",
+  "metricas": {
+    "mediana_ms": 29.2,
+    "p95_ms": 65,
+    "p1_ms": 87.3,
+    "triangulos": 4654,
+    "draw_calls": 21,
+    "mb_texturas": 2.01,
+    "mb_descargados": 0,
+    "carga_ms": 1657,
+    "pixel_ratio_usado": 1.06
+  },
+  "estres": null
+}
