@@ -24,9 +24,24 @@ Las dos salas quedan muy lejos del presupuesto de AGENTS.md (90.000 triángulos 
 - e2e (celular y escritorio): laboratorio, 48 pasaron (tanques, grabaciones, salas, arte CC0 y CSP); gimnasio, 48 pasaron (reflector, grabaciones, salas, arte CC0 y CSP).
 - Pruebas de unidad nuevas: `piezas-por-codigo.test.ts` (tamaños, caras bien orientadas, normales sanas, colores) y `pulir-salas-a.test.ts` (sin mallas nuevas, dentro del presupuesto, ids y acciones intactos, mismas cajas de choque, piezas que se tocan del mismo tamaño, se pule una sola vez).
 
+## Medición con `?debug=1` (CPU 4× más lenta)
+
+Medí cada sala antes (`main` justo antes del #157) y después (`main` con #157 y #158), con el build de producción, perfil de celular (Pixel 5 en horizontal), la CPU frenada 4 veces y 20 segundos quieto donde aparece el jugador. Los JSON exportados por el panel están en `docs/reportes/mediciones/pulir-salas-A/`.
+
+| Sala | Triángulos visibles | Draw calls | MB de texturas | Mediana | p95 | Escala de píxeles |
+| --- | --- | --- | --- | --- | --- | --- |
+| Laboratorio, antes | 4.654 | 21 | 2,01 | 29,2 ms | 65,0 ms | 1,06 |
+| Laboratorio, después | 12.676 | 21 | 3,87 | 26,6 ms | 63,1 ms | 0,88 |
+| Gimnasio, antes | 4.512 | 23 | 1,35 | 30,7 ms | 72,7 ms | 1,25 |
+| Gimnasio, después | 17.148 | 23 | 2,50 | 26,4 ms | 59,3 ms | 0,88 |
+
+- **Dentro del presupuesto:** triángulos visibles muy por debajo de 60.000, draw calls por debajo de 40 y texturas por debajo de 16 MB. Las draw calls no cambiaron (el marcador del gimnasio no estaba en el cuadro).
+- Los MB de texturas suben por las láminas de la sesión C (graficador, hoja, marcador y planilla).
+- **Los tiempos no sirven para decidir:** este computador dibuja WebGL por software, así que el p95 pasa de 33 ms antes y después. Además, la escala dinámica bajó la resolución en las dos salas pulidas (0,88), así que esos cuadros no se comparan uno a uno con los de antes. En el gimnasio, después, hubo un tirón suelto (p1 de 289 ms) mientras subía algo a la GPU. Lo que vale es la medición en el celular de referencia.
+
 ## Lo que queda para Alex
 
-1. **Celular de referencia:** abrir cada sala con `?debug=1` y mirar triángulos y draw calls. El laboratorio no cambia de draw calls; el gimnasio suma una (el marcador).
+1. **Celular de referencia:** abrir cada sala con `?debug=1`, quedarse quieto 20 segundos, exportar el JSON y comparar con los de `docs/reportes/mediciones/pulir-salas-A/`. Mirar sobre todo el p95 (meta: menos de 33 ms) y si la escala de píxeles baja.
 2. **Paquete CC0 que resolvería varias cajas:** [KayKit Mini-Game Variety Pack](https://kaylousberg.itch.io/kay-kit-mini-game-variety-pack) (CC0, «nombre tu precio», versión legacy) trae aros, arcos y un balón. Si se quiere, se baja con su captura de licencia y se compara con el aro y los balones por código. Para el laboratorio no encontré un paquete CC0 de laboratorio de KayKit o Kenney.
 3. **Decidir si se unifican** las piezas por código de la sesión A (desde los mecanismos) con el registro `pieza` de la sesión C (`src/engine/salas/piezas/`). Hacen lo mismo con ayudas distintas; se podría dejar una sola.
 
