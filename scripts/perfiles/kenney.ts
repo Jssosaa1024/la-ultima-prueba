@@ -33,7 +33,10 @@ import type { EntradaModelo } from '../modelos/lista.ts';
  * Mini Shop, 0,85 (1,8 m).
  * Factory Kit ya viene en metros (la máquina mide 1,3). KayKit usa una cuadrícula de 1: la mesa
  * mide 1 (0,75 m) y la puerta 2,8 (2,1 m). Sirve igual para KayKit (T19i): un solo material
- * con una textura de degradado, y las piezas se unen igual.
+ * con una textura de degradado, y las piezas se unen igual. Food Kit (T19p): el plato mide 0,892
+ * (unos 27 cm) y la cajita de jugo 0,391 (12 cm). Como con todos, el motor ajusta después el
+ * modelo al `tam` de su objeto sin deformarlo (T19e): esta escala fija las proporciones entre
+ * piezas, no el tamaño final.
  */
 export const ESCALA_PAQUETE: Readonly<Record<string, number>> = {
   'kaykit-furniture-bits': 0.75,
@@ -41,6 +44,7 @@ export const ESCALA_PAQUETE: Readonly<Record<string, number>> = {
   'kenney-furniture-kit': 2,
   'kenney-mini-shop': 2.1,
   'kenney-factory-kit': 1,
+  'kenney-food-kit': 0.3,
 };
 
 /**

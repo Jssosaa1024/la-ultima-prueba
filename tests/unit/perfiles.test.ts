@@ -301,12 +301,13 @@ const tamano = (documento: Document) => {
 };
 
 describe('perfil kenney (T11b)', () => {
-  it('conoce la escala de los tres paquetes y la saca de la ruta del original', () => {
+  it('conoce la escala de cada paquete y la saca de la ruta del original', () => {
     expect(paqueteDe(`${FURNITURE}#Models/GLTF format/desk.glb`)).toBe('kenney-furniture-kit');
     expect(Object.keys(ESCALA_PAQUETE).sort()).toEqual([
       'kaykit-furniture-bits',
       'kaykit-restaurant-bits',
       'kenney-factory-kit',
+      'kenney-food-kit',
       'kenney-furniture-kit',
       'kenney-mini-shop',
     ]);
