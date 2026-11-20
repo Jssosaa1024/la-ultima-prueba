@@ -6,7 +6,7 @@ Este documento es la lista de compras. Dice qué bajar, dónde guardarlo y qué 
 
 ## Qué se bajó
 
-Son **3 paquetes de Kenney y 5 texturas de ambientCG**, ya descargados (ver «Ya descargado», abajo). De Quaternius no se baja nada (ver «Quaternius, fuera»).
+Son **4 paquetes de Kenney (Food Kit desde T19p) y 5 texturas de ambientCG**, ya descargados (ver «Ya descargado», abajo). De Quaternius no se baja nada (ver «Quaternius, fuera»).
 
 | # | Qué | Página de descarga | Botón | Carpeta en el repo |
 | --- | --- | --- | --- | --- |
@@ -18,6 +18,7 @@ Son **3 paquetes de Kenney y 5 texturas de ambientCG**, ya descargados (ver «Ya
 | 6 | ambientCG · WoodFloor071 | <https://ambientcg.com/view?id=WoodFloor071> | «1K-JPG» (4,3 MB) | `art/compartido/originales/ambientcg/` |
 | 7 | ambientCG · PaintedPlaster017 | <https://ambientcg.com/view?id=PaintedPlaster017> | «1K-JPG» (4,7 MB) | `art/compartido/originales/ambientcg/` |
 | 8 | ambientCG · OfficeCeiling001 | <https://ambientcg.com/view?id=OfficeCeiling001> | «1K-JPG» (7,2 MB) | `art/compartido/originales/ambientcg/` |
+| 9 | Kenney · Food Kit (T19p, 20-11-2026) | <https://kenney.nl/assets/food-kit> | «Download» y «Continue without donating» | `art/compartido/originales/kenney-food-kit/` |
 
 **Por qué `compartido/` y no `art/<sala>/originales/`:** cada paquete sirve a varias salas. El Furniture Kit, por ejemplo, se usa en todas. Si se guardara una copia por sala, el mismo zip quedaría varias veces en Git LFS. `compartido` es el mismo nombre que ya usan `art/credits.json` (campo `sala`) y la sesión A para las texturas.
 
@@ -33,6 +34,7 @@ Son **3 paquetes de Kenney y 5 texturas de ambientCG**, ya descargados (ver «Ya
 | `kenney-furniture-kit.png` | La página del paquete con la línea «License: Creative Commons CC0» |
 | `kenney-mini-shop.png` | Lo mismo para Mini Shop |
 | `kenney-factory-kit.png` | Lo mismo para Factory Kit |
+| `kenney-food-kit.png` | Lo mismo para Food Kit (T19p) |
 | `ambientcg-licencia.png` | <https://docs.ambientcg.com/license/> con la frase «All ambientCG assets are provided under the Creative Commons CC0 1.0 Universal License» |
 | `ambientcg-<Id>.png` (una por textura) | La página de la textura, con su nombre y la licencia CC0 |
 
@@ -93,6 +95,20 @@ Alex vio la portería y la sala 1 con Kenney y dijo que se veían muy simples. S
 - **Portería:** puertas `door_A` y `door_B` (salida), casillero `kitchencabinet`, escritorio `cabinet_medium`, silla `chair_A`. De ambiente: alfombra, lámpara de pie, cactus, dos cuadros y libros sobre el escritorio. El intercomunicador vuelve a ser primitiva.
 - **Sala 1:** estantes = `cabinet_medium` + `shelf_B_large_decorated`, mostrador = 3 × `kitchencounter_straight_A`, etiquetadora `oven`, caja `crate`, mesa `table_medium_long`. La registradora sigue siendo la de Kenney Mini Shop. De ambiente: dos huacales con verduras, frascos, menú, cactus, lámpara y dos cuadros.
 - **Medidas:** portería 2.616 triángulos, 151 KB; sala 1, 8.426 triángulos, 305 KB. Cada modelo, una draw call.
+
+## Food Kit (T19p)
+
+Alex pidió reemplazar los productos de la cooperativa, que eran piezas por código (pulir las salas, sesión C), con modelos de un paquete CC0. KayKit no tiene comida suelta; Kenney Food Kit sí.
+
+| Paquete | Página | Zip | Captura |
+| --- | --- | --- | --- |
+| Food Kit 2.0 | <https://kenney.nl/assets/food-kit> | `art/compartido/originales/kenney-food-kit/kenney_food-kit.zip` (4,6 MB) | `art/evidencia/kenney-food-kit.png` |
+
+- La página decía «License: Creative Commons CC0» el 20 de noviembre de 2026, y el `License.txt` del zip dice «Creative Commons Zero, CC0».
+- Modelos en `Models/GLB format/<nombre>.glb` con `Textures/colormap.png` (512 px), como Mini Shop. Escala: 0,3 m por unidad (`ESCALA_PAQUETE`).
+- **Sala 1:** `s1-productos` es un solo modelo con `carton-small` (el jugo) y `bag` de lado (el combo para llevar). El motor lo ajusta al `tam` del objeto (1,2 m de ancho): el jugo queda de 20 cm de alto y la bolsa de 30, como las piezas que reemplazan.
+- **Lo que el paquete no tiene:** empanada. Hay taco, croissant y dim sum, pero ninguno se lee como empanada. La empanada en su plato y las tres etiquetas de precio siguen por código (`s1-productos-detalle`, pieza `detalle-productos`), sin dibujo, unidas a la malla fija: cero draw calls. Esa pieza agrega una repisa de exhibición de 1,2 cm bajo la fila: los productos van delante del estante del fondo (más atrás, su caja de choque taparía el toque) y sin repisa se veían flotando.
+- **Toque:** la empanada y las etiquetas quedan dentro de las cajas de toque de `s1-productos`. La malla fija no se toca, y si algo suyo asomara delante, tocarlo no abriría los productos. Lo revisa `tests/unit/productos-s1.test.ts`.
 
 ## Acabados por código (T19j)
 
