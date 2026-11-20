@@ -69,7 +69,7 @@
   "pista_por_jugador": {
     "A": {
       "objeto": "s5-dispensadores",
-      "texto": "Los dispensadores dan círculos azules y triángulos amarillos: llena la urna como quieras."
+      "texto": "Los dispensadores dan fichas azules redondas y amarillas cuadradas: llena la urna como quieras."
     },
     "B": {
       "objeto": "s5-simulador",
