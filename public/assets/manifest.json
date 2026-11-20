@@ -687,6 +687,23 @@
           ]
         },
         {
+          "archivo": "salas/s1-cooperativa/productos.d1952110.glb",
+          "sha256": "d1952110e98f415aac5586fc3bd8d933141b8b034b47a90dd5af9e94a6068fbd",
+          "bytes": 19140,
+          "triangulos": 120,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "colormap",
+              "ancho": 512,
+              "alto": 512,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 174326
+            }
+          ]
+        },
+        {
           "archivo": "salas/s1-cooperativa/puerta.3adb0fcd.glb",
           "sha256": "3adb0fcd755712068860c9fa81df5c2dc63c451bb2ada43ab8cab91b821bc84f",
           "bytes": 15276,
@@ -736,11 +753,11 @@
         }
       ],
       "totales": {
-        "bytes": 312460,
+        "bytes": 331600,
         "bytesAudio": 61831,
-        "triangulos": 8426,
-        "drawCalls": 15,
-        "bytesGpu": 784460
+        "triangulos": 8546,
+        "drawCalls": 16,
+        "bytesGpu": 958786
       }
     },
     "s2-laboratorio": {

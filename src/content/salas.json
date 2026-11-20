@@ -321,12 +321,20 @@
         "pos": [-1.6, 1, -1.85],
         "color": "#d35400",
         "accion": "examinar",
-        "pieza": "productos",
+        "modelo": "productos",
         "partes": [
-          { "forma": "caja", "tam": [0.25, 0.3, 0.2], "pos": [-0.45, 0, 0], "color": "#e67e22" },
-          { "forma": "cilindro", "tam": [0.2, 0.28, 0], "pos": [0, 0, 0], "color": "#f5b041" },
-          { "forma": "caja", "tam": [0.3, 0.2, 0.2], "pos": [0.45, 0, 0], "color": "#c0392b" }
+          { "forma": "caja", "tam": [0.2, 0.3, 0.2], "pos": [-0.5, 0, 0], "color": "#e67e22" },
+          { "forma": "caja", "tam": [0.2, 0.28, 0.2], "pos": [0, 0, 0], "color": "#f5b041" },
+          { "forma": "caja", "tam": [0.24, 0.2, 0.2], "pos": [0.48, 0, 0], "color": "#c0392b" }
         ]
+      },
+      {
+        "id": "s1-productos-detalle",
+        "forma": "caja",
+        "tam": [1.2, 0.3, 0.2],
+        "pos": [-1.6, 0.988, -1.85],
+        "color": "#d35400",
+        "pieza": "detalle-productos"
       },
       {
         "id": "s1-mostrador",
