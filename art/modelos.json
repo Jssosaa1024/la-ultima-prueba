@@ -181,6 +181,21 @@
     "nota": "KayKit no tiene registradora: queda la de Kenney Mini Shop"
   },
   {
+    "archivo": "public/assets/salas/s1-cooperativa/productos.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-food-kit/kenney_food-kit.zip#Models/GLB format/carton-small.glb",
+        "pos": [-1.085, 0, 0]
+      },
+      {
+        "original": "art/compartido/originales/kenney-food-kit/kenney_food-kit.zip#Models/GLB format/bag.glb",
+        "pos": [0.994, 0, 0],
+        "giro": 90
+      }
+    ],
+    "nota": "Cajita de jugo y bolsa de papel del combo, con 2,4 unidades de punta a punta: el motor las lleva a 1,2 m (0,5 m por unidad), el jugo de 20 cm y la bolsa de 30; la empanada y las etiquetas siguen por código (s1-productos-detalle)"
+  },
+  {
     "archivo": "public/assets/salas/s1-cooperativa/mesa.glb",
     "piezas": [
       {

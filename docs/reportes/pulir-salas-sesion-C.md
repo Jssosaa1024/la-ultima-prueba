@@ -29,8 +29,8 @@ Las dos salas quedan muy lejos del presupuesto de AGENTS.md (90.000 triángulos 
 ## Lo que queda para Alex
 
 1. **Celular de referencia:** abrir la portería y la sala 1 con `?debug=1` y mirar triángulos y draw calls. Ver sobre todo la linterna y el cuaderno con la luz de medianoche: son chicos y oscuros.
-2. **Paquete CC0 que resolvería varias cajas:** [Kenney Food Kit](https://kenney.nl/assets/food-kit) (CC0) podría reemplazar el jugo, la empanada y el combo de la cafetería. No lo bajé ni revisé su licencia el día de hoy: si se quiere, se descarga con su captura y se compara con los productos por código.
-3. **Decidir si se unifican** las piezas por código de la sesión A (desde los mecanismos) con el registro `pieza` de la sesión C. Hacen lo mismo con ayudas distintas; se podría dejar una sola.
+2. ~~Paquete CC0 que resolvería varias cajas~~ **Hecho en T19p (20 de noviembre de 2026):** Alex aprobó [Kenney Food Kit](https://kenney.nl/assets/food-kit). El jugo y el combo pasaron a modelos del paquete; la empanada y las etiquetas siguen por código porque el paquete no tiene empanada.
+3. ~~Decidir si se unifican~~ las piezas por código de la sesión A (desde los mecanismos) con el registro `pieza` de la sesión C. **Decisión de Alex (20 de noviembre de 2026): no se unifican.** Cada sistema se queda donde está.
 
 ## Incidentes
 

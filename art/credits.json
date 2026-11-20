@@ -270,6 +270,21 @@
     "evidencia": "art/evidencia/kenney-mini-shop.png"
   },
   {
+    "archivo": "public/assets/salas/s1-cooperativa/productos.glb",
+    "sala": "s1-cooperativa",
+    "tipo": "modelo",
+    "titulo": "carton-small y bag (Food Kit)",
+    "autor": "Kenney",
+    "fuente": "kenney",
+    "url": "https://kenney.nl/assets/food-kit",
+    "licencia": "CC0-1.0",
+    "licencia_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "cambios": "dos piezas en un solo modelo, escala a metros, una sola malla, meshopt y KTX2",
+    "fecha": "2026-11-20",
+    "plan": null,
+    "evidencia": "art/evidencia/kenney-food-kit.png"
+  },
+  {
     "archivo": "public/assets/salas/s1-cooperativa/mesa.glb",
     "sala": "s1-cooperativa",
     "tipo": "modelo",
