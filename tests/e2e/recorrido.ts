@@ -318,7 +318,7 @@ export async function volverALaEntrada(
 }
 
 /** El objeto de cada máquina que se toca para abrir su panel, y hasta dónde hay que acercarse. */
-const MAQUINAS: Readonly<Record<Mecanismo, { objeto: string } & Alcance>> = {
+export const MAQUINAS: Readonly<Record<Mecanismo, { objeto: string } & Alcance>> = {
   etiquetadora: { objeto: 's1-etiquetadora' },
   tanques: { objeto: 's2-panel' },
   // El poste de 2 m: es el que está en la cancha en la primera etapa.
@@ -477,8 +477,16 @@ async function ponerUrna(panel: Locator, puzzle: PuzzleDe<'urna'>, n: number): P
  * Resuelve una etapa desde el panel abierto: pone los ajustes del campo `solucion`, acciona
  * la máquina si la etapa se acciona y espera a que la acepte (las que responden solas tardan
  * 5 segundos; la corrida de los tanques, hasta 12). No toca «Seguir».
+ *
+ * En grupo (`enGrupo`), las que responden solas no esperan quietas: quien tiene D toca
+ * «Proponer al grupo», y la máquina responde cuando todos aceptan.
  */
-export async function resolverEtapa(panel: Locator, puzzle: Puzzle, n: number): Promise<Locator> {
+export async function resolverEtapa(
+  panel: Locator,
+  puzzle: Puzzle,
+  n: number,
+  enGrupo = false,
+): Promise<Locator> {
   const etapa = puzzle.etapas[n];
   if (!etapa) throw new Error(`${puzzle.id} no tiene la etapa ${n}`);
   const ultima = n === puzzle.etapas.length - 1;
@@ -507,6 +515,8 @@ export async function resolverEtapa(panel: Locator, puzzle: Puzzle, n: number): 
   }
   if (etapa.intento.tipo === 'accionar') {
     await panel.getByRole('button', { name: TEXTO_ACCIONAR[puzzle.mecanismo] }).click();
+  } else if (enGrupo) {
+    await panel.getByRole('button', { name: 'Proponer al grupo' }).click();
   }
   await expect(seguir).toBeVisible({ timeout: 45_000 });
   // La máquina nunca califica: muestra lo que pasó.
