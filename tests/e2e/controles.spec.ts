@@ -82,6 +82,9 @@ async function abrirJuego(page: Page) {
   // después del primero el menú desaparece.
   await page.getByRole('button', { name: 'Jugar solo' }).click();
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  // La portería ya cargó (con su pasillo, desde los pasillos, tarda un poco más): antes de eso
+  // no hay paredes con que chocar y caminar la atravesaría.
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria', { timeout: 30_000 });
   // La sala ya se dibujó al menos una vez: hay mirada y posición que leer.
   await expect(canvas).toHaveAttribute('data-mirada', /,/);
   const caja = await canvas.boundingBox();
