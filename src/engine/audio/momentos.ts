@@ -96,10 +96,13 @@ export function escucharMomentos(tocar: (efecto: NombreEfecto) => void): () => v
       objetos = n;
       recogidas = g;
     }),
-    // La puerta que todavía no se abre. Cada aviso es un objeto nuevo, aunque se repita.
+    // La puerta que todavía no se abre y las falsas del pasillo, que nunca abren: el picaporte
+    // traquetea. Cada aviso es un objeto nuevo, aunque se repita.
     effect(() => {
       const a = aviso.value;
-      if (a && a !== ultimoAviso && a.t === 'puerta_cerrada') tocar('puerta-cerrada');
+      if (a && a !== ultimoAviso && (a.t === 'puerta_cerrada' || a.t === 'puerta_falsa')) {
+        tocar('puerta-cerrada');
+      }
       ultimoAviso = a;
     }),
     // Empezar a usar una máquina, la puerta de salida o el intercomunicador.

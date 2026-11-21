@@ -3,7 +3,7 @@ import { esObjetoSuelto, grabacionDeObjeto } from '../content/grabaciones';
 import { PUZZLES, puzzleDeSala } from '../content/puzzles';
 import type { Puzzle } from '../content/esquema';
 import { fichasDeLugar } from '../content/fichas';
-import { destinoDePuerta, nombreDeObjeto } from '../content/salas';
+import { destinoDePuerta, fraseDePuertaFalsa, nombreDeObjeto } from '../content/salas';
 import {
   borrarGuardado,
   cargar,
@@ -93,6 +93,7 @@ import {
   type ObjetoInventario,
 } from './partida';
 import { girarTelefono } from './pantalla';
+import { tocarPuertaFalsa } from './puertas-falsas';
 import { escuchar, type Comando } from './puente';
 
 /**
@@ -628,6 +629,12 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       } else if (estabaEnPorteria) {
         avisar({ t: 'puerta_cerrada', sala: numeroDeSala(destino) });
       }
+      return false;
+    }
+    // Las puertas falsas del pasillo no abren: picaporte y una frase corta.
+    const falsa = fraseDePuertaFalsa(objeto);
+    if (falsa) {
+      tocarPuertaFalsa(falsa, dichas);
       return false;
     }
     if (partida?.lugar !== 'porteria') {

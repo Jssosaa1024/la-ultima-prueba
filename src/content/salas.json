@@ -472,7 +472,7 @@
         "pos": [-4.6, 1.45, -9.58],
         "giro": 0,
         "color": "#2f4a6b",
-        "lamina": { "tipo": "cartel", "titulo": "← SALAS 3 A 5" }
+        "lamina": { "tipo": "cartel", "titulo": "SALAS 3 A 5", "flecha": "izquierda" }
       },
       {
         "id": "pasillo-flecha-3",
@@ -481,7 +481,7 @@
         "pos": [-15.78, 1.45, -8.4],
         "giro": 90,
         "color": "#2f4a6b",
-        "lamina": { "tipo": "cartel", "titulo": "← SALAS 4 Y 5" }
+        "lamina": { "tipo": "cartel", "titulo": "SALAS 4 Y 5", "flecha": "izquierda" }
       },
       {
         "id": "pasillo-casilleros-1",

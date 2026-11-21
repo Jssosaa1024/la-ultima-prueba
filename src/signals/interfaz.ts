@@ -50,6 +50,12 @@ export type Aviso =
       /** Número de la sala (2 a 5) cuya puerta sigue cerrada. */
       sala: number;
     }
+  /**
+   * Una puerta falsa del pasillo: suena el picaporte y sale su frase (`frase`, id de
+   * `puertas-falsas.json`). `hablada` dice que La Voz la está diciendo: entonces el texto va
+   * en el subtítulo y el aviso no lo repite.
+   */
+  | { t: 'puerta_falsa'; frase: string; hablada: boolean }
   /** Cooperativo: ese dato solo se lee con una herramienta que este jugador no lleva. */
   | { t: 'necesita_herramienta'; objeto: string; herramienta: string }
   /** Cooperativo (T84d): un compañero (`de`, su alias) le pasó un objeto a este jugador. */

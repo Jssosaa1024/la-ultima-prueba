@@ -183,6 +183,15 @@ describe('partida cooperativa en este navegador', () => {
     expect(misRoles.value).toEqual(['C', 'D']);
   });
 
+  it('una puerta falsa del pasillo no abre voto ni viaja por la red: solo da su frase', async () => {
+    const intenciones = red.enviados.int;
+    await tocar('pasillo-puerta-banos', 'Baños', 'usar');
+    expect(votosCoop.value).toEqual([]);
+    expect(sala.value).toBe('porteria');
+    expect(aviso.value).toMatchObject({ t: 'puerta_falsa', frase: 'banos' });
+    expect(red.enviados.int).toBe(intenciones);
+  });
+
   it('D prueba en su panel, propone, el otro acepta y la máquina responde', async () => {
     await otro.enviar({
       t: 'votar',

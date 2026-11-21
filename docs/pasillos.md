@@ -80,10 +80,14 @@ Planos con `lamina: { tipo: "cartel" }` (dibujo de la sesión C). Lo que dicen e
 | `pasillo-cartel-s1` … `-s5` | Encima de cada puerta real, de y = 2,44 a 2,78 (la luz de la puerta llega a 2,40) | 1,0 × 0,34 | «SALA 1» y el nombre («COOPERATIVA», «LABORATORIO», «GIMNASIO», «BIBLIOTECA», «RECTORÍA»). La sesión C le agrega el sello cuando la sala lo gana |
 | `pasillo-cartel-10a`, `-10b`, `-11a`, `-11b`, `-banos`, `-profesores`, `-aseo` | Encima de cada puerta falsa, de y = 2,44 a 2,68 | 0,7 × 0,24 | «10-A», «10-B», «11-A», «11-B», «BAÑOS», «PROFESORES», «ASEO» |
 | `pasillo-flecha-1` | En el dintel del vano, mirando a la portería | 1,6 × 0,4 | «SALAS 1 A 5» |
-| `pasillo-flecha-2` | Al fondo del tramo 1, en la pared norte (x = −4,6), a la altura de los ojos | 1,2 × 0,5 | «← SALAS 3 A 5» |
-| `pasillo-flecha-3` | Al fondo del tramo 2, en la pared oeste (z = −8,4) | 1,2 × 0,5 | «← SALAS 4 Y 5» |
+| `pasillo-flecha-2` | Al fondo del tramo 1, en la pared norte (x = −4,6), a la altura de los ojos | 1,2 × 0,5 | «SALAS 3 A 5» con flecha a la izquierda |
+| `pasillo-flecha-3` | Al fondo del tramo 2, en la pared oeste (z = −8,4) | 1,2 × 0,5 | «SALAS 4 Y 5» con flecha a la izquierda |
 
 La flecha 2 queda de frente al caminar por el tramo 1 y la 3 al caminar por el tramo 2: en cada esquina se ve hacia dónde seguir.
+
+**Sello en el cartel (sesión C).** El cartel de una sala que ya tiene su sello lo lleva estampado a la derecha, con la figura y el color de su pieza en el mural (`docs/laminas-y-piezas.md`). Es la misma malla con su lienzo vuelto a pintar: no suma draw calls ni memoria.
+
+**Puertas falsas (sesión C).** Al tocarla, el picaporte traquetea (`efecto-puerta-cerrada`, el mismo de una puerta de sala todavía cerrada) y su frase sale abajo, en una tirita de papel del archivo con el rótulo de la puerta, sin tapar el centro; se va sola en 3,5 a 6 s según el largo. El lector de pantalla la oye con el rótulo delante («Aula 10-B: …»). Si la frase es de La Voz, la dice la primera vez en la partida, con su subtítulo, y las veces siguientes sale escrita. En el cooperativo no viaja por la red ni abre voto: cada jugador oye su puerta.
 
 ## Luces
 

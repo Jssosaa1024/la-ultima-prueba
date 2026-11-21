@@ -362,6 +362,19 @@ describe('controlador: puertas en orden', () => {
     }
   });
 
+  it('las puertas falsas del pasillo no abren: dan su frase y sueltan el foco', () => {
+    jugar();
+    const falsas = SALAS_3D.flatMap((s) => s.objetos).filter((o) => o.falsa);
+    expect(falsas).toHaveLength(7);
+    for (const o of falsas) {
+      usar(o.id);
+      expect(sala.value).toBe('porteria');
+      expect(panel.value).toBeNull();
+      expect(enfocado.value).toBeNull();
+      expect(aviso.value).toMatchObject({ t: 'puerta_falsa', frase: o.falsa });
+    }
+  });
+
   it('con la sala 1 resuelta se abre la puerta 2, pero no la 3', () => {
     jugar();
     ganarElPrimerSello();
