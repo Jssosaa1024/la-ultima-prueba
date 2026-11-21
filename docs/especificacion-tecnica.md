@@ -869,6 +869,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T77e** (nueva, pasillos, sesión C) Toque de las puertas falsas: aviso `puerta_falsa` (lleva el id de la frase, nunca texto) en la partida sola y en el cooperativo, sin red ni voto. Suena el picaporte (`efecto-puerta-cerrada`) y la frase sale en una tirita de papel del archivo con el rótulo de la puerta, abajo y sin tapar el centro; se va sola en 3,5 a 6 s. El lector de pantalla la oye con el rótulo delante. Si es de La Voz, la dice la primera vez con su subtítulo y después sale escrita — 40 min
 - [x] **T77f** (nueva, pasillos, sesión C) Carteles del pasillo con las láminas: `flecha` (izquierda o derecha) dibujada como figura en el cartel, porque la letra no trae «←»; las flechas 2 y 3 la usan — 20 min
 - [x] **T77g** (nueva, pasillos, sesión C) El cartel de una sala con sello lo lleva estampado (figura y color de su pieza del mural): `marcarLamina` vuelve a pintar el mismo lienzo, sin malla ni draw call nueva, y solo cuando cambian los sellos. Reporte `docs/reportes/pasillos-sesion-C.md` — 35 min
+- [x] **T77h** (nueva, pasillos, sesión A) La Voz graba con `npm run voz` las cuatro frases de las puertas falsas (`voz-pasillo-profesores`, `-10a`, `-11b` y `-aseo`): 233 caracteres con el plan de pago, `optimize-audio` a −16 LUFS en `public/assets/audio/es-CO/porteria/`, sus créditos en `art/credits.json` y fuera de `POR_GRABAR` (`tests/unit/voz-grabada.test.ts`). El audio de la portería queda en 0,38 de 0,6 MB — 20 min
 
 ### Fase 8 · Cooperativo
 
