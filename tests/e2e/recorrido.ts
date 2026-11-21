@@ -41,7 +41,8 @@ export function puzzleDeSala(numero: number): Puzzle {
   return puzzle;
 }
 
-function salaPorId(id: Lugar): Sala {
+/** La distribución de un lugar, leída del JSON (Playwright no importa JSON sin atributo). */
+export function salaPorId(id: Lugar): Sala {
   const sala = SALAS.find((s) => s.id === id);
   if (!sala) throw new Error(`no existe la sala ${id}`);
   return sala;

@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
-import { salaPorId } from '../../src/content/salas';
 import { puntoDeEntrada } from '../../src/engine/salas/recorrido';
-import { cruzar, volverALaEntrada } from './recorrido';
+import { cruzar, salaPorId, volverALaEntrada } from './recorrido';
 import { tocar } from './toque';
 
 // Controles del motor (T14, T15). En el perfil celular se usan toques reales por CDP
