@@ -5,6 +5,7 @@ import { animarBalones } from './balones';
 import { pulirBiblioteca } from './biblioteca-piezas';
 import { animarCajaFuerte } from './caja-fuerte';
 import { animarCarritos } from './carritos';
+import { animarCartelesDeSalas } from './carteles-pasillo';
 import { animarEtiquetadora } from './etiquetadora';
 import { animarFlechas } from './flechas';
 import { pulirGimnasio } from './gimnasio-piezas';
@@ -70,7 +71,9 @@ export function conAmbiente(maquina: AnimacionSala, ambiente: AnimacionSala): An
 /** Lo que se anima en cada sala. Las salas que aún no tienen nada, no animan. */
 const ANIMACIONES: Partial<Record<Lugar, (raiz: Object3D) => AnimacionSala>> = {
   // El mural con los sellos ganados y la luz sobre la puerta que toca abrir (hito 1, punto 16).
-  porteria: animarPorteria,
+  // En el pasillo, el cartel de cada sala resuelta lleva su sello (pasillos, sesión C): no
+  // cambia el `estado` ni el `detalle` de la portería, que leen las e2e.
+  porteria: (raiz) => conAmbiente(animarPorteria(raiz), animarCartelesDeSalas(raiz)),
   's1-cooperativa': animarEtiquetadora,
   // Los tanques y, con la linterna, las flechas hacia la grabación 1 (T75). Antes, las piezas
   // de la máquina y lo fijo se pulen por código (pulir salas, sesión A).
