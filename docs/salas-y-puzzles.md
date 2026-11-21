@@ -68,6 +68,10 @@ Reglas: cada línea dura menos de 6 segundos (unas 15 palabras), nunca dice la r
 | `voz-espera` | 90 s sin interactuar en una sala | «El cuaderno también sirve para pensar, no solo para copiar.» |
 | `voz-fallo` | Tercer intento fallido | «Equivocarse aquí es gratis. Y enseña más que acertar de suerte.» |
 | `voz-final` | Cinco sellos en la portería | «Salir o salvar el archivo. No hay respuesta incorrecta esta vez.» |
+| `voz-pasillo-profesores` | Toca la puerta falsa de la sala de profesores (pasillo) | «La sala de profesores. Ni yo tengo llave de ahí.» |
+| `voz-pasillo-10a` | Toca la puerta falsa del aula 10-A | «Esa puerta no lleva a ninguna prueba. Ni siquiera a un recreo.» |
+| `voz-pasillo-11b` | Toca la puerta falsa del aula 11-B | «Esa no es. Las salas que buscas tienen cartel con número.» |
+| `voz-pasillo-aseo` | Toca la puerta falsa del cuarto del aseo | «El cuarto del aseo. Lo único ordenado del colegio, y está cerrado.» |
 
 ## Estructura de la partida
 

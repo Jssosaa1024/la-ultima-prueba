@@ -191,12 +191,36 @@ describe('dónde se publica la voz', () => {
   });
 
   it('cada línea del guion tiene su .m4a publicado y su original', () => {
-    for (const l of GUION) {
+    for (const l of GUION.filter((x) => !POR_GRABAR.includes(x.id))) {
       const archivo = archivoDeAudio(l);
       expect(archivo, l.id).not.toBeNull();
       const publicado = path.join(raiz, 'public', 'assets', 'audio', 'es-CO', archivo ?? '');
       expect(existsSync(publicado), publicado).toBe(true);
       expect(existsSync(path.join(raiz, rutaOriginal(l.id) ?? '')), l.id).toBe(true);
+    }
+  });
+});
+
+/**
+ * Líneas nuevas que la sesión A todavía no grabó (`npm run voz -- --solo …`): las de las puertas
+ * falsas del pasillo (docs/pasillos.md). Mientras tanto el juego muestra el subtítulo con su
+ * duración estimada. Al grabarlas, se quitan de aquí: la prueba de abajo avisa.
+ */
+const POR_GRABAR: readonly string[] = [
+  'voz-pasillo-profesores',
+  'voz-pasillo-10a',
+  'voz-pasillo-11b',
+  'voz-pasillo-aseo',
+];
+
+describe('líneas por grabar', () => {
+  it('siguen sin audio: cuando se graben, se quitan de POR_GRABAR', () => {
+    for (const id of POR_GRABAR) {
+      const l = GUION.find((x) => x.id === id);
+      expect(l, id).toBeDefined();
+      const archivo = l ? archivoDeAudio(l) : null;
+      const publicado = path.join(raiz, 'public', 'assets', 'audio', 'es-CO', archivo ?? '');
+      expect(existsSync(publicado), `${id} ya tiene audio: quítala de POR_GRABAR`).toBe(false);
     }
   });
 });

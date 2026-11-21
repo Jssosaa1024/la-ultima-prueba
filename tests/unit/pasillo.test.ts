@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Mesh } from 'three';
 import { esquemaSala, esquemaSalas, LUGARES, medioTamano } from '../../src/content/esquema-salas';
 import type { ObjetoSala, Sala } from '../../src/content/esquema-salas';
+import type { LineaGuion } from '../../src/content/esquema-guion';
+import guion from '../../src/content/guion.json';
 import { FRASES_PUERTAS_FALSAS, frasePuertaFalsa } from '../../src/content/puertas-falsas';
 import { esquemaFrasePuertaFalsa } from '../../src/content/esquema-puertas-falsas';
 import { SALAS_3D, salaPorId } from '../../src/content/salas';
@@ -196,6 +198,14 @@ describe('el pasillo en los datos', () => {
     if (!s1) throw new Error('sin s1');
     s1.tramos = [{ x: [3.5, 5], z: [-1, 1] }];
     expect(esquemaSalas.safeParse(enOtraSala).success).toBe(false);
+  });
+
+  it('cuatro frases las dice La Voz, cada una con su línea del guion', () => {
+    const conVoz = FRASES_PUERTAS_FALSAS.filter((f) => f.voz);
+    expect(conVoz).toHaveLength(4);
+    const lineas = (guion as LineaGuion[]).filter((l) => l.momento === 'puerta_falsa');
+    expect(conVoz.map((f) => f.voz).sort()).toEqual(lineas.map((l) => l.id).sort());
+    for (const l of lineas) expect(l.sala).toBe('porteria');
   });
 
   it('las frases son cortas, una por puerta, y llevan texto o voz', () => {

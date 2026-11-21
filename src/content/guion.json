@@ -128,6 +128,38 @@
     "origen": "salas-y-puzzles"
   },
   {
+    "id": "voz-pasillo-profesores",
+    "sala": "porteria",
+    "momento": "puerta_falsa",
+    "texto": "La sala de profesores. Ni yo tengo llave de ahí.",
+    "duracion_s": 4.5,
+    "origen": "propuesta"
+  },
+  {
+    "id": "voz-pasillo-10a",
+    "sala": "porteria",
+    "momento": "puerta_falsa",
+    "texto": "Esa puerta no lleva a ninguna prueba. Ni siquiera a un recreo.",
+    "duracion_s": 5.0,
+    "origen": "propuesta"
+  },
+  {
+    "id": "voz-pasillo-11b",
+    "sala": "porteria",
+    "momento": "puerta_falsa",
+    "texto": "Esa no es. Las salas que buscas tienen cartel con número.",
+    "duracion_s": 4.5,
+    "origen": "propuesta"
+  },
+  {
+    "id": "voz-pasillo-aseo",
+    "sala": "porteria",
+    "momento": "puerta_falsa",
+    "texto": "El cuarto del aseo. Lo único ordenado del colegio, y está cerrado.",
+    "duracion_s": 5.0,
+    "origen": "propuesta"
+  },
+  {
     "id": "grab-1",
     "sala": "s2-laboratorio",
     "momento": "grabacion",
