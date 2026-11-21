@@ -165,8 +165,11 @@ interface EtapaEnCurso {
 }
 
 export class JuegoCoop {
-  /** Ajustes que quien tiene D está probando, por sala, antes de proponerlos. */
-  private borrador: Partial<Record<SalaId, unknown>> = {};
+  /**
+   * Ajustes que quien tiene D está probando, por sala, antes de proponerlos. Guardan su etapa:
+   * si el resultado no llega (y la foto pone al día la etapa), no valen para la siguiente.
+   */
+  private borrador: Partial<Record<SalaId, { etapa: number; estado: unknown }>> = {};
   /** Cómo quedó cada máquina resuelta en esta partida. */
   private resueltas: Partial<Record<SalaId, unknown>> = {};
   /** Estado de cada propuesta vista, para mostrar con qué respondió la máquina. */
@@ -228,6 +231,12 @@ export class JuegoCoop {
     if (this.dichas.has(id)) return;
     this.dichas.add(id);
     decir(id);
+  }
+
+  /** El borrador de D para la etapa en curso, si lo hay. */
+  private borradorDe(actual: EtapaEnCurso): unknown {
+    const b = this.borrador[actual.sala];
+    return b?.etapa === actual.etapa ? b.estado : undefined;
   }
 
   private etapaEnCurso(f: Foto): EtapaEnCurso | null {
@@ -367,7 +376,7 @@ export class JuegoCoop {
           ? f.propuesta.estado
           : undefined;
       // Quien tiene D ve su borrador; los demás ven la propuesta abierta (o el inicio).
-      const propio = this.borrador[actual.sala];
+      const propio = this.borradorDe(actual);
       const estado = this.soyD() ? (propio ?? abierta ?? inicial) : (abierta ?? inicial);
       asignar(etapa, { sala: actual.sala, puzzle: actual.puzzle.id, etapa: actual.etapa });
       asignar(mecanismo, estado);
@@ -443,7 +452,7 @@ export class JuegoCoop {
         const actual = this.etapaEnCurso(f);
         if (!actual || !this.soyD()) return;
         if (evaluar(actual.puzzle, actual.etapa, c.estado) === null) return;
-        this.borrador[actual.sala] = copiar(c.estado);
+        this.borrador[actual.sala] = { etapa: actual.etapa, estado: copiar(c.estado) };
         this.publicar(f);
         return;
       }
@@ -517,7 +526,7 @@ export class JuegoCoop {
   private proponer(f: Foto): void {
     const actual = this.etapaEnCurso(f);
     if (!actual || !this.soyD()) return;
-    const estado = this.borrador[actual.sala] ?? actual.puzzle.etapas[actual.etapa]?.estado_inicial;
+    const estado = this.borradorDe(actual) ?? actual.puzzle.etapas[actual.etapa]?.estado_inicial;
     if (estado === undefined || evaluar(actual.puzzle, actual.etapa, estado) === null) return;
     this.enviarIntencion({
       t: 'proponer',
