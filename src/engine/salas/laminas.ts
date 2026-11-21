@@ -917,9 +917,9 @@ function cartel({ ctx, w, h, base, lamina, rnd, marcas }: Dibujo): void {
   ctx.stroke();
   ctx.globalAlpha = 1;
   const dentro = { x: m * 2.6, y: m * 2.4, w: w - m * 5.2, h: h - m * 4.8 };
-  // Flecha: un cuadrado del alto de adentro, a su lado.
+  // Flecha: un cuadrado a su lado, más bajo que el cartel para dejarle ancho al texto.
   if (lamina.flecha) {
-    const lado = Math.min(dentro.h, dentro.w * 0.3);
+    const lado = Math.min(dentro.h * 0.75, dentro.w * 0.22);
     const x = lamina.flecha === 'izquierda' ? dentro.x : dentro.x + dentro.w - lado;
     dibujarFlecha(ctx, x, dentro.y + (dentro.h - lado) / 2, lado, lamina.flecha, tinta);
     dentro.w -= lado + m;
@@ -928,10 +928,13 @@ function cartel({ ctx, w, h, base, lamina, rnd, marcas }: Dibujo): void {
   // Sello: un círculo casi del alto del cartel, a la derecha; el texto se corre a la izquierda.
   const sello = marcas.sello;
   const diametro = Math.min(h * 0.92, w * 0.4);
-  if (sello !== undefined) dentro.w -= diametro * 0.8;
+  // El texto termina un margen antes del borde izquierdo del sello.
+  const xSello = w - m * 1.2 - diametro / 2;
+  if (sello !== undefined) dentro.w = xSello - diametro / 2 - m - dentro.x;
   const centro = dentro.x + dentro.w / 2;
   const hayLineas = Boolean(lamina.lineas?.length);
-  const altoTitulo = hayLineas ? dentro.h * 0.38 : dentro.h * 0.6;
+  // Sin renglones, el título llena el cartel: se lee desde el otro lado del pasillo.
+  const altoTitulo = hayLineas ? dentro.h * 0.38 : dentro.h * 0.75;
   if (lamina.titulo) {
     textoAjustado(
       ctx,
@@ -955,7 +958,7 @@ function cartel({ ctx, w, h, base, lamina, rnd, marcas }: Dibujo): void {
     'center',
   );
   if (sello !== undefined) {
-    selloDeSala(ctx, w - m * 1.2 - diametro / 2, h / 2, diametro, sello, rnd);
+    selloDeSala(ctx, xSello, h / 2, diametro, sello, rnd);
   }
 }
 

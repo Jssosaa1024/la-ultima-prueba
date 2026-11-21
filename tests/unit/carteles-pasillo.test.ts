@@ -23,6 +23,7 @@ import { sellos } from '../../src/signals/partida';
 interface Llamada {
   metodo: string;
   args: unknown[];
+  font: string;
   fillStyle: unknown;
 }
 
@@ -36,7 +37,7 @@ function lienzoFalso(): { ctx: CanvasRenderingContext2D; llamadas: Llamada[] } {
       if (clave in objetivo) return objetivo[clave];
       return (...args: unknown[]) => {
         const metodo = String(clave);
-        llamadas.push({ metodo, args, fillStyle: objetivo.fillStyle });
+        llamadas.push({ metodo, args, font: String(objetivo.font), fillStyle: objetivo.fillStyle });
         if (metodo === 'save') pila.push({ ...objetivo });
         if (metodo === 'restore') Object.assign(objetivo, pila.pop());
         if (metodo === 'measureText') {
@@ -121,6 +122,15 @@ describe('carteles del pasillo: el sello', () => {
     expect(colores(con.llamadas)).toContain(SELLOS_DE_SALA[0]?.color);
     for (const t of ['SALA 1', 'COOPERATIVA']) {
       expect(textos(con.llamadas).get(t)).toBeLessThan(textos(sin.llamadas).get(t) ?? 0);
+    }
+    // Ningún texto se mete debajo del sello: termina antes de su borde izquierdo.
+    const traslado = con.llamadas.find((l) => l.metodo === 'translate');
+    const [xSello = 0] = (traslado?.args ?? []).map(Number);
+    const radio = Math.min(H * 0.92, W * 0.4) / 2;
+    for (const l of con.llamadas.filter((x) => x.metodo === 'fillText')) {
+      const tam = Number(/(\d+(?:\.\d+)?)px/.exec(l.font)?.[1] ?? 0);
+      const derecha = Number(l.args[1]) + (String(l.args[0]).length * tam * 0.55) / 2;
+      expect(derecha, String(l.args[0])).toBeLessThan(xSello - radio);
     }
   });
 
