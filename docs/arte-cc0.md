@@ -110,6 +110,21 @@ Alex pidió reemplazar los productos de la cooperativa, que eran piezas por cód
 - **Lo que el paquete no tiene:** empanada. Hay taco, croissant y dim sum, pero ninguno se lee como empanada. La empanada en su plato y las tres etiquetas de precio siguen por código (`s1-productos-detalle`, pieza `detalle-productos`), sin dibujo, unidas a la malla fija: cero draw calls. Esa pieza agrega una repisa de exhibición de 1,2 cm bajo la fila: los productos van delante del estante del fondo (más atrás, su caja de choque taparía el toque) y sin repisa se veían flotando.
 - **Toque:** la empanada y las etiquetas quedan dentro de las cajas de toque de `s1-productos`. La malla fija no se toca, y si algo suyo asomara delante, tocarlo no abriría los productos. Lo revisa `tests/unit/productos-s1.test.ts`.
 
+## Mini Characters: los compañeros del cooperativo (T83c)
+
+Alex decidió cambiar la cápsula de los compañeros por estudiantes low-poly CC0 animados, en el estilo de las salas. Se compararon Kenney Mini Characters, Blocky Characters y Animated Characters 1 a 3, y los de KayKit. KayKit no tiene gente común gratis (sus personajes son de fantasía o de series de pago); Blocky gasta unas 6 draw calls por personaje; Animated Characters no trae caminar y mezcla zombis.
+
+| Paquete | Página | Zip | Captura |
+| --- | --- | --- | --- |
+| Mini Characters 2.0 | <https://kenney.nl/assets/mini-characters> | `art/compartido/originales/kenney-mini-characters/kenney_mini-characters.zip` (3,9 MB) | `art/evidencia/kenney-mini-characters.png` |
+
+- La captura muestra la imagen del paquete con «CC0 1.0» y la fecha (21 de noviembre de 2026), y el `License.txt` del zip dice «Creative Commons Zero, CC0».
+- Cada personaje es un GLB con dos mallas con piel (cuerpo y cabeza), 7 huesos (`root`, piernas, `torso`, brazos, `head`), unos 800 triángulos, la paleta `Textures/colormap.png` (512 px) y 32 clips. Miran a +Z.
+- **Publicados:** `compartido/estudiante-a` a `-d` = `character-female-b`, `male-a`, `female-c` y `male-f`: los que se ven más jóvenes. Uno por color (ámbar, turquesa, violeta, coral). Fuera: el policía, el de traje, el de barba, el del parche, el científico, el obrero con casco, la de bastón y los seis temáticos (alien, caballero, saqueador, robot, soldado, zombi), además de las armas sueltas.
+- **Perfil `personaje`** (`scripts/perfiles/personaje.ts`, por el campo `animado` de `art/modelos.json`): solo `idle` y `walk`; cuerpo y cabeza en una malla (1 draw call); sin tangentes; 1,4 m de alto; la camiseta y las mangas marcadas por su bloque de color en la paleta (`_TINTE`), para pintarlas del color del jugador. Unos 94 KB cada uno.
+- **Lo que el paquete no tiene:** un saludo con la mano. El más parecido es `emote-yes` (asentir). El saludo es un clip por código que gira el brazo derecho (`clipSaludo`).
+- **Accesorios del paquete** (sillas de ruedas, bastones, gafas, maletas): no se usan por ahora.
+
 ## Acabados por código (T19j)
 
 Con KayKit los muebles ya se veían bien, pero las salas seguían siendo cajas: paredes lisas, luz pareja y nada en el techo. Sin paquetes nuevos, el motor agrega (`src/engine/salas/acabados.ts`) a las salas que tienen `acabados` en `salas.json`:
