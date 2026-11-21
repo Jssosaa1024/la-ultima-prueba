@@ -521,11 +521,35 @@
           "idioma": "es-CO",
           "sha256": "3291f0e08c75223a38e916f7ef4bdc901dd541953bf1072a9aedd31d4b967d43",
           "bytes": 29149
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-10a.m4a",
+          "idioma": "es-CO",
+          "sha256": "a9fc6b6fac1a3b898e8f7f0feee19eaa93472876fd59d315e393a261fc0aacbd",
+          "bytes": 29555
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-11b.m4a",
+          "idioma": "es-CO",
+          "sha256": "a7069ef180cc8bb9414c16625b5815a0a26e127523ccb12cdddbe618fecf9d0d",
+          "bytes": 25301
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-aseo.m4a",
+          "idioma": "es-CO",
+          "sha256": "1093c40152339d53f836756fa29a8612f913f50a7dea043430c7fb1347f46dc1",
+          "bytes": 34953
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-profesores.m4a",
+          "idioma": "es-CO",
+          "sha256": "b1db960d29f8c465055263b0dc3b72fabc5861ba2afa3fc84aee8a5e89a528df",
+          "bytes": 23387
         }
       ],
       "totales": {
         "bytes": 154112,
-        "bytesAudio": 270884,
+        "bytesAudio": 384080,
         "triangulos": 2616,
         "drawCalls": 11,
         "bytesGpu": 441258

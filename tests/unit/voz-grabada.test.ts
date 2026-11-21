@@ -202,16 +202,11 @@ describe('dónde se publica la voz', () => {
 });
 
 /**
- * Líneas nuevas que la sesión A todavía no grabó (`npm run voz -- --solo …`): las de las puertas
- * falsas del pasillo (docs/pasillos.md). Mientras tanto el juego muestra el subtítulo con su
- * duración estimada. Al grabarlas, se quitan de aquí: la prueba de abajo avisa.
+ * Líneas nuevas que la sesión A todavía no grabó (`npm run voz -- --solo …`). Mientras tanto el
+ * juego muestra el subtítulo con su duración estimada. Al grabarlas, se quitan de aquí: la prueba
+ * de abajo avisa. Las cuatro de las puertas falsas del pasillo se grabaron en T77h.
  */
-const POR_GRABAR: readonly string[] = [
-  'voz-pasillo-profesores',
-  'voz-pasillo-10a',
-  'voz-pasillo-11b',
-  'voz-pasillo-aseo',
-];
+const POR_GRABAR: readonly string[] = [];
 
 describe('líneas por grabar', () => {
   it('siguen sin audio: cuando se graben, se quitan de POR_GRABAR', () => {
