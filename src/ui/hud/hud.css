@@ -161,14 +161,12 @@
 /*
  * La frase de una puerta falsa del pasillo: una tirita de papel del archivo (colores de
  * `ui/tema.css`), un poco torcida, con el rótulo de la puerta a máquina. Mismo lugar que el
- * aviso: abajo, sin tapar el centro ni recibir toques. Tinta sobre papel 12,5:1.
+ * aviso: abajo, sin tapar el centro ni recibir toques; ancha y de un renglón en un celular
+ * horizontal. Tinta sobre papel 12,5:1.
  */
 .hud-aviso-archivo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-width: min(24rem, calc(100% - 24px));
-  padding: 8px 14px 10px;
+  max-width: min(36rem, calc(100% - 24px));
+  padding: 7px 14px;
   border: 1px solid var(--tema-papel-borde);
   border-radius: var(--tema-radio);
   background: var(--tema-grano), var(--tema-envejecido), var(--tema-papel);
@@ -180,7 +178,9 @@
   animation: hud-aviso-entra 180ms ease-out;
 }
 
+/* El rótulo va delante de la frase, en la misma línea: así la tirita es baja y no sube. */
 .hud-aviso-rotulo {
+  margin-right: 0.5em;
   color: var(--tema-tinta-suave);
   font-family: var(--tema-letra-maquina);
   font-size: 0.8125rem;
