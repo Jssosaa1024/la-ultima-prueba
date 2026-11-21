@@ -28,8 +28,11 @@ import { MAX_JUGADORES, ROLES } from '../game/reparto';
  * descarta completo.
  */
 
-/** v2 (T81b): intención `elegir` y `apariencias` en la foto. */
-export const VERSION_PROTOCOLO = 2;
+/**
+ * v2 (T81b): intención `elegir` y `apariencias` en la foto.
+ * v3: las condiciones del resultado admiten guion (los sensores del reflector: `poste-2`).
+ */
+export const VERSION_PROTOCOLO = 3;
 
 /** Versión del contenido: si no coincide, la unión se rechaza («Actualiza la página»). */
 export const VERSION_CONTENIDO = PUZZLES.map((p) => p.version).join('.');
@@ -121,7 +124,7 @@ export function esIdentidad(x: unknown): x is Identidad {
 const OBJETOS: ReadonlySet<string> = new Set(SALAS_3D.flatMap((s) => s.objetos.map((o) => o.id)));
 const LUGARES: readonly string[] = ['porteria', ...SALAS];
 const PUZZLE_IDS: readonly string[] = PUZZLES.map((p) => p.id);
-const RE_CONDICION = /^[a-z0-9_]{1,24}$/;
+const RE_CONDICION = /^[a-z0-9_-]{1,24}$/;
 const RE_CID_NUM = /^[0-9]{1,9}$/;
 
 export const esObjetoConocido = (x: unknown): x is string =>

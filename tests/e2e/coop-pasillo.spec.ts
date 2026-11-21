@@ -14,15 +14,16 @@ import {
 // Pasillos (sesión B): el cooperativo por el pasillo en U de la portería (docs/pasillos.md),
 // con dos pestañas y el transporte de prueba. El grupo camina por el pasillo, entra a cada sala
 // por votación, quien tiene el encargo D propone en la máquina y el otro acepta, vuelve al
-// pasillo frente a la puerta de la sala y sigue a la siguiente.
-//
-// Por ahora juega las salas 1 y 2 y llega a la puerta 3: en grupo, el panel del reflector de
-// quien tiene D desaparece en la etapa 2 y la propuesta no llega (lógica del anfitrión probada
-// en unidad: resuelve las tres etapas). Ese fallo no es del pasillo y queda para su propia tarea
-// (docs/reportes/pasillos-sesion-B.md). Cuando se arregle, `SALAS_EN_GRUPO` pasa a las cinco y
-// la prueba termina eligiendo el final por votación.
+// pasillo frente a la puerta de la sala y sigue a la siguiente. Con los cinco sellos, Jaguar
+// abre la puerta de salida, propone «Salir» y Búho acepta: las dos pestañas ven «Justo a tiempo».
 
-const SALAS_EN_GRUPO = ['s1-cooperativa', 's2-laboratorio'] as const;
+const SALAS_EN_GRUPO = [
+  's1-cooperativa',
+  's2-laboratorio',
+  's3-gimnasio',
+  's4-biblioteca',
+  's5-rectoria',
+] as const;
 
 async function cajaDe(p: Page): Promise<Caja> {
   const canvas = p.getByLabel('Escena del juego');
@@ -46,13 +47,13 @@ async function quienTieneD(a: Page, b: Page): Promise<[Page, Page]> {
   return /\bD\b/.test(texto) ? [a, b] : [b, a];
 }
 
-test('dos jugadores recorren el pasillo y juegan las salas en grupo', async ({
+test('dos jugadores recorren el pasillo, juegan las cinco salas y salen por votación', async ({
   page,
   context,
 }, info) => {
   test.skip(info.project.name === 'escritorio', 'El cooperativo completo se juega en celular');
-  // Dos pestañas y seis etapas con el WebGL dibujado por la CPU.
-  test.setTimeout(15 * 60_000);
+  // Dos pestañas y quince etapas con el WebGL dibujado por la CPU.
+  test.setTimeout(40 * 60_000);
   const conDedo = info.project.use.hasTouch === true;
   const { a, b } = await empezarCoop(context, page);
   const cajaA = await cajaDe(a);
@@ -108,9 +109,17 @@ test('dos jugadores recorren el pasillo y juegan las salas en grupo', async ({
     await expect(b.getByLabel('Escena del juego')).toHaveAttribute('data-sala', 'porteria');
   }
 
-  // Con dos sellos, la puerta 3 (al fondo del tramo 2) ya abre el voto para el gimnasio.
-  await usar(a, cajaA, conDedo, 'porteria-puerta-3');
-  await expect(barra(b)).toContainText(`Jaguar propone ir a ${salaPorId('s3-gimnasio').nombre}`, {
-    timeout: 60_000,
-  });
+  // Con los cinco sellos, Jaguar elige «Salir» en la puerta de salida y Búho acepta el voto.
+  await usar(a, cajaA, conDedo, 'porteria-salida');
+  const salida = a.getByRole('dialog', { name: 'Puerta de salida' });
+  await expect(salida).toContainText('Los cinco sellos están en el mural');
+  await salida.getByRole('button', { name: 'Salir', exact: true }).click();
+  // Faltan las tres grabaciones: la puerta pide confirmar antes de proponer.
+  await salida.getByRole('button', { name: 'Salir de todos modos' }).click();
+  await aceptarVoto(b, 'Jaguar propone salir del colegio');
+  for (const p of [a, b]) {
+    await expect(p.getByRole('heading', { level: 1, name: 'Justo a tiempo' })).toBeVisible({
+      timeout: 60_000,
+    });
+  }
 });

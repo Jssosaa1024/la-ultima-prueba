@@ -83,7 +83,7 @@ describe('el pedido con que se une', () => {
 });
 
 describe('protocolo de la elección', () => {
-  const sobre = (p: unknown) => ({ v: 2, t: 'elegir', de: A, cid: `${A}-1`, n: null, p });
+  const sobre = (p: unknown) => ({ v: 3, t: 'elegir', de: A, cid: `${A}-1`, n: null, p });
   it('solo viajan ids de las listas', () => {
     expect(validar('int', sobre({ alias: 'oso', color: 'coral' })).ok).toBe(true);
     expect(validar('int', sobre({ alias: 'Pedro', color: 'coral' })).ok).toBe(false);

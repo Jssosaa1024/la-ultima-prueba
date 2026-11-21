@@ -98,7 +98,7 @@ describe('identidad de Presence', () => {
 });
 
 describe('sobre de intenciones (int)', () => {
-  const ok = (t: object) => validar('int', { v: 2, de: J1, cid: `${J1}-1`, n: null, ...t });
+  const ok = (t: object) => validar('int', { v: 3, de: J1, cid: `${J1}-1`, n: null, ...t });
 
   it('acepta cada tipo de la especificación con contenido válido', () => {
     const validas = [
@@ -159,7 +159,7 @@ describe('sobre de intenciones (int)', () => {
   });
 
   it('rechaza versión, campos de más o de menos, y cid de otro jugador', () => {
-    const base = { v: 2, t: 'listo', de: J1, cid: `${J1}-1`, n: null, p: { listo: true } };
+    const base = { v: 3, t: 'listo', de: J1, cid: `${J1}-1`, n: null, p: { listo: true } };
     expect(validar('int', base)).toMatchObject({ ok: true });
     expect(validar('int', { ...base, v: 1 })).toEqual({ ok: false, motivo: 'version' });
     expect(validar('int', { ...base, extra: 1 })).toEqual({ ok: false, motivo: 'forma' });
@@ -232,7 +232,7 @@ describe('sobre de eventos (evt)', () => {
   });
 
   it('no existe el evento nota', () => {
-    expect(validar('evt', { v: 2, t: 'nota', de: J1, cid: null, n: 1, p: {} })).toEqual({
+    expect(validar('evt', { v: 3, t: 'nota', de: J1, cid: null, n: 1, p: {} })).toEqual({
       ok: false,
       motivo: 'tipo',
     });
@@ -254,6 +254,8 @@ describe('sobre de eventos (evt)', () => {
         }),
       );
     expect(r({ precio: false })).toMatchObject({ ok: true });
+    // Los sensores del reflector (sala 3) llevan guion: sin él, el resultado se perdía (v3).
+    expect(r({ 'poste-1': true, 'poste-3': false })).toMatchObject({ ok: true });
     expect(r({ 'Hola mundo': true })).toMatchObject({ ok: false });
     expect(r({ precio: 'sí' })).toMatchObject({ ok: false });
     expect(r({})).toMatchObject({ ok: false });
@@ -293,9 +295,9 @@ describe('sobre de directos (dir)', () => {
 
 describe('tamaño', () => {
   it('rechaza mensajes de más de 1 KB y fotos de más de 8 KB', () => {
-    expect(VERSION_PROTOCOLO).toBe(2);
+    expect(VERSION_PROTOCOLO).toBe(3);
     const grande = {
-      v: 2,
+      v: 3,
       t: 'listo',
       de: J1,
       cid: `${J1}-1`,

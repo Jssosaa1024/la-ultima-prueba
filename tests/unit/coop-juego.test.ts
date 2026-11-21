@@ -15,7 +15,17 @@ import {
 import { datosEncontrados, notas } from '../../src/signals/cuaderno';
 import { aviso, enfocado, panel, type AccionObjeto } from '../../src/signals/interfaz';
 import { etapa, mecanismo, pistas, pistasVistas, resultado } from '../../src/signals/mecanismo';
-import { avance, fase, inventario, modo, reloj, sala } from '../../src/signals/partida';
+import {
+  avance,
+  fase,
+  inventario,
+  modo,
+  reloj,
+  sala,
+  SALAS_CON_SELLO,
+} from '../../src/signals/partida';
+import { PUZZLES } from '../../src/content/puzzles';
+import { esEstadoValido } from '../../src/game/puzzles';
 import { enviar } from '../../src/signals/puente';
 import type { Foto } from '../../src/game/coop/mensajes';
 
@@ -212,6 +222,79 @@ describe('partida cooperativa en este navegador', () => {
     expect(avance.value['s1-cooperativa']).toBe(1);
     expect(etapa.value).toMatchObject({ etapa: 1 });
     expect(propuestaCoop.value).toBeNull();
+  });
+
+  it('el grupo resuelve las tres etapas de las cinco salas, sea quien sea D', async () => {
+    const yo = coop.value.jugadores.find((j) => j.yo)?.jugador ?? '';
+    for (const [i, puzzle] of PUZZLES.entries()) {
+      const destino = SALAS_CON_SELLO[i];
+      if (!destino) throw new Error('sin sala');
+      await otro.enviar({ t: 'votar', p: { asunto: 'sala', opcion: destino, acepta: true } });
+      enviar({ t: 'votar', asunto: 'sala', opcion: destino, acepta: true });
+      await asentar();
+      expect(sala.value).toBe(destino);
+      for (const [n, datos] of puzzle.etapas.entries()) {
+        expect(etapa.value).toMatchObject({ puzzle: puzzle.id, etapa: n });
+        if (misRoles.value.includes('D')) {
+          // Como el panel: prueba los ajustes de la solución y los propone.
+          enviar({ t: 'ajustar', estado: datos.solucion });
+          await asentar();
+          expect(mecanismo.value).toEqual(datos.solucion);
+          enviar({ t: 'proponer' });
+          await asentar();
+          expect(propuestaCoop.value).toMatchObject({ etapa: n, por: yo });
+          const id = otro.foto?.propuesta?.id ?? 0;
+          await otro.enviar({ t: 'confirmar', p: { propuesta: id, acepta: true } });
+        } else {
+          await otro.enviar({
+            t: 'proponer',
+            p: { puzzle: puzzle.id, etapa: n, estado: datos.solucion },
+          });
+          await asentar();
+          expect(propuestaCoop.value).toMatchObject({ etapa: n, estado: datos.solucion });
+          enviar({ t: 'confirmar', acepta: true });
+        }
+        await asentar();
+        expect(resultado.value).toMatchObject({ puzzle: puzzle.id, etapa: n, resuelta: true });
+        // El panel dibuja el estado de la etapa que sigue: tiene que valer para ella.
+        const siguiente = etapa.value;
+        if (siguiente) {
+          expect(esEstadoValido(puzzle, siguiente.etapa, mecanismo.value)).toBe(true);
+        }
+      }
+      expect(avance.value[destino]).toBe(puzzle.etapas.length);
+    }
+  });
+
+  it('si a D no le llega el resultado, su borrador no pasa a la etapa siguiente', async () => {
+    await otro.enviar({
+      t: 'votar',
+      p: { asunto: 'sala', opcion: 's1-cooperativa', acepta: true },
+    });
+    enviar({ t: 'votar', asunto: 'sala', opcion: 's1-cooperativa', acepta: true });
+    await asentar();
+    const [primera, segunda] = PUZZLES[0]?.etapas ?? [];
+    if (!primera || !segunda) throw new Error('sin etapas');
+    enviar({ t: 'ajustar', estado: primera.solucion });
+    enviar({ t: 'accionar', objeto: 's1-palanca' });
+    await asentar();
+    const yo = coop.value.jugadores.find((j) => j.yo)?.jugador ?? '';
+    // El otro acepta y la máquina responde, pero a este navegador no le llega nada.
+    red.configurar({ perdida: (canal, _de, a) => (canal === 'evt' && a === yo ? 1 : 0) });
+    await otro.enviar({
+      t: 'confirmar',
+      p: { propuesta: otro.foto?.propuesta?.id ?? 0, acepta: true },
+    });
+    await asentar();
+    expect(avance.value['s1-cooperativa']).toBe(0);
+    // La foto periódica lo pone al día: ya va en la etapa 2, con sus ajustes iniciales.
+    red.configurar({ perdida: 0 });
+    red.avanzar(16_000);
+    otro.tick();
+    await asentar();
+    expect(avance.value['s1-cooperativa']).toBe(1);
+    expect(etapa.value).toMatchObject({ etapa: 1 });
+    expect(mecanismo.value).toEqual(segunda.estado_inicial);
   });
 
   it('una pista que abre uno queda en el cuaderno de todos (T86)', async () => {
