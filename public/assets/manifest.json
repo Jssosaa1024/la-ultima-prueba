@@ -4,6 +4,74 @@
     "compartido": {
       "archivos": [
         {
+          "archivo": "salas/compartido/estudiante-a.f2cb968a.glb",
+          "sha256": "f2cb968a3d99ddf4a7075c0c17dfa58e4d95cbd4d487d448816a9ea9e30e1cbc",
+          "bytes": 96120,
+          "triangulos": 790,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "colormap",
+              "ancho": 512,
+              "alto": 512,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 174326
+            }
+          ]
+        },
+        {
+          "archivo": "salas/compartido/estudiante-b.d98d58fd.glb",
+          "sha256": "d98d58fd7c427f8983ba53c7ed5b452f785f8a9b2494e0ed98fa8ecb2f3286a2",
+          "bytes": 95748,
+          "triangulos": 771,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "colormap",
+              "ancho": 512,
+              "alto": 512,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 174326
+            }
+          ]
+        },
+        {
+          "archivo": "salas/compartido/estudiante-c.93d9f966.glb",
+          "sha256": "93d9f966b756c7191c6c64a7b5e7e0ed54eca884e3c9e2bf1562370c33c9c11e",
+          "bytes": 96320,
+          "triangulos": 780,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "colormap",
+              "ancho": 512,
+              "alto": 512,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 174326
+            }
+          ]
+        },
+        {
+          "archivo": "salas/compartido/estudiante-d.05fd22d3.glb",
+          "sha256": "05fd22d38b37b74643841509b98e09461eeb718125448e2ee6eecbd9b7e106d0",
+          "bytes": 96092,
+          "triangulos": 749,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "colormap",
+              "ancho": 512,
+              "alto": 512,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 174326
+            }
+          ]
+        },
+        {
           "archivo": "salas/compartido/paredes.b1f51ac9.ktx2",
           "sha256": "b1f51ac9b6d741a0dba2f6b7f9e84205170dbb9153e2952193e18c83449b8476",
           "bytes": 61714,
@@ -208,11 +276,11 @@
         }
       ],
       "totales": {
-        "bytes": 589704,
+        "bytes": 973984,
         "bytesAudio": 249681,
-        "triangulos": 0,
-        "drawCalls": 0,
-        "bytesGpu": 3137864
+        "triangulos": 3090,
+        "drawCalls": 4,
+        "bytesGpu": 3835168
       }
     },
     "porteria": {

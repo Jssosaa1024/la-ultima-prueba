@@ -423,7 +423,20 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     if (!enGrupo) return;
     void import('./coop/companeros').then(({ crearCompaneros }) => {
       if (detenido || este !== pedidoCompaneros) return;
-      companeros = crearCompaneros(escena, canvas);
+      companeros = crearCompaneros(escena, canvas, {
+        camara,
+        // T83c: el paquete de personajes, con el mismo cargador de las salas.
+        cargarModelo: async () => {
+          await fuentesAssets();
+          const [{ cargarModeloPersonajes }, i] = await Promise.all([
+            import('./coop/modelo-personajes'),
+            pedirIndiceUnaVez(),
+          ]);
+          const c = cargadorAssets;
+          if (!c || detenido) return null;
+          return cargarModeloPersonajes(i, (url) => c.cargar(url));
+        },
+      });
     });
   });
 
