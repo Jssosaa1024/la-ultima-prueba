@@ -3,7 +3,7 @@ import type { Puzzle } from '../content/esquema';
 import { fichasDeLugar } from '../content/fichas';
 import { grabacionDeObjeto, esObjetoSuelto } from '../content/grabaciones';
 import { puzzleDeSala } from '../content/puzzles';
-import { destinoDePuerta, nombreDeObjeto, SALAS_3D } from '../content/salas';
+import { destinoDePuerta, fraseDePuertaFalsa, nombreDeObjeto, SALAS_3D } from '../content/salas';
 import { resumenDeAprendizaje } from '../game/aprendizaje';
 import type { Directo, Evento, Foto, Intencion, UbicacionObjeto } from '../game/coop/mensajes';
 import { esRecogible, lugarInicial, puzzlePorId, REQUIERE_HERRAMIENTA } from '../game/coop/mundo';
@@ -72,6 +72,7 @@ import {
   type ObjetoInventario,
 } from './partida';
 import type { Comando } from './puente';
+import { tocarPuertaFalsa } from './puertas-falsas';
 import { decir } from './voz';
 
 /**
@@ -574,6 +575,12 @@ export class JuegoCoop {
         return false;
       }
       this.enviarIntencion({ t: 'votar', p: { asunto: 'sala', opcion: destino, acepta: true } });
+      return false;
+    }
+    // Las puertas falsas del pasillo no abren ni se votan: cada uno oye su propia puerta.
+    const falsa = fraseDePuertaFalsa(objeto);
+    if (falsa) {
+      tocarPuertaFalsa(falsa, this.dichas);
       return false;
     }
     if (f.lugar !== 'porteria') {

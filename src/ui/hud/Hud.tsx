@@ -20,8 +20,10 @@ import {
   totalSellos,
 } from '../../signals/partida';
 import { enviar } from '../../signals/puente';
-import { formatoReloj, relojEnPalabras, textoDeAviso } from './formato';
+import { frasePuertaFalsa } from '../../content/puertas-falsas';
+import { duracionDeAviso, formatoReloj, relojEnPalabras, textoDeAviso } from './formato';
 import '../botones.css';
+import '../tema.css';
 import './hud.css';
 
 const VERBO: Record<AccionObjeto, string> = {
@@ -139,21 +141,32 @@ function Sellos() {
   );
 }
 
-/** Segundos que se ve un aviso antes de borrarse solo. */
-const DURACION_AVISO_MS = 6000;
-
 /**
  * Lo que el mundo le muestra al jugador sin abrir un panel (una puerta que sigue cerrada).
- * El lector de pantalla lo oye por el `Anunciador`.
+ * Se va solo. El lector de pantalla lo oye por el `Anunciador`.
+ *
+ * La frase de una puerta falsa del pasillo sale en una tirita de papel del archivo, con el
+ * rótulo de la puerta en máquina de escribir; si la dice La Voz, ya está en el subtítulo y
+ * aquí no se repite.
  */
 function AvisoHud() {
   const actual = aviso.value;
   useEffect(() => {
     if (!actual) return;
-    const id = window.setTimeout(cerrarAviso, DURACION_AVISO_MS);
+    const id = window.setTimeout(cerrarAviso, duracionDeAviso(actual));
     return () => window.clearTimeout(id);
   }, [actual]);
   if (!actual) return null;
+  if (actual.t === 'puerta_falsa') {
+    if (actual.hablada) return null;
+    const rotulo = frasePuertaFalsa(actual.frase)?.rotulo;
+    return (
+      <div class="hud-aviso hud-aviso-archivo" aria-hidden="true">
+        {rotulo && <span class="hud-aviso-rotulo">{rotulo}</span>}
+        <span class="hud-aviso-frase">{textoDeAviso(actual)}</span>
+      </div>
+    );
+  }
   return <p class="hud-aviso">{textoDeAviso(actual)}</p>;
 }
 

@@ -91,6 +91,15 @@ describe('escucharMomentos', () => {
     dejar();
   });
 
+  it('una puerta falsa del pasillo traquetea igual, cada vez', () => {
+    const { sonidos, dejar } = escuchar();
+    avisar({ t: 'puerta_falsa', frase: 'banos', hablada: false });
+    avisar({ t: 'puerta_falsa', frase: 'banos', hablada: false });
+    avisar({ t: 'puerta_falsa', frase: 'aseo', hablada: true });
+    expect(sonidos).toEqual(['puerta-cerrada', 'puerta-cerrada', 'puerta-cerrada']);
+    dejar();
+  });
+
   it('usar la registradora suena con teclas; los paneles del HUD no suenan', () => {
     const { sonidos, dejar } = escuchar();
     enfocado.value = { id: 's1-registradora', nombre: 'Registradora', accion: 'usar' };

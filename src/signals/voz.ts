@@ -18,11 +18,16 @@ export const MAX_COLA = 3;
 /** Ids de las líneas por decir, en orden. La primera es la que se ve. */
 export const colaVoz = signal<readonly string[]>([]);
 
-/** Pide una línea. Se ignora si no existe en el guion, si ya está en la cola o si está llena. */
-export function decir(id: string): void {
+/**
+ * Pide una línea. Se ignora si no existe en el guion, si ya está en la cola o si está llena.
+ * Devuelve si la línea quedó en la cola (o ya estaba).
+ */
+export function decir(id: string): boolean {
   const cola = colaVoz.value;
-  if (!lineaPorId(id) || cola.includes(id) || cola.length >= MAX_COLA) return;
+  if (cola.includes(id)) return true;
+  if (!lineaPorId(id) || cola.length >= MAX_COLA) return false;
   colaVoz.value = [...cola, id];
+  return true;
 }
 
 /** La línea `id` terminó de verse: pasa a la siguiente. */
