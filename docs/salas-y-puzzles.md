@@ -77,9 +77,9 @@ Flujo: Portería (tutorial) → Sala 1 → Sala 2 → Sala 3 → Sala 4 → Sala
 
 ### La portería (hub)
 
-Un pasillo de 6 × 10 m con la puerta de salida al fondo y cinco puertas laterales numeradas. Contiene:
+Un vestíbulo de 6 × 10 m con la puerta de salida al fondo. Desde el 21 de noviembre de 2026 (decisión de Alex) las salas no se abren desde sus paredes: de la portería sale un pasillo en U con las cinco puertas numeradas, repartidas entre siete puertas falsas cerradas (aulas, baños, sala de profesores y cuarto del aseo). El plano está en `docs/pasillos.md`. La portería contiene:
 
-- **Mural de sellos:** cinco huecos con la silueta de cada sello (moneda, gota, balón, libro, llave). Al colocar uno se enciende la luz sobre la siguiente puerta.
+- **Mural de sellos:** cinco huecos con la silueta de cada sello (moneda, gota, balón, libro, llave). Al colocar uno se enciende la luz sobre la siguiente puerta del pasillo.
 - **Reloj de pared:** marca la hora del juego, de 23:59 a 00:39. Es el mismo reloj del HUD, pero diegético.
 - **Intercomunicador de emergencia:** botón rojo con tapa. Abrir la tapa pide confirmación; usarlo lleva al final «También vale pedir ayuda».
 - **Casillero de objetos perdidos:** detrás del vidrio se ve la memoria USB del jugador. Se abre con los cinco sellos. Es la motivación visible desde el minuto 0.
