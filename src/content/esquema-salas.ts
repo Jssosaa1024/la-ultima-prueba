@@ -1,5 +1,6 @@
 import { z } from 'astro/zod';
 import { LUGARES, type Lugar } from './lugares';
+import { rectangulosDe, type Rectangulo } from './tramos';
 
 /**
  * Esquema de la distribución de las salas (tarea «salas por código»).
@@ -25,7 +26,7 @@ import { LUGARES, type Lugar } from './lugares';
  *   `tam` y `pos` siguen siendo la caja que choca y la que se usa si el modelo no carga.
  */
 
-export { LUGARES, type Lugar };
+export { LUGARES, type Lugar, rectangulosDe, type Rectangulo };
 
 export const FORMAS = ['caja', 'cilindro', 'esfera', 'plano', 'grupo'] as const;
 export const ACCIONES = ['usar', 'recoger', 'examinar'] as const;
@@ -42,8 +43,13 @@ const idModelo = z
     /^[a-z0-9]+(-[a-z0-9]+)*$/,
     'Id de modelo: minúsculas, números y guiones, sin hash ni «.glb»',
   );
-/** `porteria-…` o `s1-…` a `s5-…`: minúsculas, números y guiones. */
-const idObjeto = z.string().regex(/^(porteria|s[1-5])-[a-z0-9]+(-[a-z0-9]+)*$/);
+/**
+ * `porteria-…`, `pasillo-…` (el pasillo es parte de la portería) o `s1-…` a `s5-…`:
+ * minúsculas, números y guiones.
+ */
+const idObjeto = z.string().regex(/^(porteria|pasillo|s[1-5])-[a-z0-9]+(-[a-z0-9]+)*$/);
+/** Id de una frase de puerta falsa (`src/content/puertas-falsas.json`). */
+export const ID_FRASE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 const pieza = z.strictObject({
   forma: z.enum(['caja', 'cilindro', 'esfera', 'plano']),
@@ -102,6 +108,11 @@ export const esquemaObjeto = z.strictObject({
   accion: z.enum(ACCIONES).optional(),
   /** Si es una puerta: a dónde lleva. */
   puerta: z.enum(LUGARES).optional(),
+  /**
+   * Opcional (pasillos): si es una puerta falsa del pasillo, el id de su frase en
+   * `src/content/puertas-falsas.json`. Está cerrada: tocarla solo da la frase.
+   */
+  falsa: z.string().regex(ID_FRASE).optional(),
   /** Piezas de un grupo (por ejemplo, los cinco carritos). */
   partes: z.array(pieza).min(1).optional(),
   /** Modelo CC0 del manifiesto que reemplaza a la primitiva (T19d). */
@@ -132,6 +143,19 @@ export type EstadoLampara = (typeof ESTADOS_LAMPARA)[number];
 
 /** Paredes por su lado: norte en −Z, sur en +Z, oeste en −X y este en +X. */
 export const PAREDES = ['norte', 'sur', 'oeste', 'este'] as const;
+
+/** Un intervalo [desde, hasta] en metros, con desde < hasta. */
+const intervalo = z
+  .tuple([metros, metros])
+  .refine(([a, b]) => a < b, 'El intervalo va de menor a mayor: [desde, hasta]');
+
+/**
+ * Un tramo de piso que se suma al rectángulo de la sala (pasillos, `docs/pasillos.md`): de
+ * `x[0]` a `x[1]` y de `z[0]` a `z[1]`, en las coordenadas de la sala. El motor pone piso y techo
+ * en cada tramo y levanta las paredes solo en el borde de la unión: donde un tramo toca a otro o
+ * a la sala, queda abierto.
+ */
+const tramo = z.strictObject({ x: intervalo, z: intervalo });
 
 /** Una ventana alta en una pared (T19k): el vidrio, sin contar el marco. */
 const ventana = z.strictObject({
@@ -219,6 +243,11 @@ export const esquemaSala = z.strictObject({
       ventanas: z.array(ventana).optional(),
     })
     .optional(),
+  /**
+   * Opcional (pasillos): tramos de piso que se suman a la sala, con la misma altura. Las
+   * lámparas de cada tramo siguen en `acabados.lamparas` después de las de la sala.
+   */
+  tramos: z.array(tramo).min(1).optional(),
   /** Dónde aparece el jugador al entrar y hacia dónde mira (grados, 0 = hacia −Z). */
   inicio: z.strictObject({ x: metros, z: metros, giro: metros }),
   objetos: z.array(esquemaObjeto).min(1),
@@ -227,6 +256,7 @@ export const esquemaSala = z.strictObject({
 export type ObjetoSala = z.infer<typeof esquemaObjeto>;
 export type Sala = z.infer<typeof esquemaSala>;
 export type PiezaObjeto = z.infer<typeof pieza>;
+export type Tramo = z.infer<typeof tramo>;
 
 // ---------- Reglas que el esquema no expresa ----------
 
@@ -251,6 +281,21 @@ export function medioTamano(o: Pick<ObjetoSala, 'forma' | 'tam' | 'giro'>): {
 
 const TOLERANCIA = 0.05;
 
+/** `true` si el punto cae en alguno de los rectángulos, con `margen` metros de holgura. */
+function dentro(rects: readonly Rectangulo[], x: number, z: number, margen: number): boolean {
+  return rects.some(
+    (r) =>
+      x >= r.x[0] - margen && x <= r.x[1] + margen && z >= r.z[0] - margen && z <= r.z[1] + margen,
+  );
+}
+
+/** Metros que dos rectángulos se montan uno sobre otro (0 si solo se tocan o están lejos). */
+function solape(a: Rectangulo, b: Rectangulo): number {
+  const x = Math.min(a.x[1], b.x[1]) - Math.max(a.x[0], b.x[0]);
+  const z = Math.min(a.z[1], b.z[1]) - Math.max(a.z[0], b.z[0]);
+  return x > 0 && z > 0 ? x * z : 0;
+}
+
 /**
  * Una línea del marcador: un rótulo opcional sin números ni signos («LOCAL») y después solo
  * dígitos, «:», «-» o espacios. Sin coma decimal ni «$»: son dígitos de siete segmentos.
@@ -261,17 +306,22 @@ export const LINEA_MARCADOR = /^([^\d.,$]*?)\s*([0-9][0-9: -]*)$/;
 export function problemasDeSala(sala: Sala): ProblemaSala[] {
   const problemas: ProblemaSala[] = [];
   const reportar = (mensaje: string) => problemas.push({ sala: sala.id, mensaje });
-  const prefijo = sala.id === 'porteria' ? 'porteria-' : `${sala.id.slice(0, 2)}-`;
+  const prefijos = sala.id === 'porteria' ? ['porteria-', 'pasillo-'] : [`${sala.id.slice(0, 2)}-`];
+  const rects = rectangulosDe(sala);
   const vistos = new Set<string>();
 
   for (const o of sala.objetos) {
-    if (!o.id.startsWith(prefijo))
-      reportar(`${o.id}: los ids de esta sala empiezan por «${prefijo}»`);
+    if (!prefijos.some((p) => o.id.startsWith(p))) {
+      reportar(`${o.id}: los ids de esta sala empiezan por «${prefijos.join('» o «')}»`);
+    }
     if (vistos.has(o.id)) reportar(`${o.id}: id repetido`);
     vistos.add(o.id);
     if (o.accion && !o.nombre) reportar(`${o.id}: un objeto con acción necesita nombre`);
     if (o.puerta && o.accion !== 'usar') reportar(`${o.id}: una puerta se usa («accion»: «usar»)`);
     if (o.puerta === sala.id) reportar(`${o.id}: la puerta lleva a la misma sala`);
+    if (o.falsa && (o.puerta || o.accion !== 'usar')) {
+      reportar(`${o.id}: una puerta falsa se usa («accion»: «usar») y no lleva a ninguna sala`);
+    }
     if ((o.forma === 'grupo') !== Boolean(o.partes)) {
       reportar(`${o.id}: un grupo necesita «partes» y solo un grupo las lleva`);
     }
@@ -294,9 +344,17 @@ export function problemasDeSala(sala: Sala): ProblemaSala[] {
 
     const m = medioTamano(o);
     const [x, y, z] = o.pos;
+    // Las cuatro esquinas de su huella y el centro deben caer en el piso de la sala o de un
+    // tramo (en una sala sin tramos, lo mismo que estar dentro del rectángulo).
+    const huella: [number, number][] = [
+      [x, z],
+      [x - m.x, z - m.z],
+      [x + m.x, z - m.z],
+      [x - m.x, z + m.z],
+      [x + m.x, z + m.z],
+    ];
     const fuera =
-      Math.abs(x) + m.x > sala.ancho / 2 + TOLERANCIA ||
-      Math.abs(z) + m.z > sala.fondo / 2 + TOLERANCIA ||
+      huella.some(([a, b]) => !dentro(rects, a, b, TOLERANCIA)) ||
       y < -TOLERANCIA ||
       y + o.tam[1] > sala.alto + TOLERANCIA;
     if (fuera && o.forma !== 'grupo') reportar(`${o.id}: queda fuera de la sala`);
@@ -305,6 +363,16 @@ export function problemasDeSala(sala: Sala): ProblemaSala[] {
   const { x, z } = sala.inicio;
   if (Math.abs(x) > sala.ancho / 2 - 0.3 || Math.abs(z) > sala.fondo / 2 - 0.3) {
     reportar('el punto de inicio queda fuera de la sala o pegado a una pared');
+  }
+
+  rects.forEach((a, i) => {
+    rects.slice(i + 1).forEach((b, k) => {
+      const nombre = (n: number) => (n === 0 ? 'la sala' : `el tramo ${n}`);
+      if (solape(a, b) > 1e-6) reportar(`${nombre(i)} y ${nombre(i + k + 1)} se montan`);
+    });
+  });
+  if (sala.tramos && sala.id !== 'porteria') {
+    reportar('solo la portería tiene tramos de pasillo');
   }
 
   const puertas = sala.objetos.filter((o) => o.puerta).map((o) => o.puerta);

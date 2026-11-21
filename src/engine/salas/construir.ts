@@ -44,6 +44,7 @@ import {
 import type { Object3D } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { ObjetoSala, Sala } from '../../content/esquema-salas';
+import { rectangulosDe } from '../../content/tramos';
 import { marcarInteractivo } from '../interaccion/interaccion';
 import { EXPOSICION } from '../renderer';
 import type { Caja } from '../jugador/colision';
@@ -51,6 +52,7 @@ import { crearAcabados } from './acabados';
 import { cajasDeColision, marcarSolido } from './colisiones';
 import { LAMINA, caraDeLamina, materialLamina, texturaLamina, uvLamina } from './laminas';
 import { crearPieza, materialPieza } from './piezas';
+import { esquinasDeAfuera, paredesDeRectangulos } from './planta';
 import { crearSombras, objetosConSombra } from './sombras';
 
 /** Grosor de las paredes, por fuera del piso. */
@@ -214,6 +216,47 @@ function crearCascaron(sala: Sala): Object3D[] {
   ];
 }
 
+/**
+ * Piso, techo y paredes de una sala con tramos de pasillo (`docs/pasillos.md`): piso y techo en
+ * cada rectángulo y una pared por cada tramo del borde de la unión (`planta.ts`), por fuera del
+ * piso, más el cuadrado de cada esquina de afuera. Donde un tramo toca a otro, queda abierto.
+ */
+function crearCascaronConTramos(sala: Sala): Object3D[] {
+  const { alto, colores } = sala;
+  const rects = rectangulosDe(sala);
+  const g = GROSOR_PARED;
+  const plano = (r: (typeof rects)[number], arriba: boolean): Mesh => {
+    const m = new Mesh(
+      new PlaneGeometry(r.x[1] - r.x[0], r.z[1] - r.z[0]).rotateX(
+        arriba ? Math.PI / 2 : -Math.PI / 2,
+      ),
+      material(arriba ? colores.techo : colores.piso),
+    );
+    m.position.set((r.x[0] + r.x[1]) / 2, arriba ? alto : 0, (r.z[0] + r.z[1]) / 2);
+    return superficie(m, arriba ? 'techo' : 'piso');
+  };
+  const caja = (largo: number, x: number, z: number, giro: number): Mesh => {
+    const m = new Mesh(
+      new BoxGeometry(largo, alto, g).translate(0, alto / 2, 0),
+      material(colores.paredes),
+    );
+    m.position.set(x, 0, z);
+    m.rotation.y = giro;
+    return superficie(marcarSolido(m), 'paredes');
+  };
+  const paredes = paredesDeRectangulos(rects).map((p) =>
+    // La caja va por fuera: su centro, medio grosor detrás de la cara (contra la normal).
+    caja(p.largo, p.x - (Math.sin(p.giro) * g) / 2, p.z - (Math.cos(p.giro) * g) / 2, p.giro),
+  );
+  const esquinas = esquinasDeAfuera(rects, g).map((e) => caja(g, e.x, e.z, 0));
+  return [
+    ...rects.map((r) => plano(r, false)),
+    ...rects.map((r) => plano(r, true)),
+    ...paredes,
+    ...esquinas,
+  ];
+}
+
 const material = (color: string): MeshLambertMaterial => new MeshLambertMaterial({ color });
 
 /** `true` si el objeto o alguno de sus padres tiene la marca `clave` en `userData`. */
@@ -367,7 +410,8 @@ export const LUZ_INICIAL: Readonly<NonNullable<Sala['luz']>> = {
 export function construirSala(sala: Sala): SalaConstruida {
   const raiz = new Group();
   raiz.name = sala.id;
-  raiz.add(...crearCascaron(sala), ...sala.objetos.map(crearObjeto));
+  const cascaron = sala.tramos ? crearCascaronConTramos(sala) : crearCascaron(sala);
+  raiz.add(...cascaron, ...sala.objetos.map(crearObjeto));
 
   // Primero las colisiones, con cada objeto por separado; después se une la geometría.
   const cajas = cajasDeColision(raiz);

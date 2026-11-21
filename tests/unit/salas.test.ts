@@ -16,6 +16,7 @@ import { SALAS_3D, destinoDePuerta, nombreDeObjeto, salaPorId } from '../../src/
 import { CAPSULA_JUGADOR, resolverSolapes } from '../../src/engine/jugador/colision';
 import { construirSala } from '../../src/engine/salas/construir';
 import { sinArte } from './sin-arte';
+import { llamadasPorCuadro } from './pasillo-de-prueba';
 
 /** Presupuesto por sala (AGENTS.md): 90.000 triángulos y 40 draw calls. */
 const MAX_TRIANGULOS = 90_000;
@@ -157,7 +158,8 @@ describe('salas armadas por código', () => {
     it(`${sala.id}: cabe en el presupuesto, el jugador aparece libre y se ven sus objetos`, () => {
       const construida = construirSala(sala);
       expect(construida.triangulos).toBeLessThan(MAX_TRIANGULOS);
-      expect(construida.mallas).toBeLessThanOrEqual(MAX_MALLAS);
+      // Por cuadro: en la portería con su pasillo, lo que se ve desde la peor mirada.
+      expect(llamadasPorCuadro(construida, sala)).toBeLessThanOrEqual(MAX_MALLAS);
 
       // El punto de inicio no queda dentro de un mueble ni pegado a una pared.
       const { x, z } = construida.inicio;

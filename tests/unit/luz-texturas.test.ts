@@ -27,6 +27,7 @@ import { necesitaVestir, urlsDeSala, vestirSala } from '../../src/engine/salas/v
 import type { FuentesAssets } from '../../src/engine/salas/vestir';
 import { carga } from '../../src/signals/interfaz';
 import { sinAcabados, sinArte, sinTexturas } from './sin-arte';
+import { llamadasPorCuadro, sinPasillo } from './pasillo-de-prueba';
 
 // T19f (luz sin horneado y sombras de contacto) y T19g (texturas de piso, paredes y techo).
 
@@ -81,7 +82,7 @@ describe('luz sin horneado (T19f)', () => {
   });
 
   it('la portería lleva sombra bajo el casillero, el escritorio, la silla, la lámpara y el cactus', () => {
-    const ids = objetosConSombra(salaPorId('porteria').objetos).map((o) => o.id);
+    const ids = objetosConSombra(sinPasillo(salaPorId('porteria')).objetos).map((o) => o.id);
     expect(ids).toEqual([
       'porteria-casillero',
       'porteria-escritorio',
@@ -188,13 +189,13 @@ describe('texturas de piso, paredes y techo (T19g)', () => {
   });
 
   it('las UV van en metros: el piso de 6 × 10 m repite 3 × 5 veces con 2 m', () => {
-    const { raiz } = construirSala(conTexturas(salaPorId('porteria')));
+    const { raiz } = construirSala(conTexturas(sinPasillo(salaPorId('porteria'))));
     const uv = nombrada(raiz, 'piso').geometry.getAttribute('uv');
     const us = Array.from({ length: uv.count }, (_, i) => uv.getX(i));
     const vs = Array.from({ length: uv.count }, (_, i) => uv.getY(i));
     expect(Math.max(...us) - Math.min(...us)).toBeCloseTo(3);
     expect(Math.max(...vs) - Math.min(...vs)).toBeCloseTo(5);
-    const { raiz: otra } = construirSala(conTexturas(salaPorId('porteria'), 1));
+    const { raiz: otra } = construirSala(conTexturas(sinPasillo(salaPorId('porteria')), 1));
     const paredes = nombrada(otra, 'paredes').geometry;
     const uv1 = paredes.getAttribute('uv');
     const normal = paredes.getAttribute('normal');
@@ -220,10 +221,13 @@ describe('texturas de piso, paredes y techo (T19g)', () => {
       const con = construirSala(conTexturas(sinArte(salaPorId(l))));
       expect(con.mallas).toBe(sin.mallas + 3);
       // Con sus modelos (T19h), la sala tal como está tampoco pasa del límite.
-      const real = construirSala(conTexturas(sinTexturas(salaPorId(l))));
-      expect(real.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
+      // En la portería con su pasillo, por cuadro: lo que se ve desde la peor mirada.
+      const datosReal = conTexturas(sinTexturas(salaPorId(l)));
+      const real = construirSala(datosReal);
+      expect(llamadasPorCuadro(real, datosReal) + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
       // Los 5 del cooperativo con 4 jugadores (T83b).
-      expect(con.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
+      const datosCon = conTexturas(sinArte(salaPorId(l)));
+      expect(llamadasPorCuadro(con, datosCon) + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
     }
   });
 });

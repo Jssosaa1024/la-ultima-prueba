@@ -110,6 +110,10 @@ Alex pidió reemplazar los productos de la cooperativa, que eran piezas por cód
 - **Lo que el paquete no tiene:** empanada. Hay taco, croissant y dim sum, pero ninguno se lee como empanada. La empanada en su plato y las tres etiquetas de precio siguen por código (`s1-productos-detalle`, pieza `detalle-productos`), sin dibujo, unidas a la malla fija: cero draw calls. Esa pieza agrega una repisa de exhibición de 1,2 cm bajo la fila: los productos van delante del estante del fondo (más atrás, su caja de choque taparía el toque) y sin repisa se veían flotando.
 - **Toque:** la empanada y las etiquetas quedan dentro de las cajas de toque de `s1-productos`. La malla fija no se toca, y si algo suyo asomara delante, tocarlo no abriría los productos. Lo revisa `tests/unit/productos-s1.test.ts`.
 
+## Pasillo (pasillos, sesión B)
+
+El pasillo en U de la portería (`docs/pasillos.md`) no trae paquetes nuevos: usa los modelos de KayKit que ya estaban en `salas/porteria/`. Las doce puertas son `puerta` (`door_A`), los cuatro casilleros `casillero` (`kitchencabinet`, instanciados) y las dos matas `cactus`. Piso, paredes, techo, zócalo, marcos, dintel y lámparas salen por código, como en la portería, y los quince carteles son láminas. Descarga nueva: 0 KB.
+
 ## Acabados por código (T19j)
 
 Con KayKit los muebles ya se veían bien, pero las salas seguían siendo cajas: paredes lisas, luz pareja y nada en el techo. Sin paquetes nuevos, el motor agrega (`src/engine/salas/acabados.ts`) a las salas que tienen `acabados` en `salas.json`:
