@@ -20,7 +20,10 @@ import {
   cuerpoPedido,
   idsDesconocidos,
   leerConfig,
+  lineasQueNoCuadran,
   nombreMuestra,
+  palabras,
+  pedidoDeLinea,
   pendientes,
   planDeTier,
   rutaOriginal,
@@ -101,6 +104,65 @@ describe('npm run voz: qué genera y cuánto gasta', () => {
     expect(Object.keys(cuerpoPedido('Hola', config)).sort()).toEqual(
       ['model_id', 'seed', 'text', 'voice_settings'].sort(),
     );
+  });
+
+  it('una línea puede llevar su propio modelo, ajustes y texto con marcas', () => {
+    const config = leerConfig(CONFIG) as ConfigVoz;
+    const linea = { id: 'voz-x', texto: 'Llegas tarde, como siempre.' };
+    const propia: ConfigVoz = {
+      ...config,
+      lineas: {
+        'voz-x': {
+          modelo: 'eleven_v3',
+          texto_voz: '[dryly] Llegas tarde... como siempre.',
+          ajustes: { style: 0 },
+        },
+      },
+    };
+    const p = pedidoDeLinea(linea, propia);
+    expect(p.texto).toBe('[dryly] Llegas tarde... como siempre.');
+    expect(p.cuerpo).toMatchObject({
+      model_id: 'eleven_v3',
+      seed: config.semilla,
+      voice_settings: { ...config.ajustes, style: 0 },
+    });
+    // Sin ajustes propios, la línea va con los de todas.
+    expect(pedidoDeLinea(linea, config).cuerpo).toEqual(cuerpoPedido(linea.texto, config));
+  });
+
+  it('el texto de voz dice las mismas palabras que el subtítulo', () => {
+    expect(palabras('[dryly] Buenas noches. Llegas tarde... [sarcastic] como siempre')).toEqual([
+      'buenas',
+      'noches',
+      'llegas',
+      'tarde',
+      'como',
+      'siempre',
+    ]);
+    const config = leerConfig(CONFIG) as ConfigVoz;
+    expect(lineasQueNoCuadran(config, GUION)).toEqual([]);
+    const otra: ConfigVoz = {
+      ...config,
+      lineas: { 'voz-intro-1': { texto_voz: 'Buenas tardes.' }, 'voz-no-existe': {} },
+    };
+    expect(lineasQueNoCuadran(otra, GUION)).toEqual(['voz-intro-1', 'voz-no-existe']);
+  });
+
+  it('la bienvenida va con el modelo v3 (decisión de Alex)', () => {
+    const config = leerConfig(CONFIG) as ConfigVoz;
+    expect(config.lineas?.['voz-intro-1']?.modelo).toBe('eleven_v3');
+  });
+
+  it('rechaza ajustes de línea mal hechos', () => {
+    const base = CONFIG as object;
+    const mala = leerConfig({
+      ...base,
+      lineas: {
+        '../x': {},
+        'voz-a': { modelo: 'gpt', ajustes: { speed: 3 }, texto_voz: '', otra: 1 },
+      },
+    });
+    expect(Array.isArray(mala) && mala.length).toBe(5);
   });
 
   it('solo el plan «free» es gratis', () => {

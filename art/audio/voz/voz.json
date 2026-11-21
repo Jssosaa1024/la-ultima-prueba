@@ -26,5 +26,17 @@
       "nota": "Hombre mayor latinoamericano, calmado y con autoridad de maestro."
     }
   ],
-  "elegida": "wfTWLJ20rcMqvU8gIiAB"
+  "elegida": "wfTWLJ20rcMqvU8gIiAB",
+  "lineas": {
+    "voz-intro-1": {
+      "modelo": "eleven_v3",
+      "texto_voz": "[dryly] Buenas noches. Llegas tarde... [sarcastic] como siempre a lo importante.",
+      "ajustes": {
+        "stability": 0.5,
+        "style": 0,
+        "speed": 1
+      },
+      "nota": "La bienvenida sonaba plana con el multilingüe; Alex escogió esta versión irónica del modelo v3 (19 de noviembre de 2026)."
+    }
+  }
 }

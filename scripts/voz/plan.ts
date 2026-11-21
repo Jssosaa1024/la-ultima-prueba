@@ -34,6 +34,20 @@ export interface Candidata {
   nota: string;
 }
 
+/**
+ * Lo que cambia para una línea: otro modelo, ajustes o semilla, o un texto con marcas de
+ * entonación (`[dryly]`, `...`) que la API lee pero el subtítulo no muestra.
+ */
+export interface AjustesLinea {
+  modelo?: string;
+  semilla?: number;
+  ajustes?: Partial<AjustesVoz>;
+  /** Lo que se le manda a la API. Debe decir las mismas palabras que el subtítulo. */
+  texto_voz?: string;
+  /** Por qué se cambió, en una frase. */
+  nota?: string;
+}
+
 export interface ConfigVoz {
   /** Modelo de ElevenLabs: el multilingüe. */
   modelo: string;
@@ -45,6 +59,8 @@ export interface ConfigVoz {
   candidatas: Candidata[];
   /** El `voice_id` que escogió Alex, o `null` mientras no haya escogido. */
   elegida: string | null;
+  /** Ajustes de líneas sueltas, por id del guion. */
+  lineas?: Record<string, AjustesLinea>;
 }
 
 export interface LineaVoz {
@@ -55,12 +71,64 @@ export interface LineaVoz {
 const esNumero = (x: unknown, min: number, max: number): x is number =>
   typeof x === 'number' && Number.isFinite(x) && x >= min && x <= max;
 
+const MODELO = /^eleven_[a-z0-9_]+$/;
+/** Rango de cada ajuste de voz. */
+const RANGOS: Record<keyof AjustesVoz, [number, number] | 'booleano'> = {
+  stability: [0, 1],
+  similarity_boost: [0, 1],
+  style: [0, 1],
+  use_speaker_boost: 'booleano',
+  speed: [0.7, 1.2],
+};
+
+const ajusteValido = (clave: string, valor: unknown): boolean => {
+  const rango = RANGOS[clave as keyof AjustesVoz];
+  if (!rango) return false;
+  return rango === 'booleano' ? typeof valor === 'boolean' : esNumero(valor, rango[0], rango[1]);
+};
+
+/** Problemas de los ajustes de una línea. */
+function problemasDeLinea(id: string, crudo: unknown): string[] {
+  if (!ID_SEGURO.test(id)) return [`«lineas»: «${id}» no es un id del guion`];
+  if (typeof crudo !== 'object' || crudo === null) return [`«lineas.${id}» no es un objeto`];
+  const problemas: string[] = [];
+  const l = crudo as Record<string, unknown>;
+  for (const clave of Object.keys(l)) {
+    if (!['modelo', 'semilla', 'ajustes', 'texto_voz', 'nota'].includes(clave)) {
+      problemas.push(`«lineas.${id}.${clave}» no se conoce`);
+    }
+  }
+  const modelo = l['modelo'];
+  if (modelo !== undefined && (typeof modelo !== 'string' || !MODELO.test(modelo))) {
+    problemas.push(`«lineas.${id}.modelo» debe ser un id de modelo de ElevenLabs`);
+  }
+  const semilla = l['semilla'];
+  if (semilla !== undefined && (!Number.isInteger(semilla) || (semilla as number) < 0)) {
+    problemas.push(`«lineas.${id}.semilla» debe ser un entero positivo`);
+  }
+  const a = l['ajustes'];
+  if (
+    a !== undefined &&
+    (typeof a !== 'object' || a === null || Object.entries(a).some(([k, v]) => !ajusteValido(k, v)))
+  ) {
+    problemas.push(`«lineas.${id}.ajustes» tiene un ajuste desconocido o fuera de rango`);
+  }
+  const t = l['texto_voz'];
+  if (t !== undefined && (typeof t !== 'string' || t.trim() === '' || t.length > 500)) {
+    problemas.push(`«lineas.${id}.texto_voz» debe ser un texto de 1 a 500 caracteres`);
+  }
+  if (l['nota'] !== undefined && typeof l['nota'] !== 'string') {
+    problemas.push(`«lineas.${id}.nota» debe ser un texto`);
+  }
+  return problemas;
+}
+
 /** Valida `voz.json`. Devuelve la configuración o la lista de problemas. */
 export function leerConfig(crudo: unknown): ConfigVoz | string[] {
   const problemas: string[] = [];
   if (typeof crudo !== 'object' || crudo === null) return ['voz.json no es un objeto'];
   const c = crudo as Record<string, unknown>;
-  if (typeof c['modelo'] !== 'string' || !/^eleven_[a-z0-9_]+$/.test(c['modelo'])) {
+  if (typeof c['modelo'] !== 'string' || !MODELO.test(c['modelo'])) {
     problemas.push('«modelo» debe ser un id de modelo de ElevenLabs (eleven_…)');
   }
   if (typeof c['formato'] !== 'string' || !/^mp3_\d+_\d+$/.test(c['formato'])) {
@@ -98,6 +166,14 @@ export function leerConfig(crudo: unknown): ConfigVoz | string[] {
   const elegida = c['elegida'];
   if (elegida !== null && (typeof elegida !== 'string' || !ID_VOZ.test(elegida))) {
     problemas.push('«elegida» es null o un voice_id');
+  }
+  const lineas = c['lineas'];
+  if (lineas !== undefined) {
+    if (typeof lineas !== 'object' || lineas === null || Array.isArray(lineas)) {
+      problemas.push('«lineas» es un objeto por id del guion');
+    } else {
+      for (const [id, l] of Object.entries(lineas)) problemas.push(...problemasDeLinea(id, l));
+    }
   }
   return problemas.length > 0 ? problemas : (crudo as ConfigVoz);
 }
@@ -163,6 +239,51 @@ export function cuerpoPedido(texto: string, config: ConfigVoz): Record<string, u
     voice_settings: config.ajustes,
     seed: config.semilla,
   };
+}
+
+/** Lo que se le manda a la API por una línea: su texto de voz, su modelo y el cuerpo. */
+export function pedidoDeLinea(
+  linea: LineaVoz,
+  config: ConfigVoz,
+): { texto: string; modelo: string; cuerpo: Record<string, unknown> } {
+  const l = config.lineas?.[linea.id];
+  const texto = l?.texto_voz ?? linea.texto;
+  const modelo = l?.modelo ?? config.modelo;
+  return {
+    texto,
+    modelo,
+    cuerpo: {
+      text: texto,
+      model_id: modelo,
+      voice_settings: { ...config.ajustes, ...l?.ajustes },
+      seed: l?.semilla ?? config.semilla,
+    },
+  };
+}
+
+/** Las palabras de un texto, sin marcas `[...]`, puntuación ni mayúsculas. */
+export function palabras(texto: string): string[] {
+  return texto
+    .replace(/\[[^\]]*\]/g, ' ')
+    .normalize('NFC')
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+}
+
+/**
+ * Los ids de `lineas` que no están en el guion o cuyo `texto_voz` no dice las mismas palabras
+ * que el subtítulo: el subtítulo tiene que coincidir con lo que se oye.
+ */
+export function lineasQueNoCuadran(config: ConfigVoz, guion: readonly LineaVoz[]): string[] {
+  return Object.entries(config.lineas ?? {})
+    .filter(([id, l]) => {
+      const linea = guion.find((g) => g.id === id);
+      if (!linea) return true;
+      if (l.texto_voz === undefined) return false;
+      return palabras(l.texto_voz).join(' ') !== palabras(linea.texto).join(' ');
+    })
+    .map(([id]) => id);
 }
 
 /** `plan` de `art/credits.json` según el `tier` de la suscripción: solo `free` es gratis. */

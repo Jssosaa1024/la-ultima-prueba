@@ -985,9 +985,9 @@
     "licencia": "elevenlabs-pago",
     "licencia_url": "https://elevenlabs.io/terms-of-use",
     "cambios": "normalizado a −16 LUFS, mono a 48 kHz, AAC a 48 kbps",
-    "fecha": "2026-11-17",
+    "fecha": "2026-11-19",
     "plan": "pago",
-    "prompt": "Texto: «Buenas noches. Llegas tarde, como siempre a lo importante.». Modelo eleven_multilingual_v2, voz wfTWLJ20rcMqvU8gIiAB, semilla 4210 (art/audio/voz/voz.json).",
+    "prompt": "Texto: «[dryly] Buenas noches. Llegas tarde... [sarcastic] como siempre a lo importante.» (las marcas entre corchetes dan la entonación; el subtítulo dice «Buenas noches. Llegas tarde, como siempre a lo importante.»). Modelo eleven_v3, voz wfTWLJ20rcMqvU8gIiAB, semilla 4210 (art/audio/voz/voz.json, «lineas»).",
     "evidencia": "art/evidencia/elevenlabs-plan-2026-11-17.png"
   },
   {
