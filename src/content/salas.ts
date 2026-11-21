@@ -29,6 +29,18 @@ export function destinoDePuerta(objeto: string): Lugar | null {
   return null;
 }
 
+/**
+ * Si el objeto es una puerta falsa del pasillo (`docs/pasillos.md`), el id de su frase en
+ * `puertas-falsas.json`; si no, `null`. Está cerrada: tocarla solo da la frase.
+ */
+export function fraseDePuertaFalsa(objeto: string): string | null {
+  for (const sala of SALAS_3D) {
+    const o: ObjetoSala | undefined = sala.objetos.find((x) => x.id === objeto);
+    if (o) return o.falsa ?? null;
+  }
+  return null;
+}
+
 /** Nombre del objeto con ese id, para el HUD y el inventario. */
 export function nombreDeObjeto(objeto: string): string | null {
   for (const sala of SALAS_3D) {

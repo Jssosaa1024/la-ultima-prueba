@@ -33,7 +33,7 @@ Una pizarra, un corcho, una planilla, una hoja, una gráfica, un marcador o un c
 | `papel` | Hoja, ficha o carta con borde, título subrayado y renglones | Renglones |
 | `cuadricula` | Papel de gráfica con cuadrícula fina y gruesa y ejes con flecha | Hasta dos: el eje horizontal y el vertical |
 | `marcador` | Carcasa oscura con dígitos de siete segmentos ámbar, que brillan solos | Un tablero por línea: «LOCAL 12» (rótulo y número) o «12». Solo dígitos, «:» y «-»: sin coma decimal ni «$» (el esquema lo revisa) |
-| `cartel` | Fondo de color con borde interior y texto centrado | Renglones bajo el título |
+| `cartel` | Fondo de color con borde interior y texto centrado. Con `flecha` (`izquierda` o `derecha`), una flecha dibujada a ese lado | Renglones bajo el título |
 | `tablero` | Superficie pintada con pinceladas, franja de adorno y placa de latón con el título arriba; el centro queda libre para lo que pone una máquina (el mural de sellos) | Rótulos repartidos abajo, uno por columna |
 
 **Reglas:**
@@ -45,7 +45,11 @@ Una pizarra, un corcho, una planilla, una hoja, una gráfica, un marcador o un c
 - De noche las láminas se ven un poco más claras que la luz de la sala (`REALCE`), para leerse en la penumbra. El marcador brilla solo, con su textura como mapa de emisión. El resaltado (T18) ahora suma su brillo al que ya tenía el objeto, en vez de reemplazarlo.
 - Las salas que ya tienen marco de madera por `acabados` (tableros grandes sin modelo) lo conservan: la lámina queda adentro.
 
-Código: `src/engine/salas/laminas.ts`. Pruebas: `tests/unit/laminas.test.ts`.
+**Marcas que pone el juego (pasillos, sesión C).** Una lámina puede cambiar mientras se juega sin cambiar su contenido: `marcarLamina(textura, { sello: n })` vuelve a pintar el mismo lienzo y sube la textura otra vez a la GPU. Ni malla ni draw call nueva. Hoy solo lo usa el cartel de cada sala en el pasillo (`pasillo-cartel-s1` a `-s5`): cuando la sala tiene su sello, lleva estampado a la derecha un disco de papel con doble anillo verde y la figura del sello de esa sala (moneda, gota, balón, libro o llave, con el color de su pieza en el mural), y el texto se corre a la izquierda. Lo hace `src/engine/mecanismos/carteles-pasillo.ts`, que solo pinta cuando cambian los sellos.
+
+- La flecha es una figura y no el signo «←»: Atkinson Hyperlegible, en el subconjunto latino que publicamos, no lo trae, y el navegador lo dibujaría con otra letra.
+
+Código: `src/engine/salas/laminas.ts`. Pruebas: `tests/unit/laminas.test.ts` y `tests/unit/carteles-pasillo.test.ts`.
 
 ## Piezas: objetos rehechos con más detalle
 

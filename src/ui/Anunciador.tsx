@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { aviso } from '../signals/interfaz';
 import { pistas } from '../signals/mecanismo';
 import { inventario, sala, totalSellos } from '../signals/partida';
-import { textoDeAviso } from './hud/formato';
+import { textoDeAvisoParaLector } from './hud/formato';
 
 /**
  * Región `aria-live` para el lector de pantalla (T41): anuncia lo que cambia en el HUD sin
@@ -34,7 +34,8 @@ export default function Anunciador() {
   }, [objetos]);
 
   useEffect(() => {
-    if (avisoActual) setMensaje(textoDeAviso(avisoActual));
+    const texto = avisoActual && textoDeAvisoParaLector(avisoActual);
+    if (texto) setMensaje(texto);
   }, [avisoActual]);
 
   useEffect(() => {
