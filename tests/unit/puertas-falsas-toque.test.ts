@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { aviso, cerrarAviso } from '../../src/signals/interfaz';
+import { aviso, cerrarAviso, type Aviso } from '../../src/signals/interfaz';
 import { colaVoz } from '../../src/signals/voz';
 
 // Dos frases de prueba: una escrita y una que dice La Voz (con una línea que sí existe en el
@@ -19,6 +19,13 @@ vi.mock('../../src/content/puertas-falsas', () => {
 const { tocarPuertaFalsa } = await import('../../src/signals/puertas-falsas');
 const { duracionDeAviso, textoDeAviso, textoDeAvisoParaLector, FRASE_RESPALDO } =
   await import('../../src/ui/hud/formato');
+
+/** El aviso que dejó el último toque (falla si no hay). */
+function ultimoAviso(): Aviso {
+  const a = aviso.value;
+  if (!a) throw new Error('la puerta no dejó aviso');
+  return a;
+}
 
 afterEach(() => {
   cerrarAviso();
@@ -49,25 +56,27 @@ describe('puertas falsas: el toque', () => {
     expect(colaVoz.value).toEqual(['voz-intro-2']);
     expect(aviso.value).toEqual({ t: 'puerta_falsa', frase: 'hablada', hablada: true });
     // Mientras habla, el subtítulo ya lo anuncia: el lector no lo repite.
-    expect(textoDeAvisoParaLector(aviso.value!)).toBeNull();
+    expect(textoDeAvisoParaLector(ultimoAviso())).toBeNull();
 
     colaVoz.value = [];
     tocarPuertaFalsa('hablada', dichas);
     expect(colaVoz.value).toEqual([]);
     expect(aviso.value).toEqual({ t: 'puerta_falsa', frase: 'hablada', hablada: false });
-    expect(textoDeAviso(aviso.value!)).toBe('Cinco salas, cinco sellos. Con ellos se abre esta puerta.');
+    expect(textoDeAviso(ultimoAviso())).toBe(
+      'Cinco salas, cinco sellos. Con ellos se abre esta puerta.',
+    );
   });
 
   it('si la línea de La Voz no existe, la puerta igual responde', () => {
     tocarPuertaFalsa('sin-linea', new Set());
     expect(aviso.value).toEqual({ t: 'puerta_falsa', frase: 'sin-linea', hablada: false });
-    expect(textoDeAviso(aviso.value!)).toBe(FRASE_RESPALDO);
+    expect(textoDeAviso(ultimoAviso())).toBe(FRASE_RESPALDO);
   });
 
   it('una frase que no está en el contenido usa la de respaldo', () => {
     tocarPuertaFalsa('no-existe', new Set());
-    expect(textoDeAviso(aviso.value!)).toBe(FRASE_RESPALDO);
-    expect(textoDeAvisoParaLector(aviso.value!)).toBe(FRASE_RESPALDO);
+    expect(textoDeAviso(ultimoAviso())).toBe(FRASE_RESPALDO);
+    expect(textoDeAvisoParaLector(ultimoAviso())).toBe(FRASE_RESPALDO);
   });
 
   it('el aviso de una puerta falsa se va antes que los demás, entre 3,5 y 6 s', () => {

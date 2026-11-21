@@ -24,7 +24,7 @@ function texturaDe(objeto: Object3D): Texture | null {
     if (textura || !(x as Mesh).isMesh) return;
     const material = (x as Mesh).material as Material | Material[];
     const uno = Array.isArray(material) ? material[0] : material;
-    const mapa = (uno as Material & { map?: Texture | null } | undefined)?.map;
+    const mapa = (uno as (Material & { map?: Texture | null }) | undefined)?.map;
     if (mapa) textura = mapa;
   });
   return textura;
