@@ -33,7 +33,7 @@ En `docs/capturas/pasillos-c/`, sacadas por la e2e nueva (`tests/e2e/pasillo-pue
 - `format:check`, `lint`, `astro check`, `test` (1.199 en verde) y `check-budget`, con el candado C y prioridad baja.
 - Pruebas de unidad nuevas: `tests/unit/puertas-falsas-toque.test.ts` (frase escrita, frase de La Voz una sola vez, línea que no existe, frase que no existe, duración), `tests/unit/carteles-pasillo.test.ts` (flecha, sello por sala, marcas, portería armada sin mallas nuevas) y casos en `controlador.test.ts`, `coop-juego.test.ts` y `audio-momentos.test.ts`. `pasillo.test.ts` (de B) cambió solo en los títulos de las flechas, como acordamos.
 - Las capturas sirvieron para corregir tres cosas antes del PR: el aviso subía un poco por encima del centro en un celular horizontal (ahora va en un renglón), el título de la flecha quedaba diminuto al lado de la figura (ahora la flecha es más baja y el título llena el cartel) y el sello tapaba el final de «COOPERATIVA» (ahora el texto termina antes del sello, y una prueba lo revisa).
-- e2e: la nueva del pasillo, más portería, partida, HUD, accesibilidad, audio y votos del cooperativo, en celular y escritorio. Una falló una vez por tiempo («la puerta 2 sigue cerrada», escritorio) y pasó al repetirla sola, en los dos perfiles.
+- e2e: la nueva del pasillo, más portería, partida, HUD, accesibilidad, audio y votos del cooperativo, en celular y escritorio. Después de rebasar sobre `main`, otra vez la del pasillo y `coop-pasillo.spec.ts` de la sesión B (dos jugadores por el pasillo): en verde. Una falló una vez por tiempo («la puerta 2 sigue cerrada», escritorio) y pasó al repetirla sola, en los dos perfiles.
 
 ## Lo que queda para Alex
 
