@@ -68,6 +68,7 @@ Todas son planos de 1,1 × 2,2 m pegados 2 cm a su pared, con el modelo `puerta`
 
 - Cinco reales y siete falsas. Las salas quedan en orden a lo largo del recorrido; la rectoría, la última, cierra el pasillo de frente.
 - Entre dos puertas de la misma pared hay al menos 1,7 m de centro a centro (el marco mide 1,26 m) y ninguna queda a menos de 0,95 m de una esquina.
+- **Frases** (`src/content/puertas-falsas.json`). Tres son textos cortos: baños («Cerrado. Un letrero dice: «Fuera de servicio».»), 10-B y 11-A. Cuatro las dice La Voz, con su humor seco (momento `puerta_falsa` en `guion.json`): profesores, 10-A, 11-B y aseo. La de 11-B («Esa no es. Las salas que buscas tienen cartel con número.») es la única que orienta, y dice algo cierto. La sesión A las graba con `npm run voz -- --solo voz-pasillo-profesores,voz-pasillo-10a,voz-pasillo-11b,voz-pasillo-aseo`; mientras tanto se ve el subtítulo.
 - **Nada de pistas falsas.** Las puertas falsas se ven igual que las reales, pero su cartel no tiene número de sala ni flecha que lleve a ellas, y su frase no habla de los puzzles.
 
 ## Carteles y flechas

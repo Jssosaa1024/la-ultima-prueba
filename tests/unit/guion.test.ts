@@ -56,7 +56,9 @@ describe('guion.json', () => {
   });
 
   it('tiene la portería, la entrada y el sello de cada sala, las grabaciones y los finales', () => {
-    expect(GUION).toHaveLength(23);
+    // 23 de la partida y 4 de las puertas falsas del pasillo (docs/pasillos.md).
+    expect(GUION).toHaveLength(27);
+    expect(lineasDe('puerta_falsa', 'porteria')).toHaveLength(4);
     for (const sala of SALAS) {
       expect(lineasDe('entrar_sala', sala).map((l) => l.id)).toContain(
         `voz-s${SALAS.indexOf(sala) + 1}-entrar`,

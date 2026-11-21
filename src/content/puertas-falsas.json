@@ -1,37 +1,17 @@
 [
-  {
-    "id": "profesores",
-    "rotulo": "Sala de profesores",
-    "texto": "La sala de profesores. Ni yo tengo llave de ahí."
-  },
-  {
-    "id": "banos",
-    "rotulo": "Baños",
-    "texto": "Cerrado. Un letrero dice: «Fuera de servicio»."
-  },
-  {
-    "id": "aula-10a",
-    "rotulo": "Aula 10-A",
-    "texto": "Esa puerta no lleva a ninguna prueba. Ni siquiera a un recreo."
-  },
+  { "id": "profesores", "rotulo": "Sala de profesores", "voz": "voz-pasillo-profesores" },
+  { "id": "banos", "rotulo": "Baños", "texto": "Cerrado. Un letrero dice: «Fuera de servicio»." },
+  { "id": "aula-10a", "rotulo": "Aula 10-A", "voz": "voz-pasillo-10a" },
   {
     "id": "aula-10b",
     "rotulo": "Aula 10-B",
     "texto": "Cerrada. En la puerta hay un horario con letra muy pequeña."
   },
-  {
-    "id": "aula-11b",
-    "rotulo": "Aula 11-B",
-    "texto": "Esa no es. Las salas que buscas tienen cartel con número."
-  },
+  { "id": "aula-11b", "rotulo": "Aula 11-B", "voz": "voz-pasillo-11b" },
   {
     "id": "aula-11a",
     "rotulo": "Aula 11-A",
     "texto": "Cerrada. Alguien dejó una sombrilla colgada del picaporte."
   },
-  {
-    "id": "aseo",
-    "rotulo": "Cuarto del aseo",
-    "texto": "El cuarto del aseo. Lo único ordenado del colegio, y está cerrado."
-  }
+  { "id": "aseo", "rotulo": "Cuarto del aseo", "voz": "voz-pasillo-aseo" }
 ]

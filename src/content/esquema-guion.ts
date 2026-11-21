@@ -58,6 +58,11 @@ export const MOMENTOS_GUION = [
   'grabacion',
   /** Pantalla de un final. */
   'final',
+  /**
+   * Pasillos: toca una puerta falsa del pasillo (`src/content/puertas-falsas.json`). Cada línea
+   * es la frase de una sola puerta.
+   */
+  'puerta_falsa',
 ] as const;
 export type MomentoGuion = (typeof MOMENTOS_GUION)[number];
 
@@ -132,6 +137,7 @@ const EN_PORTERIA: readonly MomentoGuion[] = [
   'mira_reloj',
   'cinco_sellos',
   'final',
+  'puerta_falsa',
 ];
 
 /** Problemas de una línea sola: sala, momento, id y duración que no cuadran. */
