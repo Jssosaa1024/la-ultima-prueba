@@ -164,10 +164,11 @@ describe('el pasillo en los datos', () => {
       expect(cartel?.pos[1]).toBeGreaterThan(2.4);
     }
     const flechas = porteria.objetos.filter((o) => o.id.startsWith('pasillo-flecha-'));
-    expect(flechas.map((o) => o.lamina?.titulo)).toEqual([
-      'SALAS 1 A 5',
-      '← SALAS 3 A 5',
-      '← SALAS 4 Y 5',
+    // La flecha va dibujada como figura (`flecha`), no como «←»: la letra no trae ese signo.
+    expect(flechas.map((o) => [o.lamina?.titulo, o.lamina?.flecha])).toEqual([
+      ['SALAS 1 A 5', undefined],
+      ['SALAS 3 A 5', 'izquierda'],
+      ['SALAS 4 Y 5', 'izquierda'],
     ]);
   });
 

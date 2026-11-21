@@ -91,6 +91,11 @@ const lamina = z.strictObject({
    * dígitos, «:» y «-» al final); en la cuadrícula, solo dos (eje horizontal y vertical).
    */
   lineas: z.array(z.string().trim().min(1).max(32)).min(1).max(8).optional(),
+  /**
+   * Opcional, solo en un cartel (pasillos, sesión C): una flecha dibujada a ese lado del texto.
+   * Va como figura porque la letra del juego no trae el signo «←».
+   */
+  flecha: z.enum(['izquierda', 'derecha']).optional(),
 });
 
 export const esquemaObjeto = z.strictObject({
@@ -337,6 +342,9 @@ export function problemasDeSala(sala: Sala): ProblemaSala[] {
       for (const l of lineas.filter((x) => !LINEA_MARCADOR.test(x))) {
         reportar(`${o.id}: «${l}» no cabe en el marcador (rótulo y dígitos, «LOCAL 12»)`);
       }
+    }
+    if (o.lamina?.flecha && o.lamina.tipo !== 'cartel') {
+      reportar(`${o.id}: solo un cartel lleva «flecha»`);
     }
     if (o.lamina?.tipo === 'cuadricula' && lineas.length > 2) {
       reportar(`${o.id}: la cuadrícula solo dibuja dos líneas (eje horizontal y vertical)`);

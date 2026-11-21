@@ -57,6 +57,10 @@ const FUENTES = [`700 32px "Atkinson Hyperlegible"`, `700 32px "Courier Prime"`]
 
 /** En `userData` del objeto con lámina: su tipo (para las pruebas y el panel). */
 export const LAMINA = 'lamina';
+/** En `userData` de la textura: vuelve a pintar el lienzo (solo con navegador). */
+const REPINTAR = 'repintar';
+/** En `userData` de la textura de una lámina: sus marcas (`MarcasLamina`), que lee al pintar. */
+const MARCAS = 'marcas';
 
 // ---------- Colores ----------
 
@@ -360,6 +364,16 @@ function renglones(
 
 // ---------- Los tipos ----------
 
+/**
+ * Lo que el juego le agrega a una lámina mientras se juega, sin cambiar su contenido: por ahora,
+ * el sello de la sala en su cartel del pasillo (pasillos, sesión C). Se cambia con
+ * `marcarLamina` y la textura se vuelve a pintar en el mismo lienzo: ni malla ni draw call nueva.
+ */
+export interface MarcasLamina {
+  /** Número de la sala (1 a 5) cuyo sello se estampa en el cartel. */
+  sello?: number;
+}
+
 interface Dibujo {
   ctx: Ctx;
   w: number;
@@ -368,6 +382,7 @@ interface Dibujo {
   base: string;
   lamina: Lamina;
   rnd: () => number;
+  marcas: MarcasLamina;
 }
 
 const COLOR_ALUMINIO = '#a9b0b6';
@@ -883,7 +898,12 @@ function marcador({ ctx, w, h, base, lamina }: Dibujo): void {
   });
 }
 
-function cartel({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
+/**
+ * Cartel: fondo de color, borde interior y texto centrado. Con `flecha`, una flecha a ese lado
+ * (pasillos); con el sello de su sala (`marcas.sello`), un sello redondo estampado a la
+ * derecha, y el texto se corre para no quedar debajo.
+ */
+function cartel({ ctx, w, h, base, lamina, rnd, marcas }: Dibujo): void {
   const m = Math.round(Math.min(w, h) * 0.04);
   ctx.fillStyle = oscurecer(base, 0.25);
   ctx.fillRect(0, 0, w, h);
@@ -897,13 +917,26 @@ function cartel({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
   ctx.stroke();
   ctx.globalAlpha = 1;
   const dentro = { x: m * 2.6, y: m * 2.4, w: w - m * 5.2, h: h - m * 4.8 };
+  // Flecha: un cuadrado del alto de adentro, a su lado.
+  if (lamina.flecha) {
+    const lado = Math.min(dentro.h, dentro.w * 0.3);
+    const x = lamina.flecha === 'izquierda' ? dentro.x : dentro.x + dentro.w - lado;
+    dibujarFlecha(ctx, x, dentro.y + (dentro.h - lado) / 2, lado, lamina.flecha, tinta);
+    dentro.w -= lado + m;
+    if (lamina.flecha === 'izquierda') dentro.x += lado + m;
+  }
+  // Sello: un círculo casi del alto del cartel, a la derecha; el texto se corre a la izquierda.
+  const sello = marcas.sello;
+  const diametro = Math.min(h * 0.92, w * 0.4);
+  if (sello !== undefined) dentro.w -= diametro * 0.8;
+  const centro = dentro.x + dentro.w / 2;
   const hayLineas = Boolean(lamina.lineas?.length);
   const altoTitulo = hayLineas ? dentro.h * 0.38 : dentro.h * 0.6;
   if (lamina.titulo) {
     textoAjustado(
       ctx,
       lamina.titulo,
-      w / 2,
+      centro,
       dentro.y + (hayLineas ? altoTitulo / 2 : dentro.h / 2),
       dentro.w,
       altoTitulo * 0.8,
@@ -921,6 +954,162 @@ function cartel({ ctx, w, h, base, lamina, rnd }: Dibujo): void {
     tinta,
     'center',
   );
+  if (sello !== undefined) {
+    selloDeSala(ctx, w - m * 1.2 - diametro / 2, h / 2, diametro, sello, rnd);
+  }
+}
+
+/** Flecha gruesa de punta triangular dentro de un cuadrado de `lado`, hacia ese lado. */
+export function dibujarFlecha(
+  ctx: Ctx,
+  x: number,
+  y: number,
+  lado: number,
+  hacia: 'izquierda' | 'derecha',
+  color: string,
+): void {
+  const s = hacia === 'izquierda' ? -1 : 1;
+  const cx = x + lado / 2;
+  const cy = y + lado / 2;
+  const largo = lado * 0.46;
+  const punta = lado * 0.42;
+  const grueso = lado * 0.13;
+  ctx.beginPath();
+  ctx.moveTo(cx + s * largo, cy);
+  ctx.lineTo(cx + s * (largo - punta), cy - punta);
+  ctx.lineTo(cx + s * (largo - punta), cy - grueso);
+  ctx.lineTo(cx - s * largo, cy - grueso);
+  ctx.lineTo(cx - s * largo, cy + grueso);
+  ctx.lineTo(cx + s * (largo - punta), cy + grueso);
+  ctx.lineTo(cx + s * (largo - punta), cy + punta);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+/**
+ * El sello de cada sala, con la misma figura y el mismo color de su pieza en el mural de la
+ * portería (`mecanismos/porteria.ts`): moneda, gota, balón, libro y llave.
+ */
+export const SELLOS_DE_SALA: readonly { figura: string; color: string }[] = [
+  { figura: 'moneda', color: '#d4ac0d' },
+  { figura: 'gota', color: '#3498db' },
+  { figura: 'balon', color: '#e67e22' },
+  { figura: 'libro', color: '#c0392b' },
+  { figura: 'llave', color: '#bdc3c7' },
+];
+
+/** Papel y tinta del sello: los del tema del archivo (`ui/tema.css`), verde 5,5:1 sobre el papel. */
+export const PAPEL_SELLO = '#efe4cc';
+export const TINTA_SELLO = '#2c6440';
+const TRAZO_FIGURA = '#2a2118';
+
+/**
+ * Sello redondo de la sala `numero` (1 a 5), de diámetro `d`, como si lo hubieran estampado:
+ * un disco de papel un poco torcido, doble anillo de tinta verde gastada y, en el centro, la
+ * figura del sello de esa sala. El papel claro lo hace contrastar sobre cualquier cartel.
+ */
+export function selloDeSala(
+  ctx: Ctx,
+  cx: number,
+  cy: number,
+  d: number,
+  numero: number,
+  rnd: () => number,
+): void {
+  const r = d / 2;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(-0.18);
+  // Sombra corta y el disco de papel.
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.arc(r * 0.05, r * 0.07, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = PAPEL_SELLO;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fill();
+  // Doble anillo de tinta.
+  ctx.strokeStyle = TINTA_SELLO;
+  ctx.lineWidth = Math.max(1.5, r * 0.11);
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.84, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.lineWidth = Math.max(1, r * 0.04);
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.66, 0, Math.PI * 2);
+  ctx.stroke();
+  figuraDeSello(ctx, r * 0.46, numero);
+  // Tinta gastada: unas motas de papel sobre los anillos.
+  ctx.fillStyle = PAPEL_SELLO;
+  for (let i = 0; i < 14; i++) {
+    const a = rnd() * Math.PI * 2;
+    const rr = r * (0.62 + rnd() * 0.28);
+    ctx.globalAlpha = 0.55 + rnd() * 0.45;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, r * (0.02 + rnd() * 0.04), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/** La figura del sello de la sala `numero`, centrada en el origen y de radio `r`. */
+function figuraDeSello(ctx: Ctx, r: number, numero: number): void {
+  const sello = SELLOS_DE_SALA[numero - 1] ?? SELLOS_DE_SALA[0];
+  if (!sello) return;
+  ctx.fillStyle = sello.color;
+  ctx.strokeStyle = TRAZO_FIGURA;
+  ctx.lineWidth = Math.max(1, r * 0.09);
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  switch (sello.figura) {
+    case 'moneda':
+      ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+      ctx.stroke();
+      return;
+    case 'gota':
+      ctx.moveTo(0, -r);
+      ctx.bezierCurveTo(r * 0.35, -r * 0.45, r * 0.75, -r * 0.05, r * 0.72, r * 0.32);
+      ctx.arc(0, r * 0.3, r * 0.72, 0, Math.PI);
+      ctx.bezierCurveTo(-r * 0.75, -r * 0.05, -r * 0.35, -r * 0.45, 0, -r);
+      ctx.fill();
+      ctx.stroke();
+      return;
+    case 'balon':
+      ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.85, 0);
+      ctx.lineTo(r * 0.85, 0);
+      ctx.moveTo(0, -r * 0.85);
+      ctx.lineTo(0, r * 0.85);
+      ctx.stroke();
+      return;
+    case 'libro':
+      ctx.rect(-r * 0.62, -r * 0.82, r * 1.24, r * 1.64);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.4, -r * 0.82);
+      ctx.lineTo(-r * 0.4, r * 0.82);
+      ctx.stroke();
+      return;
+    default:
+      // Llave: cabeza redonda, caña y dos dientes.
+      ctx.arc(0, -r * 0.48, r * 0.42, 0, Math.PI * 2);
+      ctx.rect(-r * 0.13, -r * 0.1, r * 0.26, r * 1.05);
+      ctx.rect(r * 0.13, r * 0.55, r * 0.32, r * 0.16);
+      ctx.rect(r * 0.13, r * 0.78, r * 0.24, r * 0.16);
+      ctx.fill();
+      ctx.stroke();
+  }
 }
 
 /**
@@ -1016,10 +1205,11 @@ export function dibujarLamina(
   h: number,
   base: string,
   semilla: number,
+  marcas: MarcasLamina = {},
 ): void {
   ctx.save();
   ctx.clearRect(0, 0, w, h);
-  TIPOS[lamina.tipo]({ ctx, w, h, base, lamina, rnd: aleatorio(semilla) });
+  TIPOS[lamina.tipo]({ ctx, w, h, base, lamina, rnd: aleatorio(semilla), marcas });
   ctx.restore();
 }
 
@@ -1078,6 +1268,10 @@ export function texturaDibujada(
   }
   pintar(hecho.ctx, w, h);
   const textura: TexturaLienzo = new CanvasTexture(hecho.lienzo);
+  textura.userData[REPINTAR] = () => {
+    pintar(hecho.ctx, w, h);
+    textura.needsUpdate = true;
+  };
   textura.colorSpace = SRGBColorSpace;
   textura.minFilter = LinearMipmapLinearFilter;
   textura.anisotropy = 4;
@@ -1105,9 +1299,32 @@ export function texturaLamina(o: ObjetoSala): TexturaLienzo | null {
   const [ancho, alto] = medidasCara(o);
   const px = medidasLienzo(ancho, alto);
   const semilla = semillaDe(o.id);
-  return texturaDibujada(px.ancho, px.alto, (ctx, w, h) =>
-    dibujarLamina(ctx, lamina, w, h, o.color, semilla),
+  // Las marcas se leen en cada pintada: también cuando las fuentes llegan tarde.
+  const marcas: MarcasLamina = {};
+  const textura = texturaDibujada(px.ancho, px.alto, (ctx, w, h) =>
+    dibujarLamina(ctx, lamina, w, h, o.color, semilla, marcas),
   );
+  textura.userData[MARCAS] = marcas;
+  return textura;
+}
+
+/**
+ * Cambia las marcas de una lámina ya armada (el sello en un cartel) y, si cambiaron, la vuelve
+ * a pintar en el mismo lienzo: la malla, el material y la draw call son los mismos. Devuelve si
+ * cambió algo. Una textura que no es de lámina no cambia.
+ */
+export function marcarLamina(textura: Texture, nuevas: MarcasLamina): boolean {
+  const marcas = textura.userData[MARCAS] as MarcasLamina | undefined;
+  if (!marcas || marcas.sello === nuevas.sello) return false;
+  if (nuevas.sello === undefined) delete marcas.sello;
+  else marcas.sello = nuevas.sello;
+  (textura.userData[REPINTAR] as (() => void) | undefined)?.();
+  return true;
+}
+
+/** Las marcas que tiene ahora la textura de una lámina (para las pruebas y el motor). */
+export function marcasDeLamina(textura: Texture): Readonly<MarcasLamina> | null {
+  return (textura.userData[MARCAS] as MarcasLamina | undefined) ?? null;
 }
 
 /** Índice de la cara en `BoxGeometry` (+x, −x, +y, −y, +z, −z). */
