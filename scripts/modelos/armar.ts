@@ -12,6 +12,7 @@ import type { Credito } from '../creditos/esquema.ts';
 import { creditoDe, textoCopyright } from '../creditos/reglas.ts';
 import { aplicarPerfilKenney, escalaDe, texturaMaximaDe } from '../perfiles/kenney.ts';
 import type { PiezaColocada } from '../perfiles/kenney.ts';
+import { aplicarPerfilPersonaje } from '../perfiles/personaje.ts';
 import { texturaAmbientcg } from '../perfiles/ambientcg.ts';
 import { perfilDe, PRODUCE } from '../perfiles/index.ts';
 import type { Perfil } from '../perfiles/index.ts';
@@ -96,12 +97,17 @@ export async function armarModelo(
     piezas.push({ raices, pos: p.pos, giro: p.giro });
   }
 
-  await aplicarPerfilKenney(documento, piezas, {
-    escala: escalaDe(entrada),
-    giro: entrada.giro,
-    estirar: entrada.estirar,
-    caja: entrada.caja,
-  });
+  if (entrada.animado) {
+    // T83c: un personaje con esqueleto no se hornea ni se aplana.
+    await aplicarPerfilPersonaje(documento, piezas[0]?.raices ?? [], entrada.animado);
+  } else {
+    await aplicarPerfilKenney(documento, piezas, {
+      escala: escalaDe(entrada),
+      giro: entrada.giro,
+      estirar: entrada.estirar,
+      caja: entrada.caja,
+    });
+  }
   // Un GLB lleva un solo búfer: las piezas traían uno cada una.
   await documento.transform(unpartition());
 

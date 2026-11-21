@@ -58,10 +58,33 @@ export const esquemaEntradaModelo = z
      * estira cada eje para calzar justo. `null` en un eje = proporcional (el fondo de un plano).
      */
     caja: z.tuple([positivo.nullable(), positivo.nullable(), positivo.nullable()]).optional(),
+    /**
+     * T83c: personaje con esqueleto y clips. Va por el perfil `personaje.ts` (no hornea ni
+     * aplana nada): una sola pieza, los clips que se quedan y el alto final en metros.
+     */
+    animado: z
+      .strictObject({
+        clips: z
+          .array(z.string().regex(/^[a-z0-9-]+$/))
+          .min(1)
+          .max(8),
+        alto: positivo,
+        /** Huesos de la camiseta (el primero da su color): se pinta del color del jugador. */
+        uniforme: z
+          .array(z.string().regex(/^[a-z0-9-]+$/))
+          .min(1)
+          .max(8)
+          .optional(),
+      })
+      .optional(),
     /** Por qué se eligió así (se lee en el PR, no lo usa el script). */
     nota: z.string().max(300).optional(),
   })
-  .refine((e) => !(e.estirar && e.caja), 'Usa «estirar» o «caja», no los dos');
+  .refine((e) => !(e.estirar && e.caja), 'Usa «estirar» o «caja», no los dos')
+  .refine(
+    (e) => !e.animado || (e.piezas.length === 1 && !e.estirar && !e.caja && e.giro === undefined),
+    'Un personaje «animado» es una sola pieza, sin «estirar», «caja» ni «giro»',
+  );
 
 export const esquemaEntradaTextura = z.strictObject({
   archivo: z.string().regex(ARCHIVO_TEXTURA, 'public/assets/salas/<carpeta>/<nombre>.ktx2'),
