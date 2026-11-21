@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 // Toque corto con duración fija, para que no dependa de la carga del equipo (T05b).
 import { continuarEn, salirDeLaPartida } from './escena';
+import { usar } from './recorrido';
 import { tocar } from './toque';
 
 // T31b: el controlador real de la partida, visto desde la portería. Se toca cada objeto donde
@@ -239,7 +240,6 @@ async function acercarse(
 // Centros de los objetos de la portería (src/content/salas.json), a la altura donde se tocan.
 const CUADERNO: Punto3 = [-2.3, 0.47, 3.55];
 const LINTERNA: Punto3 = [2, 0.87, 3.4];
-const PUERTA_2: Punto3 = [2.96, 1.1, 1.55];
 const INTERCOMUNICADOR: Punto3 = [-2.96, 1.5, -3.9];
 /** Cara del casillero de objetos perdidos que se ve desde el fondo del pasillo. */
 const CASILLERO: Punto3 = [1.5, 1, -4.7];
@@ -284,9 +284,8 @@ test('la puerta 2 sigue cerrada hasta tener el sello de la sala 1', async ({ pag
   const conDedo = info.project.use.hasTouch === true;
   const caja = await abrirJuego(page);
 
-  await acercarse(page, caja, PUERTA_2, 2.4, conDedo);
-  await tocarObjeto(page, caja, PUERTA_2, conDedo, /Usar.*Puerta 2/);
-  await page.getByRole('button', { name: /Usar.*Puerta 2/ }).click();
+  // La puerta 2 está al fondo del tramo 1 del pasillo (docs/pasillos.md): se camina hasta ella.
+  await usar(page, caja, conDedo, 'porteria-puerta-2');
 
   await expect(page.locator('.hud-aviso')).toContainText('La puerta 2 está cerrada');
   await expect(page.getByLabel('Escena del juego')).toHaveAttribute('data-sala', 'porteria');

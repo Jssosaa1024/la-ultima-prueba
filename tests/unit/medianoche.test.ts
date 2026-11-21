@@ -21,6 +21,7 @@ import { construirSala, LUZ_INICIAL } from '../../src/engine/salas/construir';
 import { animarLamparas, CICLO_TITILEO_S, nivelTitileo } from '../../src/engine/salas/lamparas';
 import { alturaCerros } from '../../src/engine/salas/ventanas';
 import { CON_ARTE } from './sin-arte';
+import { llamadasPorCuadro, sinPasillo } from './pasillo-de-prueba';
 
 // T19k: medianoche en las salas con arte (luz por sala, lámparas con estado, ventanas). Desde
 // T19l, cada sala que recibe su arte entra en `CON_ARTE` (tests/unit/sin-arte.ts).
@@ -99,7 +100,8 @@ describe('luz por sala (T19k)', () => {
 });
 
 describe('lámparas con estado (T19k)', () => {
-  const porteria = salaPorId('porteria');
+  // La portería sin su pasillo: sus tres lámparas. Las del pasillo, en pasillo.test.ts.
+  const porteria = sinPasillo(salaPorId('porteria'));
 
   it('la portería: la del fondo titila, la del medio está apagada y la de la entrada, encendida', () => {
     expect(porteria.acabados?.lamparas).toEqual(['titila', 'apagada', 'encendida']);
@@ -309,7 +311,8 @@ describe('ventanas de noche (T19k)', () => {
 
   it('el cielo va con los difusores y el marco con lo fijo: ninguna malla nueva', () => {
     for (const l of NOCHE) {
-      const sala = salaPorId(l);
+      // La portería sin su pasillo: las ventanas están en su pared norte.
+      const sala = sinPasillo(salaPorId(l));
       const sinVentanas: Sala = {
         ...sala,
         acabados: { ...(sala.acabados ?? never()), ventanas: [] },
@@ -319,8 +322,8 @@ describe('ventanas de noche (T19k)', () => {
       expect(con.mallas).toBe(sin.mallas);
       const ventanas = sala.acabados?.ventanas?.length ?? 0;
       expect(con.triangulos - sin.triangulos).toBeLessThan(200 * ventanas);
-      // Los 5 del cooperativo con 4 jugadores (T83b).
-      expect(con.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
+      // Los 5 del cooperativo con 4 jugadores (T83b), en la peor mirada.
+      expect(llamadasPorCuadro(con, sala) + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
       // El cielo queda en la pared, un poco adelante, y no recibe toques.
       const difusores = nombrada(con.raiz, 'difusores');
       difusores.geometry.computeBoundingBox();

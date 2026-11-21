@@ -14,6 +14,7 @@ import {
 } from '../../src/engine/salas/acabados';
 import { construirSala } from '../../src/engine/salas/construir';
 import { CON_ARTE } from './sin-arte';
+import { llamadasPorCuadro, sinPasillo } from './pasillo-de-prueba';
 
 // T19j: acabados por código (zócalo, rodapié, cornisa, marcos, lámparas y rincones oscuros).
 
@@ -64,9 +65,12 @@ describe('acabados de sala (T19j)', () => {
     expect(con.mallas).toBe(sin.mallas + 2 + fija);
     // Las cajas que chocan no cambian: nada de los acabados es sólido.
     expect(con.cajas).toEqual(sin.cajas);
-    expect(con.triangulos - sin.triangulos).toBeLessThan(2_000);
-    // Los 5 del cooperativo con 4 jugadores (T83b).
-    expect(con.mallas + 5).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
+    // La portería con su pasillo tiene trece lámparas y muchas más paredes: hasta 4.000.
+    expect(con.triangulos - sin.triangulos).toBeLessThan(sala.tramos ? 4_000 : 2_000);
+    // Los 5 del cooperativo con 4 jugadores (T83b), en la peor mirada.
+    expect(llamadasPorCuadro(con, { ...sala, acabados }) + 5).toBeLessThanOrEqual(
+      LIMITES_PANEL.drawCalls,
+    );
   });
 
   it('reparte las lámparas a lo largo del lado largo de la sala', () => {
@@ -96,7 +100,8 @@ describe('acabados de sala (T19j)', () => {
 
   it('lo de color plano queda dentro de la sala, pegado a las paredes', () => {
     for (const l of CON_ARTE) {
-      const sala = salaPorId(l);
+      // La portería sin su pasillo; el pasillo se revisa en pasillo.test.ts.
+      const sala = sinPasillo(salaPorId(l));
       const { fijas } = crearAcabados(
         sala,
         sala.acabados ?? { zocalo: '', franja: '', marcos: '' },
@@ -130,7 +135,7 @@ describe('acabados de sala (T19j)', () => {
   });
 
   it('la oclusión falsa mira hacia adentro de la sala', () => {
-    const sala = salaPorId('porteria');
+    const sala = sinPasillo(salaPorId('porteria'));
     const cuadros = oclusionDe(sala);
     // Por pared: piso, techo y sus dos esquinas.
     expect(cuadros).toHaveLength(16);
@@ -155,7 +160,7 @@ describe('acabados de sala (T19j)', () => {
   });
 
   it('las lámparas brillan sin luz propia y no reciben toques', () => {
-    const { raiz } = construirSala(salaPorId('porteria'));
+    const { raiz } = construirSala(sinPasillo(salaPorId('porteria')));
     const difusores = nombrada(raiz, 'difusores');
     const brillos = nombrada(raiz, 'brillos');
     expect((difusores.material as MeshBasicMaterial).toneMapped).toBe(false);
@@ -176,7 +181,7 @@ describe('acabados de sala (T19j)', () => {
     expect(difusores.geometry.boundingBox?.min.z).toBeLessThan(-4.9);
     // Las sombras de contacto llevan también los 16 cuadros de la oclusión (4 vértices c/u).
     const sombras = nombrada(raiz, 'sombras');
-    const conSombra = construirSala(sinAcabados(salaPorId('porteria'))).raiz;
+    const conSombra = construirSala(sinAcabados(sinPasillo(salaPorId('porteria')))).raiz;
     const antes = nombrada(conSombra, 'sombras').geometry.getAttribute('position').count;
     expect(sombras.geometry.getAttribute('position').count).toBe(antes + 16 * 4);
   });

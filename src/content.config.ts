@@ -3,6 +3,7 @@ import { file, glob } from 'astro/loaders';
 import { esquemaPuzzle } from './content/esquema';
 import { esquemaFichaValidada } from './content/esquema-fichas';
 import { esquemaLineaGuionValidada } from './content/esquema-guion';
+import { esquemaFrasePuertaFalsa } from './content/esquema-puertas-falsas';
 import { esquemaResumen } from './content/esquema-resumenes';
 import { esquemaSalaValidada } from './content/esquema-salas';
 
@@ -39,4 +40,10 @@ const resumenes = defineCollection({
   schema: esquemaResumen,
 });
 
-export const collections = { puzzles, salas, fichas, guion, resumenes };
+/** Frases de las puertas falsas del pasillo (`docs/pasillos.md`). */
+const puertasFalsas = defineCollection({
+  loader: file('./src/content/puertas-falsas.json'),
+  schema: esquemaFrasePuertaFalsa,
+});
+
+export const collections = { puzzles, salas, fichas, guion, resumenes, puertasFalsas };
