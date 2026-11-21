@@ -285,9 +285,22 @@ describe('láminas en la sala', () => {
   });
 
   it('las láminas y los dibujos de cada sala caben en 4 MB de GPU (con mipmaps)', () => {
-    for (const lugar of LUGARES) {
+    // El pasillo (docs/pasillos.md) es parte del lugar «porteria», pero es otro espacio, con sus
+    // quince carteles: se cuenta aparte, con el mismo límite.
+    const espacios = LUGARES.flatMap((lugar) => {
+      const objetos = salaPorId(lugar).objetos;
+      const pasillo = objetos.filter((o) => o.id.startsWith('pasillo-'));
+      const resto = objetos.filter((o) => !o.id.startsWith('pasillo-'));
+      return pasillo.length > 0
+        ? [
+            { lugar, objetos: resto },
+            { lugar: 'pasillo', objetos: pasillo },
+          ]
+        : [{ lugar, objetos }];
+    });
+    for (const { lugar, objetos } of espacios) {
       let bytes = 0;
-      for (const o of salaPorId(lugar).objetos) {
+      for (const o of objetos) {
         if (o.lamina) {
           const [a, h] = medidasCara(o);
           const px = medidasLienzo(a, h);

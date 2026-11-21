@@ -36,12 +36,14 @@ import {
 import type { BufferGeometry } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { EstadoLampara, ObjetoSala, Sala } from '../../content/esquema-salas';
+import { rectangulosDe } from '../../content/tramos';
+import { paredesDeRectangulos } from './planta';
 import type { Cuadro } from './sombras';
 import { ALFEIZAR, armarVentana, MARCO } from './ventanas';
 import type { Ventana } from './ventanas';
 
 export type Acabados = NonNullable<Sala['acabados']>;
-type Medidas = Pick<Sala, 'ancho' | 'fondo' | 'alto'>;
+type Medidas = Pick<Sala, 'ancho' | 'fondo' | 'alto' | 'tramos'>;
 type V3 = [number, number, number];
 
 /** Altura del zócalo pintado hasta el borde de arriba de su franja, en metros. */
@@ -63,6 +65,8 @@ const FONDO_MARCO_TABLERO = 0.05;
 /** Un tablero lleva marco si mide al menos esto de ancho y de alto (el reloj no). */
 const TABLERO_MINIMO = { ancho: 0.6, alto: 0.5 };
 
+/** Un tramo de pasillo más corto que esto (en su lado largo) no lleva lámpara. */
+const TRAMO_SIN_LAMPARA = 2;
 /** Una lámpara por cada tanto de largo de la sala. */
 const METROS_POR_LAMPARA = 3.4;
 const CARCASA = { ancho: 1.25, alto: 0.06, fondo: 0.4 };
@@ -102,6 +106,11 @@ export interface Pared {
   z: number;
   largo: number;
   giro: number;
+  /**
+   * Opcional (pasillos): si cada punta es un rincón, donde se oscurece la esquina. Sin el
+   * campo, las dos (una sala rectangular).
+   */
+  rincones?: readonly [boolean, boolean];
 }
 
 export function paredesDe(sala: Pick<Sala, 'ancho' | 'fondo'>): Pared[] {
@@ -112,6 +121,14 @@ export function paredesDe(sala: Pick<Sala, 'ancho' | 'fondo'>): Pared[] {
     { x: -w / 2, z: 0, largo: f, giro: Math.PI / 2 },
     { x: w / 2, z: 0, largo: f, giro: -Math.PI / 2 },
   ];
+}
+
+/**
+ * Todas las paredes de la sala: las cuatro de siempre o, si tiene tramos de pasillo, las del
+ * borde de la unión (`planta.ts`). El zócalo, el rodapié, la cornisa y la oclusión van en estas.
+ */
+export function paredesDeSala(sala: Pick<Sala, 'ancho' | 'fondo' | 'tramos'>): Pared[] {
+  return sala.tramos ? paredesDeRectangulos(rectangulosDe(sala)) : paredesDe(sala);
 }
 
 /** A lo largo de la pared (su +X) y hacia la sala (su +Z), en el mundo. */
@@ -176,6 +193,30 @@ function marco(o: ObjetoSala): BufferGeometry {
     .makeRotationY((o.giro ?? 0) * GRADOS)
     .setPosition(o.pos[0], o.pos[1], o.pos[2]);
   return unir(piezasMarco(o)).applyMatrix4(m);
+}
+
+/**
+ * Las lámparas de la sala y después las de cada tramo de pasillo, en el orden de
+ * `acabados.lamparas`.
+ */
+export function lamparasDeSala(
+  sala: Pick<Sala, 'ancho' | 'fondo' | 'tramos'>,
+): { x: number; z: number; giro: number }[] {
+  return [
+    ...lamparasDe(sala),
+    // Un tramo corto (el vano entre la portería y el pasillo) no lleva lámpara.
+    ...(sala.tramos ?? []).flatMap((t) => {
+      const largo = Math.max(t.x[1] - t.x[0], t.z[1] - t.z[0]);
+      if (largo < TRAMO_SIN_LAMPARA) return [];
+      const cx = (t.x[0] + t.x[1]) / 2;
+      const cz = (t.z[0] + t.z[1]) / 2;
+      return lamparasDe({ ancho: t.x[1] - t.x[0], fondo: t.z[1] - t.z[0] }).map((l) => ({
+        ...l,
+        x: l.x + cx,
+        z: l.z + cz,
+      }));
+    }),
+  ];
 }
 
 /** Dónde va cada lámpara: en fila por el centro, a lo largo del lado largo de la sala. */
@@ -303,7 +344,10 @@ function crearLuces(
   const yDifusor = sala.alto - CARCASA.alto - 0.001;
   const difusor = (l: { x: number; z: number; giro: number }): BufferGeometry =>
     horizontal(DIFUSOR.ancho, DIFUSOR.fondo, yDifusor, l, true);
-  const lamparas = lamparasDe(sala).map((l, i) => ({ l, estado: estados[i] ?? 'encendida' }));
+  const lamparas = lamparasDeSala(sala).map((l, i) => ({
+    l,
+    estado: estados[i] ?? 'encendida',
+  }));
   const prendidas = lamparas
     .filter((x) => x.estado !== 'apagada')
     .map((x) => ({ l: x.l, titila: x.estado === 'titila' }));
@@ -422,7 +466,7 @@ function cuadro(origen: V3, u: V3, v: V3, normal: V3, oscuridad: number): Cuadro
 export function oclusionDe(sala: Medidas): Cuadro[] {
   const cuadros: Cuadro[] = [];
   const escalar = (a: V3, k: number): V3 => [a[0] * k, a[1] * k, a[2] * k];
-  for (const p of paredesDe(sala)) {
+  for (const p of paredesDeSala(sala)) {
     const { largo, normal } = ejes(p);
     const inicio = (y: number): V3 => [
       p.x - (largo[0] * p.largo) / 2,
@@ -443,7 +487,9 @@ export function oclusionDe(sala: Medidas): Cuadro[] {
     );
     // Las dos esquinas de esta pared, de piso a techo, un poco delante de ella.
     const arriba: V3 = [0, sala.alto, 0];
-    for (const lado of [-1, 1]) {
+    for (const [k, lado] of [-1, 1].entries()) {
+      // La punta de un vano o una esquina que sobresale no es un rincón: no se oscurece.
+      if (p.rincones && !p.rincones[k]) continue;
       const borde: V3 = [
         p.x + (largo[0] * lado * p.largo) / 2 + normal[0] * SEPARACION_ESQUINA,
         0,
@@ -465,7 +511,7 @@ export interface SalaAcabada {
 }
 
 export function crearAcabados(sala: Sala, acabados: Acabados): SalaAcabada {
-  const paredes = paredesDe(sala);
+  const paredes = paredesDeSala(sala);
   const ventanas = (acabados.ventanas ?? []).map((v, i) => {
     const { pared, a } = paredDeVentana(sala, v);
     return armarVentana(pared, a, v, i + 1);
@@ -477,7 +523,7 @@ export function crearAcabados(sala: Sala, acabados: Acabados): SalaAcabada {
   );
   const zocalo = ALTO_ZOCALO - ALTO_FRANJA;
   const marcos = sala.objetos.filter((o) => esPuerta(o) || esTablero(o)).map(marco);
-  const carcasas = lamparasDe(sala).map((l) =>
+  const carcasas = lamparasDeSala(sala).map((l) =>
     new BoxGeometry(CARCASA.ancho, CARCASA.alto, CARCASA.fondo)
       .translate(0, sala.alto - CARCASA.alto / 2, 0)
       .rotateY(l.giro)

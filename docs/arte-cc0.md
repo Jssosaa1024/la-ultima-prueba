@@ -125,6 +125,10 @@ Alex decidió cambiar la cápsula de los compañeros por estudiantes low-poly CC
 - **Lo que el paquete no tiene:** un saludo con la mano. El más parecido es `emote-yes` (asentir). El saludo es un clip por código que gira el brazo derecho (`clipSaludo`).
 - **Accesorios del paquete** (sillas de ruedas, bastones, gafas, maletas): no se usan por ahora.
 
+## Pasillo (pasillos, sesión B)
+
+El pasillo en U de la portería (`docs/pasillos.md`) no trae paquetes nuevos: usa los modelos de KayKit que ya estaban en `salas/porteria/`. Las doce puertas son `puerta` (`door_A`), los cuatro casilleros `casillero` (`kitchencabinet`, instanciados) y las dos matas `cactus`. Piso, paredes, techo, zócalo, marcos, dintel y lámparas salen por código, como en la portería, y los quince carteles son láminas. Descarga nueva: 0 KB.
+
 ## Acabados por código (T19j)
 
 Con KayKit los muebles ya se veían bien, pero las salas seguían siendo cajas: paredes lisas, luz pareja y nada en el techo. Sin paquetes nuevos, el motor agrega (`src/engine/salas/acabados.ts`) a las salas que tienen `acabados` en `salas.json`:

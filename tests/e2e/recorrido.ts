@@ -41,7 +41,8 @@ export function puzzleDeSala(numero: number): Puzzle {
   return puzzle;
 }
 
-function salaPorId(id: Lugar): Sala {
+/** La distribución de un lugar, leída del JSON (Playwright no importa JSON sin atributo). */
+export function salaPorId(id: Lugar): Sala {
   const sala = SALAS.find((s) => s.id === id);
   if (!sala) throw new Error(`no existe la sala ${id}`);
   return sala;
@@ -87,6 +88,48 @@ export async function empezarDesdeElMenu(page: Page): Promise<Caja> {
   const caja = await canvas.boundingBox();
   if (!caja) throw new Error('sin canvas');
   return caja;
+}
+
+/**
+ * Esquinas del pasillo en U de la portería (`docs/pasillos.md`), sacadas de sus tramos: para
+ * llegar a una puerta del pasillo no se camina en línea recta (hay paredes), sino por el centro
+ * de cada tramo. Zona 0: el vestíbulo; 1: el vano y el tramo 1; 2: el tramo 2; 3: el tramo 3.
+ */
+function esquinasDelPasillo(): { zona: (x: number, z: number) => number; entre: Punto3[][] } {
+  const porteria = salaPorId('porteria');
+  const [vano, t1, t2, t3] = porteria.tramos ?? [];
+  if (!vano || !t1 || !t2 || !t3) throw new Error('la portería no tiene su pasillo');
+  const medio = (r: readonly [number, number]): number => (r[0] + r[1]) / 2;
+  const dentro = (t: { x: readonly number[]; z: readonly number[] }, x: number, z: number) =>
+    x >= (t.x[0] ?? 0) && x <= (t.x[1] ?? 0) && z >= (t.z[0] ?? 0) && z <= (t.z[1] ?? 0);
+  return {
+    zona: (x, z) => {
+      if (dentro(vano, x, z) || dentro(t1, x, z)) return 1;
+      if (dentro(t2, x, z)) return 2;
+      if (dentro(t3, x, z)) return 3;
+      return 0;
+    },
+    // Lo que se pisa al pasar de la zona i a la i + 1.
+    entre: [
+      [
+        [-1, 0, medio(vano.z)],
+        [medio(t1.x), 0, medio(vano.z)],
+      ],
+      [[medio(t1.x), 0, medio(t2.z)]],
+      [[medio(t3.x), 0, medio(t2.z)]],
+    ],
+  };
+}
+
+/** Los puntos por los que se pasa en la portería para ir de (x, z) a `punto`, sin él. */
+export function rutaEnLaPorteria(x: number, z: number, punto: Punto3): Punto3[] {
+  const { zona, entre } = esquinasDelPasillo();
+  const desde = zona(x, z);
+  const hasta = zona(punto[0], punto[2]);
+  const ruta: Punto3[] = [];
+  if (desde < hasta) for (let i = desde; i < hasta; i++) ruta.push(...(entre[i] ?? []));
+  else for (let i = desde - 1; i >= hasta; i--) ruta.push(...[...(entre[i] ?? [])].reverse());
+  return ruta;
 }
 
 /** Píxeles que se empuja el joystick: a fondo (56 px o más) o despacio, para llegar sin pasarse. */
@@ -138,6 +181,25 @@ async function empujar(
  * a apuntar cada 3 m, y el último tramo lo hace despacio para no pasarse.
  */
 export async function irA(
+  page: Page,
+  caja: Caja,
+  conDedo: boolean,
+  punto: Punto3,
+  cerca: number,
+): Promise<void> {
+  // En la portería, por las esquinas del pasillo (docs/pasillos.md).
+  const canvas = page.getByLabel('Escena del juego');
+  if ((await canvas.getAttribute('data-sala')) === 'porteria') {
+    const [x, z] = await leer(page, 'data-posicion');
+    for (const esquina of rutaEnLaPorteria(x, z, punto)) {
+      await irDerecho(page, caja, conDedo, esquina, 0.45);
+    }
+  }
+  await irDerecho(page, caja, conDedo, punto, cerca);
+}
+
+/** Como `irA`, en línea recta: el camino tiene que estar libre. */
+async function irDerecho(
   page: Page,
   caja: Caja,
   conDedo: boolean,
@@ -256,7 +318,7 @@ export async function volverALaEntrada(
 }
 
 /** El objeto de cada máquina que se toca para abrir su panel, y hasta dónde hay que acercarse. */
-const MAQUINAS: Readonly<Record<Mecanismo, { objeto: string } & Alcance>> = {
+export const MAQUINAS: Readonly<Record<Mecanismo, { objeto: string } & Alcance>> = {
   etiquetadora: { objeto: 's1-etiquetadora' },
   tanques: { objeto: 's2-panel' },
   // El poste de 2 m: es el que está en la cancha en la primera etapa.
@@ -415,8 +477,16 @@ async function ponerUrna(panel: Locator, puzzle: PuzzleDe<'urna'>, n: number): P
  * Resuelve una etapa desde el panel abierto: pone los ajustes del campo `solucion`, acciona
  * la máquina si la etapa se acciona y espera a que la acepte (las que responden solas tardan
  * 5 segundos; la corrida de los tanques, hasta 12). No toca «Seguir».
+ *
+ * En grupo (`enGrupo`), las que responden solas no esperan quietas: quien tiene D toca
+ * «Proponer al grupo», y la máquina responde cuando todos aceptan.
  */
-export async function resolverEtapa(panel: Locator, puzzle: Puzzle, n: number): Promise<Locator> {
+export async function resolverEtapa(
+  panel: Locator,
+  puzzle: Puzzle,
+  n: number,
+  enGrupo = false,
+): Promise<Locator> {
   const etapa = puzzle.etapas[n];
   if (!etapa) throw new Error(`${puzzle.id} no tiene la etapa ${n}`);
   const ultima = n === puzzle.etapas.length - 1;
@@ -445,6 +515,8 @@ export async function resolverEtapa(panel: Locator, puzzle: Puzzle, n: number): 
   }
   if (etapa.intento.tipo === 'accionar') {
     await panel.getByRole('button', { name: TEXTO_ACCIONAR[puzzle.mecanismo] }).click();
+  } else if (enGrupo) {
+    await panel.getByRole('button', { name: 'Proponer al grupo' }).click();
   }
   await expect(seguir).toBeVisible({ timeout: 45_000 });
   // La máquina nunca califica: muestra lo que pasó.

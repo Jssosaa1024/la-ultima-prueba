@@ -12,6 +12,7 @@ import { crearPersonajes } from '../../src/engine/coop/personajes';
 import { animacionDeSala } from '../../src/engine/mecanismos';
 import { construirSala } from '../../src/engine/salas/construir';
 import type { SenalCoop } from '../../src/signals/coop';
+import { llamadasPorCuadro } from './pasillo-de-prueba';
 
 // T83b: con 4 jugadores (3 compañeros con su alias en cada pantalla) y las señales, ninguna sala
 // pasa de los 40 draw calls de AGENTS.md, aunque se viera todo a la vez.
@@ -92,9 +93,13 @@ describe('presupuesto del cooperativo con 4 jugadores (T83b)', () => {
   });
 
   it.each(LUGARES)('%s, con todo a la vista, sigue dentro de los 40 draw calls', (lugar) => {
-    const sala = construirSala(salaPorId(lugar));
+    const datos = salaPorId(lugar);
+    const sala = construirSala(datos);
     animacionDeSala(lugar, sala.raiz)?.actualizar(1 / 30);
     const coop = POR_PERSONAJE * MAX_COMPANEROS + 1 + 1;
-    expect(maximoDeLlamadas(sala.raiz) + coop).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
+    // La portería con su pasillo no se ve entera desde ningún punto: cuenta la peor mirada
+    // (docs/pasillos.md), con lo oculto por animación incluido.
+    const llamadas = datos.tramos ? llamadasPorCuadro(sala, datos) : maximoDeLlamadas(sala.raiz);
+    expect(llamadas + coop).toBeLessThanOrEqual(LIMITES_PANEL.drawCalls);
   });
 });

@@ -25,12 +25,30 @@
       "zocalo": "#35618c",
       "franja": "#e8b84a",
       "marcos": "#4a3626",
-      "lamparas": ["titila", "apagada", "encendida"],
+      "lamparas": [
+        "titila",
+        "apagada",
+        "encendida",
+        "encendida",
+        "titila",
+        "encendida",
+        "apagada",
+        "encendida",
+        "titila",
+        "apagada",
+        "titila"
+      ],
       "ventanas": [
         { "pared": "norte", "centro": -1.95, "y": 2.2, "ancho": 1.4, "alto": 0.75 },
         { "pared": "norte", "centro": 2, "y": 2.2, "ancho": 1.4, "alto": 0.75, "luna": true }
       ]
     },
+    "tramos": [
+      { "x": [-3.4, -3], "z": [-0.8, 0.8] },
+      { "x": [-5.8, -3.4], "z": [-9.6, 0.8] },
+      { "x": [-15.8, -5.8], "z": [-9.6, -7.2] },
+      { "x": [-15.8, -13.4], "z": [-7.2, 1.2] }
+    ],
     "inicio": { "x": 0, "z": 4.2, "giro": 0 },
     "objetos": [
       {
@@ -91,8 +109,8 @@
         "nombre": "Puerta 1 · La cooperativa",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
-        "pos": [-2.98, 0, 2.8],
-        "giro": 90,
+        "pos": [-3.42, 0, -2.6],
+        "giro": -90,
         "color": "#7a5230",
         "accion": "usar",
         "puerta": "s1-cooperativa"
@@ -103,7 +121,7 @@
         "nombre": "Puerta 2 · El laboratorio",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
-        "pos": [2.98, 0, 1.55],
+        "pos": [-3.42, 0, -8.4],
         "giro": -90,
         "color": "#7a5230",
         "accion": "usar",
@@ -115,8 +133,8 @@
         "nombre": "Puerta 3 · El gimnasio",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
-        "pos": [-2.98, 0, 0.3],
-        "giro": 90,
+        "pos": [-10.6, 0, -9.58],
+        "giro": 0,
         "color": "#7a5230",
         "accion": "usar",
         "puerta": "s3-gimnasio"
@@ -127,7 +145,7 @@
         "nombre": "Puerta 4 · La biblioteca",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
-        "pos": [2.98, 0, -0.95],
+        "pos": [-13.42, 0, -1.0],
         "giro": -90,
         "color": "#7a5230",
         "accion": "usar",
@@ -139,8 +157,8 @@
         "nombre": "Puerta 5 · La rectoría",
         "forma": "plano",
         "tam": [1.1, 2.2, 0],
-        "pos": [-2.98, 0, -2.2],
-        "giro": 90,
+        "pos": [-14.6, 0, 1.18],
+        "giro": 180,
         "color": "#7a5230",
         "accion": "usar",
         "puerta": "s5-rectoria"
@@ -238,6 +256,289 @@
         "pos": [2.55, 0.75, 3.3],
         "color": "#c0703a",
         "modelo": "libros"
+      },
+      {
+        "id": "pasillo-cartel-s1",
+        "forma": "plano",
+        "tam": [1, 0.34, 0],
+        "pos": [-3.42, 2.44, -2.6],
+        "giro": -90,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "SALA 1", "lineas": ["COOPERATIVA"] }
+      },
+      {
+        "id": "pasillo-cartel-s2",
+        "forma": "plano",
+        "tam": [1, 0.34, 0],
+        "pos": [-3.42, 2.44, -8.4],
+        "giro": -90,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "SALA 2", "lineas": ["LABORATORIO"] }
+      },
+      {
+        "id": "pasillo-cartel-s3",
+        "forma": "plano",
+        "tam": [1, 0.34, 0],
+        "pos": [-10.6, 2.44, -9.58],
+        "giro": 0,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "SALA 3", "lineas": ["GIMNASIO"] }
+      },
+      {
+        "id": "pasillo-cartel-s4",
+        "forma": "plano",
+        "tam": [1, 0.34, 0],
+        "pos": [-13.42, 2.44, -1.0],
+        "giro": -90,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "SALA 4", "lineas": ["BIBLIOTECA"] }
+      },
+      {
+        "id": "pasillo-cartel-s5",
+        "forma": "plano",
+        "tam": [1, 0.34, 0],
+        "pos": [-14.6, 2.44, 1.18],
+        "giro": 180,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "SALA 5", "lineas": ["RECTORÍA"] }
+      },
+      {
+        "id": "pasillo-puerta-profesores",
+        "modelo": "puerta",
+        "nombre": "Sala de profesores",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-3.42, 0, -5.6],
+        "giro": -90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "profesores"
+      },
+      {
+        "id": "pasillo-cartel-profesores",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-3.42, 2.44, -5.6],
+        "giro": -90,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "PROFESORES" }
+      },
+      {
+        "id": "pasillo-puerta-10a",
+        "modelo": "puerta",
+        "nombre": "Aula 10-A",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-7.4, 0, -9.58],
+        "giro": 0,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "aula-10a"
+      },
+      {
+        "id": "pasillo-cartel-10a",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-7.4, 2.44, -9.58],
+        "giro": 0,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "10-A" }
+      },
+      {
+        "id": "pasillo-puerta-banos",
+        "modelo": "puerta",
+        "nombre": "Baños",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-9.0, 0, -7.22],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "banos"
+      },
+      {
+        "id": "pasillo-cartel-banos",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-9.0, 2.44, -7.22],
+        "giro": 180,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "BAÑOS" }
+      },
+      {
+        "id": "pasillo-puerta-10b",
+        "modelo": "puerta",
+        "nombre": "Aula 10-B",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-12.2, 0, -7.22],
+        "giro": 180,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "aula-10b"
+      },
+      {
+        "id": "pasillo-cartel-10b",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-12.2, 2.44, -7.22],
+        "giro": 180,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "10-B" }
+      },
+      {
+        "id": "pasillo-puerta-11a",
+        "modelo": "puerta",
+        "nombre": "Aula 11-A",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-15.78, 0, -5.8],
+        "giro": 90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "aula-11a"
+      },
+      {
+        "id": "pasillo-cartel-11a",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-15.78, 2.44, -5.8],
+        "giro": 90,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "11-A" }
+      },
+      {
+        "id": "pasillo-puerta-aseo",
+        "modelo": "puerta",
+        "nombre": "Cuarto del aseo",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-13.42, 0, -4.4],
+        "giro": -90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "aseo"
+      },
+      {
+        "id": "pasillo-cartel-aseo",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-13.42, 2.44, -4.4],
+        "giro": -90,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "ASEO" }
+      },
+      {
+        "id": "pasillo-puerta-11b",
+        "modelo": "puerta",
+        "nombre": "Aula 11-B",
+        "forma": "plano",
+        "tam": [1.1, 2.2, 0],
+        "pos": [-15.78, 0, -2.6],
+        "giro": 90,
+        "color": "#7a5230",
+        "accion": "usar",
+        "falsa": "aula-11b"
+      },
+      {
+        "id": "pasillo-cartel-11b",
+        "forma": "plano",
+        "tam": [0.7, 0.24, 0],
+        "pos": [-15.78, 2.44, -2.6],
+        "giro": 90,
+        "color": "#e8e2d2",
+        "lamina": { "tipo": "cartel", "titulo": "11-B" }
+      },
+      {
+        "id": "pasillo-dintel",
+        "forma": "caja",
+        "tam": [0.4, 0.6, 1.6],
+        "pos": [-3.2, 2.6, 0],
+        "color": "#d8d2c4"
+      },
+      {
+        "id": "pasillo-flecha-1",
+        "forma": "plano",
+        "tam": [1.6, 0.4, 0],
+        "pos": [-2.98, 2.68, 0],
+        "giro": 90,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "SALAS 1 A 5" }
+      },
+      {
+        "id": "pasillo-flecha-2",
+        "forma": "plano",
+        "tam": [1.2, 0.5, 0],
+        "pos": [-4.6, 1.45, -9.58],
+        "giro": 0,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "← SALAS 3 A 5" }
+      },
+      {
+        "id": "pasillo-flecha-3",
+        "forma": "plano",
+        "tam": [1.2, 0.5, 0],
+        "pos": [-15.78, 1.45, -8.4],
+        "giro": 90,
+        "color": "#2f4a6b",
+        "lamina": { "tipo": "cartel", "titulo": "← SALAS 4 Y 5" }
+      },
+      {
+        "id": "pasillo-casilleros-1",
+        "forma": "caja",
+        "tam": [1, 1.8, 0.5],
+        "color": "#8c8f94",
+        "solido": true,
+        "modelo": "casillero",
+        "pos": [-5.53, 0, -2.4],
+        "giro": 90
+      },
+      {
+        "id": "pasillo-casilleros-2",
+        "forma": "caja",
+        "tam": [1, 1.8, 0.5],
+        "color": "#8c8f94",
+        "solido": true,
+        "modelo": "casillero",
+        "pos": [-5.53, 0, -4.0],
+        "giro": 90
+      },
+      {
+        "id": "pasillo-casilleros-3",
+        "forma": "caja",
+        "tam": [1, 1.8, 0.5],
+        "color": "#8c8f94",
+        "solido": true,
+        "modelo": "casillero",
+        "pos": [-13.0, 0, -9.33]
+      },
+      {
+        "id": "pasillo-casilleros-4",
+        "forma": "caja",
+        "tam": [1, 1.8, 0.5],
+        "color": "#8c8f94",
+        "solido": true,
+        "modelo": "casillero",
+        "pos": [-13.67, 0, -6.3],
+        "giro": -90
+      },
+      {
+        "id": "pasillo-cactus-1",
+        "forma": "caja",
+        "tam": [0.5, 0.5, 0.5],
+        "color": "#5f8f4e",
+        "solido": true,
+        "modelo": "cactus",
+        "pos": [-3.75, 0, -9.25]
+      },
+      {
+        "id": "pasillo-cactus-2",
+        "forma": "caja",
+        "tam": [0.5, 0.5, 0.5],
+        "color": "#5f8f4e",
+        "solido": true,
+        "modelo": "cactus",
+        "pos": [-15.45, 0, 0.85]
       }
     ]
   },

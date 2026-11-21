@@ -4,6 +4,7 @@ import { moverConColision, CAPSULA_JUGADOR } from '../../src/engine/jugador/coli
 import { cajasDeColision, marcarSolido } from '../../src/engine/salas/colisiones';
 import { salaPorId } from '../../src/content/salas';
 import { construirSala } from '../../src/engine/salas/construir';
+import { sinPasillo } from './pasillo-de-prueba';
 
 describe('cajas de colisión generadas por código', () => {
   it('toma solo las mallas sólidas, en coordenadas del mundo', () => {
@@ -31,7 +32,8 @@ describe('cajas de colisión generadas por código', () => {
   });
 
   it('en la portería el jugador no sale del pasillo ni atraviesa el escritorio', () => {
-    const { cajas } = construirSala(salaPorId('porteria'));
+    // La portería sin su pasillo (el pasillo, en pasillo.test.ts).
+    const { cajas } = construirSala(sinPasillo(salaPorId('porteria')));
     // 4 paredes, el casillero, el escritorio, la silla, y la lámpara y el cactus (T19i).
     expect(cajas).toHaveLength(9);
 

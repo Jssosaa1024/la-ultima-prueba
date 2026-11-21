@@ -52,6 +52,8 @@ import { necesitaVestir, urlsDeSala, vestirSala } from './salas/vestir';
 import type { FuentesAssets } from './salas/vestir';
 import { puntoDeEntrada, siguienteSala } from './salas/recorrido';
 import { salaDeLaUrl } from './salas/url';
+import { crearVistaPorCeldas } from './salas/vista-por-celdas';
+import type { VistaPorCeldas } from './salas/vista-por-celdas';
 
 /** Altura de los ojos del jugador, en metros. */
 export const ALTURA_OJOS = 1.6;
@@ -138,6 +140,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   let interaccion: Interaccion | null = null;
   // La máquina de la sala se opera en su panel 2D; en la escena solo anima lo que pasó (T45).
   let animacion: AnimacionSala | null = null;
+  // Pasillos: en la portería con su pasillo solo se dibuja lo que se ve desde donde está el
+  // jugador (`vista-por-celdas.ts`).
+  let vista: VistaPorCeldas | null = null;
   let mostrada: Lugar | null = null;
   let precarga: ReturnType<typeof setTimeout> | undefined;
   let detenido = false;
@@ -197,6 +202,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     interaccion = null;
     animacion?.liberar();
     animacion = null;
+    vista?.liberar();
+    vista = null;
     delete canvas.dataset['maquina'];
     delete canvas.dataset['detalle'];
     // Compilar y armar la sala da tirones que no dicen nada del rendimiento al jugar.
@@ -211,11 +218,14 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       if (canvas.dataset['ocultos'] !== texto) canvas.dataset['ocultos'] = texto;
     });
     animacion = animacionDeSala(lugar, nueva.raiz);
+    // Después de la animación: lo que ella agrega (el mural, las luces) también cuenta.
+    vista = crearVistaPorCeldas(nueva.raiz, salaPorId(lugar));
     // Se aparece frente a la puerta por la que se llegó (o en el inicio de la sala).
     const p = puntoDeEntrada(salaPorId(lugar), desde);
     camara.position.set(p.x, ALTURA_OJOS, p.z);
     orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
     aplicarACamara(camara, orientacion);
+    vista?.actualizar(p.x, p.z);
     canvas.dataset['sala'] = lugar;
     exposicionSala = exposicionDe(salaPorId(lugar), 1);
     ponerExposicion(ajustes.peek().brillo);
@@ -342,6 +352,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
           const p = moverConColision(camara.position.x, camara.position.z, d.x, d.z, 0, cajas);
           camara.position.x = p.x;
           camara.position.z = p.z;
+          vista?.actualizar(p.x, p.z);
         }
       }
       // Con el puntero bloqueado, la mira del centro apunta (unas 10 veces por segundo).
@@ -475,6 +486,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     dejarDeEscuchar();
     interaccion?.liberar();
     animacion?.liberar();
+    vista?.liberar();
     joystick.value = null;
     cargador.liberar();
     cargadorAssets?.liberar();

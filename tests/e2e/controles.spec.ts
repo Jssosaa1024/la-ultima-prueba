@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
+import { puntoDeEntrada } from '../../src/engine/salas/recorrido';
+import { cruzar, salaPorId, volverALaEntrada } from './recorrido';
 import { tocar } from './toque';
 
 // Controles del motor (T14, T15). En el perfil celular se usan toques reales por CDP
@@ -80,6 +82,9 @@ async function abrirJuego(page: Page) {
   // después del primero el menú desaparece.
   await page.getByRole('button', { name: 'Jugar solo' }).click();
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  // La portería ya cargó (con su pasillo, desde los pasillos, tarda un poco más): antes de eso
+  // no hay paredes con que chocar y caminar la atravesaría.
+  await expect(canvas).toHaveAttribute('data-sala', 'porteria', { timeout: 30_000 });
   // La sala ya se dibujó al menos una vez: hay mirada y posición que leer.
   await expect(canvas).toHaveAttribute('data-mirada', /,/);
   const caja = await canvas.boundingBox();
@@ -373,35 +378,6 @@ test('en celular, tocar la escena nunca bloquea el puntero (T19)', async ({ page
   expect(await canvas.evaluate((c) => document.pointerLockElement === c)).toBe(false);
 });
 
-/**
- * Dónde se ve en pantalla un punto 3D, con la posición y la mirada que publica el motor
- * (cámara a 1,6 m, campo de visión vertical de 70°).
- */
-async function enPantalla(page: Page, caja: Caja, punto: [number, number, number]): Promise<Punto> {
-  const [cx, cz] = await leer(page, 'data-posicion');
-  const [yaw, pitch] = await leer(page, 'data-mirada');
-  const d = [punto[0] - cx, punto[1] - 1.6, punto[2] - cz] as const;
-  const f = [-Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch)];
-  const r = [Math.cos(yaw), 0, -Math.sin(yaw)];
-  const u = [Math.sin(yaw) * Math.sin(pitch), Math.cos(pitch), Math.cos(yaw) * Math.sin(pitch)];
-  const punto3 = (v: readonly number[]) =>
-    d[0] * (v[0] ?? 0) + d[1] * (v[1] ?? 0) + d[2] * (v[2] ?? 0);
-  const profundidad = punto3(f);
-  const t = Math.tan((35 * Math.PI) / 180);
-  const ndcX = punto3(r) / (profundidad * t * (caja.width / caja.height));
-  const ndcY = punto3(u) / (profundidad * t);
-  return { x: caja.x + ((ndcX + 1) / 2) * caja.width, y: caja.y + ((1 - ndcY) / 2) * caja.height };
-}
-
-/** Gira la cámara arrastrando en horizontal (negativo: a la izquierda). */
-async function girarCamara(page: Page, caja: Caja, dx: number, conDedo: boolean | undefined) {
-  const y = caja.y + caja.height * 0.4;
-  const desde = { x: dx > 0 ? caja.x + caja.width * 0.52 : caja.x + caja.width * 0.97, y };
-  const hasta = { x: desde.x + dx, y };
-  if (conDedo) await arrastrarDedos(page, [[desde, hasta]]);
-  else await arrastrarRaton(page, desde, hasta);
-}
-
 test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera (T20)', async ({
   page,
 }, info) => {
@@ -409,51 +385,22 @@ test('las puertas llevan a la sala y de vuelta, y la sala que se deja se libera 
   const { canvas, caja } = await abrirJuego(page);
   await expect(canvas).toHaveAttribute('data-sala', 'porteria');
 
-  // La puerta 1 (pared oeste) es la única abierta al empezar (T31b). Queda a 3,3 m y la mano
-  // alcanza 3 m: hay que acercarse. Se camina de lado, sin girar, hasta que la pared oeste
-  // detiene al jugador (x = −2,7): la puerta queda adelante y a la izquierda, a 1,5 m.
-  // Así no importa cuánto tarde la prueba en soltar el joystick (T05b). Antes se caminaba
-  // en diagonal hacia la puerta y, con el equipo ocupado, el jugador llegaba, seguía
-  // resbalando por la pared y la dejaba atrás antes de que la prueba se enterara.
-  const enLaPared = (): Promise<void> =>
-    expect
-      .poll(async () => (await leer(page, 'data-posicion'))[0], { timeout: 45_000 })
-      .toBeLessThan(-2.65);
-  const x = caja.x + caja.width * 0.3;
-  const y = caja.y + caja.height * 0.7;
-  const trazo: [Punto, Punto] = [
-    { x, y },
-    { x: x - 80, y },
-  ];
-  if (conDedo) await arrastrarDedos(page, [trazo], { quieto: EMPUJE_MS, hasta: enLaPared });
-  else await arrastrarRaton(page, trazo[0], trazo[1], EMPUJE_MS, enLaPared);
-  const [, zPared] = await leer(page, 'data-posicion');
-  expect(zPared).toBeCloseTo(4.2, 1);
-
-  // Tocar la puerta 1 donde se ve en pantalla y usarla.
-  const puerta1 = page.getByRole('button', { name: /Usar.*Puerta 1/ });
-  await tocarHasta(page, await enPantalla(page, caja, [-2.96, 1.1, 2.8]), conDedo, puerta1);
-  await puerta1.click();
-  await expect(canvas).toHaveAttribute('data-sala', 's1-cooperativa');
+  // La puerta 1 es la única abierta al empezar (T31b). Desde el pasillo (docs/pasillos.md) se
+  // llega caminando por el vano y el tramo 1, como en la partida completa.
+  await cruzar(page, caja, conDedo === true, 'porteria-puerta-1');
   // La puerta suena al abrirse (T42c).
   await expect(canvas).toHaveAttribute('data-sonidos', /(^| )puerta( |$)/);
-
-  // En la cooperativa se aparece frente a la puerta, de espaldas a ella: dar media vuelta.
-  // La posición se publica con el cuadro siguiente al cambio de sala: se espera a que llegue.
-  await expect.poll(async () => (await leer(page, 'data-posicion'))[1]).toBeCloseTo(1.48, 1);
-  const media = -Math.min(353, caja.width * 0.9);
-  await girarCamara(page, caja, media, conDedo);
-  await girarCamara(page, caja, -Math.PI / 0.0045 - media, conDedo);
-  const volver = page.getByRole('button', { name: /Usar.*Puerta a la portería/ });
-  await tocarHasta(page, await enPantalla(page, caja, [0, 1.1, 2.46]), conDedo, volver);
-  await volver.click();
+  await volverALaEntrada(page, caja, conDedo === true, 's1-cooperativa');
+  await cruzar(page, caja, conDedo === true, 's1-puerta');
   await expect(canvas).toHaveAttribute('data-sala', 'porteria');
 
   // De vuelta en la portería: frente a la puerta 1, y la cooperativa ya no ocupa memoria.
   // Three sube cada geometría la primera vez que se ve, así que en la GPU puede haber menos
   // geometrías que mallas, pero nunca más: si la cooperativa no se hubiera liberado, sobrarían.
-  await expect.poll(async () => (await leer(page, 'data-posicion'))[0]).toBeCloseTo(-1.98, 1);
-  expect((await leer(page, 'data-posicion'))[1]).toBeCloseTo(2.8, 1);
+  // `cruzar` ya esperó a estar 1 m delante de la puerta 1, en el pasillo.
+  const [xVuelta, zVuelta] = await leer(page, 'data-posicion');
+  const vuelta = puntoDeEntrada(salaPorId('porteria'), 's1-cooperativa');
+  expect(Math.hypot(xVuelta - vuelta.x, zVuelta - vuelta.z)).toBeLessThan(0.2);
   const mallasPorteria = Number(await canvas.getAttribute('data-mallas'));
   expect(mallasPorteria).toBeGreaterThan(0);
   await expect

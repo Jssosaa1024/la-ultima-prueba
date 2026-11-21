@@ -206,18 +206,20 @@ describe('recorrido', () => {
     ).toBeNull();
   });
 
-  it('al volver a la portería se aparece frente a la puerta de la sala, mirando al pasillo', () => {
+  it('al volver a la portería se aparece en el pasillo frente a la puerta de la sala', () => {
     const porteria = salaPorId('porteria');
-    // La puerta 2 está en la pared este (x = 2,98): se aparece 1 m hacia el oeste, mirando al oeste.
+    // La puerta 2 está en la pared este del tramo 1 (x = −3,42, docs/pasillos.md): se aparece
+    // 1 m hacia el oeste, en medio del pasillo, mirando al oeste.
     const p = puntoDeEntrada(porteria, 's2-laboratorio');
-    expect(p.x).toBeCloseTo(1.98);
-    expect(p.z).toBeCloseTo(1.55);
+    expect(p.x).toBeCloseTo(-4.42);
+    expect(p.z).toBeCloseTo(-8.4);
     expect(adelante(p.yaw).x).toBeCloseTo(-1);
 
-    // La puerta 1 está en la pared oeste: se aparece hacia el este, mirando al este.
-    const q = puntoDeEntrada(porteria, 's1-cooperativa');
-    expect(q.x).toBeCloseTo(-1.98);
-    expect(adelante(q.yaw).x).toBeCloseTo(1);
+    // La puerta 5 cierra el pasillo por el sur (z = 1,18): se aparece hacia el norte.
+    const q = puntoDeEntrada(porteria, 's5-rectoria');
+    expect(q.x).toBeCloseTo(-14.6);
+    expect(q.z).toBeCloseTo(0.18);
+    expect(adelante(q.yaw).z).toBeCloseTo(-1);
   });
 
   it('al entrar a una sala se aparece frente a su puerta; sin origen, en el punto de inicio', () => {
