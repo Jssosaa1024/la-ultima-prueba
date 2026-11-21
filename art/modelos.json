@@ -932,5 +932,61 @@
   {
     "archivo": "public/assets/salas/compartido/techo.ktx2",
     "original": "art/compartido/originales/ambientcg/OfficeCeiling001_1K-JPG.zip#OfficeCeiling001_1K-JPG_Color.jpg"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/estudiante-a.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-characters/kenney_mini-characters.zip#Models/GLB format/character-female-b.glb"
+      }
+    ],
+    "animado": {
+      "clips": ["idle", "walk"],
+      "alto": 1.4,
+      "uniforme": ["torso", "arm-left", "arm-right"]
+    },
+    "nota": "Compañero del cooperativo (T83c): character-female-b de Mini Characters, con idle y walk; el saludo va por código"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/estudiante-b.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-characters/kenney_mini-characters.zip#Models/GLB format/character-male-a.glb"
+      }
+    ],
+    "animado": {
+      "clips": ["idle", "walk"],
+      "alto": 1.4,
+      "uniforme": ["torso", "arm-left", "arm-right"]
+    },
+    "nota": "Compañero del cooperativo (T83c): character-male-a de Mini Characters, con idle y walk; el saludo va por código"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/estudiante-c.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-characters/kenney_mini-characters.zip#Models/GLB format/character-female-c.glb"
+      }
+    ],
+    "animado": {
+      "clips": ["idle", "walk"],
+      "alto": 1.4,
+      "uniforme": ["torso", "arm-left", "arm-right"]
+    },
+    "nota": "Compañero del cooperativo (T83c): character-female-c de Mini Characters, con idle y walk; el saludo va por código"
+  },
+  {
+    "archivo": "public/assets/salas/compartido/estudiante-d.glb",
+    "piezas": [
+      {
+        "original": "art/compartido/originales/kenney-mini-characters/kenney_mini-characters.zip#Models/GLB format/character-male-f.glb"
+      }
+    ],
+    "animado": {
+      "clips": ["idle", "walk"],
+      "alto": 1.4,
+      "uniforme": ["torso", "arm-left", "arm-right"]
+    },
+    "nota": "Compañero del cooperativo (T83c): character-male-f de Mini Characters, con idle y walk; el saludo va por código"
   }
 ]
