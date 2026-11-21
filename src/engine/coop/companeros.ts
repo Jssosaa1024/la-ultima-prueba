@@ -122,7 +122,15 @@ export function crearCompaneros(
         const interpolador = interpoladores.get(j.jugador);
         if (!interpolador?.muestra(ahoraMs, muestra) || muestra.s !== s) continue;
         personajes.poner(j.jugador, j.color, muestra.x, muestra.y, muestra.z, muestra.yaw, ahoraMs);
-        etiquetas.poner(n, muestra.x, muestra.y, muestra.z, j.color, j.alias);
+        etiquetas.poner(
+          n,
+          muestra.x,
+          muestra.y,
+          muestra.z,
+          j.color,
+          j.alias,
+          personajes.alturaEtiqueta,
+        );
         n++;
         if (escribir)
           texto += `${texto ? ';' : ''}${j.alias}:${muestra.x.toFixed(2)},${muestra.z.toFixed(2)}`;
@@ -139,7 +147,7 @@ export function crearCompaneros(
         for (const j of jugadores) {
           const e = j.yo ? null : personajes.estado(j.jugador);
           if (!e) continue;
-          const que = e.enVista ? `${e.paso}${e.saluda ? '+saludo' : ''}` : 'fuera';
+          const que = `${e.paso}${e.saluda ? '+saludo' : ''}${e.enVista ? '' : '+fuera'}`;
           animacion += `${animacion ? ';' : ''}${j.alias}:${que}`;
         }
         if (canvas.dataset['animacion'] !== animacion) canvas.dataset['animacion'] = animacion;

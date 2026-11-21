@@ -47,7 +47,10 @@ export const NOMBRE_ALIAS: Readonly<Record<Alias, string>> = {
   mono: 'Mono',
 };
 
-/** Altura de la etiqueta sobre el piso, en metros (encima de la cabeza). */
+/**
+ * Altura de la etiqueta sobre el piso, en metros (encima de la cabeza) con el personaje de
+ * prueba. Cada modelo da la suya (`ModeloPersonajes.alturaEtiqueta`).
+ */
 export const ALTURA_ETIQUETA = 1.92;
 /** Medidas de cada etiqueta en la escena, en metros (las del `Sprite` de T83). */
 export const ANCHO_ETIQUETA = 0.64;
@@ -95,8 +98,19 @@ export interface Etiquetas {
    * compañero. Va a la escena.
    */
   readonly malla: Mesh;
-  /** Pone la etiqueta `i` encima de (x, y, z), con el color y el alias del jugador. */
-  poner(i: number, x: number, y: number, z: number, color: ColorJugador, alias: Alias): void;
+  /**
+   * Pone la etiqueta `i` a `altura` metros sobre (x, y, z), con el color y el alias del
+   * jugador.
+   */
+  poner(
+    i: number,
+    x: number,
+    y: number,
+    z: number,
+    color: ColorJugador,
+    alias: Alias,
+    altura?: number,
+  ): void;
   /** Cuántas se ven (las primeras `n`). */
   mostrar(n: number): void;
   /** Gira las etiquetas hacia la cámara (como un `Sprite`). Cada cuadro, antes de dibujar. */
@@ -149,10 +163,10 @@ export function crearEtiquetas(crearLienzo: () => Lienzo = lienzoDelNavegador): 
 
   return {
     malla,
-    poner(i, x, y, z, c, alias) {
+    poner(i, x, y, z, c, alias, altura = ALTURA_ETIQUETA) {
       const centro = centros[i];
       if (!centro) return;
-      centro.set(x, y + ALTURA_ETIQUETA, z);
+      centro.set(x, y + altura, z);
       const clave = `${alias}:${c}`;
       if (dibujado[i] !== clave) {
         dibujado[i] = clave;

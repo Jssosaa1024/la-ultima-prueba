@@ -22,6 +22,7 @@ import {
 } from 'three';
 import type { BufferGeometry } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { ALTURA_ETIQUETA } from './avatares';
 import { clipSaludo } from './personajes';
 import type { ModeloPersonajes } from './personajes';
 
@@ -221,6 +222,7 @@ export function crearModeloDePrueba(): ModeloPersonajes {
     variantes,
     clips: clips(),
     velocidadCaminar: VELOCIDAD_CAMINAR_PRUEBA,
+    alturaEtiqueta: ALTURA_ETIQUETA,
     liberar() {
       material.dispose();
       for (const v of variantes) {

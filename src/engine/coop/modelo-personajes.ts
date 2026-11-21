@@ -17,10 +17,23 @@ import { aLambert } from '../salas/modelos';
 import { clipSaludo } from './personajes';
 import type { ModeloPersonajes } from './personajes';
 
-/** Lo que hay que saber del paquete. Se confirma con el paquete descargado. */
+/**
+ * Clip `walk` de Mini Characters (medido en el GLB): un paso doble en 0,667 s con las piernas
+ * a ±60° desde la cadera, que queda a 0,18 unidades del piso. El pipeline escala el personaje
+ * de 0,776 unidades a 1,4 m (`art/modelos.json`): más alto, la cabeza grande lo hacía muy ancho.
+ */
+const ALTO_MINI_M = 1.4;
+const ESCALA_MINI = ALTO_MINI_M / 0.776;
+const PIERNA_M = 0.18 * ESCALA_MINI;
+const CICLO_WALK_S = 0.667;
+
+/** Lo que hay que saber del paquete (Kenney Mini Characters 2.0). */
 export const PAQUETE_PERSONAJES = {
   nombre: 'kenney-mini-characters',
-  /** Ids del manifiesto, uno por personaje (el orden es el de `varianteDe`). */
+  /**
+   * Ids del manifiesto, uno por personaje, en el orden de `varianteDe` (ámbar, turquesa,
+   * violeta, coral): character-female-b, male-a, female-c y male-f.
+   */
   archivos: [
     'compartido/estudiante-a',
     'compartido/estudiante-b',
@@ -28,14 +41,23 @@ export const PAQUETE_PERSONAJES = {
     'compartido/estudiante-d',
   ],
   clips: { quieto: 'idle', caminar: 'walk' },
-  /** Hueso y eje local que levantan el brazo derecho hacia afuera (saludo por código). */
-  saludo: { hueso: 'arm-right', eje: new Vector3(0, 0, 1), signo: 1 },
-  /** Huesos cuya ropa se pinta del color del jugador: la camiseta va con el torso. */
-  huesosUniforme: /^(torso|body|chest|spine)/i,
+  /**
+   * Saludo por código: el brazo derecho (a −X, porque miran a +Z) sube con un giro negativo
+   * alrededor de Z. En `idle` cuelga a 45° bajo la horizontal; con el 65 % del saludo queda unos
+   * 50° por encima, hacia afuera: más arriba se esconde detrás de la cabeza grande.
+   */
+  saludo: { hueso: 'arm-right', eje: new Vector3(0, 0, 1), signo: -1, amplitud: 0.65 },
+  /**
+   * Si el GLB no trae la camiseta marcada (`_TINTE`, de `optimize-models`), se pinta lo que
+   * mueve el torso.
+   */
+  huesosUniforme: /^torso$/,
+  /** El alias, un poco encima de la cabeza. */
+  alturaEtiqueta: ALTO_MINI_M + 0.16,
   /** Los de Kenney miran hacia +Z; el jugador, hacia −Z. */
   giro: Math.PI,
-  /** Metros por segundo del clip `walk` a rapidez 1 (medido con el paquete). */
-  velocidadCaminar: 1.2,
+  /** Metros por segundo del clip `walk` a rapidez 1: dos pasos por ciclo, la cuerda de ±60°. */
+  velocidadCaminar: (2 * 2 * PIERNA_M * Math.sin(Math.PI / 3)) / CICLO_WALK_S,
 };
 
 /**
@@ -100,8 +122,14 @@ export async function cargarModeloPersonajes(
   for (const g of gltfs) {
     aLambert(g.scene);
     g.scene.traverse((o) => {
-      if ((o as SkinnedMesh).isSkinnedMesh)
-        marcarUniforme(o as SkinnedMesh, paquete.huesosUniforme);
+      const malla = o as SkinnedMesh;
+      if (!malla.isSkinnedMesh) return;
+      // La camiseta que marcó el pipeline por su color (GLTFLoader nombra `_TINTE` como `_tinte`).
+      const marcada = malla.geometry.getAttribute('_tinte');
+      if (marcada) {
+        malla.geometry.setAttribute('tinte', marcada);
+        malla.geometry.deleteAttribute('_tinte');
+      } else marcarUniforme(malla, paquete.huesosUniforme);
     });
     // El giro va en un nodo aparte: la raíz del personaje la mueve `personajes.ts`.
     const raiz = new Group();
@@ -123,12 +151,13 @@ export async function cargarModeloPersonajes(
     liberar();
     return null;
   }
-  const { hueso, eje, signo } = paquete.saludo;
+  const { hueso, eje, signo, amplitud } = paquete.saludo;
   return {
     nombre: paquete.nombre,
     variantes,
-    clips: { quieto, caminar, saludar: clipSaludo(hueso, eje, signo) },
+    clips: { quieto, caminar, saludar: clipSaludo(hueso, eje, signo, amplitud) },
     velocidadCaminar: paquete.velocidadCaminar,
+    alturaEtiqueta: paquete.alturaEtiqueta,
     liberar,
   };
 }

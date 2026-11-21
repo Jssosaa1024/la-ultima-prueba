@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PerspectiveCamera } from 'three';
-import type { Mesh, Object3D, SkinnedMesh } from 'three';
+import type { Group, Mesh, Object3D, SkinnedMesh } from 'three';
+import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
+import {
+  cargarModeloPersonajes,
+  PAQUETE_PERSONAJES,
+} from '../../src/engine/coop/modelo-personajes';
 import { crearModeloDePrueba } from '../../src/engine/coop/personaje-prueba';
 import { crearPersonajes } from '../../src/engine/coop/personajes';
 
@@ -149,5 +154,72 @@ describe('personajes del cooperativo (T83c)', () => {
     p.terminar(16, c);
     expect(llamadas(p.grupo)).toBe(1);
     p.liberar();
+  });
+});
+
+describe('carga del paquete de personajes (T83c)', () => {
+  /** Un GLTF falso: la escena del personaje de prueba con los clips como los de Kenney. */
+  const gltfFalso = (conTinte: boolean): GLTF => {
+    const prueba = crearModeloDePrueba();
+    const escena = prueba.variantes[0] as Group;
+    for (const m of mallas(escena)) {
+      const t = m.geometry.getAttribute('tinte');
+      m.geometry.deleteAttribute('tinte');
+      if (conTinte) m.geometry.setAttribute('_tinte', t);
+    }
+    const idle = prueba.clips.quieto.clone();
+    idle.name = 'idle';
+    const walk = prueba.clips.caminar.clone();
+    walk.name = 'walk';
+    return { scene: escena, animations: [idle, walk] } as unknown as GLTF;
+  };
+  const indice = new Map(
+    PAQUETE_PERSONAJES.archivos.map((id, i) => [
+      `${id}.glb`,
+      `/assets/salas/${id}.0000000${i}.glb`,
+    ]),
+  );
+
+  it('usa la camiseta que marcó el pipeline, voltea el modelo y arma el saludo del brazo', async () => {
+    const pedidas: string[] = [];
+    const modelo = await cargarModeloPersonajes(indice, (url) => {
+      pedidas.push(url);
+      return Promise.resolve(gltfFalso(true));
+    });
+    if (!modelo) throw new Error('sin modelo');
+    expect(pedidas).toHaveLength(4);
+    expect(modelo.nombre).toBe('kenney-mini-characters');
+    expect(modelo.variantes).toHaveLength(4);
+    const [cuerpo] = mallas(modelo.variantes[0] as Object3D);
+    expect(cuerpo?.geometry.getAttribute('tinte')).toBeDefined();
+    expect(cuerpo?.geometry.getAttribute('_tinte')).toBeUndefined();
+    expect(modelo.variantes[0]?.children[0]?.rotation.y).toBeCloseTo(Math.PI);
+    expect(modelo.clips.saludar.tracks[0]?.name).toBe('arm-right.quaternion');
+    expect(modelo.alturaEtiqueta).toBeGreaterThan(1.4);
+    modelo.liberar();
+  });
+
+  it('sin la camiseta marcada, pinta lo que mueve el torso', async () => {
+    const modelo = await cargarModeloPersonajes(indice, () => Promise.resolve(gltfFalso(false)), {
+      ...PAQUETE_PERSONAJES,
+      huesosUniforme: /^torso$/,
+    });
+    const [cuerpo] = mallas(modelo?.variantes[0] as Object3D);
+    const tinte = cuerpo?.geometry.getAttribute('tinte');
+    expect(Array.from(tinte?.array ?? []).some((t) => t === 1)).toBe(true);
+    modelo?.liberar();
+  });
+
+  it('sin personajes en el manifiesto, o sin el clip de caminar, sigue el de prueba', async () => {
+    expect(
+      await cargarModeloPersonajes(new Map(), () => Promise.reject(new Error('no'))),
+    ).toBeNull();
+    const sinWalk = (): Promise<GLTF> => {
+      const g = gltfFalso(true);
+      return Promise.resolve({ ...g, animations: g.animations.slice(0, 1) } as GLTF);
+    };
+    const aviso = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(await cargarModeloPersonajes(indice, sinWalk)).toBeNull();
+    aviso.mockRestore();
   });
 });

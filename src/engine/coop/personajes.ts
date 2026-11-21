@@ -56,6 +56,8 @@ export interface ModeloPersonajes {
   readonly clips: { quieto: AnimationClip; caminar: AnimationClip; saludar: AnimationClip };
   /** Metros por segundo del clip de caminar a rapidez 1 (para que los pies no patinen). */
   readonly velocidadCaminar: number;
+  /** Altura del alias sobre el piso, en metros (encima de la cabeza). */
+  readonly alturaEtiqueta: number;
   liberar(): void;
 }
 
@@ -68,11 +70,12 @@ const SALUDO_GRADOS = [0, 150, 125, 155, 125, 155, 140, 0];
  * Es aditivo (empieza sin giro): se suma a lo que haga el brazo, quieto o caminando. Ningún
  * paquete CC0 de Kenney trae un saludo con la mano, así que va por código.
  * @param eje eje local del hueso que levanta el brazo hacia afuera; `signo` lo invierte.
+ * @param amplitud fracción del giro (1 = 150°): menos si la cabeza tapa el brazo levantado.
  */
-export function clipSaludo(hueso: string, eje: Vector3, signo = 1): AnimationClip {
+export function clipSaludo(hueso: string, eje: Vector3, signo = 1, amplitud = 1): AnimationClip {
   const q = new Quaternion();
   const valores = SALUDO_GRADOS.flatMap((g) =>
-    q.setFromAxisAngle(eje, (signo * g * Math.PI) / 180).toArray(),
+    q.setFromAxisAngle(eje, (signo * amplitud * g * Math.PI) / 180).toArray(),
   );
   const duracion = SALUDO_TIEMPOS[SALUDO_TIEMPOS.length - 1] ?? 1.6;
   return new AnimationClip('saludar', duracion, [
@@ -160,6 +163,8 @@ export interface Personajes {
   readonly grupo: Group;
   /** `prueba` o el paquete que se está usando. */
   readonly modelo: string;
+  /** Altura del alias sobre los pies con este modelo. */
+  readonly alturaEtiqueta: number;
   /** Cuántos se animaron en el último cuadro (los que están a la vista). */
   readonly animados: number;
   /** Pone al personaje de `jugador` en (x, y, z) mirando a `yaw` (pies en el piso). */
@@ -269,6 +274,9 @@ export function crearPersonajes(modeloInicial: ModeloPersonajes): Personajes {
     grupo,
     get modelo() {
       return modelo.nombre;
+    },
+    get alturaEtiqueta() {
+      return modelo.alturaEtiqueta;
     },
     get animados() {
       return animados;
