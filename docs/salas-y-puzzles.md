@@ -102,7 +102,7 @@ Un vestíbulo de 6 × 10 m con la puerta de salida al fondo. Desde el 21 de novi
 | Grabaciones opcionales | 5 | 37 | — |
 | Elección de final | 1 | 38 | — |
 
-La curva sube suave: la sala 1 enseña que las máquinas responden a cada intento, y la sala 5 guarda la intuición más difícil de romper. Consultar el cuaderno pausa el reloj en modo individual, así que estos tiempos son de reloj activo.
+La curva sube suave: la sala 1 enseña que las máquinas responden a cada intento, y la sala 5 guarda la intuición más difícil de romper. Estos tiempos son de reloj activo; consultar el cuaderno no detiene el reloj (T36b).
 
 ### Reglas de progreso
 

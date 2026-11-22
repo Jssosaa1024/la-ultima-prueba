@@ -24,7 +24,7 @@ describe('reloj de 40 minutos activos (T25)', () => {
     let r = reanudar(crearReloj(), 1000);
     expect(restante(r, 1000 + 5 * MIN)).toBe(35 * MIN);
     r = pausar(r, 1000 + 5 * MIN);
-    // En pausa (por ejemplo, con el cuaderno abierto) no pasa el tiempo.
+    // En pausa (por ejemplo, con el menú de pausa abierto) no pasa el tiempo.
     expect(restante(r, 1000 + 30 * MIN)).toBe(35 * MIN);
     r = reanudar(r, 1000 + 30 * MIN);
     expect(restante(r, 1000 + 40 * MIN)).toBe(25 * MIN);

@@ -51,7 +51,7 @@ test('en vertical se pide girar el teléfono, con el reloj en pausa y la escena 
   await expect(page.getByRole('button', { name: 'Pausa' })).toBeVisible();
 });
 
-test('el cuaderno abierto sigue igual después de girar, y el reloj sigue en pausa', async ({
+test('el cuaderno abierto sigue igual después de girar, y el reloj vuelve a correr', async ({
   page,
 }, info) => {
   test.skip(!info.project.use.hasTouch, 'el aviso es solo para celulares');
@@ -68,9 +68,10 @@ test('el cuaderno abierto sigue igual después de girar, y el reloj sigue en pau
   await expect(page.getByRole('dialog', { name: 'Gira el teléfono' })).toBeVisible();
   await girar(page, false);
   await expect(page.getByRole('dialog', { name: 'Gira el teléfono' })).toHaveCount(0);
-  // El borrador sigue ahí y el reloj sigue en pausa: el cuaderno sigue abierto.
+  // El borrador sigue ahí y, sin el aviso de girar, el reloj vuelve a correr aunque el cuaderno
+  // siga abierto (T36b).
   await expect(cuaderno.getByLabel('Nueva nota')).toHaveValue('El precio sube 25 %');
-  await expect(page.locator('.hud-reloj')).toContainText('en pausa');
+  await expect(page.locator('.hud-reloj')).not.toContainText('en pausa');
 });
 
 test('en horizontal, los botones de un panel de máquina quedan a la vista', async ({

@@ -35,7 +35,7 @@ Las soluciones de cada etapa están en `docs/salas-y-puzzles.md` y en `src/conte
 
 ## Versión individual: 1 jugador
 
-Comienzas en la portería. De ella sale un pasillo en U con las cinco salas numeradas entre puertas de aulas, baños y otras que no se abren: tocarlas solo da una frase corta, a veces de La Voz, nunca una pista (`docs/pasillos.md`). La linterna está en el escritorio del celador y el cuaderno en una silla: recogerlos enseña el botón «Usar» y la vista de inspección antes de la sala 1. Las salas se abren en orden y cada mecanismo conserva sus ajustes al salir y volver. El cuaderno guarda los datos encontrados, tus notas y los conceptos que vas descubriendo. En el cooperativo, los datos y las pistas se comparten con el grupo; las notas son solo tuyas y no viajan por la red. Consultarlo pausa el reloj. Puedes volver a salas resueltas para buscar grabaciones antes de elegir el final.
+Comienzas en la portería. De ella sale un pasillo en U con las cinco salas numeradas entre puertas de aulas, baños y otras que no se abren: tocarlas solo da una frase corta, a veces de La Voz, nunca una pista (`docs/pasillos.md`). La linterna está en el escritorio del celador y el cuaderno en una silla: recogerlos enseña el botón «Usar» y la vista de inspección antes de la sala 1. Las salas se abren en orden y cada mecanismo conserva sus ajustes al salir y volver. El cuaderno guarda los datos encontrados, tus notas y los conceptos que vas descubriendo. En el cooperativo, los datos y las pistas se comparten con el grupo; las notas son solo tuyas y no viajan por la red. Consultarlo no detiene el reloj: el tiempo corre mientras se piensa. Puedes volver a salas resueltas para buscar grabaciones antes de elegir el final.
 
 ## Versión cooperativa: 2 a 4 jugadores
 

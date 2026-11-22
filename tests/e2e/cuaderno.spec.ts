@@ -1,19 +1,25 @@
 import { expect, test } from '@playwright/test';
 import { continuarEn, tocarObjeto, type Punto3 } from './escena';
 
-// T36: cuaderno con datos encontrados, notas y pausa del reloj. La partida empieza en la
+// T36: cuaderno con datos encontrados y notas (T36b: abrirlo ya no pausa el reloj). La partida empieza en la
 // sala 1, con el cuaderno ya recogido.
 
 /** La caja de rodillos, sobre el mostrador de la cooperativa. */
 const CAJA_DE_RODILLOS: Punto3 = [1.55, 1.08, -0.6];
 
-test('abrir el cuaderno pausa el reloj y cerrarlo lo reanuda', async ({ page }) => {
+test('con el cuaderno abierto el reloj sigue corriendo', async ({ page }) => {
   await continuarEn(page, { sala: 's1-cooperativa', inventario: ['porteria-cuaderno'] });
   await page.getByRole('button', { name: 'Cuaderno' }).click();
   const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
   await expect(cuaderno).toBeVisible();
-  await expect(cuaderno.getByRole('status')).toContainText('El reloj está en pausa');
+  await expect(cuaderno).not.toContainText('El reloj está en pausa');
   await expect(cuaderno).toContainText('Todavía no hay datos');
+  // Con un panel abierto el HUD queda inerte: se lee el reloj por su clase. No dice «en pausa»
+  // y la cuenta baja mientras el cuaderno sigue abierto.
+  const reloj = page.locator('.hud-reloj');
+  await expect(reloj).not.toContainText('en pausa');
+  const antes = await reloj.innerText();
+  await expect(reloj).not.toHaveText(antes, { timeout: 3000 });
 
   await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
   // El foco vuelve al botón que abrió el cuaderno.

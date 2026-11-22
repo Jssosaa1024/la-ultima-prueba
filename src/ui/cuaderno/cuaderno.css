@@ -1,11 +1,3 @@
-.cuaderno-pausa {
-  margin: 0 0 12px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: var(--tema-noche-3);
-  font-size: 0.9375rem;
-}
-
 .cuaderno-seccion + .cuaderno-seccion {
   margin-top: 20px;
 }

@@ -51,7 +51,7 @@ export type Comando =
   | { t: 'pasar'; objeto: string; a: string }
   /** Botón contextual sobre el objeto enfocado. */
   | { t: 'accion'; objeto: string; accion: AccionObjeto }
-  /** Pausar el reloj (el cuaderno lo pausa en modo individual). */
+  /** Pausar el reloj (el menú de pausa y los ajustes, en modo individual). */
   | { t: 'pausar' }
   | { t: 'reanudar' }
   /** Frente a la puerta de salida, con los cinco sellos: salir o restaurar el archivo. */

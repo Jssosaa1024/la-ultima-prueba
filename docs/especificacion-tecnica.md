@@ -405,7 +405,7 @@ Reglas comunes:
 
 - Solo cuenta un estado válido que no resuelve la etapa. Resolver nunca es un intento.
 - **`accionar`:** cuenta cada vez que se acciona el objeto, aunque el estado sea el mismo de la vez anterior.
-- **`reposo`** (máquinas que responden en vivo y no tienen nada que accionar): el panel avisa cada cambio del mecanismo (`alCambiarEstado`) y suma el tiempo de reloj activo (`avanzarReposo`). Al cumplirse los segundos sin cambios se cuenta un intento, una sola vez; el mismo estado no vuelve a contar hasta que el jugador mueva algo. Con el reloj en pausa (cuaderno abierto) el reposo no avanza.
+- **`reposo`** (máquinas que responden en vivo y no tienen nada que accionar): el panel avisa cada cambio del mecanismo (`alCambiarEstado`) y suma el tiempo de reloj activo (`avanzarReposo`). Al cumplirse los segundos sin cambios se cuenta un intento, una sola vez; el mismo estado no vuelve a contar hasta que el jugador mueva algo. Con el reloj en pausa (menú de pausa, pestaña oculta o celular en vertical) el reposo no avanza.
 - **Sala 4:** además, la pila debe estar vacía. Con libros sin repartir el jugador todavía está armando el reparto, y ninguna etapa se puede resolver así (la media 4 exige los 20 libros).
 - El contador vuelve a cero al cambiar de etapa (`nuevaEtapa` en `pistas.ts`).
 - **Cooperativo:** un intento es cada `resultado` con `resuelta: false`, es decir, cada propuesta aceptada por todos que no resuelve. Lo cuenta el anfitrión; la regla `intento` del JSON vale para el modo individual.
@@ -799,6 +799,7 @@ Son 128 tareas de 20 a 55 minutos, unas 99 horas en total: las 102 originales (7
 - [x] **T35c** (nueva) Contenido de las fichas de inspección de todas las salas: `src/content/fichas.json` validado en build, `fichaDeObjeto()` en `src/content/fichas.ts` y un test que falla si un objeto examinable no tiene ficha — 50 min
 - [x] **T35d** (nueva) Conectar las fichas reales: el controlador llena el signal `fichas` con `src/content/fichas.ts` (todas las salas, según la etapa de cada una) y los papeles recogidos quedan en los datos del cuaderno. Se borran `?ejemplo=1` y `src/signals/ejemplo.ts`; las e2e que lo usaban pasan a objetos y finales reales — 60 min
 - [x] **T36** Cuaderno: datos encontrados, notas y pausa del reloj — 55 min
+- [x] **T36b** (nueva) El cuaderno ya no pausa el reloj en modo individual: el tiempo corre mientras se intenta resolver un puzzle. La pausa queda solo para el botón «Pausa», los ajustes, la pestaña oculta y el celular en vertical — 15 min
 - [x] **T37** (v1.2) Marco común de los paneles de mecanismo: controles discretos, botón de accionar y respuesta visible de la máquina — 50 min
 - [x] **T38** (v1.2) Panel de pistas graduales y texto del cuaderno al resolver — 35 min
 - [x] **T39** Ajustes: sensibilidad, modo zurdo, tamaño de texto y volumen — 45 min
