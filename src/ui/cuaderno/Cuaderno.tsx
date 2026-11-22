@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'preact/hooks';
+import { useId, useState } from 'preact/hooks';
 import { fichas } from '../../signals/contenido';
 import { datosEncontrados, MAX_NOTA, MAX_NOTAS, notas } from '../../signals/cuaderno';
 import { PUZZLES } from '../../content/puzzles';
@@ -14,25 +14,14 @@ import { descubrimientos } from './descubrimientos';
 import './cuaderno.css';
 
 /**
- * Cuaderno (T36): datos encontrados, notas propias y, en modo individual, el reloj en pausa
- * mientras está abierto (diseño: «Consultarlo pausa el reloj»).
+ * Cuaderno (T36): datos encontrados y notas propias. Desde T36b el reloj sigue corriendo
+ * mientras está abierto, también en modo individual: pensar un puzzle gasta tiempo de la partida.
  */
 export default function Cuaderno() {
   const individual = modo.value === 'individual';
 
-  useEffect(() => {
-    if (!individual) return;
-    enviar({ t: 'pausar' });
-    return () => enviar({ t: 'reanudar' });
-  }, [individual]);
-
   return (
     <Dialogo antetitulo="Cuaderno" titulo="Tu cuaderno" retorno="cuaderno" alCerrar={cerrarPanel}>
-      {individual && (
-        <p class="cuaderno-pausa" role="status">
-          El reloj está en pausa mientras tienes el cuaderno abierto.
-        </p>
-      )}
       {/* En grupo (T86): la pista del encargo de este jugador en la sala actual. */}
       {!individual && <Encargos />}
       <Descubrimientos />

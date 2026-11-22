@@ -517,8 +517,8 @@ export class JuegoCoop {
         }
         return;
       default:
-        // `pausar` y `reanudar` los manda el cuaderno al abrirse: en grupo el reloj solo se
-        // detiene por votación.
+        // `pausar` y `reanudar` los mandan el menú de pausa y los ajustes: en grupo el reloj
+        // solo se detiene por votación.
         return;
     }
   }

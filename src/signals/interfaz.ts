@@ -99,7 +99,7 @@ export function abrirInspeccion(objeto: string): void {
   });
 }
 
-/** Abre el cuaderno. La pausa del reloj la pide el propio cuaderno al abrirse. */
+/** Abre el cuaderno. El reloj sigue corriendo mientras está abierto (T36b). */
 export function abrirCuaderno(): void {
   batch(() => {
     inspeccionando.value = null;
