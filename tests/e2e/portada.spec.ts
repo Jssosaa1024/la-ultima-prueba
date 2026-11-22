@@ -187,3 +187,28 @@ test('«Jugar» abre el juego', async ({ page }) => {
   await expect(page).toHaveURL(/\/jugar\/?$/);
   await expect(page.getByLabel('Escena del juego')).toBeVisible();
 });
+
+// Tráiler en la portada: el botón abre un diálogo con el video, que no se descarga antes.
+test('«Ver el tráiler» abre el video en un diálogo y «Cerrar» lo detiene', async ({ page }) => {
+  const errores: string[] = [];
+  page.on('pageerror', (e) => errores.push(e.message));
+  const pedidos: string[] = [];
+  page.on('request', (r) => pedidos.push(r.url()));
+  await page.goto('/');
+
+  const video = page.locator('[data-trailer-video]');
+  await expect(video).toHaveAttribute('preload', 'none');
+  expect(pedidos.some((u) => u.endsWith('.mp4'))).toBe(false);
+
+  await page.getByRole('button', { name: /Ver el tráiler/ }).click();
+  const dialogo = page.getByRole('dialog', { name: 'Tráiler de La Última Prueba' });
+  await expect(dialogo).toBeVisible();
+  await expect(video).toBeVisible();
+  const fuente = await video.evaluate((v: HTMLVideoElement) => v.currentSrc);
+  expect(fuente).toMatch(/\/trailer\/trailer-(horizontal|vertical)\.mp4$/);
+
+  await dialogo.getByRole('button', { name: 'Cerrar' }).click();
+  await expect(dialogo).toBeHidden();
+  expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  expect(errores).toEqual([]);
+});

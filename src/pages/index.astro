@@ -68,6 +68,10 @@ const descripcion =
           <li class="tema-etiqueta">Solo o en grupo de 2 a 4</li>
           <li class="tema-etiqueta">En el celular, sin instalar ni crear cuenta</li>
         </ul>
+        <button type="button" class="portada-trailer-abrir" data-trailer-abrir>
+          <span aria-hidden="true">▶</span> Ver el tráiler{' '}
+          <span class="portada-trailer-dur">50 s</span>
+        </button>
       </header>
 
       <Ficha variante="renglones" pestana="Expediente 00:40" entra clase="portada-ficha">
@@ -88,6 +92,37 @@ const descripcion =
       </footer>
     </div>
   </main>
+
+  <dialog
+    class="portada-trailer tema-archivo"
+    aria-label="Tráiler de La Última Prueba"
+    data-trailer
+  >
+    <div class="portada-trailer-caja">
+      <video
+        class="portada-trailer-video"
+        controls
+        playsinline
+        preload="none"
+        poster="/trailer/trailer-poster.webp"
+        data-trailer-video
+      >
+        <source
+          src="/trailer/trailer-vertical.mp4"
+          type="video/mp4"
+          media="(orientation: portrait)"
+        />
+        <source src="/trailer/trailer-horizontal.mp4" type="video/mp4" />
+      </video>
+      <button
+        type="button"
+        class="boton boton-secundario portada-trailer-cerrar"
+        data-trailer-cerrar
+      >
+        Cerrar
+      </button>
+    </div>
+  </dialog>
 </Base>
 
 <script>
@@ -100,6 +135,27 @@ const descripcion =
       const s = Math.floor((performance.now() - inicio) / 1000) % 60;
       segundos.textContent = String(s).padStart(2, '0');
     }, 1000);
+  }
+
+  // El tráiler: se abre en un diálogo y el video solo se descarga al abrirlo (preload="none").
+  const dialogo = document.querySelector<HTMLDialogElement>('[data-trailer]');
+  const video = document.querySelector<HTMLVideoElement>('[data-trailer-video]');
+  const abrir = document.querySelector('[data-trailer-abrir]');
+  if (dialogo && video && abrir) {
+    abrir.addEventListener('click', () => {
+      dialogo.showModal();
+      void video.play().catch(() => {
+        // Si el navegador no deja reproducir solo, quedan los controles del video.
+      });
+    });
+    document
+      .querySelector('[data-trailer-cerrar]')
+      ?.addEventListener('click', () => dialogo.close());
+    // Tocar fuera del video también cierra.
+    dialogo.addEventListener('click', (e) => {
+      if (e.target === dialogo) dialogo.close();
+    });
+    dialogo.addEventListener('close', () => video.pause());
   }
 </script>
 
@@ -252,6 +308,76 @@ const descripcion =
     color: var(--tema-claro);
     line-height: 1.35;
     letter-spacing: 0.06em;
+  }
+
+  /* ---------- El tráiler ---------- */
+
+  .portada-trailer-abrir {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    margin-top: 0.75rem;
+    padding: 0 14px;
+    border: 1px solid var(--tema-ambar);
+    border-radius: var(--tema-radio);
+    background: rgb(0 0 0 / 55%);
+    color: var(--tema-ambar-brillo);
+    font-family: var(--tema-letra-maquina);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+
+  .portada-trailer-abrir:hover {
+    background: rgb(242 169 59 / 18%);
+  }
+
+  .portada-trailer-abrir:focus-visible {
+    outline: 3px solid var(--tema-claro);
+    outline-offset: 3px;
+  }
+
+  .portada-trailer-dur {
+    color: var(--tema-claro-suave);
+    font-weight: 400;
+  }
+
+  .portada-trailer {
+    width: min(100vw - 2rem, 72rem);
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 1px solid var(--tema-noche-borde);
+    border-radius: var(--tema-radio);
+    background: var(--tema-noche);
+  }
+
+  .portada-trailer::backdrop {
+    background: rgb(0 0 0 / 85%);
+  }
+
+  .portada-trailer-caja {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .portada-trailer-video {
+    display: block;
+    width: 100%;
+    max-height: calc(100dvh - 2rem - 4.5rem);
+    background: #000;
+  }
+
+  .portada-trailer-cerrar {
+    justify-self: end;
+  }
+
+  @media (orientation: portrait) {
+    .portada-trailer {
+      width: min(100vw - 1rem, 30rem);
+    }
   }
 
   /* ---------- La ficha del expediente ---------- */
