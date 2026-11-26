@@ -9,7 +9,7 @@ import {
   DURACION_APERTURA_S,
 } from '../../src/engine/mecanismos/caja-fuerte';
 import { construirSala } from '../../src/engine/salas/construir';
-import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
+import { panel, panelRecogido, reiniciarInterfaz } from '../../src/signals/interfaz';
 import { reiniciarPartida, sellos } from '../../src/signals/partida';
 
 // Hito 1, punto 17: la caja fuerte de la sala 5 se abre en 3D al resolver.
@@ -61,6 +61,17 @@ describe('caja fuerte', () => {
     caja.actualizar(DURACION_APERTURA_S * 2);
     expect(caja.estado).toBe('caja-cerrada');
     panel.value = null;
+    caja.actualizar(DURACION_APERTURA_S);
+    expect(caja.estado).toBe('caja-abierta');
+    caja.liberar();
+  });
+
+  it('con el panel recogido en su pestaña se abre a la vista (correcciones del 25 nov)', () => {
+    const raiz = rectoria();
+    const caja = animarCajaFuerte(raiz);
+    panel.value = 'mecanismo';
+    panelRecogido.value = true;
+    sellos.value = ['s5-rectoria'];
     caja.actualizar(DURACION_APERTURA_S);
     expect(caja.estado).toBe('caja-abierta');
     caja.liberar();

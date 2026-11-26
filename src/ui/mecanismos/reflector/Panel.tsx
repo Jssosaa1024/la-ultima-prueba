@@ -76,15 +76,17 @@ export default function PanelReflector({
       )}
 
       {c.polea && polea !== null && (
-        <Pasos
-          etiqueta="Cuerda de la polea"
-          valor={polea}
-          min={c.polea.min}
-          max={c.polea.max}
-          texto={metros(polea)}
-          bloqueado={bloqueado}
-          alCambiar={(n) => ajustar(conPolea(estado, n))}
-        />
+        <div class="reflector-polea">
+          <Pasos
+            etiqueta="Cuerda de la polea"
+            valor={polea}
+            min={c.polea.min}
+            max={c.polea.max}
+            texto={metros(polea)}
+            bloqueado={bloqueado}
+            alCambiar={(n) => ajustar(conPolea(estado, n))}
+          />
+        </div>
       )}
 
       <Respuesta titulo="Lo que se ve ahora">
@@ -111,9 +113,11 @@ export default function PanelReflector({
       )}
 
       {resultado && respuestaPolea && resultado.estado.polea !== null && (
-        <Respuesta titulo="Lo que pasó al soltar la polea">
-          <p>{textoPolea(resultado.estado.polea, respuestaPolea)}</p>
-        </Respuesta>
+        <div class="mecanismo-respuesta reflector-respuesta-polea">
+          <Respuesta titulo="Lo que pasó al soltar la polea">
+            <p>{textoPolea(resultado.estado.polea, respuestaPolea)}</p>
+          </Respuesta>
+        </div>
       )}
     </>
   );

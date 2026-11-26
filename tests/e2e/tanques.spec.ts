@@ -75,12 +75,15 @@ test('estación 1: una corrida que no llega y otra que sí; al resolverla se vue
   await expect(panel.locator('.tanque')).toHaveCount(1);
   await ponerCaudal(panel, 2);
   await palanca.click();
-  // Durante la corrida no se puede accionar ni mover la perilla, y la máquina aún no dice nada.
-  await expect(panel).toContainText('Corriendo:');
-  await expect(palanca).toHaveCount(0);
-  await expect(respuesta).toHaveCount(0);
-  await expect(panel.getByRole('button', { name: /^Más:/ })).toBeDisabled();
+  // Correcciones del 25 nov: mientras corre, el panel se recoge a su pestaña y la corrida se ve
+  // en los tanques 3D. La máquina aún no dice nada ni deja mover la perilla.
+  await expect(page.getByRole('button', { name: 'Mostrar los controles' })).toBeVisible();
+  await expect(panel).toBeHidden();
   await expect(canvas).toHaveAttribute('data-maquina', 'corriendo');
+  const oculto = page.locator('.dialogo-recogido');
+  await expect(oculto).toContainText('Corriendo:');
+  await expect(oculto.locator('.respuesta')).toHaveCount(0);
+  await expect(oculto.locator('.pasos-boton').last()).toBeDisabled();
   // Al sonar la campana, la máquina muestra lo que pasó, sin decir «incorrecto».
   await expect(respuesta).toContainText('el tanque A estaba en 20 cm', HASTA_LA_CAMPANA);
   await expect(respuesta).toContainText('La línea roja está en 30 cm.');

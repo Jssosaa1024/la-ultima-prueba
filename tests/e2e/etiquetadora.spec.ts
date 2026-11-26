@@ -32,7 +32,10 @@ test('las tres etapas de la etiquetadora dan el sello de la sala 1', async ({ pa
   // Etapa 1 · Jugo: de $2.000 a $1.600 con el rodillo de −20 %.
   await expect(panel).toContainText('Sala 1 · Etapa 1 de 3');
   await expect(panel).toContainText('Etiqueta del jugo');
-  await expect(panel.getByRole('list', { name: 'Ranuras de la máquina' })).toContainText('vacía');
+  // En la franja del celular las ranuras no se dibujan (se ven los rodillos puestos).
+  await expect(
+    panel.getByRole('list', { name: 'Ranuras de la máquina', includeHidden: true }),
+  ).toContainText('vacía');
   await rodillo(panel, '−20 %').click();
   await expect(rodillo(panel, '−20 %')).toHaveAttribute('aria-pressed', 'true');
   await palanca.click();
@@ -41,8 +44,10 @@ test('las tres etapas de la etiquetadora dan el sello de la sala 1', async ({ pa
   await expect(respuesta).toContainText('Es el precio de la pizarra.');
   // En la escena, la máquina imprimió su etiqueta.
   await expect(canvas).toHaveAttribute('data-maquina', 'etiqueta-impresa');
-  // La etapa resuelta no se puede cambiar.
-  await expect(rodillo(panel, '+20 %')).toBeDisabled();
+  // La etapa resuelta no se puede cambiar (en la franja sus controles no se dibujan).
+  await expect(
+    panel.getByRole('button', { name: '+20 %', exact: true, includeHidden: true }),
+  ).toBeDisabled();
   await panel.getByRole('button', { name: 'Seguir' }).click();
 
   // Etapa 2 · Empanada: +20 % no devuelve los $2.000; la máquina muestra lo que pasó.
@@ -84,7 +89,8 @@ test('en la etapa 3 el orden de los rodillos no cambia el precio', async ({ page
   const conDedo = info.project.use.hasTouch === true;
   const panel = await abrirEtiquetadora(page, conDedo, 2);
   await expect(panel).toContainText('Sala 1 · Etapa 3 de 3');
-  const ranuras = panel.getByRole('listitem');
+  // En la franja las ranuras no se dibujan: se leen igual.
+  const ranuras = panel.getByRole('listitem', { includeHidden: true });
 
   // Primero +50 % y después −50 %: las ranuras guardan el orden.
   await rodillo(panel, '+50 %').click();

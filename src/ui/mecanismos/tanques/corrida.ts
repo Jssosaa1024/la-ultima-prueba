@@ -52,6 +52,10 @@ export function textoNivel(cm: number): string {
   return `${String(Math.round(cm * 10) / 10).replace('.', ',')} cm`;
 }
 
+/** La última frase cuando la etapa no se resolvió: los tanques vuelven y se puede probar otra vez. */
+export const LINEA_OTRA_VEZ =
+  'Los tanques volvieron a como estaban. Puedes mover la perilla y probar otra vez.';
+
 /**
  * Lo que pasó al sonar la campana, en frases cortas. Dice dónde quedó cada tanque y, con el
  * sello, que las tres estaciones quedaron resueltas; nunca dice si estuvo bien o mal. Un tanque tapado no revela su nivel.
@@ -89,7 +93,7 @@ export function lineasDeResultado(
 
   if (sello) lineas.push('Las tres estaciones quedaron resueltas.');
   if (!resuelta) {
-    lineas.push('Los tanques volvieron a como estaban. Puedes mover la perilla y probar otra vez.');
+    lineas.push(LINEA_OTRA_VEZ);
   }
   return lineas;
 }

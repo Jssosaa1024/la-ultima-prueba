@@ -211,7 +211,7 @@ Si la polea se suelta con una longitud corta, el gancho queda colgando lejos del
 
 La solución de la etapa 3 es única (salvo el orden de los días), lo que se verifica así: con los datos ordenados, el del centro es 3; para que 2 sea la moda, los dos primeros son 2; el rango 7 hace que el último sea 9; y como la suma debe ser 20, el cuarto es 4.
 
-**Pistas:** 1) «Mueve un libro de un carrito a otro. ¿Se apagó la lámpara de la media?» 2) «Ordena los carritos de menor a mayor. ¿Cuál mira la mediana?» 3) «Si la moda es 2, al menos dos días tuvieron 2 libros. ¿Y dónde queda el mayor si el rango es 7?»
+**Pistas:** 1) «Quita un libro de un carrito y ponlo en otro. ¿Cómo queda la lámpara de la media?» 2) «Ordena los carritos de menor a mayor. ¿Cuál mira la mediana?» 3) «Si la moda es 2, al menos dos días tuvieron 2 libros. ¿Y dónde queda el mayor si el rango es 7?»
 
 **Al resolver, el cuaderno escribe:** «Media, mediana, moda y rango miran cosas distintas. El rango es una medida de dispersión: dice qué tan separados están los datos. En 10° conocerás otra, la desviación estándar.»
 

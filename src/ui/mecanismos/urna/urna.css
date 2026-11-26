@@ -76,3 +76,62 @@
   width: 14px;
   height: 14px;
 }
+
+/*
+ * Panel en franja (correcciones del 25 nov): las fichas se ven en la urna 3D. Los dos
+ * dispensadores van lado a lado y las herramientas, en una fila; con las parejas a la vista,
+ * los dispensadores se esconden para dejarles el espacio.
+ */
+.urna-dispensadores {
+  display: contents;
+}
+
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .urna {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .urna-dispensadores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .dialogo-fondo-franja .urna-dispensadores .pasos-valor {
+    min-width: 1.5rem;
+  }
+
+  .dialogo-fondo-franja .urna-dispensadores .pasos-boton {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .dialogo-fondo-franja .urna-con-parejas .urna-dispensadores {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .urna-herramientas {
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin: 6px 0 0;
+  }
+
+  .dialogo-fondo-franja .urna-herramientas .boton {
+    flex: 1 1 0;
+    padding: 0 6px;
+  }
+
+  .dialogo-fondo-franja .urna-largo {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .parejas {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+  }
+}
+
+.urna-panel {
+  display: contents;
+}

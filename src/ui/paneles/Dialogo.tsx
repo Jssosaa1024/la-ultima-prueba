@@ -7,7 +7,7 @@ import './dialogo.css';
 interface Props {
   titulo: string;
   /** Texto pequeño sobre el título (p. ej. «Inspección»). */
-  antetitulo?: string;
+  antetitulo?: ComponentChildren;
   alCerrar: () => void;
   /** Texto del botón de cerrar. */
   cerrar?: string;
@@ -26,6 +26,24 @@ interface Props {
    * (pausa, ajustes, elección de final). Los dos entran deslizándose.
    */
   tema?: 'archivo';
+  /**
+   * Panel en franja (correcciones del 25 nov): en horizontal es una columna a la derecha y la
+   * escena se ve a su izquierda; en vertical, el panel de siempre. El botón de cerrar va
+   * arriba, junto a `cabecera`.
+   */
+  franja?: {
+    /** Botones extra en la cabecera, junto a cerrar (el «Ver» de las máquinas). */
+    cabecera?: ComponentChildren;
+    /** El panel se esconde y queda solo `pestana`, para ver la escena entera. */
+    recogido: boolean;
+    /** El botón que devuelve el panel. Se muestra solo con el panel recogido. */
+    pestana: ComponentChildren;
+    /**
+     * Fracción del ancho de la pantalla (0 a 1) que tapa la columna a la derecha; 0 si el
+     * panel no está en franja (en vertical). Se avisa al abrir y al cambiar de tamaño.
+     */
+    alMedir: (derecha: number) => void;
+  };
   children: ComponentChildren;
 }
 
@@ -73,10 +91,14 @@ export default function Dialogo({
   acciones,
   retorno,
   tema,
+  franja,
   children,
 }: Props) {
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
+  const fondo = useRef<HTMLDivElement>(null);
+  const recogido = franja?.recogido === true;
+  const alMedir = franja?.alMedir;
 
   useEffect(() => {
     const anterior = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -93,6 +115,36 @@ export default function Dialogo({
       }, 0);
     };
   }, []);
+
+  // En franja: cuánto del ancho tapa la columna. Se mide con el diseño, sin la animación de
+  // entrada (que mueve el panel con `transform`).
+  useEffect(() => {
+    if (!alMedir) return;
+    const medir = (): void => {
+      const caja = fondo.current;
+      const panel = ref.current;
+      if (!caja || !panel || caja.clientWidth === 0) return;
+      const izquierda = panel.offsetLeft;
+      const enColumna = izquierda > caja.clientWidth * 0.4;
+      alMedir(enColumna ? (caja.clientWidth - izquierda) / caja.clientWidth : 0);
+    };
+    medir();
+    const observador = new ResizeObserver(medir);
+    if (fondo.current) observador.observe(fondo.current);
+    if (ref.current) observador.observe(ref.current);
+    return () => observador.disconnect();
+  }, [alMedir]);
+
+  // Al recoger el panel, el foco pasa a la pestaña; al volver, al panel.
+  const primeraVez = useRef(true);
+  useEffect(() => {
+    if (primeraVez.current) {
+      primeraVez.current = false;
+      return;
+    }
+    if (recogido) fondo.current?.querySelector<HTMLElement>('.dialogo-pestana button')?.focus();
+    else ref.current?.focus();
+  }, [recogido]);
 
   const alTeclear = (e: KeyboardEvent): void => {
     if (e.key === 'Escape') {
@@ -117,8 +169,35 @@ export default function Dialogo({
     }
   };
 
+  const botonCerrar = franja ? (
+    <button
+      type="button"
+      class="boton boton-secundario dialogo-cerrar-icono"
+      aria-label={cerrar}
+      onClick={alCerrar}
+    >
+      <span aria-hidden="true">✕</span>
+    </button>
+  ) : (
+    <button
+      type="button"
+      class={`boton ${cerrarSecundario ? 'boton-secundario' : 'boton-principal'}`}
+      onClick={alCerrar}
+    >
+      {cerrar}
+    </button>
+  );
+
+  const clases = [
+    'dialogo-fondo',
+    'tema-archivo',
+    tema ? 'dialogo-papel' : '',
+    franja ? 'dialogo-fondo-franja' : '',
+    recogido ? 'dialogo-recogido' : '',
+  ].filter(Boolean);
+
   return (
-    <div class={`dialogo-fondo tema-archivo${tema ? ' dialogo-papel' : ''}`}>
+    <div ref={fondo} class={clases.join(' ')}>
       <div
         ref={ref}
         class="dialogo dialogo-entra"
@@ -126,26 +205,36 @@ export default function Dialogo({
         aria-modal="true"
         aria-labelledby={`${id}-titulo`}
         tabIndex={-1}
+        inert={recogido}
         onKeyDown={alTeclear}
       >
         <header class="dialogo-cabecera">
-          {antetitulo && <p class="dialogo-antetitulo">{antetitulo}</p>}
-          <h2 id={`${id}-titulo`} class="dialogo-titulo">
-            {titulo}
-          </h2>
+          <div class="dialogo-titulos">
+            {antetitulo && <p class="dialogo-antetitulo">{antetitulo}</p>}
+            <h2 id={`${id}-titulo`} class="dialogo-titulo">
+              {titulo}
+            </h2>
+          </div>
+          {franja && (
+            <div class="dialogo-cabecera-botones">
+              {franja.cabecera}
+              {botonCerrar}
+            </div>
+          )}
         </header>
         <div class="dialogo-cuerpo">{children}</div>
-        <footer class="dialogo-pie">
-          {acciones}
-          <button
-            type="button"
-            class={`boton ${cerrarSecundario ? 'boton-secundario' : 'boton-principal'}`}
-            onClick={alCerrar}
-          >
-            {cerrar}
-          </button>
-        </footer>
+        {(!franja || acciones) && (
+          <footer class="dialogo-pie">
+            {acciones}
+            {!franja && botonCerrar}
+          </footer>
+        )}
       </div>
+      {recogido && (
+        <div class="dialogo-pestana" onKeyDown={(e) => e.key === 'Escape' && alCerrar()}>
+          {franja.pestana}
+        </div>
+      )}
     </div>
   );
 }

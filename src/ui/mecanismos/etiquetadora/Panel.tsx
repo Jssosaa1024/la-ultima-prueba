@@ -32,7 +32,7 @@ export default function PanelEtiquetadora({
 
   return (
     <>
-      <dl class="etiquetas">
+      <dl class={`etiquetas${resultado ? ' etiquetas-con-respuesta' : ''}`}>
         <div class="etiqueta">
           <dt>{tituloEtiqueta(estado.producto)}</dt>
           <dd>{pesos(estado.precio)}</dd>
@@ -65,7 +65,7 @@ export default function PanelEtiquetadora({
       </ol>
 
       {resultado && (
-        <div ref={impresion}>
+        <div ref={impresion} class="mecanismo-respuesta">
           <Respuesta titulo="La máquina imprimió">
             <Impresion
               antes={resultado.estado.precio}
@@ -97,9 +97,10 @@ function Impresion({ antes, rodillos, pizarra, resuelta, sello }: PropsImpresion
       <p class="etiqueta-impresa">{pesos(impreso)}</p>
       <p>{textoImpresion(antes, rodillos, impreso)}</p>
       <p>
-        {resuelta
-          ? 'Es el precio de la pizarra.'
-          : `La pizarra dice ${pesos(pizarra)}. Puedes cambiar los rodillos y probar otra vez.`}
+        {resuelta ? 'Es el precio de la pizarra.' : `La pizarra dice ${pesos(pizarra)}.`}
+        {!resuelta && (
+          <span class="respuesta-secundaria"> Puedes cambiar los rodillos y probar otra vez.</span>
+        )}
       </p>
       {sello && <p>Los tres productos tienen su precio. La registradora se abrió.</p>}
     </>

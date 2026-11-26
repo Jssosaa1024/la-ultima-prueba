@@ -19,7 +19,7 @@ export function textoEtapa(sala: number, numero: number, total: number): string 
 
 /** Aviso de las máquinas que responden en vivo, sin nada que accionar. */
 export function textoReposo(segundos: number): string {
-  return `Esta máquina responde sola. Cuando la dejas quieta ${segundos} segundos, revisa lo que hay.`;
+  return `Responde sola: déjala quieta ${segundos} segundos y revisa lo que hay.`;
 }
 
 /** Lo que el marco dice al resolver una etapa. Con sello, depende de si era la última sala. */

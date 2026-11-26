@@ -35,30 +35,51 @@
   color: var(--tema-claro);
 }
 
-/* Un lugar con libros: la pila o un carrito. Botones grandes, para el pulgar. */
-.carritos-lugar {
-  box-sizing: border-box;
+/* Cada carrito: «+», el montón, su día con cuántos libros tiene y «−». */
+.carritos-fila {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+}
+
+.carritos-carrito {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 2px;
   border: 2px solid var(--tema-noche-linea);
   border-radius: 10px;
+}
+
+.carritos-dia {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.carritos-boton {
+  width: 100%;
+  max-width: 56px;
+  min-height: 44px;
+  border: 2px solid var(--tema-noche-linea);
+  border-radius: 8px;
   background: transparent;
   color: var(--tema-claro);
   font: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
 }
 
-.carritos-lugar:disabled {
-  opacity: 0.5;
+.carritos-boton:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* De aquí salen los libros: borde y fondo, y además la palabra «sale». */
-.carritos-origen {
-  border-color: var(--tema-ambar);
-  background: rgb(232 163 61 / 18%);
-}
-
-.carritos-lugar:focus-visible {
+.carritos-boton:focus-visible {
   outline: 3px solid #ffffff;
   outline-offset: 3px;
   box-shadow: 0 0 0 6px var(--tema-tinta);
@@ -70,22 +91,37 @@
   font-variant-numeric: tabular-nums;
 }
 
-.carritos-marca {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--tema-ambar);
+/* Los libros se apilan desde abajo: caben los 20 en un solo carrito. */
+.carritos-monton {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 1px;
+  width: 72%;
+  min-height: 82px;
+  border-bottom: 3px solid var(--tema-noche-linea);
+}
+
+.carritos-libro {
+  flex: 0 0 3px;
+  border-radius: 1px;
+  background: #d98a5f;
+}
+
+/* La pila, con sus libros de pie, y el botón para devolver todo. */
+.carritos-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 8px 0 0;
 }
 
 .carritos-pila {
   display: flex;
+  flex: 1 1 10rem;
   align-items: center;
   gap: 10px;
-  width: 100%;
-  min-height: 56px;
-  padding: 6px 12px;
-}
-
-.carritos-pila-nombre {
+  margin: 0;
   font-weight: 600;
 }
 
@@ -107,45 +143,74 @@
   background: #d98a5f;
 }
 
-.carritos-fila {
-  display: grid;
-  gap: 4px;
-  margin: 8px 0 0;
-}
-
-.carritos-carrito {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-  min-height: 150px;
-  padding: 6px 2px 4px;
-}
-
-.carritos-dia {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-/* Los libros se apilan desde abajo: caben los 20 en un solo carrito. */
-.carritos-monton {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column-reverse;
-  gap: 1px;
-  width: 72%;
-  min-height: 82px;
-  border-bottom: 3px solid var(--tema-noche-linea);
-}
-
-.carritos-libro {
-  flex: 0 0 3px;
-  border-radius: 1px;
-  background: #d98a5f;
-}
-
 .carritos-vaciar {
-  width: 100%;
-  margin: 10px 0 0;
+  flex: 1 1 auto;
+}
+
+/* Panel en franja (correcciones del 25 nov): los montones y la pila se ven en la biblioteca 3D. */
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .carritos-lamparas {
+    position: static;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+
+  .dialogo-fondo-franja .carritos-lamparas .indicador,
+  .dialogo-fondo-franja .carritos-tapada {
+    padding: 0 7px;
+    font-size: 0.875rem;
+    line-height: 1.25;
+  }
+
+  .dialogo-fondo-franja .carritos-instruccion {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .carritos-fila {
+    gap: 3px;
+    margin: 2px 0 0;
+  }
+
+  .dialogo-fondo-franja .carritos-carrito {
+    gap: 1px;
+    padding: 1px 0;
+    border-width: 1px;
+  }
+
+  .dialogo-fondo-franja .carritos-dia {
+    display: inline;
+    font-size: 0.875rem;
+  }
+
+  .dialogo-fondo-franja .carritos-cuenta {
+    font-size: 1rem;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .dialogo-fondo-franja .carritos-monton,
+  .dialogo-fondo-franja .carritos-pila-libros {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .carritos-pie {
+    flex-wrap: nowrap;
+    margin: 2px 0 0;
+  }
+
+  .dialogo-fondo-franja .carritos-pila {
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+  }
+
+  .dialogo-fondo-franja .carritos-largo,
+  .carritos-corto {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .carritos-corto {
+    display: inline;
+  }
 }

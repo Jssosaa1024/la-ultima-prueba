@@ -148,3 +148,250 @@
   border-color: var(--tema-ambar);
   background: var(--tema-ambar);
 }
+
+/*
+ * Panel en franja (correcciones del 25 nov, sesión C). Fuera de la franja, estas envolturas
+ * no cambian nada (`display: contents`). En horizontal, el cuerpo es una columna sin
+ * desplazarse: lo que hizo la máquina sube arriba y reemplaza a la situación, y lo que ya se
+ * ve en la máquina 3D (tanques, sombras, libros, fichas) no se repite aquí.
+ */
+.mecanismo-contenido,
+.mecanismo-maquina {
+  display: contents;
+}
+
+.mecanismo-oculto {
+  display: none;
+}
+
+/* La sala y la etapa: «Sala 4 · Etapa 2 de 3»; en la franja, a la vista «Sala 4 · 2/3». */
+.antetitulo-corto {
+  display: none;
+}
+
+/* Fuera de la franja, los textos recortables se ven enteros y no se tocan. */
+.recortable-mas {
+  display: none;
+}
+
+.anotacion-paso {
+  display: block;
+}
+
+.anotacion-paso + .anotacion-paso {
+  margin-top: 8px;
+}
+
+.mecanismo-pistas .pistas {
+  margin-top: 0;
+}
+
+.mecanismo-pistas > .boton {
+  margin: 10px 0 0;
+}
+
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .mecanismo-contenido {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  /* La situación ocupa hasta dos renglones; si es más larga, se toca para leerla toda. */
+  .dialogo-fondo-franja .mecanismo-situacion {
+    flex: none;
+    margin: 0 0 2px;
+    padding: 3px 8px;
+    border-left-width: 3px;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  .dialogo-fondo-franja .recortable-texto {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .dialogo-fondo-franja .anotacion-detalle .recortable-texto {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .dialogo-fondo-franja .recortable-abierto .recortable-texto {
+    display: block;
+  }
+
+  /* Todo el texto es el botón: el texto recortado y el aire alrededor suman 44 px o más. */
+  .dialogo-fondo-franja .recortable-tocable {
+    position: relative;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    cursor: pointer;
+  }
+
+  .dialogo-fondo-franja .recortable-tocable:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  /* «… más» en la esquina del último renglón, sobre el mismo fondo del texto. */
+  .dialogo-fondo-franja .recortable-mas {
+    position: absolute;
+    right: 0;
+    bottom: 6px;
+    padding: 0 8px 0 16px;
+    background: linear-gradient(90deg, rgb(52 38 22 / 0%), #34261a 30%);
+    color: var(--tema-ambar);
+    font-weight: 700;
+  }
+
+  .dialogo-fondo-franja .anotacion .recortable-mas {
+    background: linear-gradient(90deg, rgb(43 34 26 / 0%), var(--tema-noche-3) 30%);
+  }
+
+  .dialogo-fondo-franja .recortable-abierto .recortable-mas {
+    position: static;
+    padding: 0;
+    background: none;
+  }
+
+  .dialogo-fondo-franja .mecanismo-situacion-leida,
+  .dialogo-fondo-franja .mecanismo-maquina-quieta {
+    display: none;
+  }
+
+  /* Lo que hizo la máquina, arriba: es lo primero que se busca al volver el panel. */
+  .dialogo-fondo-franja .mecanismo-respuesta {
+    order: -1;
+  }
+
+  .dialogo-fondo-franja .respuesta-secundaria {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .respuesta {
+    order: -1;
+    margin: 0 0 3px;
+    padding: 3px 8px;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  .dialogo-fondo-franja .respuesta p {
+    margin: 0;
+  }
+
+  .dialogo-fondo-franja .respuesta-titulo {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .dialogo-fondo-franja .mecanismo-nota,
+  .dialogo-fondo-franja .coop-propuesta {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.25;
+  }
+
+  .dialogo-fondo-franja .mecanismo-resuelta {
+    margin: 0 0 2px;
+    padding: 3px 8px;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  .dialogo-fondo-franja .anotacion {
+    margin: 0;
+    padding: 4px 8px;
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  .dialogo-fondo-franja .anotacion p {
+    margin: 0;
+  }
+
+  .dialogo-fondo-franja .anotacion .anotacion-titulo {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .dialogo-fondo-franja .recortable-mas {
+    display: inline;
+  }
+
+  .dialogo-fondo-franja .antetitulo-corto {
+    display: inline;
+  }
+
+  .dialogo-fondo-franja .antetitulo-largo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .dialogo-fondo-franja .anotacion-paso {
+    display: inline;
+  }
+
+  .dialogo-fondo-franja .anotacion-detalle {
+    padding: 0;
+    min-height: 0;
+  }
+
+  .dialogo-fondo-franja .mecanismo-pistas .pistas {
+    padding: 6px 8px;
+    font-size: 0.875rem;
+  }
+
+  /* Controles: la etiqueta encima y los botones de 44 px, sin aire de sobra. */
+  .dialogo-fondo-franja .control {
+    gap: 2px;
+    margin: 2px 0 0;
+  }
+
+  .dialogo-fondo-franja .control-etiqueta {
+    font-size: 0.875rem;
+  }
+
+  .dialogo-fondo-franja .pasos {
+    gap: 4px;
+  }
+
+  .dialogo-fondo-franja .pasos-boton,
+  .dialogo-fondo-franja .opcion {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 1rem;
+  }
+
+  .dialogo-fondo-franja .pasos-valor {
+    min-width: 3.5rem;
+    font-size: 1.125rem;
+  }
+
+  .dialogo-fondo-franja .opciones {
+    gap: 4px;
+  }
+
+  .dialogo-fondo-franja .indicadores {
+    gap: 4px;
+    margin: 4px 0 0;
+  }
+
+  .dialogo-fondo-franja .indicador {
+    gap: 6px;
+    padding: 2px 8px;
+    font-size: 0.875rem;
+  }
+}

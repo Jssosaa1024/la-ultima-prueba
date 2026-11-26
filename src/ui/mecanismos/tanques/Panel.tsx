@@ -4,7 +4,14 @@ import { duracionCorridaS, nivelEn } from '../../../game/puzzles';
 import { inventario } from '../../../signals/partida';
 import { Pasos, Respuesta } from '../marco/Controles';
 import type { PropsPanel } from '../marco/tipos';
-import { lineasDeResultado, PAUSA_MS, textoCaudal, textoNivel, textoRitmo } from './corrida';
+import {
+  LINEA_OTRA_VEZ,
+  lineasDeResultado,
+  PAUSA_MS,
+  textoCaudal,
+  textoNivel,
+  textoRitmo,
+} from './corrida';
 import Graficador from './Graficador';
 import './tanques.css';
 
@@ -44,6 +51,8 @@ export default function PanelTanques({
   const { objetivo } = etapa.exito;
 
   const [corrida, setCorrida] = useState<Corrida | null>(null);
+  /** En la franja del celular, la gráfica se mira aparte, con todo el ancho de la columna. */
+  const [verGrafica, setVerGrafica] = useState(false);
   const [segundo, setSegundo] = useState(0);
   // El resultado que ya estaba al abrir el panel no se corre otra vez: se muestra quieto.
   const visto = useRef(resultado?.n ?? 0);
@@ -118,8 +127,8 @@ export default function PanelTanques({
   const ayer = tieneHoja ? (estado.b?.registro ?? null) : null;
 
   return (
-    <>
-      <div class="tanques">
+    <div class={`tanques-panel${verGrafica ? ' tanques-grafica-abierta' : ''}`}>
+      <div class={`tanques${resultado && !corriendo ? ' tanques-con-respuesta' : ''}`}>
         <Tanque
           nombre="A"
           clase="tanque-a"
@@ -160,15 +169,17 @@ export default function PanelTanques({
       </p>
 
       {etapa.controles.perillas.includes('a') && (
-        <Pasos
-          etiqueta="Perilla verde: caudal del tanque A"
-          valor={estado.a.caudal}
-          min={etapa.controles.caudal_min}
-          max={etapa.controles.caudal_max}
-          texto={textoCaudal(estado.a.caudal)}
-          bloqueado={bloqueado || porCorrer || corrida !== null}
-          alCambiar={(caudal) => ajustar({ ...estado, a: { ...estado.a, caudal } })}
-        />
+        <div class="tanques-perilla">
+          <Pasos
+            etiqueta="Perilla verde: caudal del tanque A"
+            valor={estado.a.caudal}
+            min={etapa.controles.caudal_min}
+            max={etapa.controles.caudal_max}
+            texto={textoCaudal(estado.a.caudal)}
+            bloqueado={bloqueado || porCorrer || corrida !== null}
+            alCambiar={(caudal) => ajustar({ ...estado, a: { ...estado.a, caudal } })}
+          />
+        </div>
       )}
       <ul class="tanques-datos">
         <li>
@@ -190,17 +201,31 @@ export default function PanelTanques({
       </ul>
 
       {resultado && !corriendo && (
-        <div ref={respuesta}>
+        <div ref={respuesta} class="mecanismo-respuesta">
           <Respuesta titulo="Lo que pasó">
             {lineasDeResultado(etapa, resultado.estado, resultado.resuelta, resultado.sello).map(
               (linea) => (
-                <p key={linea}>{linea}</p>
+                <p
+                  key={linea}
+                  class={linea === LINEA_OTRA_VEZ ? 'respuesta-secundaria' : undefined}
+                >
+                  {linea}
+                </p>
               ),
             )}
           </Respuesta>
         </div>
       )}
-    </>
+
+      <button
+        type="button"
+        class="boton boton-secundario tanques-boton-grafica"
+        aria-expanded={verGrafica}
+        onClick={() => setVerGrafica((v) => !v)}
+      >
+        {verGrafica ? 'Volver a la perilla' : 'Ver la gráfica'}
+      </button>
+    </div>
   );
 }
 

@@ -34,34 +34,29 @@ const desde = (lugar: LugarLibro): string =>
 const hacia = (lugar: LugarLibro): string =>
   lugar === 'pila' ? 'a la pila' : `al carrito del ${dia(lugar)}`;
 
-/** Lo que hará el siguiente toque. */
-export function textoInstruccion(origen: LugarLibro | null, hayLibros: boolean): string {
-  if (origen === null) {
-    return hayLibros
-      ? 'Toca de dónde quieres sacar un libro: la pila o un carrito.'
-      : 'No hay libros que mover.';
-  }
-  const donde = origen === 'pila' ? 'un carrito' : 'otro carrito o la pila';
-  return `Estás sacando libros ${desde(origen)}. Toca ${donde} para dejar uno.`;
-}
+/**
+ * Cómo se mueven los libros (correcciones del 25 nov): cada carrito tiene su «+» y su «−», y
+ * cada toque mueve un solo libro entre la pila y ese carrito.
+ */
+export const INSTRUCCION = '+ pone un libro de la pila en el carrito; − lo devuelve a la pila.';
 
 /** Lo que acaba de pasar, para el lector de pantalla. */
 export function textoMovimiento(de: LugarLibro, a: LugarLibro): string {
   return `Pasaste un libro ${desde(de)} ${hacia(a)}.`;
 }
 
-/** Nombre accesible del botón de un lugar, según lo que hará al tocarlo. */
-export function etiquetaLugar(
-  lugar: LugarLibro,
-  cantidad: number,
-  origen: LugarLibro | null,
-): string {
-  const nombre = lugar === 'pila' ? 'Pila' : `Carrito del ${dia(lugar)}`;
-  const base = `${nombre}: ${libros(cantidad)}.`;
-  if (origen === null) return cantidad > 0 ? `${base} Sacar libros de aquí.` : base;
-  if (origen === lugar) return `${base} Dejar de sacar libros de aquí.`;
-  return `${base} Dejar aquí un libro ${desde(origen)}.`;
-}
+/** Nombre del grupo de cada carrito: «Carrito del lunes: 4 libros». */
+export const textoCarrito = (i: number, cantidad: number): string =>
+  `Carrito del ${dia(i)}: ${libros(cantidad)}`;
+
+/** Nombre accesible del «+» de un carrito. */
+export const etiquetaPoner = (i: number): string => `Poner un libro en el carrito del ${dia(i)}`;
+
+/** Nombre accesible del «−» de un carrito. */
+export const etiquetaQuitar = (i: number): string => `Quitar un libro del carrito del ${dia(i)}`;
+
+/** «Pila: 20 libros», «Pila: ningún libro». */
+export const textoPila = (cantidad: number): string => `Pila: ${libros(cantidad)}`;
 
 /** Rótulo de cada lámpara del resumen semanal, en el orden de la pared. */
 export const LAMPARAS = [

@@ -73,6 +73,15 @@
 }
 
 /* El graficador: papel claro y tinta. */
+.tanques-panel {
+  display: contents;
+}
+
+/* Fuera de la franja la gráfica siempre está a la vista: el botón no hace falta. */
+.tanques-boton-grafica {
+  display: none;
+}
+
 .graficador {
   flex: 1 1 auto;
   min-width: 0;
@@ -155,4 +164,58 @@
 
 .tanques-datos li + li {
   margin-top: 4px;
+}
+
+/*
+ * Panel en franja (correcciones del 25 nov): los tanques y su nivel se ven en 3D, y los datos
+ * de cómo empieza cada uno están en la situación. Aquí queda el graficador, más bajo.
+ */
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .tanques {
+    display: block;
+  }
+
+  .dialogo-fondo-franja .tanque,
+  .dialogo-fondo-franja .tanques-datos {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .graficador {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .tanques-boton-grafica {
+    display: flex;
+    flex: none;
+    margin: 6px 0 0;
+  }
+
+  /* La gráfica abierta ocupa la columna: se esconden la situación, la perilla y la respuesta. */
+  .dialogo-fondo-franja .tanques-grafica-abierta .graficador {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .dialogo-fondo-franja .tanques-grafica-abierta .tanques-perilla,
+  .dialogo-fondo-franja .tanques-grafica-abierta .mecanismo-respuesta,
+  .dialogo-fondo-franja .dialogo-cuerpo:has(.tanques-grafica-abierta) .mecanismo-situacion {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .tanques-perilla .pasos-valor {
+    min-width: 4.5rem;
+    white-space: nowrap;
+  }
+
+  /* Números del graficador más grandes: a lo ancho de la columna se ven a 14 px o más. */
+  .dialogo-fondo-franja .graficador-numero,
+  .dialogo-fondo-franja .graficador-rotulo {
+    font-size: 20px;
+  }
+
+  /* Durante la corrida el panel está recogido: el reloj se oye y se ve en la campana 3D. */
+  .dialogo-fondo-franja .corrida-reloj {
+    display: none;
+  }
 }

@@ -418,8 +418,8 @@ async function ponerReflector(
 }
 
 /**
- * Mueve los libros, de a uno, del reparto inicial al de la solución: de la pila o de los
- * carritos a los que les sobran, a los carritos a los que les faltan.
+ * Mueve los libros, de a uno, del reparto inicial al de la solución: primero los «−» de los
+ * carritos a los que les sobran (a la pila) y después los «+» de los que les faltan.
  */
 async function ponerCarritos(
   panel: Locator,
@@ -431,43 +431,22 @@ async function ponerCarritos(
   if (!etapa) return;
   const tiene = [...etapa.estado_inicial.carritos];
   const meta = etapa.solucion.carritos;
-  const carrito = (i: number): Locator =>
-    panel.getByRole('button', { name: new RegExp(`^Carrito del ${dia(i)}:`) });
-  const pila = panel.getByRole('button', { name: /^Pila:/ });
-  const origenes: { boton: Locator; sobran: number; carrito: number | null }[] = [
-    {
-      boton: pila,
-      sobran: etapa.controles.libros - tiene.reduce((a, b) => a + b, 0),
-      carrito: null,
-    },
-    ...tiene.map((libros, i) => ({
-      boton: carrito(i),
-      sobran: Math.max(0, libros - (meta[i] ?? 0)),
-      carrito: i,
-    })),
-  ];
-  const elegido = panel.locator('.carritos-lugar[aria-pressed="true"]');
+  const cuenta = (i: number): Locator =>
+    panel.getByRole('group', { name: new RegExp(`^Carrito del ${dia(i)}:`) });
+  const boton = (i: number, signo: 1 | -1): Locator =>
+    panel.getByRole('button', {
+      name:
+        signo > 0
+          ? `Poner un libro en el carrito del ${dia(i)}`
+          : `Quitar un libro del carrito del ${dia(i)}`,
+    });
 
-  for (const origen of origenes) {
-    if (origen.sobran === 0) continue;
-    // Se saca de un solo lugar a la vez: si hay otro elegido, primero se suelta.
-    if ((await origen.boton.getAttribute('aria-pressed')) !== 'true') {
-      // Al empezar una etapa, el panel puede mostrar un instante el origen de la etapa
-      // anterior antes de soltarlo. Si ya no está elegido al hacer clic, no hay nada que soltar.
-      if ((await elegido.count()) > 0) {
-        await elegido
-          .first()
-          .click({ timeout: 5000 })
-          .catch(() => undefined);
-      }
-      await origen.boton.click();
-      await expect(origen.boton).toHaveAttribute('aria-pressed', 'true');
-    }
-    for (let destino = 0; destino < meta.length && origen.sobran > 0; destino++) {
-      while ((tiene[destino] ?? 0) < (meta[destino] ?? 0) && origen.sobran > 0) {
+  for (const signo of [-1, 1] as const) {
+    for (let i = 0; i < meta.length; i++) {
+      while (((meta[i] ?? 0) - (tiene[i] ?? 0)) * signo > 0) {
         // Otro reparto también puede cumplir la etapa. Si a mitad de camino la máquina ya
         // la aceptó (5 segundos quieta), los carritos quedan bloqueados y no hay más que mover.
-        const movio = await carrito(destino)
+        const movio = await boton(i, signo)
           .click({ timeout: 5000 })
           .then(() => true)
           // Si el clic no termina a tiempo y la etapa no está resuelta, puede que el libro sí
@@ -475,12 +454,9 @@ async function ponerCarritos(
           // escritorio con el equipo ocupado): la cuenta de abajo dice si se movió.
           .catch(async () => !(await resuelta.isVisible()));
         if (!movio) return;
-        tiene[destino] = (tiene[destino] ?? 0) + 1;
-        if (origen.carrito !== null) tiene[origen.carrito] = (tiene[origen.carrito] ?? 0) - 1;
-        origen.sobran--;
-        await expect(carrito(destino).locator('.carritos-cuenta')).toHaveText(
-          String(tiene[destino]),
-        );
+        tiene[i] = (tiene[i] ?? 0) + signo;
+        const libros = tiene[i] === 0 ? 'ningún libro' : `${tiene[i]} libros?`;
+        await expect(cuenta(i)).toHaveAccessibleName(new RegExp(`: ${libros}$`));
       }
     }
   }

@@ -80,3 +80,66 @@
   min-width: 0;
   padding: 0;
 }
+
+/*
+ * Panel en franja (correcciones del 25 nov): las sombras y los sensores se ven en el gimnasio
+ * 3D; aquí quedan los controles y las medidas en palabras. Las cinco muescas comparten el ancho.
+ */
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .reflector-escena {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .reflector-muescas .opcion {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .dialogo-fondo-franja .reflector-muescas .opciones {
+    flex-wrap: nowrap;
+  }
+
+  .dialogo-fondo-franja .reflector-lecturas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Los títulos sobran en la franja: las medidas y lo que pasó con la polea se leen solos. */
+  .dialogo-fondo-franja .respuesta:has(.reflector-lecturas) .respuesta-titulo,
+  .dialogo-fondo-franja .reflector-respuesta-polea .respuesta-titulo {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .respuesta:has(.reflector-lecturas) {
+    padding-right: 4px;
+    padding-left: 6px;
+  }
+
+  .dialogo-fondo-franja .reflector-polea .control {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dialogo-fondo-franja .reflector-polea .control-etiqueta {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .dialogo-fondo-franja .reflector-polea .pasos-valor {
+    min-width: 2.75rem;
+  }
+
+  /* Las muescas dicen sus grados: el nombre del control solo lo lee el lector de pantalla. */
+  .dialogo-fondo-franja .reflector-muescas .control-etiqueta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

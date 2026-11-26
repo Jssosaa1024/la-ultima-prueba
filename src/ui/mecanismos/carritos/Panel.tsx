@@ -1,33 +1,30 @@
 import { useEffect, useState } from 'preact/hooks';
-import {
-  librosEn,
-  librosEnPila,
-  moverLibro,
-  vaciarCarritos,
-  type LugarLibro,
-} from '../../../game/puzzles';
+import { librosEnPila, moverLibro, vaciarCarritos } from '../../../game/puzzles';
 import { Indicador } from '../marco/Controles';
 import type { PropsPanel } from '../marco/tipos';
 import {
   diaCorto,
-  etiquetaLugar,
+  etiquetaPoner,
+  etiquetaQuitar,
+  INSTRUCCION,
   LAMPARAS,
   numero,
-  textoInstruccion,
+  textoCarrito,
   textoMovimiento,
+  textoPila,
 } from './textos';
 import './carritos.css';
 
 /**
- * Sala 4 · Los carritos de préstamo (T64).
+ * Sala 4 · Los carritos de préstamo (T64; correcciones del 25 nov).
  *
- * Los libros se mueven de a uno y con dos toques: primero de dónde sale (la pila o un
- * carrito) y después a dónde va. El origen se queda elegido, así que repartir varios libros
- * es un toque por libro, con botones grandes para el pulgar. Pasar un libro de un carrito a
- * otro es un solo movimiento: la lámpara de la media no parpadea a medio camino.
+ * Cada carrito tiene un «+» y un «−»: el «+» pone un libro de la pila en ese carrito y el «−»
+ * lo devuelve a la pila. Un toque, un libro, sin elegir antes de dónde sale: así se quita un
+ * solo libro sin vaciar todo. «Devolver todo a la pila» sigue para empezar de nuevo.
  *
  * Las lámparas del resumen semanal responden en vivo y se quedan a la vista mientras se
- * mueven los libros. El panel no dice qué mira cada lámpara: eso se descubre moviendo.
+ * mueven los libros; los montones se ven en los carritos 3D. El panel no dice qué mira cada
+ * lámpara: eso se descubre moviendo.
  */
 export default function PanelCarritos({
   puzzle,
@@ -40,38 +37,21 @@ export default function PanelCarritos({
 }: PropsPanel<'carritos'>) {
   const pila = librosEnPila(etapa, estado);
   const enCarritos = etapa.controles.libros - pila;
-  // Al llegar se saca de la pila, si tiene libros: repartir es lo primero que se hace.
-  const [origen, setOrigen] = useState<LugarLibro | null>(pila > 0 ? 'pila' : null);
   const [ultimo, setUltimo] = useState<string | null>(null);
 
-  // Cada etapa empieza con sus propios libros en los carritos: el origen se elige de nuevo.
-  useEffect(() => {
-    setOrigen(librosEnPila(etapa, estado) > 0 ? 'pila' : null);
-    setUltimo(null);
-  }, [numeroDeEtapa]);
+  // Cada etapa empieza con sus propios libros en los carritos.
+  useEffect(() => setUltimo(null), [numeroDeEtapa]);
 
-  // Un lugar que se quedó sin libros deja de ser el origen.
-  const sale = origen !== null && librosEn(etapa, estado, origen) > 0 ? origen : null;
-
-  const tocar = (lugar: LugarLibro): void => {
+  const mover = (de: 'pila' | number, a: 'pila' | number): void => {
     if (bloqueado) return;
-    if (sale === null) {
-      if (librosEn(etapa, estado, lugar) > 0) setOrigen(lugar);
-      return;
-    }
-    if (sale === lugar) {
-      setOrigen(null);
-      return;
-    }
-    const nuevo = moverLibro(etapa, estado, sale, lugar);
+    const nuevo = moverLibro(etapa, estado, de, a);
     if (!nuevo) return;
-    setUltimo(textoMovimiento(sale, lugar));
+    setUltimo(textoMovimiento(de, a));
     ajustar(nuevo);
   };
 
   // Los números de las lámparas tapadas salen de la última etapa, donde ya están todas.
   const todas = puzzle.etapas[puzzle.etapas.length - 1]?.exito.lamparas ?? {};
-  const inactivo = (cantidad: number): boolean => bloqueado || (sale === null && cantidad === 0);
 
   return (
     <>
@@ -101,80 +81,70 @@ export default function PanelCarritos({
       <p class="solo-lector" role="status">
         {ultimo}
       </p>
-      <p class="carritos-instruccion">
-        {bloqueado ? 'Así quedaron los carritos.' : textoInstruccion(sale, pila + enCarritos > 0)}
-      </p>
-
-      <button
-        type="button"
-        class={`carritos-lugar carritos-pila${sale === 'pila' ? ' carritos-origen' : ''}`}
-        aria-pressed={sale === 'pila'}
-        aria-label={etiquetaLugar('pila', pila, sale)}
-        disabled={inactivo(pila)}
-        onClick={() => tocar('pila')}
-      >
-        <span class="carritos-pila-nombre" aria-hidden="true">
-          Pila
-        </span>
-        <span class="carritos-pila-libros" aria-hidden="true">
-          {Array.from({ length: pila }, (_, k) => (
-            <span key={k} class="carritos-libro-de-pie" />
-          ))}
-        </span>
-        <span class="carritos-cuenta" aria-hidden="true">
-          {pila}
-        </span>
-        {sale === 'pila' && (
-          <span class="carritos-marca" aria-hidden="true">
-            sale de aquí
-          </span>
-        )}
-      </button>
+      <p class="carritos-instruccion">{bloqueado ? 'Así quedaron los carritos.' : INSTRUCCION}</p>
 
       <div
         class="carritos-fila"
         style={{ gridTemplateColumns: `repeat(${estado.carritos.length}, minmax(0, 1fr))` }}
       >
         {estado.carritos.map((cantidad, i) => (
-          <button
-            key={i}
-            type="button"
-            class={`carritos-lugar carritos-carrito${sale === i ? ' carritos-origen' : ''}`}
-            aria-pressed={sale === i}
-            aria-label={etiquetaLugar(i, cantidad, sale)}
-            disabled={inactivo(cantidad)}
-            onClick={() => tocar(i)}
-          >
-            <span class="carritos-dia" aria-hidden="true">
-              {diaCorto(i)}
-            </span>
+          <div key={i} class="carritos-carrito" role="group" aria-label={textoCarrito(i, cantidad)}>
+            <button
+              type="button"
+              class="carritos-boton"
+              aria-label={etiquetaPoner(i)}
+              disabled={bloqueado || pila === 0}
+              onClick={() => mover('pila', i)}
+            >
+              +
+            </button>
             <span class="carritos-monton" aria-hidden="true">
               {Array.from({ length: cantidad }, (_, k) => (
                 <span key={k} class="carritos-libro" />
               ))}
             </span>
             <span class="carritos-cuenta" aria-hidden="true">
-              {cantidad}
+              <span class="carritos-dia">{diaCorto(i)}</span> {cantidad}
             </span>
-            <span class="carritos-marca" aria-hidden="true">
-              {sale === i ? 'sale' : ' '}
-            </span>
-          </button>
+            <button
+              type="button"
+              class="carritos-boton"
+              aria-label={etiquetaQuitar(i)}
+              disabled={bloqueado || cantidad === 0}
+              onClick={() => mover(i, 'pila')}
+            >
+              −
+            </button>
+          </div>
         ))}
       </div>
 
-      <button
-        type="button"
-        class="boton boton-secundario carritos-vaciar"
-        disabled={bloqueado || enCarritos === 0}
-        onClick={() => {
-          setOrigen('pila');
-          setUltimo('Devolviste todos los libros a la pila.');
-          ajustar(vaciarCarritos(estado));
-        }}
-      >
-        Devolver todo a la pila
-      </button>
+      <div class="carritos-pie">
+        <p class="carritos-pila">
+          <span class="carritos-largo">{textoPila(pila)}</span>
+          {/* En la franja, solo el número: los libros de la pila se ven en la biblioteca 3D. */}
+          <span class="carritos-corto" aria-hidden="true">
+            Pila: {pila}
+          </span>
+          <span class="carritos-pila-libros" aria-hidden="true">
+            {Array.from({ length: pila }, (_, k) => (
+              <span key={k} class="carritos-libro-de-pie" />
+            ))}
+          </span>
+        </p>
+        <button
+          type="button"
+          class="boton boton-secundario carritos-vaciar"
+          aria-label="Devolver todo a la pila"
+          disabled={bloqueado || enCarritos === 0}
+          onClick={() => {
+            setUltimo('Devolviste todos los libros a la pila.');
+            ajustar(vaciarCarritos(estado));
+          }}
+        >
+          Devolver todo<span class="carritos-largo"> a la pila</span>
+        </button>
+      </div>
     </>
   );
 }
