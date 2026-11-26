@@ -103,3 +103,37 @@ test('en un PC, una ventana angosta no pide girar nada', async ({ page }, info) 
   await expect(canvas).toHaveAttribute('data-motor', 'activo');
   await expect(page.getByRole('dialog', { name: 'Gira el teléfono' })).toHaveCount(0);
 });
+
+test('al volver a la página después de girar, el juego cubre justo lo que se ve', async ({
+  page,
+}, info) => {
+  test.skip(!info.project.use.hasTouch, 'el problema se vio en celular');
+  await page.goto('/jugar');
+  await page.getByRole('button', { name: 'Jugar solo' }).click();
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  await girar(page, true);
+  await girar(page, false);
+
+  // Simula lo que deja el navegador al volver sin pantalla completa: el contenedor con un
+  // tamaño viejo y desplazado. Al volver a la página se corrige solo.
+  await page.evaluate(() => {
+    const juego = document.querySelector<HTMLElement>('.juego');
+    if (!juego) throw new Error('sin .juego');
+    juego.style.setProperty('--alto-visible', '900px');
+    juego.style.setProperty('--ancho-visible', '1200px');
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+
+  const vista = page.viewportSize();
+  await expect(async () => {
+    const caja = await page.locator('.juego').boundingBox();
+    expect(Math.round(caja?.width ?? 0)).toBe(vista?.width);
+    expect(Math.round(caja?.height ?? 0)).toBe(vista?.height);
+    expect(caja?.x).toBe(0);
+    expect(caja?.y).toBe(0);
+  }).toPass();
+  const lienzo = await canvas.boundingBox();
+  expect(Math.round(lienzo?.height ?? 0)).toBe(vista?.height);
+  await expect(page.getByRole('button', { name: 'Pausa' })).toBeInViewport({ ratio: 1 });
+});
