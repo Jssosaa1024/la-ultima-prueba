@@ -58,16 +58,15 @@ test('puerta falsa: La Voz la dice una vez y después sale escrita; los carteles
   // Se va solo.
   await expect(aviso).toHaveCount(0, { timeout: 8_000 });
 
-  // El cartel de la sala 1 lleva su sello: se mira desde el centro del tramo 1, de frente.
+  // El cartel de la sala 1 lleva su sello: la puerta 1 cierra el tramo 1, de frente.
   const cartel = centro('pasillo-cartel-s1');
-  await irA(page, caja, true, [-4.9, 0, cartel[2]], 0.3);
+  await irA(page, caja, true, [-4.6, 0, -6.6], 0.3);
   await mirarHacia(page, caja, cartel, true);
   await inclinarHacia(page, caja, cartel, true);
   await page.screenshot({ path: info.outputPath('cartel-sala-1-con-sello.png') });
 
-  // Hacia el fondo del tramo 1: el cartel de la sala 2 (con sello) y la flecha 2.
+  // A la izquierda del fondo del tramo 1: la flecha 2 y, detrás, el cartel de la sala 2.
   const flecha = centro('pasillo-flecha-2');
-  await irA(page, caja, true, [-4.6, 0, -6.6], 0.3);
   await mirarHacia(page, caja, flecha, true);
   await inclinarHacia(page, caja, [flecha[0], 2, flecha[2]], true);
   await page.screenshot({ path: info.outputPath('tramo-1-hacia-el-norte.png') });

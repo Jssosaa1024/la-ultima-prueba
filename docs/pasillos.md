@@ -12,6 +12,7 @@ Este documento es el plano: forma, medidas, cada puerta, carteles, flechas, luce
 - **Volver de una sala.** El jugador aparece en el pasillo, un metro delante de la puerta de esa sala y de espaldas a ella (`puntoDeEntrada`, sin cambios: busca la puerta por su `puerta`).
 - **Puertas falsas.** Plano de 1,1 × 2,2 m con el mismo modelo `puerta`, `accion: "usar"` y el campo `falsa` con el id de su frase en `src/content/puertas-falsas.json`. Cada frase es un texto corto o una línea de La Voz (`voz`, momento `puerta_falsa` en `guion.json`). El toque, el aviso en pantalla, el sonido del picaporte y la voz los hace la sesión C.
 - **Plano revisado al armarlo.** La primera versión (PR #169) abría el pasillo en todo su ancho y seguía derecho hacia el oeste. Al medirlo, desde la portería se veía todo el pasillo y la peor mirada pasaba de 40 draw calls. Esta versión entra por un vano y gira al norte (ver «Por qué gira apenas se entra»).
+- **Puertas movidas el 25 de noviembre de 2026.** Alex jugó en el celular y vio que la puerta 1, la de la sala de profesores y la de la sala 2 estaban en la pared este del tramo 1, que da a la portería: si existieran, llevarían a la portería. Ninguna puerta va ya en esa pared, y una prueba revisa que detrás de cada puerta quepa su cuarto (ver «Qué hay detrás de cada puerta»). Al revisarlo aparecieron dos errores más: la biblioteca, con sus 8 m de fondo, se metía al tramo 1, y los cuartos del aula 10-B y del aseo se pisaban.
 
 ## Forma y medidas
 
@@ -28,15 +29,15 @@ Metros. El piso en y = 0; −Z es el norte (donde está la puerta de salida) y +
 ```
      x = −15,8     −13,4                 −5,8   −3,4  −3               3
 z = −9,6  ┌──────────────────────────────────────┐
-          │ F3   ↓ 3 gimnasio      ↓ 10-A    F2  │
-          │        TRAMO 2  (hacia el oeste)     │
-z = −7,2  │      ┌──↑ 10-B ──── ↑ baños ───┐ T   │← 2 laboratorio
+          │PROF ↓ 10-A↓ ↓3 gimn. ↓2 lab.  F2 ↓1  │
+          │        TRAMO 2  (hacia el oeste)  coop.
+z = −7,2  F3    ┌─ ↑ baños ──────── ↑ 10-B ┐ T   │
           │ 11-A→│                         │ R   │
-          │      │← aseo     (adentro      │ A   │← profesores
-          │ 11-B→│            de la U)     │ M   │           ┌────────────┐ z = −5
-          │  T3  │                         │ O   │← 1        │ salida     │
-          │      │← 4 biblioteca           │ 1 ↑ │           │            │
-z = 0,8   │      │                         └─────┤ vano ═ F1 │ PORTERÍA   │
+          │      │                         │ A   │           ┌────────────┐ z = −5
+          │ 4 →  │     (adentro de la U)   │ M   │           │ salida     │
+          │ bibl.│← aseo                   │ O   │           │            │
+          │ 11-B→│                         │ 1   │ vano ═ F1 │ PORTERÍA   │
+z = 0,8   │      │                         └─────┤           │            │
 z = 1,2   └ ↑ 5 ─┘                                           │            │
           rectoría                                           └────────────┘ z = 5
    ↑ ↓ → ←: hacia dónde mira la puerta · F1 a F3: carteles con flecha · ═: dintel
@@ -44,8 +45,9 @@ z = 1,2   └ ↑ 5 ─┘                                           │        
 
 - **Entrada.** Un vano de 1,6 m en la pared oeste de la portería (donde antes estaban las puertas 3 y 5), con un **dintel** de 60 cm encima (`pasillo-dintel`, de y = 2,6 al techo, con el color de las paredes) y el cartel «SALAS 1 A 5» mirando a la portería. Detrás del vano está la pared del tramo 1 con dos casilleros: el pasillo sigue a la derecha, hacia el norte.
 - **Por qué gira apenas se entra.** Si el pasillo siguiera derecho desde el vano, desde la portería se verían a lo largo todas sus puertas y carteles, y Three.js los dibujaría con la portería en la misma mirada. Con el giro, desde la portería solo se ve la pared de los casilleros. Una prueba lo revisa (`tests/unit/pasillo.test.ts`: «desde la portería no se ve ninguna puerta del pasillo»).
+- **Las paredes este y oeste del tramo 1 no llevan puertas.** El otro lado de la este es la portería, y la oeste se ve desde la portería por el vano.
 - **La portería pierde sus cinco puertas laterales.** Lo demás queda donde está: el jugador empieza en (0; 4,2) mirando a la salida, el intercomunicador sigue en la pared oeste (z = −3,9) y el cuadro de la izquierda en z = 4.
-- **Recorrido.** Del vano a la esquina norte del tramo 1, unos 10 m; por el tramo 2, 10 m; por el tramo 3 hasta la puerta 5, 8,6 m. En total unos **28 m: 14 s** con el joystick a fondo (2 m/s), más unos 3 s en las dos esquinas: **unos 17 s de punta a punta**, por debajo de los 20 a 25 s pedidos. Desde el punto de inicio de la portería se suman 5 m (2,5 s).
+- **Recorrido.** Del vano a la esquina norte del tramo 1 (donde está la puerta 1), unos 10 m; por el tramo 2, 10 m; por el tramo 3 hasta la puerta 5, 8,6 m. En total unos **28 m: 14 s** con el joystick a fondo (2 m/s), más unos 3 s en las dos esquinas: **unos 17 s de punta a punta**, por debajo de los 20 a 25 s pedidos. Desde el punto de inicio de la portería se suman 5 m (2,5 s).
 
 ## Puertas
 
@@ -53,23 +55,43 @@ Todas son planos de 1,1 × 2,2 m pegados 2 cm a su pared, con el modelo `puerta`
 
 | # | Id | Qué es | Pared | Posición (x; z) | Giro |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `porteria-puerta-1` | **Sala 1 · La cooperativa** | tramo 1, este | (−3,42; −2,6) | −90 |
-| 2 | `pasillo-puerta-profesores` | Sala de profesores | tramo 1, este | (−3,42; −5,6) | −90 |
-| 3 | `porteria-puerta-2` | **Sala 2 · El laboratorio** | tramo 1, este | (−3,42; −8,4) | −90 |
-| 4 | `pasillo-puerta-10a` | Aula 10-A | tramo 2, norte | (−7,4; −9,58) | 0 |
-| 5 | `pasillo-puerta-banos` | Baños | tramo 2, sur | (−9; −7,22) | 180 |
-| 6 | `porteria-puerta-3` | **Sala 3 · El gimnasio** | tramo 2, norte | (−10,6; −9,58) | 0 |
-| 7 | `pasillo-puerta-10b` | Aula 10-B | tramo 2, sur | (−12,2; −7,22) | 180 |
-| 8 | `pasillo-puerta-11a` | Aula 11-A | tramo 3, oeste | (−15,78; −5,8) | 90 |
-| 9 | `pasillo-puerta-aseo` | Cuarto del aseo | tramo 3, este | (−13,42; −4,4) | −90 |
-| 10 | `pasillo-puerta-11b` | Aula 11-B | tramo 3, oeste | (−15,78; −2,6) | 90 |
-| 11 | `porteria-puerta-4` | **Sala 4 · La biblioteca** | tramo 3, este | (−13,42; −1) | −90 |
+| 1 | `porteria-puerta-1` | **Sala 1 · La cooperativa** | fondo del tramo 1 (pared norte) | (−4,6; −9,58) | 0 |
+| 2 | `porteria-puerta-2` | **Sala 2 · El laboratorio** | tramo 2, norte | (−8,4; −9,58) | 0 |
+| 3 | `pasillo-puerta-10b` | Aula 10-B | tramo 2, sur | (−7,4; −7,22) | 180 |
+| 4 | `porteria-puerta-3` | **Sala 3 · El gimnasio** | tramo 2, norte | (−10,6; −9,58) | 0 |
+| 5 | `pasillo-puerta-banos` | Baños | tramo 2, sur | (−12; −7,22) | 180 |
+| 6 | `pasillo-puerta-10a` | Aula 10-A | tramo 2, norte | (−12,6; −9,58) | 0 |
+| 7 | `pasillo-puerta-profesores` | Sala de profesores | tramo 2, norte | (−14,6; −9,58) | 0 |
+| 8 | `pasillo-puerta-11a` | Aula 11-A | tramo 3, oeste | (−15,78; −6) | 90 |
+| 9 | `porteria-puerta-4` | **Sala 4 · La biblioteca** | tramo 3, oeste | (−15,78; −3,6) | 90 |
+| 10 | `pasillo-puerta-aseo` | Cuarto del aseo | tramo 3, este | (−13,42; −2,4) | −90 |
+| 11 | `pasillo-puerta-11b` | Aula 11-B | tramo 3, oeste | (−15,78; −1,4) | 90 |
 | 12 | `porteria-puerta-5` | **Sala 5 · La rectoría** | fondo del tramo 3 | (−14,6; 1,18) | 180 |
 
-- Cinco reales y siete falsas. Las salas quedan en orden a lo largo del recorrido; la rectoría, la última, cierra el pasillo de frente.
+- Cinco reales y siete falsas. Las salas quedan en orden a lo largo del recorrido. La cooperativa cierra el tramo 1 de frente: es lo primero que se ve al caminar hacia el norte. La rectoría, la última, cierra el pasillo.
 - Entre dos puertas de la misma pared hay al menos 1,7 m de centro a centro (el marco mide 1,26 m) y ninguna queda a menos de 0,95 m de una esquina.
 - **Frases** (`src/content/puertas-falsas.json`). Tres son textos cortos: baños («Cerrado. Un letrero dice: «Fuera de servicio».»), 10-B y 11-A. Cuatro las dice La Voz, con su humor seco (momento `puerta_falsa` en `guion.json`): profesores, 10-A, 11-B y aseo. La de 11-B («Esa no es. Las salas que buscas tienen cartel con número.») es la única que orienta, y dice algo cierto. La sesión A las graba con `npm run voz -- --solo voz-pasillo-profesores,voz-pasillo-10a,voz-pasillo-11b,voz-pasillo-aseo`; mientras tanto se ve el subtítulo.
 - **Nada de pistas falsas.** Las puertas falsas se ven igual que las reales, pero su cartel no tiene número de sala ni flecha que lleve a ellas, y su frase no habla de los puzzles.
+
+## Qué hay detrás de cada puerta
+
+Regla de Alex (25 de noviembre de 2026): una puerta solo va en una pared cuyo otro lado pueda ser de verdad lo que dice su cartel. La prueba «detrás de cada puerta cabe su cuarto» (`tests/unit/pasillo.test.ts`) arma detrás de cada puerta un cuarto del ancho del marco (1,26 m) con este fondo, y revisa que no pise la portería (ni lo que se ve desde ella: todo lo que queda al este del vano), el pasillo ni el cuarto de otra puerta:
+
+| Puerta | Fondo | Hacia dónde sigue |
+| --- | --- | --- |
+| Sala 1 · cooperativa | 5 m (el de la sala) | norte |
+| Sala 2 · laboratorio | 6 m | norte |
+| Sala 3 · gimnasio | 12 m | norte |
+| Sala 4 · biblioteca | 8 m | oeste |
+| Sala 5 · rectoría | 5 m | sur |
+| Aulas 10-A, 10-B, 11-A y 11-B | 6 m | 10-A al norte; 10-B al sur, adentro de la U; 11-A y 11-B al oeste |
+| Sala de profesores | 4 m | norte |
+| Baños | 3 m | sur, adentro de la U |
+| Cuarto del aseo | 2 m | este, adentro de la U |
+
+Adentro de la U caben 7,6 m de este a oeste: por eso la biblioteca, con 8 m de fondo, no puede ir en la pared este del tramo 3 (se metería al tramo 1). Va en la oeste, que da afuera.
+
+**Lo que la prueba no cubre.** Las salas son más anchas que su puerta: el gimnasio mide 20 m de ancho, más que cualquier pared de la U. Para que las cinco salas quepan completas, una al lado de la otra, haría falta un pasillo bastante más largo. Mientras el juego no muestre el colegio por fuera, la regla mira el fondo de cada cuarto, que es lo que se nota desde el pasillo.
 
 ## Carteles y flechas
 
@@ -80,10 +102,10 @@ Planos con `lamina: { tipo: "cartel" }` (dibujo de la sesión C). Lo que dicen e
 | `pasillo-cartel-s1` … `-s5` | Encima de cada puerta real, de y = 2,44 a 2,78 (la luz de la puerta llega a 2,40) | 1,0 × 0,34 | «SALA 1» y el nombre («COOPERATIVA», «LABORATORIO», «GIMNASIO», «BIBLIOTECA», «RECTORÍA»). La sesión C le agrega el sello cuando la sala lo gana |
 | `pasillo-cartel-10a`, `-10b`, `-11a`, `-11b`, `-banos`, `-profesores`, `-aseo` | Encima de cada puerta falsa, de y = 2,44 a 2,68 | 0,7 × 0,24 | «10-A», «10-B», «11-A», «11-B», «BAÑOS», «PROFESORES», «ASEO» |
 | `pasillo-flecha-1` | En el dintel del vano, mirando a la portería | 1,6 × 0,4 | «SALAS 1 A 5» |
-| `pasillo-flecha-2` | Al fondo del tramo 1, en la pared norte (x = −4,6), a la altura de los ojos | 1,2 × 0,5 | «SALAS 3 A 5» con flecha a la izquierda |
+| `pasillo-flecha-2` | Al fondo del tramo 1, en la pared norte, a la izquierda de la puerta 1 (x = −6,6), a la altura de los ojos | 1,2 × 0,5 | «SALAS 2 A 5» con flecha a la izquierda |
 | `pasillo-flecha-3` | Al fondo del tramo 2, en la pared oeste (z = −8,4) | 1,2 × 0,5 | «SALAS 4 Y 5» con flecha a la izquierda |
 
-La flecha 2 queda de frente al caminar por el tramo 1 y la 3 al caminar por el tramo 2: en cada esquina se ve hacia dónde seguir.
+La flecha 2 queda de frente, junto a la puerta 1, al caminar por el tramo 1 y la 3 al caminar por el tramo 2: en cada esquina se ve hacia dónde seguir.
 
 **Sello en el cartel (sesión C).** El cartel de una sala que ya tiene su sello lo lleva estampado a la derecha, con la figura y el color de su pieza en el mural (`docs/laminas-y-piezas.md`). Es la misma malla con su lienzo vuelto a pintar: no suma draw calls ni memoria.
 
@@ -105,7 +127,7 @@ Tres lámparas titilan en el pasillo (una por tramo), lejos unas de otras; con �
 ## Lo que se arma por código y lo que es modelo
 
 - **Una sola malla fija** con lo que no lleva textura: zócalo azul con su franja amarilla, rodapié, cornisa, marcos, dintel y carcasas de las lámparas. Piso, paredes y techo de todos los tramos van en las tres mallas con textura de la portería (baldosa, yeso con el tinte crema y techo de oficina de ambientCG), con las UV en metros, así que no se nota la junta. Las paredes son sólidas: una caja de colisión por cada tramo de pared, más las esquinas de afuera (`src/engine/salas/planta.ts`).
-- **Modelos ya descargados** (KayKit, los mismos de la portería, carpeta `salas/porteria/`): las doce puertas (`puerta`), cuatro casilleros (`casillero`, instanciados: una draw call para los cuatro) y dos matas en las esquinas (`cactus`, instanciadas con la de la portería).
+- **Modelos ya descargados** (KayKit, los mismos de la portería, carpeta `salas/porteria/`): las doce puertas (`puerta`), cuatro casilleros (`casillero`): tres en la pared oeste del tramo 1 y uno en la esquina del tramo 3; y dos matas (`cactus`): una en el rincón sur del tramo 1, que se ve desde el vano, y otra en el del tramo 3. Al mover las puertas (25 de noviembre), un casillero y una mata pasaron al tramo 1 para que la peor mirada siguiera en 34 draw calls: desde la esquina noroeste del pasillo ahora se ve la puerta 1 al fondo.
 - **Sin paquetes nuevos** y sin Blender.
 
 ## Lo que se ve desde dónde
@@ -118,7 +140,7 @@ La portería y el pasillo se miden juntos, porque son un solo lugar. Límites po
 
 | | Portería antes | Portería con su pasillo |
 | --- | --- | --- |
-| Draw calls de la peor mirada, calculada en las pruebas de unidad (contando las 5 piezas del mural y sin instanciar) | 33 | 34 |
+| Draw calls de la peor mirada, calculada en las pruebas de unidad (contando las 5 piezas del mural y sin instanciar) | 33 | 34 (igual después de mover las puertas el 25 de noviembre) |
 | Draw calls medidos con `?debug=1` (vistas de `docs/capturas/pasillos-B/`) | 22 a 24 | 12 a 23 |
 | Triángulos medidos con `?debug=1` | 5.000 a 5.700 | 4.500 a 8.000 |
 | Texturas en GPU | 3,9 MB | 7,7 MB (los quince carteles) |
