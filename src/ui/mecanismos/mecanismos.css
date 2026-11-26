@@ -164,6 +164,19 @@
   display: none;
 }
 
+/* Fuera de la franja, los textos recortables se ven enteros y no se tocan. */
+.recortable-mas {
+  display: none;
+}
+
+.anotacion-paso {
+  display: block;
+}
+
+.anotacion-paso + .anotacion-paso {
+  margin-top: 8px;
+}
+
 .mecanismo-boton-pistas {
   align-self: flex-start;
   margin: 12px 0 0;
@@ -187,14 +200,14 @@
   /* La situación ocupa hasta dos renglones; si es más larga, se toca para leerla toda. */
   .dialogo-fondo-franja .mecanismo-situacion {
     flex: none;
-    margin: 0 0 4px;
+    margin: 0 0 2px;
     padding: 3px 8px;
     border-left-width: 3px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.3;
   }
 
-  .dialogo-fondo-franja .mecanismo-situacion-texto {
+  .dialogo-fondo-franja .recortable-texto {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
@@ -202,12 +215,17 @@
     line-clamp: 2;
   }
 
-  .dialogo-fondo-franja .mecanismo-situacion-abierta .mecanismo-situacion-texto {
+  .dialogo-fondo-franja .anotacion-detalle .recortable-texto {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .dialogo-fondo-franja .recortable-abierto .recortable-texto {
     display: block;
   }
 
-  /* Toda la situación es el botón: el texto recortado y el aire alrededor suman 44 px. */
-  .dialogo-fondo-franja .mecanismo-situacion-tocable {
+  /* Todo el texto es el botón: el texto recortado y el aire alrededor suman 44 px o más. */
+  .dialogo-fondo-franja .recortable-tocable {
     position: relative;
     min-height: 44px;
     box-sizing: border-box;
@@ -216,13 +234,13 @@
     cursor: pointer;
   }
 
-  .dialogo-fondo-franja .mecanismo-situacion-tocable:focus-visible {
+  .dialogo-fondo-franja .recortable-tocable:focus-visible {
     outline: 3px solid #ffffff;
     outline-offset: 2px;
   }
 
-  /* «… más» en la esquina del tercer renglón, sobre el mismo fondo de la situación. */
-  .dialogo-fondo-franja .mecanismo-situacion-mas {
+  /* «… más» en la esquina del último renglón, sobre el mismo fondo del texto. */
+  .dialogo-fondo-franja .recortable-mas {
     position: absolute;
     right: 0;
     bottom: 6px;
@@ -232,7 +250,11 @@
     font-weight: 700;
   }
 
-  .dialogo-fondo-franja .mecanismo-situacion-abierta .mecanismo-situacion-mas {
+  .dialogo-fondo-franja .anotacion .recortable-mas {
+    background: linear-gradient(90deg, rgb(43 34 26 / 0%), var(--tema-noche-3) 30%);
+  }
+
+  .dialogo-fondo-franja .recortable-abierto .recortable-mas {
     position: static;
     padding: 0;
     background: none;
@@ -254,9 +276,9 @@
 
   .dialogo-fondo-franja .respuesta {
     order: -1;
-    margin: 0 0 4px;
+    margin: 0 0 3px;
     padding: 3px 8px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.3;
   }
 
@@ -266,28 +288,28 @@
 
   .dialogo-fondo-franja .respuesta-titulo {
     margin: 0;
-    font-size: 0.625rem;
+    font-size: 0.875rem;
     line-height: 1.2;
   }
 
   .dialogo-fondo-franja .mecanismo-nota,
   .dialogo-fondo-franja .coop-propuesta {
     margin: 4px 0 0;
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     line-height: 1.25;
   }
 
   .dialogo-fondo-franja .mecanismo-resuelta {
     margin: 0 0 2px;
     padding: 3px 8px;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     line-height: 1.3;
   }
 
   .dialogo-fondo-franja .anotacion {
     margin: 0;
     padding: 4px 8px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.3;
   }
 
@@ -297,7 +319,20 @@
 
   .dialogo-fondo-franja .anotacion .anotacion-titulo {
     margin: 0;
-    font-size: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  .dialogo-fondo-franja .recortable-mas {
+    display: inline;
+  }
+
+  .dialogo-fondo-franja .anotacion-paso {
+    display: inline;
+  }
+
+  .dialogo-fondo-franja .anotacion-detalle {
+    padding: 0;
+    min-height: 0;
   }
 
   .dialogo-fondo-franja .mecanismo-boton-pistas {
@@ -306,17 +341,17 @@
 
   .dialogo-fondo-franja .mecanismo-pistas .pistas {
     padding: 6px 8px;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 
   /* Controles: la etiqueta encima y los botones de 44 px, sin aire de sobra. */
   .dialogo-fondo-franja .control {
     gap: 2px;
-    margin: 3px 0 0;
+    margin: 2px 0 0;
   }
 
   .dialogo-fondo-franja .control-etiqueta {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .dialogo-fondo-franja .pasos {
@@ -348,6 +383,6 @@
   .dialogo-fondo-franja .indicador {
     gap: 6px;
     padding: 2px 8px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 }

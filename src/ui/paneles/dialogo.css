@@ -236,21 +236,22 @@
     min-width: 0;
   }
 
-  .dialogo-fondo-franja .dialogo-antetitulo,
-  .dialogo-fondo-franja .dialogo-titulo {
-    margin: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
   .dialogo-fondo-franja .dialogo-antetitulo {
-    font-size: 0.625rem;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.2;
     letter-spacing: 0;
   }
 
+  /* El título es el nombre del diálogo para el lector de pantalla; a la vista basta la sala y
+     la etapa: el jugador acaba de tocar esa máquina. */
   .dialogo-fondo-franja .dialogo-titulo {
-    font-size: 0.875rem;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .dialogo-fondo-franja .dialogo-cuerpo {

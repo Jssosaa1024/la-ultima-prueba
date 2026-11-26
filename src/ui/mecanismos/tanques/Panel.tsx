@@ -51,6 +51,8 @@ export default function PanelTanques({
   const { objetivo } = etapa.exito;
 
   const [corrida, setCorrida] = useState<Corrida | null>(null);
+  /** En la franja del celular, la gráfica se mira aparte, con todo el ancho de la columna. */
+  const [verGrafica, setVerGrafica] = useState(false);
   const [segundo, setSegundo] = useState(0);
   // El resultado que ya estaba al abrir el panel no se corre otra vez: se muestra quieto.
   const visto = useRef(resultado?.n ?? 0);
@@ -125,7 +127,7 @@ export default function PanelTanques({
   const ayer = tieneHoja ? (estado.b?.registro ?? null) : null;
 
   return (
-    <>
+    <div class={`tanques-panel${verGrafica ? ' tanques-grafica-abierta' : ''}`}>
       <div class={`tanques${resultado && !corriendo ? ' tanques-con-respuesta' : ''}`}>
         <Tanque
           nombre="A"
@@ -214,7 +216,16 @@ export default function PanelTanques({
           </Respuesta>
         </div>
       )}
-    </>
+
+      <button
+        type="button"
+        class="boton boton-secundario tanques-boton-grafica"
+        aria-expanded={verGrafica}
+        onClick={() => setVerGrafica((v) => !v)}
+      >
+        {verGrafica ? 'Volver a la perilla' : 'Ver la gráfica'}
+      </button>
+    </div>
   );
 }
 

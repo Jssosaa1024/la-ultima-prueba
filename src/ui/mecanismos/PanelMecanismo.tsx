@@ -262,7 +262,13 @@ export default function PanelMecanismo() {
       )}
       {/* La máquina sigue montada con las pistas abiertas: la corrida de los tanques sigue. */}
       <div class={`mecanismo-contenido${mostrarPistas ? ' mecanismo-oculto' : ''}`}>
-        <Situacion key={datos.situacion} texto={datos.situacion} leida={conRespuesta} />
+        {/* Con lo que respondió la máquina a la vista, en la franja se esconde: ya se leyó. */}
+        <Recortable
+          key={datos.situacion}
+          clase={`mecanismo-situacion${conRespuesta ? ' mecanismo-situacion-leida' : ''}`}
+        >
+          {datos.situacion}
+        </Recortable>
         {enGrupo && !resuelta && <EstadoGrupo soyD={soyD} />}
         <div class={`mecanismo-maquina${resuelta ? ' mecanismo-maquina-quieta' : ''}`}>
           <Panel {...props} />
@@ -294,11 +300,11 @@ export default function PanelMecanismo() {
 }
 
 /**
- * La situación de la etapa. En la franja ocupa hasta dos renglones; si no cabe, tocarla la
- * muestra completa (y el panel se desplaza solo entonces) y otro toque la vuelve a recoger.
- * Con lo que respondió la máquina a la vista, se esconde: ya se leyó.
+ * Un texto que en la franja se recorta (la situación a dos renglones, la anotación del cuaderno
+ * a tres). Si no cabe, tocarlo lo muestra completo (y el panel se desplaza solo entonces) y
+ * otro toque lo vuelve a recoger. Fuera de la franja se ve entero.
  */
-function Situacion({ texto, leida }: { texto: string; leida: boolean }) {
+function Recortable({ clase, children }: { clase: string; children: ComponentChildren }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [abierta, setAbierta] = useState(false);
   const [cortada, setCortada] = useState(false);
@@ -311,14 +317,13 @@ function Situacion({ texto, leida }: { texto: string; leida: boolean }) {
     window.addEventListener('resize', medir);
     return () => window.removeEventListener('resize', medir);
   }, [abierta]);
-  const clases = ['mecanismo-situacion'];
-  if (leida) clases.push('mecanismo-situacion-leida');
-  if (abierta) clases.push('mecanismo-situacion-abierta');
-  const tocable = !leida && (cortada || abierta);
-  if (tocable) clases.push('mecanismo-situacion-tocable');
+  const clases = ['recortable', clase];
+  if (abierta) clases.push('recortable-abierto');
+  const tocable = cortada || abierta;
+  if (tocable) clases.push('recortable-tocable');
   const alternar = (): void => setAbierta((a) => !a);
   return (
-    <p
+    <div
       class={clases.join(' ')}
       role={tocable ? 'button' : undefined}
       tabIndex={tocable ? 0 : undefined}
@@ -334,15 +339,15 @@ function Situacion({ texto, leida }: { texto: string; leida: boolean }) {
           : undefined
       }
     >
-      <span ref={ref} class="mecanismo-situacion-texto">
-        {texto}
+      <span ref={ref} class="recortable-texto">
+        {children}
       </span>
       {tocable && (
-        <span class="mecanismo-situacion-mas" aria-hidden="true">
+        <span class="recortable-mas" aria-hidden="true">
           {abierta ? ' ▴ menos' : '… más ▾'}
         </span>
       )}
-    </p>
+    </div>
   );
 }
 
@@ -438,15 +443,15 @@ function Anotacion({ puzzle, etapa, sello }: { puzzle: Puzzle; etapa: number; se
   return (
     <div class="anotacion">
       <p class="anotacion-titulo">Tu cuaderno anotó</p>
-      <p>{anotacion.paso}</p>
       {anotacion.concepto && (
-        <>
-          <p class="anotacion-concepto">
-            Lo que acabas de descubrir se llama: {anotacion.concepto.nombre}
-          </p>
-          <p>{anotacion.concepto.texto}</p>
-        </>
+        <p class="anotacion-concepto">
+          Lo que acabas de descubrir se llama: {anotacion.concepto.nombre}
+        </p>
       )}
+      <Recortable clase="anotacion-detalle">
+        <span class="anotacion-paso">{anotacion.paso}</span>
+        {anotacion.concepto && <span class="anotacion-paso"> {anotacion.concepto.texto}</span>}
+      </Recortable>
     </div>
   );
 }

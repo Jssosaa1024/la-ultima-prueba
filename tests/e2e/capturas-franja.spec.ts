@@ -131,6 +131,18 @@ for (const m of MAQUINAS) {
     await pestana.click();
     await expect(panel).toBeVisible();
 
+    // Los tanques: la gráfica se abre en la misma columna, también sin desplazarse.
+    const grafica = panel.getByRole('button', { name: 'Ver la gráfica' });
+    if (await grafica.isVisible()) {
+      await grafica.click();
+      await expect(panel.locator('.graficador')).toBeVisible();
+      const conGrafica = await medir(panel);
+      console.log(`${m.sala} con la gráfica: ${JSON.stringify(conGrafica)}`);
+      await page.screenshot({ path: info.outputPath(`${m.sala}-grafica.png`) });
+      expect(conGrafica.desborde, 'lo que se desplaza con la gráfica (px)').toBeLessThanOrEqual(1);
+      await panel.getByRole('button', { name: 'Volver a la perilla' }).click();
+    }
+
     // Al accionar, el panel se recoge mientras la máquina 3D se mueve y vuelve con lo que pasó.
     if (!m.accionar) return;
     await panel.getByRole('button', { name: m.accionar }).click();

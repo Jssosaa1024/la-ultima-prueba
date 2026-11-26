@@ -159,8 +159,8 @@
 
   .dialogo-fondo-franja .carritos-lamparas .indicador,
   .dialogo-fondo-franja .carritos-tapada {
-    padding: 1px 7px;
-    font-size: 0.75rem;
+    padding: 0 7px;
+    font-size: 0.875rem;
     line-height: 1.25;
   }
 
@@ -170,7 +170,7 @@
 
   .dialogo-fondo-franja .carritos-fila {
     gap: 3px;
-    margin: 4px 0 0;
+    margin: 2px 0 0;
   }
 
   .dialogo-fondo-franja .carritos-carrito {
@@ -181,7 +181,7 @@
 
   .dialogo-fondo-franja .carritos-dia {
     display: inline;
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
   }
 
   .dialogo-fondo-franja .carritos-cuenta {
@@ -197,12 +197,12 @@
 
   .dialogo-fondo-franja .carritos-pie {
     flex-wrap: nowrap;
-    margin: 4px 0 0;
+    margin: 2px 0 0;
   }
 
   .dialogo-fondo-franja .carritos-pila {
     flex: 0 0 auto;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 
   .dialogo-fondo-franja .carritos-largo,

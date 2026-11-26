@@ -73,6 +73,15 @@
 }
 
 /* El graficador: papel claro y tinta. */
+.tanques-panel {
+  display: contents;
+}
+
+/* Fuera de la franja la gráfica siempre está a la vista: el botón no hace falta. */
+.tanques-boton-grafica {
+  display: none;
+}
+
 .graficador {
   flex: 1 1 auto;
   min-width: 0;
@@ -172,44 +181,37 @@
   }
 
   .dialogo-fondo-franja .graficador {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .tanques-boton-grafica {
+    display: flex;
+    flex: none;
+    margin: 6px 0 0;
+  }
+
+  /* La gráfica abierta ocupa la columna: se esconden la situación, la perilla y la respuesta. */
+  .dialogo-fondo-franja .tanques-grafica-abierta .graficador {
     display: block;
-    width: auto;
-    max-width: 100%;
-    height: 36vh;
-    margin: 0 auto;
+    width: 100%;
+    height: auto;
   }
 
-  .dialogo-fondo-franja .tanques-con-respuesta .graficador {
-    height: 27vh;
-  }
-
-  /* La perilla en un renglón: su nombre a la izquierda y los botones a la derecha. */
-  .dialogo-fondo-franja .tanques-perilla .control {
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .dialogo-fondo-franja .tanques-perilla .control-etiqueta {
-    flex: 1 1 auto;
-    min-width: 0;
-    line-height: 1.2;
-  }
-
-  .dialogo-fondo-franja .tanques-perilla .pasos-boton {
-    min-width: 40px;
+  .dialogo-fondo-franja .tanques-grafica-abierta .tanques-perilla,
+  .dialogo-fondo-franja .tanques-grafica-abierta .mecanismo-respuesta,
+  .dialogo-fondo-franja .dialogo-cuerpo:has(.tanques-grafica-abierta) .mecanismo-situacion {
+    display: none;
   }
 
   .dialogo-fondo-franja .tanques-perilla .pasos-valor {
-    min-width: 3.25rem;
-    font-size: 1rem;
+    min-width: 4.5rem;
     white-space: nowrap;
   }
 
-  /* Números del graficador más grandes: el dibujo se ve a menos de la mitad de su tamaño. */
+  /* Números del graficador más grandes: a lo ancho de la columna se ven a 14 px o más. */
   .dialogo-fondo-franja .graficador-numero,
   .dialogo-fondo-franja .graficador-rotulo {
-    font-size: 17px;
+    font-size: 20px;
   }
 
   /* Durante la corrida el panel está recogido: el reloj se oye y se ve en la campana 3D. */

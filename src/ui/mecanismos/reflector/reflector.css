@@ -102,12 +102,35 @@
 
   .dialogo-fondo-franja .reflector-lecturas {
     margin: 0;
-    padding-left: 1rem;
+    padding: 0;
+    list-style: none;
   }
 
-  /* «Lo que se ve ahora» sobra en la franja: las medidas se leen solas junto a la escena. */
-  .dialogo-fondo-franja .respuesta:has(.reflector-lecturas) .respuesta-titulo {
+  /* Los títulos sobran en la franja: las medidas y lo que pasó con la polea se leen solos. */
+  .dialogo-fondo-franja .respuesta:has(.reflector-lecturas) .respuesta-titulo,
+  .dialogo-fondo-franja .reflector-respuesta-polea .respuesta-titulo {
     display: none;
+  }
+
+  .dialogo-fondo-franja .respuesta:has(.reflector-lecturas) {
+    padding-right: 4px;
+    padding-left: 6px;
+  }
+
+  .dialogo-fondo-franja .reflector-polea .control {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dialogo-fondo-franja .reflector-polea .control-etiqueta {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .dialogo-fondo-franja .reflector-polea .pasos-valor {
+    min-width: 2.75rem;
   }
 
   /* Las muescas dicen sus grados: el nombre del control solo lo lee el lector de pantalla. */
