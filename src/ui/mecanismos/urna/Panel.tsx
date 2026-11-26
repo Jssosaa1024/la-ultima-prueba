@@ -32,7 +32,7 @@ export default function PanelUrna({
   useEffect(() => setSimulacion(undefined), [azules, amarillas]);
 
   return (
-    <>
+    <div class={`urna-panel${verParejas ? ' urna-con-parejas' : ''}`}>
       <div class="urna" role="img" aria-label={textoUrna(estado)}>
         {azules + amarillas === 0 ? (
           <span class="urna-vacia">Urna vacía</span>
@@ -48,30 +48,33 @@ export default function PanelUrna({
         )}
       </div>
 
-      <Pasos
-        etiqueta="Fichas azules (redondas)"
-        valor={azules}
-        min={0}
-        max={max}
-        bloqueado={bloqueado}
-        alCambiar={(n) => ajustar({ azules: n, amarillas })}
-      />
-      <Pasos
-        etiqueta="Fichas amarillas (cuadradas)"
-        valor={amarillas}
-        min={0}
-        max={max}
-        bloqueado={bloqueado}
-        alCambiar={(n) => ajustar({ azules, amarillas: n })}
-      />
+      <div class="urna-dispensadores">
+        <Pasos
+          etiqueta="Fichas azules (redondas)"
+          valor={azules}
+          min={0}
+          max={max}
+          bloqueado={bloqueado}
+          alCambiar={(n) => ajustar({ azules: n, amarillas })}
+        />
+        <Pasos
+          etiqueta="Fichas amarillas (cuadradas)"
+          valor={amarillas}
+          min={0}
+          max={max}
+          bloqueado={bloqueado}
+          alCambiar={(n) => ajustar({ azules, amarillas: n })}
+        />
+      </div>
 
       <div class="urna-herramientas">
         <button
           type="button"
           class="boton boton-secundario"
+          aria-label="Simular 100 extracciones"
           onClick={() => setSimulacion(simular(azules, amarillas))}
         >
-          Simular 100 extracciones
+          Simular 100<span class="urna-largo"> extracciones</span>
         </button>
         <button
           type="button"
@@ -97,7 +100,7 @@ export default function PanelUrna({
           ))}
         </Respuesta>
       )}
-    </>
+    </div>
   );
 }
 

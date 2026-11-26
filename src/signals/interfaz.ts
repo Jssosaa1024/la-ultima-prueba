@@ -80,6 +80,19 @@ export const carga = signal<Carga>({ estado: 'inactiva', progreso: 0 });
  * mostrando la etapa resuelta. Lo escribe el panel de mecanismo.
  */
 export const resultadoVisto = signal(0);
+/**
+ * Panel de la máquina en franja (correcciones del 25 nov, sesión C): en horizontal, el panel
+ * es una columna a la derecha y la máquina 3D se ve a su izquierda. `derecha` es la fracción
+ * del ancho (0 a 1) que tapa esa columna: 0 sin panel de máquina, con el panel recogido en su
+ * pestaña o en vertical. Lo escribe `ui/` y lo lee `engine/` para encuadrar la máquina en el
+ * ancho que queda libre (sesión A).
+ */
+export const franja = signal<{ derecha: number }>({ derecha: 0 });
+/**
+ * El panel de la máquina está recogido en su pestaña (botón «Ver» o mientras la máquina se
+ * mueve): la escena se ve entera. Lo escribe `ui/` y lo lee `engine/` (la mano de la urna).
+ */
+export const panelRecogido = signal(false);
 /** Último aviso sin leer. Lo escribe el controlador y lo borra el HUD al rato de mostrarlo. */
 export const aviso = signal<Aviso | null>(null);
 
@@ -130,6 +143,8 @@ export function cerrarPanel(): void {
   batch(() => {
     panel.value = null;
     inspeccionando.value = null;
+    panelRecogido.value = false;
+    franja.value = { derecha: 0 };
   });
 }
 

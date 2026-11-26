@@ -10,7 +10,7 @@ import {
   posicionDeFicha,
   sacarPareja,
 } from '../../src/engine/mecanismos/urna';
-import { panel, reiniciarInterfaz } from '../../src/signals/interfaz';
+import { panel, panelRecogido, reiniciarInterfaz } from '../../src/signals/interfaz';
 import {
   etapa,
   maquinaResuelta,
@@ -176,6 +176,18 @@ describe('mano mecánica', () => {
     expect(alturaDeLaMano(0.75)).toBeGreaterThan(alturaDeLaMano(0.5));
     expect(alturaDeLaMano(1.2)).toBe(reposo);
     expect(alturaDeLaMano(DURACION_MANO)).toBe(reposo);
+  });
+
+  it('con el panel recogido en su pestaña, la mano juega a la vista (correcciones del 25 nov)', () => {
+    const { raiz } = sala();
+    const animacion = animarUrna(raiz, () => 0.1);
+    enLaUrna(3, 1);
+    panel.value = 'mecanismo';
+    tirarDeLaManija(1, 3, 1);
+    expect(animacion.manoActiva).toBe(false);
+    panelRecogido.value = true;
+    expect(animacion.manoActiva).toBe(true);
+    animacion.liberar();
   });
 
   it('juega cuando se tira de la manija, pero espera a que se cierre el panel', () => {

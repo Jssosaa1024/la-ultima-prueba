@@ -80,3 +80,43 @@
   min-width: 0;
   padding: 0;
 }
+
+/*
+ * Panel en franja (correcciones del 25 nov): las sombras y los sensores se ven en el gimnasio
+ * 3D; aquí quedan los controles y las medidas en palabras. Las cinco muescas comparten el ancho.
+ */
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .reflector-escena {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .reflector-muescas .opcion {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .dialogo-fondo-franja .reflector-muescas .opciones {
+    flex-wrap: nowrap;
+  }
+
+  .dialogo-fondo-franja .reflector-lecturas {
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  /* «Lo que se ve ahora» sobra en la franja: las medidas se leen solas junto a la escena. */
+  .dialogo-fondo-franja .respuesta:has(.reflector-lecturas) .respuesta-titulo {
+    display: none;
+  }
+
+  /* Las muescas dicen sus grados: el nombre del control solo lo lee el lector de pantalla. */
+  .dialogo-fondo-franja .reflector-muescas .control-etiqueta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

@@ -32,7 +32,10 @@ test('las tres etapas de la etiquetadora dan el sello de la sala 1', async ({ pa
   // Etapa 1 · Jugo: de $2.000 a $1.600 con el rodillo de −20 %.
   await expect(panel).toContainText('Sala 1 · Etapa 1 de 3');
   await expect(panel).toContainText('Etiqueta del jugo');
-  await expect(panel.getByRole('list', { name: 'Ranuras de la máquina' })).toContainText('vacía');
+  // En la franja del celular las ranuras no se dibujan (se ven los rodillos puestos).
+  await expect(
+    panel.getByRole('list', { name: 'Ranuras de la máquina', includeHidden: true }),
+  ).toContainText('vacía');
   await rodillo(panel, '−20 %').click();
   await expect(rodillo(panel, '−20 %')).toHaveAttribute('aria-pressed', 'true');
   await palanca.click();

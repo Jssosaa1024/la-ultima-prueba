@@ -4,7 +4,8 @@
  * La caja de `salas.json` (`s5-caja-fuerte`) recibe una puerta con su dial y su manija,
  * bisagra a la izquierda, y la llave del sello adentro, sobre una repisa. Cuando la sala gana su
  * sello, la puerta gira hacia afuera y deja ver la llave: es la silueta del sello 5 en el mural
- * de la portería. Si el panel de la urna está abierto, espera a que se cierre, para que se vea.
+ * de la portería. Si el panel de la urna está abierto, espera a que se cierre o se recoja en su
+ * pestaña, para que se vea.
  *
  * Son dos mallas más (la puerta y la llave); la llave solo se dibuja con la puerta abierta.
  * Cuelgan de la caja, así que se liberan con la sala. Pulir salas (sesión B): el cuerpo hueco
@@ -13,7 +14,7 @@
 import { effect } from '@preact/signals';
 import { Group, Mesh, MeshLambertMaterial } from 'three';
 import type { Object3D } from 'three';
-import { panel } from '../../signals/interfaz';
+import { panel, panelRecogido } from '../../signals/interfaz';
 import { sellos } from '../../signals/partida';
 import { sonar } from '../audio/eventos';
 import { sinRayo } from './comunes';
@@ -94,8 +95,8 @@ export function animarCajaFuerte(raiz: Object3D): AnimacionSala {
 
   return {
     actualizar(dt) {
-      // Se abre cuando el jugador puede verla: sin panel encima.
-      if (!conSello || apertura >= 1 || panel.peek() !== null) return;
+      // Se abre cuando el jugador puede verla: sin panel encima o con el panel recogido.
+      if (!conSello || apertura >= 1 || (panel.peek() !== null && !panelRecogido.peek())) return;
       // El cerrojo y la bisagra suenan al empezar a abrirse (T43).
       if (apertura === 0) sonar('caja-fuerte');
       apertura = Math.min(1, apertura + dt / DURACION_APERTURA_S);

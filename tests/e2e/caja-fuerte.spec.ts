@@ -6,7 +6,7 @@ import { continuarEn, tocarObjeto, type Punto3 } from './escena';
 /** La urna, sobre la mesa de la rectoría. */
 const URNA: Punto3 = [-0.6, 0.98, -0.5];
 
-test('al resolver la última etapa de la urna, la caja fuerte se abre al cerrar el panel', async ({
+test('al resolver la última etapa de la urna, la caja fuerte se abre con el panel recogido', async ({
   page,
 }, info) => {
   const conDedo = info.project.use.hasTouch === true;
@@ -23,12 +23,16 @@ test('al resolver la última etapa de la urna, la caja fuerte se abre al cerrar 
   await page.getByRole('button', { name: /Usar.*Urna/ }).click();
   const panel = page.getByRole('dialog', { name: 'El juego justo de La Voz' });
   await panel.getByRole('button', { name: 'Tirar de la manija' }).click();
+  // Correcciones del 25 nov: el panel se recoge a su pestaña mientras la mano saca las fichas,
+  // y la caja se abre a la vista. Después el panel vuelve con lo que pasó.
+  await expect(panel).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Mostrar los controles' })).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-detalle', 'caja-abierta', { timeout: 20_000 });
+  await expect(panel).toBeVisible({ timeout: 20_000 });
   await expect(panel).toContainText('Conseguiste el último sello');
-  // Detrás del panel la caja espera: el jugador no la vería abrirse.
-  await expect(canvas).toHaveAttribute('data-detalle', 'caja-cerrada');
 
   await panel.getByRole('button', { name: 'Volver a la sala' }).click();
-  await expect(canvas).toHaveAttribute('data-detalle', 'caja-abierta');
+  await expect(panel).toHaveCount(0);
 });
 
 test('al volver a la rectoría ya resuelta, la caja fuerte sigue abierta', async ({ page }) => {

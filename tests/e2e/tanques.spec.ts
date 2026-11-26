@@ -63,7 +63,9 @@ test('las tres etapas de los tanques dan el sello de la sala 2', async ({ page }
   await expect(panel).toContainText('Corriendo:');
   await expect(palanca).toHaveCount(0);
   await expect(respuesta).toHaveCount(0);
-  await expect(panel.getByRole('button', { name: /^Más:/ })).toBeDisabled();
+  // El panel se recoge a su pestaña mientras corre: la corrida se ve en los tanques 3D.
+  await expect(page.getByRole('button', { name: 'Mostrar los controles' })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /^Más:/, includeHidden: true })).toBeDisabled();
   await expect(canvas).toHaveAttribute('data-maquina', 'corriendo');
   // Al sonar la campana, la máquina muestra lo que pasó, sin decir «incorrecto».
   await expect(respuesta).toContainText('el tanque A estaba en 20 cm', HASTA_LA_CAMPANA);

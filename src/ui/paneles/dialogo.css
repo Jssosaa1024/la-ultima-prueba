@@ -179,3 +179,124 @@
     animation: none;
   }
 }
+
+/* Los títulos van juntos solo en la franja; en los demás paneles es como si no existiera. */
+.dialogo-titulos {
+  display: contents;
+}
+
+.dialogo-cabecera-botones {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.dialogo-cerrar-icono {
+  min-width: 44px;
+  padding: 0 10px;
+  font-size: 1.125rem;
+}
+
+/*
+ * Panel en franja (correcciones del 25 nov): en horizontal, una columna a la derecha de no más
+ * del 35 % del ancho, de arriba abajo y sin desplazarse. La escena se ve a su izquierda: el
+ * fondo no se oscurece (la linterna tampoco), pero sigue tapando los toques.
+ */
+@media (orientation: landscape) {
+  .dialogo-fondo-franja {
+    place-items: stretch end;
+    padding: 0 env(safe-area-inset-right) 0 0;
+    background: rgb(10 8 6 / 0%);
+  }
+
+  .dialogo-fondo-franja .dialogo {
+    width: calc(35vw - env(safe-area-inset-right));
+    max-width: 26rem;
+    height: 100%;
+    max-height: 100%;
+    border-top-width: 1px;
+    border-left: 3px solid var(--tema-ambar);
+    border-radius: var(--tema-radio) 0 0 var(--tema-radio);
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+
+  .dialogo-fondo-franja .dialogo-cabecera {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 12px;
+  }
+
+  .dialogo-fondo-franja .dialogo-titulos {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .dialogo-fondo-franja .dialogo-antetitulo,
+  .dialogo-fondo-franja .dialogo-titulo {
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .dialogo-fondo-franja .dialogo-antetitulo {
+    font-size: 0.625rem;
+    letter-spacing: 0;
+  }
+
+  .dialogo-fondo-franja .dialogo-titulo {
+    font-size: 0.875rem;
+  }
+
+  .dialogo-fondo-franja .dialogo-cuerpo {
+    display: flex;
+    flex-direction: column;
+    padding: 2px 12px 6px;
+  }
+
+  .dialogo-fondo-franja .dialogo-pie {
+    padding: 4px 6px 6px 12px;
+  }
+
+  .dialogo-fondo-franja .boton {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  .dialogo-fondo-franja .dialogo-pie .boton {
+    flex: 1 1 auto;
+  }
+
+  .dialogo-fondo-franja .dialogo-entra {
+    animation-name: dialogo-franja-entra;
+  }
+}
+
+@keyframes dialogo-franja-entra {
+  from {
+    transform: translateX(40%);
+    opacity: 0;
+  }
+}
+
+/* Recogido: el panel se va y queda su pestaña, pegada al borde derecho. */
+.dialogo-recogido .dialogo {
+  visibility: hidden;
+}
+
+.dialogo-pestana {
+  position: absolute;
+  top: 50%;
+  right: env(safe-area-inset-right);
+  transform: translateY(-50%);
+}
+
+.dialogo-pestana .boton {
+  border-radius: var(--tema-radio) 0 0 var(--tema-radio);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 50%);
+}

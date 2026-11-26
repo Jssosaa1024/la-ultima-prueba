@@ -624,8 +624,7 @@ test('la urna se resuelve en tres etapas desde su panel y da el quinto sello (T7
   const canvas = page.getByLabel('Escena del juego');
   await expect(canvas).toHaveAttribute('data-maquina', '0,0');
   for (let i = 0; i < 3; i++) await masAzul.click();
-  await expect(panel.getByRole('img', { name: 'En la urna hay 3 fichas azules.' })).toBeVisible();
-  // En la escena 3D, detrás del panel, la urna ya tiene las mismas fichas.
+  // En la escena 3D, a la izquierda del panel, la urna ya tiene las mismas fichas.
   await expect(canvas).toHaveAttribute('data-maquina', '3,0');
   await panel.getByRole('button', { name: 'Simular 100 extracciones' }).click();
   await expect(panel).toContainText('De 100 veces, 100 salieron del mismo color');
@@ -647,9 +646,7 @@ test('la urna se resuelve en tres etapas desde su panel y da el quinto sello (T7
   await expect(panel).toContainText('Sala 5 · Etapa 3 de 3');
   for (let i = 0; i < 3; i++) await masAzul.click();
   for (let i = 0; i < 2; i++) await masAmarilla.click();
-  await expect(
-    panel.getByRole('img', { name: 'En la urna hay 6 fichas azules y 3 fichas amarillas.' }),
-  ).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-maquina', '6,3');
   await manija.click();
   await expect(panel).toContainText('Conseguiste el último sello');
   await expect(panel).toContainText('Lo que acabas de descubrir se llama');
@@ -683,11 +680,8 @@ test('al volver a la rectoría resuelta, la urna se ve como quedó y el sello si
   await page.getByRole('button', { name: /Usar.*Urna/ }).click();
   const panel = page.getByRole('dialog', { name: 'El juego justo de La Voz' });
   await expect(panel).toContainText('Esta máquina ya quedó resuelta');
-  await expect(
-    panel.getByRole('img', { name: 'En la urna hay 6 fichas azules y 3 fichas amarillas.' }),
-  ).toBeVisible();
-  // Se puede mirar, no cambiar: los dispensadores están bloqueados y no hay manija.
-  await expect(panel.getByRole('button', { name: 'Más: Fichas azules (redondas)' })).toBeDisabled();
+  // Se puede mirar, no cambiar: la urna 3D sigue con sus fichas y no hay manija.
+  await expect(canvas).toHaveAttribute('data-maquina', '6,3');
   await expect(panel.getByRole('button', { name: 'Tirar de la manija' })).toHaveCount(0);
   await panel.getByRole('button', { name: 'Cerrar' }).click();
 

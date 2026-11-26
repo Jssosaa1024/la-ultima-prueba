@@ -4,7 +4,14 @@ import { duracionCorridaS, nivelEn } from '../../../game/puzzles';
 import { inventario } from '../../../signals/partida';
 import { Pasos, Respuesta } from '../marco/Controles';
 import type { PropsPanel } from '../marco/tipos';
-import { lineasDeResultado, PAUSA_MS, textoCaudal, textoNivel, textoRitmo } from './corrida';
+import {
+  LINEA_OTRA_VEZ,
+  lineasDeResultado,
+  PAUSA_MS,
+  textoCaudal,
+  textoNivel,
+  textoRitmo,
+} from './corrida';
 import Graficador from './Graficador';
 import './tanques.css';
 
@@ -119,7 +126,7 @@ export default function PanelTanques({
 
   return (
     <>
-      <div class="tanques">
+      <div class={`tanques${resultado && !corriendo ? ' tanques-con-respuesta' : ''}`}>
         <Tanque
           nombre="A"
           clase="tanque-a"
@@ -160,15 +167,17 @@ export default function PanelTanques({
       </p>
 
       {etapa.controles.perillas.includes('a') && (
-        <Pasos
-          etiqueta="Perilla verde: caudal del tanque A"
-          valor={estado.a.caudal}
-          min={etapa.controles.caudal_min}
-          max={etapa.controles.caudal_max}
-          texto={textoCaudal(estado.a.caudal)}
-          bloqueado={bloqueado || porCorrer || corrida !== null}
-          alCambiar={(caudal) => ajustar({ ...estado, a: { ...estado.a, caudal } })}
-        />
+        <div class="tanques-perilla">
+          <Pasos
+            etiqueta="Perilla verde: caudal del tanque A"
+            valor={estado.a.caudal}
+            min={etapa.controles.caudal_min}
+            max={etapa.controles.caudal_max}
+            texto={textoCaudal(estado.a.caudal)}
+            bloqueado={bloqueado || porCorrer || corrida !== null}
+            alCambiar={(caudal) => ajustar({ ...estado, a: { ...estado.a, caudal } })}
+          />
+        </div>
       )}
       <ul class="tanques-datos">
         <li>
@@ -190,11 +199,16 @@ export default function PanelTanques({
       </ul>
 
       {resultado && !corriendo && (
-        <div ref={respuesta}>
+        <div ref={respuesta} class="mecanismo-respuesta">
           <Respuesta titulo="Lo que pasó">
             {lineasDeResultado(etapa, resultado.estado, resultado.resuelta, resultado.sello).map(
               (linea) => (
-                <p key={linea}>{linea}</p>
+                <p
+                  key={linea}
+                  class={linea === LINEA_OTRA_VEZ ? 'respuesta-secundaria' : undefined}
+                >
+                  {linea}
+                </p>
               ),
             )}
           </Respuesta>

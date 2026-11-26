@@ -20,7 +20,7 @@
 import { effect } from '@preact/signals';
 import { Group, InstancedMesh, Matrix4, Mesh, MeshLambertMaterial } from 'three';
 import type { Material, Object3D } from 'three';
-import { panel } from '../../signals/interfaz';
+import { panel, panelRecogido } from '../../signals/interfaz';
 import { etapa, maquinaResuelta, mecanismo, resultado } from '../../signals/mecanismo';
 import { sonar } from '../audio/eventos';
 import { suave } from './curvas';
@@ -257,8 +257,9 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
       animado = deEstaSala.n;
       pendiente = fichasDe(deEstaSala.estado);
     }
-    // La mano juega cuando el jugador puede verla: sin panel encima.
-    if (panel.value === null) empezarSiHayPendiente();
+    // La mano juega cuando el jugador puede verla: sin panel encima o con el panel recogido en
+    // su pestaña (correcciones del 25 nov).
+    if (panel.value === null || panelRecogido.value) empezarSiHayPendiente();
   });
 
   function empezarSiHayPendiente(): void {
@@ -282,7 +283,7 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
         pareja = null;
         manija.rotation.x = MANIJA_REPOSO;
         // Si se tiró otra vez de la manija mientras la mano jugaba, juega de nuevo.
-        if (panel.peek() === null) empezarSiHayPendiente();
+        if (panel.peek() === null || panelRecogido.peek()) empezarSiHayPendiente();
       }
     },
     get animando() {

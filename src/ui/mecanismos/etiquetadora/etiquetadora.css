@@ -79,3 +79,33 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* Panel en franja (correcciones del 25 nov): las ranuras ya se ven en los rodillos marcados. */
+@media (orientation: landscape) {
+  .dialogo-fondo-franja .etiquetas {
+    gap: 4px;
+  }
+
+  .dialogo-fondo-franja .etiqueta {
+    padding: 4px 8px;
+  }
+
+  .dialogo-fondo-franja .etiqueta dt {
+    font-size: 0.6875rem;
+    line-height: 1.2;
+  }
+
+  .dialogo-fondo-franja .etiqueta dd {
+    font-size: 1.125rem;
+  }
+
+  .dialogo-fondo-franja .ranuras,
+  .dialogo-fondo-franja .etiquetas-con-respuesta {
+    display: none;
+  }
+
+  .dialogo-fondo-franja .etiqueta-impresa {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+}
