@@ -248,9 +248,12 @@ export default function PanelMecanismo() {
     ocupar: setOcupado,
   } as PropsPanel<Mecanismo>;
 
-  const acciones =
+  const acciones = mostrarPistas ? (
+    <button type="button" class="boton boton-secundario" onClick={() => setVerPistas(false)}>
+      Volver a la máquina
+    </button>
+  ) : (
     !ocupado &&
-    !mostrarPistas &&
     (resuelta ? (
       <button type="button" class="boton boton-principal" onClick={seguir}>
         {volverALaSala ? 'Volver a la sala' : 'Seguir'}
@@ -269,7 +272,8 @@ export default function PanelMecanismo() {
           {TEXTO_ACCIONAR[puzzle.mecanismo]}
         </button>
       )
-    ));
+    ))
+  );
 
   // Con una pista nueva, el botón la abre de una vez y la muestra en el panel (como el aviso de
   // la sesión B); si no, muestra las ya abiertas. Va arriba, junto a «Ver»: siempre a la vista.
@@ -294,14 +298,7 @@ export default function PanelMecanismo() {
       corto: `Sala ${puzzle.sala} · ${vista.numero + 1}/${puzzle.etapas.length}`,
     },
     <>
-      {mostrarPistas && (
-        <div class="mecanismo-pistas">
-          <SeccionPistas />
-          <button type="button" class="boton boton-secundario" onClick={() => setVerPistas(false)}>
-            Volver a la máquina
-          </button>
-        </div>
-      )}
+      {mostrarPistas && <PistasEnPanel />}
       {/* La máquina sigue montada con las pistas abiertas: la corrida de los tanques sigue. */}
       <div class={`mecanismo-contenido${mostrarPistas ? ' mecanismo-oculto' : ''}`}>
         {/* Con lo que respondió la máquina a la vista, en la franja se esconde: ya se leyó. */}
@@ -332,6 +329,23 @@ export default function PanelMecanismo() {
     </>,
     acciones,
     botonPistas,
+  );
+}
+
+/**
+ * Las pistas dentro del panel de la máquina. Al abrirlas, el panel vuelve arriba: después de
+ * tocar los controles podía quedar desplazado y la pista abierta, fuera de la vista.
+ */
+function PistasEnPanel() {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const cuerpo = ref.current?.closest('.dialogo-cuerpo');
+    if (cuerpo) cuerpo.scrollTop = 0;
+  }, []);
+  return (
+    <div ref={ref} class="mecanismo-pistas">
+      <SeccionPistas />
+    </div>
   );
 }
 

@@ -197,6 +197,11 @@
     flex-direction: column;
   }
 
+  /* Con las pistas abiertas, la máquina sigue montada pero no se dibuja. */
+  .dialogo-fondo-franja .mecanismo-contenido.mecanismo-oculto {
+    display: none;
+  }
+
   /* La situación ocupa hasta dos renglones; si es más larga, se toca para leerla toda. */
   .dialogo-fondo-franja .mecanismo-situacion {
     flex: none;
@@ -346,6 +351,10 @@
   .dialogo-fondo-franja .anotacion-detalle {
     padding: 0;
     min-height: 0;
+  }
+
+  .dialogo-fondo-franja .mecanismo-pistas .pistas-lista {
+    margin-bottom: 6px;
   }
 
   .dialogo-fondo-franja .mecanismo-pistas .pistas {
