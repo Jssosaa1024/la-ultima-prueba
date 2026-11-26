@@ -59,6 +59,8 @@ export interface PartidaDePrueba {
   datos?: readonly string[];
   /** Tiempo que le queda al reloj, en ms. Por defecto, 30 minutos. */
   restanteMs?: number;
+  /** Pistas ofrecidas y abiertas en la máquina de la sala. */
+  pistas?: { ofrecidas: number; vistas: number };
 }
 
 /**
@@ -80,7 +82,7 @@ export async function continuarEn(page: Page, p: PartidaDePrueba): Promise<Caja>
       grabaciones: p.grabaciones ?? [],
     },
     restanteMs: p.restanteMs ?? 30 * 60 * 1000,
-    pistas: {},
+    pistas: p.pistas ? { [p.sala]: { msEnEtapa: 0, intentosEnEtapa: 0, ...p.pistas } } : {},
     mecanismos: p.ajustes === undefined ? {} : { [p.sala]: p.ajustes },
     notas: [],
     datos: p.datos ?? [],

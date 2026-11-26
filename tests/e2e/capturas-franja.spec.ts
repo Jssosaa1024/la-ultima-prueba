@@ -25,6 +25,8 @@ test.use({
 
 interface Maquina {
   sala: PartidaDePrueba['sala'];
+  /** Nombre de las capturas, si no es el de la sala. */
+  nombre?: string;
   titulo: string;
   usar: RegExp;
   punto: Punto3;
@@ -32,6 +34,8 @@ interface Maquina {
   acercarse?: (page: Page, caja: Caja) => Promise<void>;
   /** El botón que acciona la máquina, si tiene uno. */
   accionar?: string;
+  /** Con una pista ofrecida: se mide también con la pista abierta. */
+  pistas?: boolean;
 }
 
 const MAQUINAS: readonly Maquina[] = [
@@ -74,6 +78,17 @@ const MAQUINAS: readonly Maquina[] = [
     acercarse: (page, caja) => caminarHasta(page, caja, true, (_x, z) => z <= -0.55),
   },
   {
+    // La etapa 2: dos lámparas tapadas y una pista ya ofrecida (el botón «Pista» arriba).
+    sala: 's4-biblioteca',
+    nombre: 's4-biblioteca-etapa-2',
+    titulo: 'Los carritos de préstamo',
+    usar: /Usar.*Carritos de préstamo/,
+    punto: [-2.1, 0.5, -1.2],
+    partida: { etapas: 1, ajustes: { carritos: [1, 4, 4, 4, 7] } },
+    acercarse: (page, caja) => caminarHasta(page, caja, true, (_x, z) => z <= -0.55),
+    pistas: true,
+  },
+  {
     sala: 's5-rectoria',
     titulo: 'El juego justo de La Voz',
     usar: /Usar.*Urna/,
@@ -97,7 +112,11 @@ async function medir(panel: Locator): Promise<{ ancho: number; alto: number; des
 }
 
 async function abrir(page: Page, m: Maquina): Promise<Locator> {
-  const caja = await continuarEn(page, { sala: m.sala, ...m.partida });
+  const caja = await continuarEn(page, {
+    sala: m.sala,
+    ...m.partida,
+    ...(m.pistas ? { pistas: { ofrecidas: 1, vistas: 0 } } : {}),
+  });
   await m.acercarse?.(page, caja);
   const panel = page.getByRole('dialog', { name: m.titulo });
   const usar = page.getByRole('button', { name: m.usar });
@@ -111,14 +130,14 @@ async function abrir(page: Page, m: Maquina): Promise<Locator> {
 }
 
 for (const m of MAQUINAS) {
-  test(`captura del panel: ${m.titulo}`, async ({ page }, info) => {
+  test(`captura del panel: ${m.nombre ?? m.titulo}`, async ({ page }, info) => {
     test.skip(info.project.name !== 'celular', 'Solo en el celular');
     const panel = await abrir(page, m);
     // Que termine de entrar deslizándose.
     await page.waitForTimeout(600);
     const medida = await medir(panel);
-    console.log(`${m.sala}: ${JSON.stringify(medida)}`);
-    await page.screenshot({ path: info.outputPath(`${m.sala}.png`) });
+    console.log(`${m.nombre ?? m.sala}: ${JSON.stringify(medida)}`);
+    await page.screenshot({ path: info.outputPath(`${m.nombre ?? m.sala}.png`) });
     // Una columna a la derecha de no más del 35 % del ancho, sin desplazarse.
     expect(medida.ancho, 'ancho del panel (%)').toBeLessThanOrEqual(35);
     expect(medida.desborde, 'lo que se desplaza el panel (px)').toBeLessThanOrEqual(1);
@@ -128,9 +147,20 @@ for (const m of MAQUINAS) {
     const pestana = page.getByRole('button', { name: 'Mostrar los controles' });
     await expect(panel).toBeHidden();
     await expect(pestana).toBeFocused();
-    await page.screenshot({ path: info.outputPath(`${m.sala}-ver.png`) });
+    await page.screenshot({ path: info.outputPath(`${m.nombre ?? m.sala}-ver.png`) });
     await pestana.click();
     await expect(panel).toBeVisible();
+
+    // Una pista ofrecida: al abrirla, la pista queda a la vista y la columna no se desplaza.
+    if (m.pistas) {
+      await panel.getByRole('button', { name: 'Pista nueva' }).click();
+      await expect(panel.locator('.pistas-pista').first()).toBeInViewport();
+      const conPista = await medir(panel);
+      console.log(`${m.nombre ?? m.sala} con la pista: ${JSON.stringify(conPista)}`);
+      await page.screenshot({ path: info.outputPath(`${m.nombre ?? m.sala}-pista.png`) });
+      expect(conPista.desborde, 'lo que se desplaza con la pista (px)').toBeLessThanOrEqual(1);
+      await panel.getByRole('button', { name: 'Volver a la máquina' }).click();
+    }
 
     // Los tanques: la gráfica se abre en la misma columna, también sin desplazarse.
     const grafica = panel.getByRole('button', { name: 'Ver la gráfica' });
@@ -138,8 +168,8 @@ for (const m of MAQUINAS) {
       await grafica.click();
       await expect(panel.locator('.graficador')).toBeVisible();
       const conGrafica = await medir(panel);
-      console.log(`${m.sala} con la gráfica: ${JSON.stringify(conGrafica)}`);
-      await page.screenshot({ path: info.outputPath(`${m.sala}-grafica.png`) });
+      console.log(`${m.nombre ?? m.sala} con la gráfica: ${JSON.stringify(conGrafica)}`);
+      await page.screenshot({ path: info.outputPath(`${m.nombre ?? m.sala}-grafica.png`) });
       expect(conGrafica.desborde, 'lo que se desplaza con la gráfica (px)').toBeLessThanOrEqual(1);
       await panel.getByRole('button', { name: 'Volver a la perilla' }).click();
     }
@@ -155,8 +185,8 @@ for (const m of MAQUINAS) {
     ).toBeVisible();
     await page.waitForTimeout(300);
     const conRespuesta = await medir(panel);
-    console.log(`${m.sala} con respuesta: ${JSON.stringify(conRespuesta)}`);
-    await page.screenshot({ path: info.outputPath(`${m.sala}-respuesta.png`) });
+    console.log(`${m.nombre ?? m.sala} con respuesta: ${JSON.stringify(conRespuesta)}`);
+    await page.screenshot({ path: info.outputPath(`${m.nombre ?? m.sala}-respuesta.png`) });
     expect(conRespuesta.desborde, 'lo que se desplaza con la respuesta (px)').toBeLessThanOrEqual(
       1,
     );

@@ -71,7 +71,9 @@ export default function PanelCarritos({
           return (
             <span key={id} class="carritos-tapada">
               {rotulo}
-              {despues !== undefined && ` ${numero(despues)}`} · tapada
+              {despues !== undefined && ` ${numero(despues)}`}
+              {/* En la franja basta el borde punteado: «tapada» lo sigue leyendo el lector. */}
+              <span class="carritos-largo"> · tapada</span>
             </span>
           );
         })}
