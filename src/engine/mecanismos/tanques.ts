@@ -13,7 +13,7 @@
  * Son cinco mallas más en la sala: el líquido de cada tanque.
  *
  * Pulir salas (sesión A): el vidrio es más redondo y casi incoloro, para que el color lo dé el
- * líquido; el líquido tiene la superficie más clara (el menisco) y la bandeja, bordes y asa.
+ * líquido; el líquido tiene la superficie más clara (el menisco).
  * Las bases, tapas, varillas y regla de los tanques las pone `laboratorio-piezas.ts`.
  */
 import { effect } from '@preact/signals';
