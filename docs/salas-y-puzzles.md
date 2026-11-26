@@ -173,7 +173,7 @@ En la etapa 3, la única pareja de rodillos que da $3.000 es −50 % con +50 % (
 
 **Intuición que se pone a prueba:** «lo que está muy alto no se puede medir sin subir». Al final, el jugador mide el marcador sin tocarlo.
 
-**Espacio:** gimnasio de 20 × 12 m y 9 m de alto, apagado. Un reflector de escenario en una gradería emite luz paralela; su perilla de inclinación tiene cinco muescas: 27°, 37°, 45°, 53° y 63°. En la cancha hay postes de voleibol de 1, 2 y 3 m que se deslizan por rieles marcados cada metro, y sensores de luz en el piso. Muy arriba, en la pared, cuelga el marcador con el sello.
+**Espacio:** gimnasio de 20 × 12 m y 9 m de alto, apagado. Un reflector de escenario, sobre su poste contra la pared y en el eje de los postes, emite luz paralela; su perilla de inclinación tiene cinco muescas: 27°, 37°, 45°, 53° y 63°. En la cancha hay postes de voleibol de 1, 2 y 3 m que se deslizan por rieles marcados cada metro, y sensores de luz en el piso. Muy arriba, en la pared, cuelga el marcador con el sello.
 
 **La mecánica:** inclinas el reflector y mueves los postes; las sombras cambian en vivo. Un sensor suena cuando la punta de una sombra lo toca. Probar es inmediato y no cuesta nada.
 
