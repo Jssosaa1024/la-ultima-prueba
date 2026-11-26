@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { continuarEn } from './escena';
+import { continuarEn, tocarObjeto, type Punto3 } from './escena';
 
 // Punto 21 del hito 1: con un panel abierto el motor dibuja a unos 10 cuadros por segundo,
 // lo justo para que la máquina termine de moverse detrás; al cerrarlo vuelve a la normal.
@@ -56,4 +56,47 @@ test('con un panel abierto se dibuja a unos 10 cuadros por segundo, y al cerrarl
   // se comprueba que siga dibujando. En el perfil celular, que vuelva a ir más rápido.
   if (info.project.use.hasTouch) expect(sinPanel).toBeGreaterThan(conPanel);
   else expect(sinPanel).toBeGreaterThan(0);
+});
+
+// Corrección del 25 de noviembre: con el panel de una máquina, la cámara se acerca a ella y,
+// mientras la máquina se anima, se dibuja a velocidad normal; quieta, otra vez a 10 por segundo.
+const ETIQUETADORA: Punto3 = [0.55, 1.15, -0.6];
+
+test('con el panel de la etiquetadora la cámara se acerca, y mientras imprime se dibuja a velocidad normal', async ({
+  page,
+}, info) => {
+  test.slow();
+  const conDedo = info.project.use.hasTouch === true;
+  await contarCuadros(page);
+  const caja = await continuarEn(page, {
+    sala: 's1-cooperativa',
+    ajustes: { producto: 'jugo', precio: 2000, rodillos: [20] },
+  });
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(canvas).toHaveAttribute('data-motor', 'activo');
+  const posicion = await canvas.getAttribute('data-posicion');
+  await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
+  await page.getByRole('button', { name: /Usar.*Etiquetadora/ }).click();
+  const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
+  await expect(panel).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-encuadre', 'encuadrada');
+  // Se acerca la cámara del dibujo, no el jugador.
+  expect(await canvas.getAttribute('data-posicion')).toBe(posicion);
+
+  await page.waitForTimeout(300);
+  const quieta = await cuadrosEn(page, 1_000);
+  expect(quieta).toBeLessThanOrEqual(12);
+
+  await panel.getByRole('button', { name: 'Bajar la palanca' }).click();
+  await expect(canvas).toHaveAttribute('data-maquina', 'imprimiendo');
+  const imprimiendo = await cuadrosEn(page, 600);
+  // En escritorio el canvas grande se dibuja con la CPU y puede ir lento de por sí: allí solo
+  // se comprueba que siga dibujando. En el perfil celular, más que con la máquina quieta.
+  if (info.project.use.hasTouch) expect(imprimiendo / 0.6).toBeGreaterThan(quieta);
+  else expect(imprimiendo).toBeGreaterThan(0);
+
+  await page.getByRole('button', { name: 'Cerrar' }).click();
+  await expect(panel).toHaveCount(0);
+  await expect(canvas).toHaveAttribute('data-encuadre', 'libre');
+  expect(await canvas.getAttribute('data-posicion')).toBe(posicion);
 });
