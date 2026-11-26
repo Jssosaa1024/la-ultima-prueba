@@ -34,8 +34,12 @@ const C = {
 
 /** Las gradas (`salas.json`): de x −8 a 0, contra la pared norte (z = −6). */
 const GRADAS = { x0: -8, x1: 0, fondo: -6, escalones: 3, alto: 0.5, huella: 0.5 } as const;
-/** Donde está el reflector, sobre el escalón de arriba. */
-const REFLECTOR = { x: -4, y: 1.5, z: -5.75 } as const;
+/**
+ * Donde está el reflector (corrección del 25 de noviembre): sobre su poste, contra la pared
+ * norte y en el eje del riel (x = 2, como `s3-postes`), detrás del poste de 2 m. Antes estaba
+ * en la gradería, a 6 m a la izquierda de los postes que alumbra.
+ */
+const REFLECTOR = { x: 2, y: 1.5, z: -5.75 } as const;
 /** Las alturas de los postes, en el orden de `salas.json` (como `ALTURAS_POSTES`). */
 const ALTURAS = [1, 2, 3] as const;
 const ALTO_RIEL = 0.04;
@@ -50,23 +54,12 @@ function gradas(p: Piezas): void {
   for (let k = 0; k < escalones; k++) {
     const arriba = alto * (k + 1);
     const frente = fondo + 1.4 - huella * k;
-    const ultimo = k === escalones - 1;
-    if (ultimo) {
-      // El escalón de arriba deja libre el sitio del reflector.
-      const hueco = 0.35;
-      const largo = REFLECTOR.x - hueco - (x0 + 0.07);
-      for (const xc of [x0 + 0.07 + largo / 2, REFLECTOR.x + hueco + largo / 2]) {
-        p.caja([largo, 0.05, 0.3], C.madera, {
-          pos: [xc, arriba + 0.025, frente - 0.17],
-          bisel: 0.012,
-        });
-      }
-    } else {
-      p.caja([ancho - 0.14, 0.05, 0.34], C.madera, {
-        pos: [centro, arriba + 0.025, frente - 0.19],
-        bisel: 0.012,
-      });
-    }
+    // El escalón de arriba es más angosto: la tabla no llega hasta la pared.
+    const huellaTabla = k === escalones - 1 ? 0.3 : 0.34;
+    p.caja([ancho - 0.14, 0.05, huellaTabla], C.madera, {
+      pos: [centro, arriba + 0.025, frente - 0.02 - huellaTabla / 2],
+      bisel: 0.012,
+    });
     p.caja([ancho, 0.03, 0.035], C.cromo, { pos: [centro, arriba - 0.015, frente - 0.015] });
     p.caja([ancho, 0.06, 0.006], C.crema, { pos: [centro, arriba - 0.25, frente + 0.003] });
     // Costados de cada escalón, a los dos lados.
@@ -100,8 +93,25 @@ function gradas(p: Piezas): void {
   }
 }
 
-/** La base del reflector: placa, bisagras, cuadrante con muescas y el cable a la pared. */
+/**
+ * La base del reflector: su poste (pie con peso, tubo y collarín, centrados bajo la bisagra),
+ * la placa, las bisagras, el cuadrante con muescas y el cable a la pared.
+ */
 function baseReflector(p: Piezas): void {
+  p.en({ pos: [REFLECTOR.x, 0, REFLECTOR.z] }, () => {
+    p.cilindro(0.26, 0.05, C.metalOscuro, {
+      pos: [0, 0, 0],
+      rArriba: 0.22,
+      bisel: 0.01,
+      lados: 16,
+    });
+    p.barra([0, 0.05, 0], [0, REFLECTOR.y - 0.04, 0], 0.035, C.cromo, 10);
+    p.cilindro(0.06, 0.04, C.metalOscuro, {
+      pos: [0, REFLECTOR.y - 0.04, 0],
+      bisel: 0.008,
+      lados: 10,
+    });
+  });
   p.en({ pos: [REFLECTOR.x, REFLECTOR.y, REFLECTOR.z] }, () => {
     p.caja([0.58, 0.04, 0.42], C.metalOscuro, { pos: [0, 0.02, 0], bisel: 0.012 });
     for (const s of [1, -1]) {
