@@ -126,6 +126,9 @@ export function animarCarritos(raiz: Object3D): AnimacionSala {
       mostrarLibros(pila as Mesh, enPila);
       quieto = !falta;
     },
+    get animando() {
+      return !quieto;
+    },
     get estado() {
       return quieto ? `lamparas-${verdes}` : 'moviendo';
     },

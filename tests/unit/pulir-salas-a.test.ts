@@ -158,4 +158,17 @@ describe('gimnasio: las piezas de la máquina conservan su tamaño', () => {
     const [, alto] = medidas(sala.raiz.getObjectByName('s3-reflector'));
     expect(alto).toBeLessThan(0.62);
   });
+
+  it('el reflector está en el eje del riel, fuera de la gradería (corrección del 25 de noviembre)', () => {
+    const reflector = sala.raiz.getObjectByName('s3-reflector');
+    const postes = sala.raiz.getObjectByName('s3-postes');
+    if (!reflector || !postes) throw new Error('faltan piezas');
+    // Alineado con el poste de 2 m (el del medio, en x = 0 del grupo), detrás de él.
+    const posteDelMedio = postes.children[2];
+    expect(reflector.position.x).toBeCloseTo(postes.position.x + (posteDelMedio?.position.x ?? 0));
+    expect(reflector.position.z).toBeLessThan(postes.position.z);
+    // La gradería va de x = −8 a 0: el reflector ya no está encima.
+    expect(reflector.position.x).toBeGreaterThan(0.5);
+    expect(reflector.position.y).toBe(1.5);
+  });
 });

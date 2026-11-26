@@ -128,6 +128,10 @@ export function animarEtiquetadora(raiz: Object3D): AnimacionSala {
         colocarCajon();
       }
     },
+    get animando() {
+      // La impresión y, con el sello, el cajón de la registradora que se abre.
+      return impresion !== null || (conSello && apertura < 1);
+    },
     get estado() {
       if (impresion !== null) return 'imprimiendo';
       if (apertura >= 1) return 'registradora-abierta';

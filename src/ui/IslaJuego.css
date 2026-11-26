@@ -1,7 +1,12 @@
 /* Contenedor del juego: ocupa toda la ventana, incluida la zona del notch (viewport-fit=cover). */
 .juego {
   position: fixed;
-  inset: 0;
+  top: var(--arriba-visible, 0);
+  left: var(--izquierda-visible, 0);
+  /* Corrección del 25 de noviembre: el tamaño de lo que se ve (visualViewport), que escribe
+     engine/pantalla.ts al volver a la página o al girar. Sin esas variables, toda la ventana. */
+  width: var(--ancho-visible, 100%);
+  height: var(--alto-visible, 100%);
   overflow: hidden;
   /* Los gestos son del juego (joystick, mirar): sin scroll ni zoom del navegador. */
   touch-action: none;

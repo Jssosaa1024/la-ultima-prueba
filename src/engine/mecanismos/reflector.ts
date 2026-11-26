@@ -256,6 +256,9 @@ export function animarReflector(raiz: Object3D): AnimacionSala {
       gancho.position.y = y;
       quieto = !falta;
     },
+    get animando() {
+      return !quieto;
+    },
     get estado() {
       if (!quieto) return 'moviendo';
       if (gancho.visible && metaGancho > GANCHO.reposo) return 'gancho-arriba';

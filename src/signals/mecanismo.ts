@@ -70,6 +70,14 @@ export interface ResultadoMecanismo {
 export const resultado = signal<ResultadoMecanismo | null>(null);
 
 /**
+ * Sube cada vez que una máquina en vivo (sala 4 y las dos primeras etapas de la sala 3) queda
+ * quieta en un estado que no resuelve la etapa: el momento en que el jugador mira lo que pasó
+ * (ver `game/intentos.ts`). Con eso suena el error de la etapa (corrección del 25 de
+ * noviembre); las máquinas que se accionan lo dicen con `resultado`. Lo escribe el controlador.
+ */
+export const falloEnVivo = signal(0);
+
+/**
  * Cómo quedó la máquina de la sala actual, si la sala ya tiene su sello (T76): los ajustes
  * con los que se resolvió la última etapa. Al volver a una sala resuelta, su máquina se ve
  * como se dejó. `null` en la portería y en las salas con etapas pendientes.

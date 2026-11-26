@@ -204,8 +204,6 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
     duracion: number;
     alto: number;
     t: number;
-    /** Si esta corrida ganó el sello: suena con la campana (T43). */
-    sello: boolean;
   } | null = null;
   let conSello = sellos.peek().includes(SALA);
   let apertura = conSello ? 1 : 0;
@@ -247,7 +245,6 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
       duracion: duracionCorridaS(datos),
       alto: datos.controles.altura_cm,
       t: 0,
-      sello: r.sello,
     };
   });
   // Al cambiar de etapa (o los ajustes), los tanques en reposo se ponen al día.
@@ -271,8 +268,8 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
         corrida.t += dt;
         // La campana suena cuando la corrida llega a su tiempo (T43).
         if (antes < corrida.duracion && corrida.t >= corrida.duracion) {
+          // El sello suena después del acierto, con su pausa (`audio/retroalimentacion.ts`).
           sonar('campana');
-          if (corrida.sello) sonar('sello');
         }
         const { a, b, duracion, alto, t } = corrida;
         // El líquido corre hasta la campana y ahí se queda quieto.
@@ -300,6 +297,13 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
         apertura = Math.min(1, apertura + dt / DURACION_BANDEJA_S);
         colocarBandeja();
       }
+    },
+    get animando() {
+      // La corrida hasta que la campana deja de sacudirse. Con el sello, además, la pausa
+      // después de la campana y la bandeja de la incubadora que sale: el acierto y el sello
+      // suenan después, sin chocar con ella.
+      if (corrida && (conSello || corrida.t < corrida.duracion + DURACION_CAMPANA_S)) return true;
+      return conSello && apertura < 1;
     },
     get estado() {
       if (corrida) return corrida.t < corrida.duracion ? 'corriendo' : 'campana';

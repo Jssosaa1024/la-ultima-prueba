@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { tieneWebGL2 } from '../engine/compatibilidad';
-import { ajustarCanvas } from '../engine/pantalla';
+import { ajustarCanvas, seguirAreaVisible } from '../engine/pantalla';
 import { cargarAjustes } from '../signals/ajustes';
 import { iniciarControlador } from '../signals/controlador';
 import { iniciarControladorCoop } from '../signals/controlador-coop';
@@ -46,6 +46,7 @@ export default function IslaJuego() {
  * Con `?prueba=glb`, en lugar del patrón se carga el GLB de prueba (T10).
  */
 function Escena() {
+  const juegoRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hudRef = useRef<HTMLDivElement>(null);
   const [margenes, setMargenes] = useState<Margenes>({
@@ -71,6 +72,13 @@ function Escena() {
   useEffect(() => {
     cargarAjustes();
     return aplicarTamanoTexto();
+  }, []);
+
+  // Corrección del 25 de noviembre: al volver al navegador (sin pantalla completa, quizá con
+  // el teléfono girado) el juego vuelve a cubrir justo lo que se ve, sin pedazos por fuera.
+  useEffect(() => {
+    const juego = juegoRef.current;
+    return juego ? seguirAreaVisible(juego) : undefined;
   }, []);
 
   useEffect(() => {
@@ -110,7 +118,7 @@ function Escena() {
   const carga = pruebaCarga.value;
 
   return (
-    <div class="juego">
+    <div ref={juegoRef} class="juego">
       <canvas ref={canvasRef} class="juego-canvas" aria-label="Escena del juego" />
       {/* Viñeta (T19j): oscurece apenas los bordes, sin costo en la GPU del juego. */}
       <div class="juego-vineta" aria-hidden="true" />
