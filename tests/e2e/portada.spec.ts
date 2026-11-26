@@ -12,9 +12,12 @@ test('la portada muestra el título, la historia y lleva a jugar y a la guía', 
   await expect(page.getByRole('heading', { level: 1, name: 'La Última Prueba' })).toBeVisible();
   await expect(page.getByText('feria de ciencias')).toBeVisible();
   await expect(page.getByText('a las 00:40 el archivo se borra')).toBeVisible();
-  for (const dato of ['40 minutos', 'Solo o en grupo de 2 a 4', 'sin instalar ni crear cuenta']) {
+  for (const dato of ['40 minutos', 'Solo o en grupo de 2 a 4']) {
     await expect(page.getByText(dato)).toBeVisible();
   }
+  // Correcciones del 25 de noviembre: Alex quitó estas dos frases de la portada.
+  await expect(page.getByText('sin instalar ni crear cuenta')).toHaveCount(0);
+  await expect(page.getByText(/en adelante/)).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Jugar' })).toHaveAttribute('href', '/jugar');
   await expect(page.getByRole('link', { name: 'Guía para docentes' })).toHaveAttribute(
     'href',
