@@ -220,7 +220,7 @@ test('«Ver el tráiler» abre el video en un diálogo y «Cerrar» lo detiene',
 // de carga del juego.
 test('al pie va «Un proyecto de» con el logo de Sinapsis, pequeño', async ({ page }) => {
   await page.goto('/');
-  const pie = page.getByRole('contentinfo');
+  const pie = page.locator('.portada-pie');
   await expect(pie).toContainText('Un proyecto de');
   const logo = pie.getByRole('img', { name: 'Sinapsis' });
   await expect(logo).toBeVisible();
