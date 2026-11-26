@@ -4,9 +4,11 @@ import type { Caja } from './escena';
 import {
   cruzar,
   MAQUINAS,
+  objetoDeEtapa,
   puzzleDeSala,
   resolverEtapa,
   salaPorId,
+  textoSeguir,
   usar,
   volverALaEntrada,
 } from './recorrido';
@@ -72,16 +74,19 @@ test('dos jugadores recorren el pasillo, juegan las cinco salas y salen por vota
     // Quien tiene D abre la máquina y propone cada etapa; el otro acepta.
     const [d, otro] = await quienTieneD(a, b);
     const puzzle = puzzleDeSala(i + 1);
-    const { objeto, ...alcance } = MAQUINAS[puzzle.mecanismo];
+    const porEstaciones = MAQUINAS[puzzle.mecanismo].porEtapa !== undefined;
     const cajaD = cajas.get(d);
     if (!cajaD) throw new Error('sin canvas');
-    await usar(d, cajaD, conDedo, objeto, alcance);
     const panelD = d.getByRole('dialog', { name: puzzle.titulo });
     const panelOtro = otro.getByRole('dialog', { name: puzzle.titulo });
     for (let n = 0; n < puzzle.etapas.length; n++) {
-      const ultima = n === puzzle.etapas.length - 1;
+      // En la sala 2 cada etapa se abre en su estación (corrección del 25 de noviembre).
+      if (n === 0 || porEstaciones) {
+        const { objeto, ...alcance } = objetoDeEtapa(puzzle, n);
+        await usar(d, cajaD, conDedo, objeto, alcance);
+      }
       const aceptar = async (): Promise<void> => {
-        if (n === 0) {
+        if (n === 0 || porEstaciones) {
           await barra(otro)
             .getByRole('button', { name: 'Ver propuesta' })
             .click({ timeout: 120_000 });
@@ -92,9 +97,7 @@ test('dos jugadores recorren el pasillo, juegan las cinco salas y salen por vota
       };
       const [seguir] = await Promise.all([resolverEtapa(panelD, puzzle, n, true), aceptar()]);
       await seguir.click();
-      await panelOtro
-        .getByRole('button', { name: ultima ? 'Volver a la sala' : 'Seguir', exact: true })
-        .click();
+      await panelOtro.getByRole('button', { name: textoSeguir(puzzle, n), exact: true }).click();
     }
     for (const p of [a, b]) {
       await expect(p.getByRole('img', { name: `Sellos: ${i + 1} de 5` })).toBeVisible();

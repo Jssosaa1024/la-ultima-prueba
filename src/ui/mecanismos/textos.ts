@@ -31,5 +31,13 @@ export function textoResuelta(sello: boolean, sala: number, salas: number): stri
   return `Conseguiste el sello de esta sala. En la portería ya se abre la puerta ${sala + 1}.`;
 }
 
+/**
+ * Sala 2 (corrección del 25 de noviembre): cada etapa tiene su estación. Al resolver una sin
+ * ganar el sello, la siguiente se enciende y hay que ir hasta ella.
+ */
+export function textoEstacionResuelta(numero: number): string {
+  return `La estación ${numero + 1} quedó resuelta. Ahora se encendió la estación ${numero + 2}: ve hasta ella.`;
+}
+
 export const TEXTO_TERMINADA =
   'Esta máquina ya quedó resuelta: su sello está en el mural de la portería.';

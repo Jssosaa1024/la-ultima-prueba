@@ -16,6 +16,7 @@ import { conectarTactil } from '../input/tactil';
 import { ajustes } from '../signals/ajustes';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado, panel } from '../signals/interfaz';
+import { etapa as etapaActual } from '../signals/mecanismo';
 import { encuadre as encuadreActual, estadoMotor } from '../signals/motor';
 import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
 import { fase, modo, sala, sellos } from '../signals/partida';
@@ -441,7 +442,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     const abierto = panel.value === 'mecanismo';
     const raiz = cargador.actual?.raiz;
     const grupo =
-      abierto && mostrada ? grupoDeMaquina(mostrada, enfocado.peek()?.id ?? null) : null;
+      abierto && mostrada
+        ? grupoDeMaquina(mostrada, enfocado.peek()?.id ?? null, etapaActual.peek()?.etapa ?? 0)
+        : null;
     const caja = grupo && raiz ? cajaDe(raiz, grupo) : null;
     if (!caja) {
       encuadre.volver();

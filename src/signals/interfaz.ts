@@ -56,6 +56,11 @@ export type Aviso =
    * en el subtítulo y el aviso no lo repite.
    */
   | { t: 'puerta_falsa'; frase: string; hablada: boolean }
+  /**
+   * Sala 2 (corrección del 25 de noviembre): se tocó una estación que no es la de la etapa
+   * pendiente. `estacion` y `encendida` son números de estación (1 a 3).
+   */
+  | { t: 'estacion'; estacion: number; resuelta: boolean; encendida: number | null }
   /** Cooperativo: ese dato solo se lee con una herramienta que este jugador no lleva. */
   | { t: 'necesita_herramienta'; objeto: string; herramienta: string }
   /** Cooperativo (T84d): un compañero (`de`, su alias) le pasó un objeto a este jugador. */

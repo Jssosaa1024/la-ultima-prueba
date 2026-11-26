@@ -68,10 +68,10 @@ describe('ids de objetos: puzzles contra salas.json (T19c)', () => {
     const b = viejo.pista_por_jugador['B'];
     if (!a || !b) throw new Error('faltan los roles A y B');
     a.objeto = 's1-factura'; // diseño viejo: no existe
-    b.objeto = 's2-palanca'; // existe, pero en otra sala
+    b.objeto = 's2-palanca-1'; // existe, pero en otra sala
     expect(objetosQueFaltan(viejo, SALAS_3D)).toEqual([
       's1-etiquetadora · pista_por_jugador.A.objeto: «s1-factura» no existe en s1-cooperativa',
-      's1-etiquetadora · pista_por_jugador.B.objeto: «s2-palanca» no existe en s1-cooperativa',
+      's1-etiquetadora · pista_por_jugador.B.objeto: «s2-palanca-1» no existe en s1-cooperativa',
     ]);
   });
 });

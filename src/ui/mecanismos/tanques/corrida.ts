@@ -57,8 +57,8 @@ export const LINEA_OTRA_VEZ =
   'Los tanques volvieron a como estaban. Puedes mover la perilla y probar otra vez.';
 
 /**
- * Lo que pasó al sonar la campana, en frases cortas. Dice dónde quedó cada tanque y qué hizo
- * la incubadora; nunca dice si estuvo bien o mal. Un tanque tapado no revela su nivel.
+ * Lo que pasó al sonar la campana, en frases cortas. Dice dónde quedó cada tanque y, con el
+ * sello, que las tres estaciones quedaron resueltas; nunca dice si estuvo bien o mal. Un tanque tapado no revela su nivel.
  */
 export function lineasDeResultado(
   etapa: Etapa,
@@ -87,13 +87,11 @@ export function lineasDeResultado(
   } else {
     lineas.push(`${cuando} el tanque A estaba en ${a}. El B sigue tapado.`);
     lineas.push(
-      resuelta
-        ? 'Los dos estaban a la misma altura.'
-        : 'La incubadora no se movió: los dos niveles no eran iguales.',
+      resuelta ? 'Los dos estaban a la misma altura.' : 'Los dos niveles no eran iguales.',
     );
   }
 
-  if (sello) lineas.push('La incubadora se abrió.');
+  if (sello) lineas.push('Las tres estaciones quedaron resueltas.');
   if (!resuelta) {
     lineas.push(LINEA_OTRA_VEZ);
   }

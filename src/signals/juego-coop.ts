@@ -5,6 +5,7 @@ import { grabacionDeObjeto, esObjetoSuelto } from '../content/grabaciones';
 import { puzzleDeSala } from '../content/puzzles';
 import { destinoDePuerta, fraseDePuertaFalsa, nombreDeObjeto, SALAS_3D } from '../content/salas';
 import { resumenDeAprendizaje } from '../game/aprendizaje';
+import { estacionAjena } from '../game/estaciones';
 import type { Directo, Evento, Foto, Intencion, UbicacionObjeto } from '../game/coop/mensajes';
 import { esRecogible, lugarInicial, puzzlePorId, REQUIERE_HERRAMIENTA } from '../game/coop/mundo';
 import { repartoDeFoto } from '../game/coop/replica';
@@ -600,6 +601,12 @@ export class JuegoCoop {
         return true;
       }
       if (esObjetoSuelto(objeto)) return true;
+      // Sala 2: cada estación responde solo en su etapa (corrección del 25 de noviembre).
+      const ajena = estacionAjena(objeto, etapaActual(p, f.lugar));
+      if (ajena) {
+        avisar({ t: 'estacion', ...ajena });
+        return true;
+      }
       abrirPanel('mecanismo');
       return true;
     }

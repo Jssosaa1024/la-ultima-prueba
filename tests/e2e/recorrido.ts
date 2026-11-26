@@ -317,16 +317,37 @@ export async function volverALaEntrada(
   await irA(page, caja, conDedo, [llegada.x, 0, llegada.z], 0.7);
 }
 
-/** El objeto de cada máquina que se toca para abrir su panel, y hasta dónde hay que acercarse. */
-export const MAQUINAS: Readonly<Record<Mecanismo, { objeto: string } & Alcance>> = {
+/**
+ * El objeto de cada máquina que se toca para abrir su panel, y hasta dónde hay que acercarse.
+ * Con `porEtapa`, cada etapa se abre desde su propia estación (sala 2, corrección del 25 de
+ * noviembre) y al resolverla se vuelve a la sala.
+ */
+export const MAQUINAS: Readonly<
+  Record<Mecanismo, { objeto: string; porEtapa?: readonly string[] } & Alcance>
+> = {
   etiquetadora: { objeto: 's1-etiquetadora' },
-  tanques: { objeto: 's2-panel' },
+  tanques: {
+    objeto: 's2-tablero-1',
+    porEtapa: ['s2-tablero-1', 's2-tablero-2', 's2-tablero-3'],
+  },
   // El poste de 2 m: es el que está en la cancha en la primera etapa.
   reflector: { objeto: 's3-postes', parte: 2 },
   // El carrito del jueves queda de frente a la puerta, sin muebles en el camino.
   carritos: { objeto: 's4-carritos', parte: 3 },
   urna: { objeto: 's5-urna' },
 };
+
+/** El objeto que abre el panel en la etapa `n`, con su alcance. */
+export function objetoDeEtapa(puzzle: Puzzle, n: number): { objeto: string } & Alcance {
+  const { porEtapa, ...maquina } = MAQUINAS[puzzle.mecanismo];
+  return { ...maquina, objeto: porEtapa?.[n] ?? maquina.objeto };
+}
+
+/** El botón que cierra una etapa resuelta: «Seguir», o «Volver a la sala» si hay que moverse. */
+export function textoSeguir(puzzle: Puzzle, n: number): string {
+  const ultima = n === puzzle.etapas.length - 1;
+  return ultima || MAQUINAS[puzzle.mecanismo].porEtapa ? 'Volver a la sala' : 'Seguir';
+}
 
 /** Lleva un control de «menos» y «más» de un valor a otro, de a un toque. */
 async function ponerPasos(
@@ -465,11 +486,7 @@ export async function resolverEtapa(
 ): Promise<Locator> {
   const etapa = puzzle.etapas[n];
   if (!etapa) throw new Error(`${puzzle.id} no tiene la etapa ${n}`);
-  const ultima = n === puzzle.etapas.length - 1;
-  const seguir = panel.getByRole('button', {
-    name: ultima ? 'Volver a la sala' : 'Seguir',
-    exact: true,
-  });
+  const seguir = panel.getByRole('button', { name: textoSeguir(puzzle, n), exact: true });
   await expect(panel).toContainText(textoEtapa(puzzle.sala, n, puzzle.etapas.length));
 
   switch (puzzle.mecanismo) {
@@ -511,11 +528,14 @@ export async function resolverMaquina(
   numero: number,
 ): Promise<void> {
   const puzzle = puzzleDeSala(numero);
-  const { objeto, ...alcance } = MAQUINAS[puzzle.mecanismo];
-  await usar(page, caja, conDedo, objeto, alcance);
   const panel = page.getByRole('dialog', { name: puzzle.titulo });
-  await expect(panel).toBeVisible();
   for (let n = 0; n < puzzle.etapas.length; n++) {
+    // La primera vez, o en cada estación de la sala 2, se camina hasta el objeto y se usa.
+    if (n === 0 || MAQUINAS[puzzle.mecanismo].porEtapa) {
+      const { objeto, ...alcance } = objetoDeEtapa(puzzle, n);
+      await usar(page, caja, conDedo, objeto, alcance);
+    }
+    await expect(panel).toBeVisible();
     const seguir = await resolverEtapa(panel, puzzle, n);
     await seguir.click();
   }

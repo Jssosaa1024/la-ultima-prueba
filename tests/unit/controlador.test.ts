@@ -904,7 +904,7 @@ describe('controlador: órdenes de los mecanismos (T31d)', () => {
     expect(mecanismo.value).toEqual(inicial);
     ajustar(s1.etapas[0]?.solucion);
     accionarMaquina('s1-registradora');
-    accionarMaquina('s2-palanca');
+    accionarMaquina('s2-palanca-1');
     expect(resultado.value).toBeNull();
     expect(etapa.value?.etapa).toBe(0);
   });

@@ -35,7 +35,7 @@ describe('qué cuenta como intento en cada sala (T27b)', () => {
     );
     expect(reglas).toEqual([
       ['s1-palanca', 's1-palanca', 's1-palanca'],
-      ['s2-palanca', 's2-palanca', 's2-palanca'],
+      ['s2-palanca-1', 's2-palanca-2', 's2-palanca-3'],
       ['reposo', 'reposo', 's3-polea'],
       ['reposo', 'reposo', 'reposo'],
       ['s5-caja-fuerte', 's5-caja-fuerte', 's5-caja-fuerte'],
@@ -62,11 +62,13 @@ describe('qué cuenta como intento en cada sala (T27b)', () => {
     expect(intentoAlAccionar(s1, 0, 's1-palanca', { rodillos: 'x' })).toBe(false);
   });
 
-  it('sala 2: cada corrida que no abre la incubadora es un intento', () => {
+  it('sala 2: cada corrida que no resuelve su estación es un intento', () => {
     const e = s2.etapas[1];
-    expect(intentoAlAccionar(s2, 1, 's2-palanca', e?.estado_inicial)).toBe(true);
-    expect(intentoAlAccionar(s2, 1, 's2-palanca', e?.solucion)).toBe(false);
-    expect(intentoAlAccionar(s2, 1, 's2-perilla-verde', e?.estado_inicial)).toBe(false);
+    expect(intentoAlAccionar(s2, 1, 's2-palanca-2', e?.estado_inicial)).toBe(true);
+    expect(intentoAlAccionar(s2, 1, 's2-palanca-2', e?.solucion)).toBe(false);
+    // La palanca de otra estación no es la de esta etapa.
+    expect(intentoAlAccionar(s2, 1, 's2-palanca-1', e?.estado_inicial)).toBe(false);
+    expect(intentoAlAccionar(s2, 1, 's2-tablero-2', e?.estado_inicial)).toBe(false);
   });
 
   it('sala 3: sensores en vivo por reposo; en la última etapa, soltar la polea', () => {

@@ -10,6 +10,7 @@
  */
 import { Box3, PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import type { Object3D } from 'three';
+import { ESTACIONES, piezasDeEstacion } from '../../content/estaciones';
 import type { Lugar } from '../../content/esquema-salas';
 import type { EstadoEncuadre } from '../../signals/motor';
 
@@ -26,11 +27,12 @@ const ELEVACION = (22 * Math.PI) / 180;
 
 /**
  * Las piezas que forman la máquina de cada sala, por grupos. El grupo que se encuadra es el del
- * objeto que se usó; si el objeto no está en ninguno, el primero.
+ * objeto que se usó; si el objeto no está en ninguno, el de la etapa en curso (o el último).
+ * En la sala 2 hay un grupo por estación; en la 3, los postes y, aparte, la polea.
  */
 export const MAQUINAS: Partial<Record<Lugar, readonly (readonly string[])[]>> = {
   's1-cooperativa': [['s1-etiquetadora', 's1-palanca']],
-  's2-laboratorio': [['s2-tanque-a', 's2-tanque-b', 's2-panel']],
+  's2-laboratorio': ESTACIONES.map(piezasDeEstacion),
   's3-gimnasio': [
     ['s3-postes', 's3-sensores', 's3-reflector'],
     ['s3-polea', 's3-cinta-metrica'],
@@ -39,10 +41,15 @@ export const MAQUINAS: Partial<Record<Lugar, readonly (readonly string[])[]>> = 
   's5-rectoria': [['s5-urna', 's5-dispensadores', 's5-simulador', 's5-ver-parejas']],
 };
 
-export function grupoDeMaquina(lugar: Lugar, objeto: string | null): readonly string[] | null {
+export function grupoDeMaquina(
+  lugar: Lugar,
+  objeto: string | null,
+  etapa = 0,
+): readonly string[] | null {
   const grupos = MAQUINAS[lugar];
   if (!grupos) return null;
-  return grupos.find((g) => objeto !== null && g.includes(objeto)) ?? grupos[0] ?? null;
+  const delObjeto = grupos.find((g) => objeto !== null && g.includes(objeto));
+  return delObjeto ?? grupos[Math.min(etapa, grupos.length - 1)] ?? null;
 }
 
 /** La caja que envuelve esas piezas en la sala, o `null` si no hay ninguna. */

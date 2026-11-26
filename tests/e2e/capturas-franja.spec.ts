@@ -46,12 +46,13 @@ const MAQUINAS: readonly Maquina[] = [
   {
     sala: 's2-laboratorio',
     titulo: 'Los tanques y el graficador',
-    usar: /Usar.*Tablero de los tanques/,
-    punto: [-1.3, 0.55, -0.85],
+    // Desde el 25 nov cada etapa tiene su estación: la 3 está a la derecha (sesión A).
+    usar: /Usar.*Tablero de la estación 3/,
+    punto: [2, 0.55, -0.85],
     partida: { etapas: 2, inventario: ['s2-hoja-ayer'] },
     accionar: 'Bajar la palanca',
     acercarse: async (page, caja) => {
-      await mirarHacia(page, caja, [-1.3, 0.55, -0.85], true);
+      await mirarHacia(page, caja, [2, 0.55, -0.85], true);
       await caminarHacia(page, caja, true, (_x, z) => z < 0.9);
     },
   },

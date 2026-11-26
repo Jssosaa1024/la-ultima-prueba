@@ -73,7 +73,7 @@ const PIEZAS: readonly { forma: () => BufferGeometry; color: number }[] = [
     forma: () => new CylinderGeometry(0.09, 0.09, 0.02, 20).rotateX(Math.PI / 2),
     color: 0xd4ac0d,
   },
-  // Gota (sala 2): la de la incubadora.
+  // Gota (sala 2): la del líquido de los tanques.
   { forma: () => new SphereGeometry(0.075, 12, 8).scale(1, 1.3, 0.4), color: 0x3498db },
   // Balón (sala 3).
   { forma: () => new SphereGeometry(0.085, 12, 8).scale(1, 1, 0.4), color: 0xe67e22 },

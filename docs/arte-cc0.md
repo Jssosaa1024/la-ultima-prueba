@@ -222,8 +222,8 @@ Hecha en T19l, con KayKit Restaurant Bits (todo de un solo paquete) y la mediano
 | Objeto | Modelo | Tris | `modelo` | Nota |
 | --- | --- | --- | --- | --- |
 | `s2-puerta` · puerta | Restaurant · `door_A` | 188 | `puerta` | La misma de la portería y la sala 1 |
-| `s2-panel` · tablero 2 × 0,9 × 0,3 | Restaurant · `kitchencounter_straight_B` | 168 | `tablero` | Mueble bajo blanco con cubierta naranja; perillas y palanca encima |
-| `s2-incubadora` · 1 × 1,2 × 0,8 | Restaurant · `fridge_B` | 426 | `incubadora` | Nevera turquesa de una puerta; la campana va encima |
+| `s2-panel` · tablero 2 × 0,9 × 0,3 | Restaurant · `kitchencounter_straight_B` | 168 | `tablero` | Mueble bajo blanco con cubierta naranja; perillas y palanca encima. Desde el 25 de noviembre de 2026 no se usa: los tres tableros de las estaciones (`s2-tablero-1` a `-3`) son de distinto ancho y se arman por código |
+| `s2-incubadora` · 1 × 1,2 × 0,8 | Restaurant · `fridge_B` | 426 | `incubadora` | Nevera turquesa de una puerta; la campana va encima. Desde el 25 de noviembre de 2026 no se usa: Alex pidió quitarla (no cumplía ningún papel) y la campana pasó a una repisa |
 | `s2-gabinete` · 0,6 × 1,8 × 0,8 | Restaurant · `kitchencabinet` × 2 | 312 | `gabinete` | Dos alacenas apiladas, de lado (`giro` 90 en `modelos.json`) |
 | `s2-meson-1`, `s2-meson-2` · 2,4 × 0,9 × 0,8 | Restaurant · `kitchentable_A_large` | 236 | `meson` | Un solo GLB instanciado; el mesón 2 creció 40 cm hacia el oeste para compartirlo |
 | `s2-poceta` (nuevo) | Restaurant · `kitchentable_sink` | 742 | `poceta` | Mesa de acero con poceta y grifo, en la esquina sureste |
@@ -244,7 +244,7 @@ Para que ningún objeto se vea como caja gris, lo que la máquina anima se rehiz
 - **Perillas:** base negra con dial de 7 marcas, perilla de color con raya blanca; la morada lleva un candado de latón.
 - **Palanca:** rótula, varilla cromada y mango rojo, girando desde su base dentro de una caja con ranura.
 - **Campana:** cúpula de latón con botón, sobre una base de madera con un temporizador de cocina.
-- **Tanques:** vidrio de 32 lados casi incoloro (el color lo da el líquido), líquido con la superficie más clara, base, collares con tornillos, tapa en domo, varillas a los lados y atrás, y una regla pintada por dentro que se lee a través del vidrio. La bandeja de la incubadora tiene bordes y asa.
+- **Tanques:** vidrio de 32 lados casi incoloro (el color lo da el líquido), líquido con la superficie más clara, base, collares con tornillos, tapa en domo, varillas a los lados y atrás, y una regla pintada por dentro que se lee a través del vidrio. Desde el 25 de noviembre de 2026 son tres estaciones, cada una con su tablero por código (mueble metálico con zócalo y puertas, perillas, caja de la palanca y tantos pilotos como su número).
 - **Lo fijo nuevo** va unido a la malla fija (sin draw calls nuevas): tuberías con bridas, codos y manómetro; la válvula que une los tanques; los pilotos del tablero; el microscopio, la gradilla con tubos de ensayo, el computador con una gráfica en la pantalla y el extintor. Reemplazan a las primitivas `s2-tuberias`, `s2-microscopio`, `s2-gradilla`, `s2-computador` y `s2-extintor`, que salieron de `salas.json`.
 - La taza («T. R.», con café y oreja) se viste igual. El graficador y la hoja de ayer son láminas de papel cuadriculado de la sesión C (`lamina` en `salas.json`), solo con título y ejes: los datos siguen en la vista 2D.
 - **Medidas:** de 1.640 a 10.954 triángulos por código (más los 3.172 de los GLB), con las mismas 26 mallas.

@@ -48,6 +48,11 @@ export function textoDeAviso(aviso: Aviso): string {
     }
     case 'puerta_falsa':
       return fraseDeAviso(aviso.frase);
+    case 'estacion':
+      if (aviso.resuelta) return `La estación ${aviso.estacion} ya está resuelta.`;
+      return aviso.encendida === null
+        ? `La estación ${aviso.estacion} está apagada.`
+        : `La estación ${aviso.estacion} todavía está apagada. La que está encendida es la ${aviso.encendida}.`;
   }
 }
 
