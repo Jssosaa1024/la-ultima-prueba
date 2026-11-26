@@ -10,7 +10,7 @@ Alex jugó en el celular y encontró cinco cosas. Esta sesión las corrigió en 
 | 2 | Sonido de acierto y de error en cada etapa | [#182](https://github.com/Jssosaa1024/la-ultima-prueba/pull/182) | Fusionado |
 | 3 | El reflector de la sala 3, sobre su poste | [#180](https://github.com/Jssosaa1024/la-ultima-prueba/pull/180) | Fusionado |
 | 4 | Encuadre de la máquina y cuadros por segundo con el panel abierto | [#183](https://github.com/Jssosaa1024/la-ultima-prueba/pull/183) | Fusionado |
-| 5 | Sala 2: una estación por etapa | PR_E | ESTADO_E |
+| 5 | Sala 2: una estación por etapa | [#187](https://github.com/Jssosaa1024/la-ultima-prueba/pull/187) | Fusionado |
 
 Las capturas de antes y después están en `docs/capturas/correcciones-25nov-A/` y en el cuerpo de cada PR.
 
@@ -39,7 +39,7 @@ Las capturas de antes y después están en `docs/capturas/correcciones-25nov-A/`
 - Se dibuja con una cámara aparte: la posición, los choques y la pose del jugador en el cooperativo no cambian.
 - Signal `encuadre` en `src/signals/motor.ts` para la sesión C.
 - Con un panel abierto solo se baja a 10 cuadros por segundo si nada se mueve.
-- **Pendiente de la sesión C:** hoy el panel tapa toda la pantalla del celular. El encuadre se verá cuando entre su panel en franja; entonces el encuadre tomará el ancho libre de su signal `franja` (un cambio de una línea en `src/engine/motor.ts`).
+- **Con el panel en franja de la sesión C** (#188): el encuadre usa el ancho que deja libre su signal `franja` (PR C25f). Si el panel se recoge («Ver» o mientras la máquina se mueve), la máquina se recentra en toda la pantalla sin mover la cámara; al volver a abrirlo, otra vez a la izquierda.
 
 ## 5 · Sala 2, una estación por etapa
 
@@ -67,5 +67,5 @@ Las capturas de antes y después están en `docs/capturas/correcciones-25nov-A/`
 1. **Pantalla corrida:** jugar en el Android y en el iPhone, salir del navegador en pantalla completa, girar el teléfono y volver. El juego debe cubrir justo la pantalla, sin pedazos por fuera. Si vuelve a pasar, una captura de pantalla sirve para seguir.
 2. **Sonidos:** oírlos en los dos teléfonos y decir si el volumen o el tono necesitan ajuste.
 3. **Sala 2:** ver si las estaciones se distinguen (por las luces) y si el graficador en la pared sur se encuentra fácil.
-4. **Encuadre:** cuando entre el panel en franja de la sesión C, abrir una máquina en cada sala y ver que queda a la vista a la izquierda.
+4. **Encuadre:** abrir una máquina en cada sala y ver que queda a la vista a la izquierda del panel; tocar «Ver» y ver que queda centrada.
 5. **Limpieza opcional:** los GLB `tablero` e `incubadora` siguen publicados y con crédito, pero ninguna sala los usa. Se pueden quitar en otra tarea.

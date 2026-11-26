@@ -82,6 +82,14 @@ test('con el panel de la etiquetadora la cámara se acerca, y mientras imprime s
   await expect(canvas).toHaveAttribute('data-encuadre', 'encuadrada');
   // Se acerca la cámara del dibujo, no el jugador.
   expect(await canvas.getAttribute('data-posicion')).toBe(posicion);
+  // En el celular en horizontal el panel es una franja a la derecha: la máquina se centra en
+  // lo que queda libre a su izquierda (entre la mitad y tres cuartos del ancho).
+  if (info.project.use.hasTouch) {
+    await expect
+      .poll(async () => Number(await canvas.getAttribute('data-libre')))
+      .toBeGreaterThan(0.5);
+    expect(Number(await canvas.getAttribute('data-libre'))).toBeLessThan(0.75);
+  }
 
   await page.waitForTimeout(300);
   const quieta = await cuadrosEn(page, 1_000);
