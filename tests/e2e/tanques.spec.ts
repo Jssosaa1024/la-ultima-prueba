@@ -159,9 +159,10 @@ test('una estación que todavía está apagada no abre el panel y dice por qué'
   const nombre = /Usar.*Tablero de la estación 2/;
   await tocarObjeto(page, caja, tablero, conDedo, nombre);
   await page.getByRole('button', { name: nombre }).click();
-  await expect(
-    page.getByText('La estación 2 todavía está apagada. La que está encendida es la 1.'),
-  ).toBeVisible();
+  // El aviso sale en el HUD (y repetido para el lector de pantalla).
+  await expect(page.locator('.hud-aviso')).toHaveText(
+    'La estación 2 todavía está apagada. La que está encendida es la 1.',
+  );
   await expect(page.getByRole('dialog', { name: TITULO })).toHaveCount(0);
 });
 

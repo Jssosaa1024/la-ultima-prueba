@@ -37,11 +37,12 @@ const SALA_1 = conModelo('s1-cooperativa');
 const TEXTURAS = /^\/assets\/salas\/compartido\/([a-z0-9-]+)\.[0-9a-f]{8}\.ktx2$/;
 
 // Por sala: cuántos objetos con modelo como mínimo y cuántas texturas pide (el gimnasio deja
-// el techo de color, porque tiene 9 m de alto).
+// el techo de color, porque tiene 9 m de alto). El laboratorio tiene 8 desde el 25 de noviembre:
+// salieron la incubadora y el tablero de KayKit; los tableros de las estaciones son de código.
 for (const [sala, url, objetos, minimo, nTexturas] of [
   ['porteria', '/jugar', PORTERIA, 9, 3],
   ['s1-cooperativa', '/jugar?sala=s1-cooperativa', SALA_1, 9, 3],
-  ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio'), 9, 3],
+  ['s2-laboratorio', '/jugar?sala=s2-laboratorio', conModelo('s2-laboratorio'), 8, 3],
   ['s3-gimnasio', '/jugar?sala=s3-gimnasio', conModelo('s3-gimnasio'), 5, 2],
   ['s4-biblioteca', '/jugar?sala=s4-biblioteca', conModelo('s4-biblioteca'), 9, 3],
   ['s5-rectoria', '/jugar?sala=s5-rectoria', conModelo('s5-rectoria'), 9, 3],
