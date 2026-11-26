@@ -71,7 +71,7 @@ describe('ids de objetos: puzzles contra salas.json (T19c)', () => {
     b.objeto = 's2-palanca-1'; // existe, pero en otra sala
     expect(objetosQueFaltan(viejo, SALAS_3D)).toEqual([
       's1-etiquetadora · pista_por_jugador.A.objeto: «s1-factura» no existe en s1-cooperativa',
-      's1-etiquetadora · pista_por_jugador.B.objeto: «s2-palanca» no existe en s1-cooperativa',
+      's1-etiquetadora · pista_por_jugador.B.objeto: «s2-palanca-1» no existe en s1-cooperativa',
     ]);
   });
 });

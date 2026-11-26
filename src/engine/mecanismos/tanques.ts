@@ -10,7 +10,8 @@
  *
  * Un tanque tapado con cinta se ve gris y opaco: no deja ver su nivel.
  *
- * Son cinco mallas más en la sala: el líquido de cada tanque.
+ * Son cuatro mallas más en la sala: el líquido de cada tanque que se puede ver (el B de la
+ * estación 3 siempre está tapado con cinta).
  *
  * Pulir salas (sesión A): el vidrio es más redondo y casi incoloro, para que el color lo dé el
  * líquido; el líquido tiene la superficie más clara (el menisco).
@@ -119,7 +120,7 @@ function redondearVidrio(malla: Mesh): void {
   );
 }
 
-function crearVidrio(tanque: Object3D | undefined): Vidrio {
+function crearVidrio(tanque: Object3D | undefined, conLiquido = true): Vidrio {
   const malla = tanque as Mesh | undefined;
   const material = malla?.isMesh ? (malla.material as MeshLambertMaterial) : null;
   const color = material ? material.color.clone() : new Color(0xffffff);
@@ -132,7 +133,8 @@ function crearVidrio(tanque: Object3D | undefined): Vidrio {
   liquido.name = `liquido-${tanque?.name ?? ''}`;
   liquido.position.y = 0.03;
   liquido.visible = false;
-  tanque?.add(liquido);
+  // Un tanque siempre tapado con cinta no muestra su líquido: no se agrega (una draw call menos).
+  if (conLiquido) tanque?.add(liquido);
   if (material) {
     // El vidrio se dibuja después que el líquido y no tapa lo que tiene adentro.
     material.transparent = true;
@@ -163,6 +165,12 @@ function nivelesDe(
   return { nivel: alSonar ? nivelEn(t, campanaS, alto) : t.nivel, tapado: !t.visible };
 }
 
+/** El tanque B de la etapa está tapado al empezar y en la solución: nunca deja ver su líquido. */
+function siempreTapado(datos: PuzzleDe<'tanques'>['etapas'][number] | undefined): boolean {
+  if (!datos) return false;
+  return datos.estado_inicial.b?.visible === false && datos.solucion.b?.visible === false;
+}
+
 /**
  * @param raiz  la sala ya construida: se buscan los tanques y la palanca de cada estación y la
  *              campana por su id. Si falta alguno, esa parte no se anima.
@@ -173,7 +181,9 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
   const estaciones = ESTACIONES.map((e) => ({
     etapa: e.etapa,
     vidrioA: crearVidrio(raiz.getObjectByName(e.tanqueA)),
-    vidrioB: e.tanqueB ? crearVidrio(raiz.getObjectByName(e.tanqueB)) : null,
+    vidrioB: e.tanqueB
+      ? crearVidrio(raiz.getObjectByName(e.tanqueB), !siempreTapado(puzzle?.etapas[e.etapa]))
+      : null,
     palanca: raiz.getObjectByName(e.palanca),
   }));
 

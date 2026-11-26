@@ -97,7 +97,8 @@ describe('animación de los tanques en la sala 2', () => {
     expect(liquido('a-1').scale.y / liquido('a-2').scale.y).toBeCloseTo(3);
     // Estación 3 (apagada): A vacío y B tapado con cinta.
     expect(liquido('a-3').visible).toBe(false);
-    expect(liquido('b-3').visible).toBe(false);
+    // Siempre tapado: ni siquiera tiene líquido.
+    expect(raiz.getObjectByName('liquido-s2-tanque-b-3')).toBeUndefined();
 
     // Al empezar la sala, la estación 1 está vacía.
     enEtapa(0);
@@ -107,8 +108,9 @@ describe('animación de los tanques en la sala 2', () => {
 
   it('el tanque tapado con cinta se ve opaco y no deja ver su líquido', () => {
     enEtapa(2);
-    const { raiz, animacion, liquido } = montar();
-    expect(liquido('b-3').visible).toBe(false);
+    const { raiz, animacion } = montar();
+    // Siempre tapado: ni siquiera tiene líquido.
+    expect(raiz.getObjectByName('liquido-s2-tanque-b-3')).toBeUndefined();
     expect(material(pieza(raiz, 's2-tanque-b-3')).opacity).toBe(1);
     // El B de la estación 2 es de vidrio, con su color.
     expect(material(pieza(raiz, 's2-tanque-b-2')).opacity).toBeLessThan(1);
@@ -181,7 +183,7 @@ describe('animación de los tanques en la sala 2', () => {
 
   it('con el sello, las tres estaciones quedan como se resolvieron', () => {
     sellos.value = ['s1-cooperativa', 's2-laboratorio'];
-    const { animacion, liquido } = montar();
+    const { raiz, animacion, liquido } = montar();
     expect(animacion.estado).toBe('sellada');
     expect(liquido('a-1').visible).toBe(true);
     expect(liquido('a-2').visible).toBe(true);
@@ -190,7 +192,8 @@ describe('animación de los tanques en la sala 2', () => {
     expect(liquido('a-2').scale.y).toBeCloseTo(liquido('b-2').scale.y);
     expect(liquido('a-3').visible).toBe(true);
     // El B de la estación 3 sigue tapado.
-    expect(liquido('b-3').visible).toBe(false);
+    // Siempre tapado: ni siquiera tiene líquido.
+    expect(raiz.getObjectByName('liquido-s2-tanque-b-3')).toBeUndefined();
     animacion.liberar();
   });
 
@@ -205,9 +208,9 @@ describe('animación de los tanques en la sala 2', () => {
     };
     const antes = contar();
     const animacion = animarTanques(raiz);
-    // El líquido de cada uno de los cinco tanques.
-    expect(contar()).toBe(antes + 5);
+    // El líquido de cada tanque que se puede ver: el B de la estación 3 siempre está tapado.
+    expect(contar()).toBe(antes + 4);
     animacion.liberar();
-    expect(liberarObjeto(raiz).geometrias).toBeGreaterThanOrEqual(antes + 5);
+    expect(liberarObjeto(raiz).geometrias).toBeGreaterThanOrEqual(antes + 4);
   });
 });

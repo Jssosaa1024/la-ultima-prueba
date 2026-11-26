@@ -86,7 +86,8 @@ describe('fichas de inspección: forma y cobertura (T35c)', () => {
       .filter((o) => o.accion === 'examinar')
       .map((o) => o.id);
     expect(LUGARES.flatMap((l) => objetosExaminables(l))).toEqual(esperados);
-    expect(esperados).toHaveLength(21);
+    // Sala 2 en estaciones (25 de noviembre): cinco tanques en lugar de dos tanques y una perilla.
+    expect(esperados).toHaveLength(23);
   });
 
   it('los papeles que se recogen también se pueden leer', () => {

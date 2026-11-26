@@ -654,10 +654,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       // Los balones que sí rebotan tampoco: el motor los anima y no pasa nada más.
       if (esObjetoSuelto(objeto)) return true;
       // Sala 2: cada estación responde solo en su etapa (corrección del 25 de noviembre).
-      const ajena =
-        partida && partida.lugar !== 'porteria'
-          ? estacionAjena(objeto, etapaActual(partida, partida.lugar))
-          : null;
+      const ajena = partida ? estacionAjena(objeto, etapaActual(partida, partida.lugar)) : null;
       if (ajena) {
         avisar({ t: 'estacion', ...ajena });
         return true;
