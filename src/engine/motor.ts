@@ -15,7 +15,7 @@ import { conectarEscritorio } from '../input/escritorio';
 import { conectarTactil } from '../input/tactil';
 import { ajustes } from '../signals/ajustes';
 import { joystick, punteroBloqueado } from '../signals/controles';
-import { controlesActivos, enfocado, panel } from '../signals/interfaz';
+import { controlesActivos, enfocado, franja, panel } from '../signals/interfaz';
 import { etapa as etapaActual } from '../signals/mecanismo';
 import { encuadre as encuadreActual, estadoMotor } from '../signals/motor';
 import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
@@ -450,11 +450,25 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       encuadre.volver();
       return;
     }
-    const libre = FRACCION_LIBRE;
+    // La parte del ancho que no tapa el panel en franja (sesión C). Si el panel aún no la midió,
+    // los dos tercios izquierdos.
+    const derecha = franja.peek().derecha;
+    const libre = derecha > 0 ? 1 - derecha : FRACCION_LIBRE;
+    // Atributo para las pruebas e2e: la parte del ancho donde se centra la máquina.
+    canvas.dataset['libre'] = libre.toFixed(2);
     encuadre.acercar(
       poseDeEncuadre(camara.position, caja, camara.fov, camara.aspect, libre),
       libre,
     );
+  });
+
+  // Si la franja cambia con el panel abierto (se recoge con «Ver» o mientras la máquina se
+  // mueve, o se vuelve a abrir), la máquina se recentra en lo libre sin mover la cámara.
+  const dejarDeSeguirFranja = effect(() => {
+    const derecha = franja.value.derecha;
+    if (panel.peek() !== 'mecanismo') return;
+    encuadre.liberar(1 - derecha);
+    canvas.dataset['libre'] = (1 - derecha).toFixed(2);
   });
 
   const dejarDeSeguirFase = effect(() => {
@@ -531,6 +545,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     detenerAudio();
     dejarDeEscucharRetroalimentacion();
     dejarDeSeguirEncuadre();
+    dejarDeSeguirFranja();
     encuadreActual.value = 'libre';
     dejarDeSeguirAudio();
     desconectarTactil();
