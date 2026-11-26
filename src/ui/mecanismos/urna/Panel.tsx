@@ -18,6 +18,7 @@ import './urna.css';
  */
 export default function PanelUrna({
   etapa,
+  numero,
   estado,
   resultado,
   bloqueado,
@@ -30,6 +31,8 @@ export default function PanelUrna({
 
   // Lo que dijo el simulador vale solo para la urna con la que se hizo.
   useEffect(() => setSimulacion(undefined), [azules, amarillas]);
+  // Cada etapa empieza con los dispensadores a la vista (en la franja, las parejas los tapan).
+  useEffect(() => setVerParejas(false), [numero]);
 
   return (
     <div class={`urna-panel${verParejas ? ' urna-con-parejas' : ''}`}>

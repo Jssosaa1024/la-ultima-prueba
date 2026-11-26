@@ -71,7 +71,13 @@ test('presentar: un libro se quita con «−» y se pone con «+», y la etapa s
 
   // Tras 5 segundos quieta, la máquina acepta el reparto y el panel espera el «Seguir».
   await expect(panel).toContainText('La máquina aceptó los ajustes', { timeout: 30_000 });
-  await expect(quitar(panel, 'lunes')).toBeDisabled();
+  // En la franja los controles de una etapa resuelta no se dibujan: siguen ahí, bloqueados.
+  await expect(
+    panel.getByRole('button', {
+      name: 'Quitar un libro del carrito del lunes',
+      includeHidden: true,
+    }),
+  ).toBeDisabled();
   await expect(panel).not.toContainText('dispersión');
   await panel.getByRole('button', { name: 'Seguir' }).click();
 
