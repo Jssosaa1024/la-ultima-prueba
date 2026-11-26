@@ -88,6 +88,17 @@ const descripcion =
 
       <footer class="portada-pie">
         <p>Colegio y personajes ficticios</p>
+        <p class="portada-marca">
+          Un proyecto de
+          <img
+            class="portada-marca-logo"
+            src="/marca/sinapsis.webp"
+            alt="Sinapsis"
+            width="360"
+            height="172"
+            decoding="async"
+          />
+        </p>
       </footer>
     </div>
   </main>
@@ -428,6 +439,27 @@ const descripcion =
     margin: 0;
     color: var(--tema-claro-suave);
     font-size: 0.875rem;
+  }
+
+  /* El logo de Sinapsis (correcciones del 25 nov): pequeño, al pie, después de la nota. */
+  /* La nota y el logo comparten renglón si caben; si no, el logo baja. */
+  .portada-pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 16px;
+  }
+
+  .portada-pie .portada-marca {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .portada-marca-logo {
+    width: auto;
+    height: 28px;
   }
 
   /* ---------- Vertical: una columna, «Jugar» a la vista ---------- */

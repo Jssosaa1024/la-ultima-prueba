@@ -81,6 +81,17 @@ export default function PantallaFinal() {
               Los personajes de estos créditos son ficticios. Los créditos de modelos, imágenes y
               sonidos se publicarán en la página de créditos del sitio.
             </p>
+            <p class="final-marca">
+              Un proyecto de
+              <img
+                class="final-marca-logo"
+                src="/marca/sinapsis.webp"
+                alt="Sinapsis"
+                width={360}
+                height={172}
+                decoding="async"
+              />
+            </p>
             <div class="final-acciones">
               <button
                 type="button"

@@ -85,6 +85,8 @@ test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El 
   await page.getByRole('button', { name: 'Ver créditos' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'La Última Prueba' })).toBeFocused();
   await expect(page.getByText(/tenía la llave desde el principio/)).toBeVisible();
+  // Correcciones del 25 nov: al final de los créditos, «Un proyecto de» con el logo de Sinapsis.
+  await expect(page.getByRole('img', { name: 'Sinapsis' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Continuar' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'La fotocopiadora' })).toBeVisible();

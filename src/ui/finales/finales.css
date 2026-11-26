@@ -329,3 +329,19 @@
     margin: 0 0 8px;
   }
 }
+
+/* El logo de Sinapsis al final de los créditos (correcciones del 25 nov). */
+.final-marca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 1rem 0 0;
+  color: var(--tema-tinta-suave);
+  font-size: 0.875rem;
+}
+
+.final-marca-logo {
+  width: auto;
+  height: 56px;
+}
