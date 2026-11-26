@@ -110,12 +110,20 @@ export default function PanelMecanismo() {
   };
   const enFranja = (
     titulo: string,
-    antetitulo: string,
+    antetitulo: { largo: string; corto: string },
     cuerpo: ComponentChildren,
     acciones?: ComponentChildren,
+    botonPistas?: ComponentChildren,
   ) => (
     <Dialogo
-      antetitulo={antetitulo}
+      antetitulo={
+        <>
+          <span class="antetitulo-largo">{antetitulo.largo}</span>
+          <span class="antetitulo-corto" aria-hidden="true">
+            {antetitulo.corto}
+          </span>
+        </>
+      }
       titulo={titulo}
       cerrarSecundario
       alCerrar={cerrarPanel}
@@ -124,14 +132,17 @@ export default function PanelMecanismo() {
         recogido,
         alMedir: setAncho,
         cabecera: (
-          <button
-            type="button"
-            class="boton boton-secundario"
-            aria-label="Ver la máquina"
-            onClick={() => setVerEscena(true)}
-          >
-            Ver
-          </button>
+          <>
+            {botonPistas}
+            <button
+              type="button"
+              class="boton boton-secundario"
+              aria-label="Ver la máquina"
+              onClick={() => setVerEscena(true)}
+            >
+              Ver
+            </button>
+          </>
         ),
         pestana: (
           <button
@@ -171,7 +182,7 @@ export default function PanelMecanismo() {
     const evaluacion = evaluar(puzzle, ultima, final);
     return enFranja(
       puzzle.titulo,
-      `Sala ${puzzle.sala}`,
+      { largo: `Sala ${puzzle.sala}`, corto: `Sala ${puzzle.sala}` },
       <>
         <p class="mecanismo-resuelta">{TEXTO_TERMINADA}</p>
         {datosFinales && evaluacion && (
@@ -211,6 +222,7 @@ export default function PanelMecanismo() {
   const conRespuesta = resuelta || (vista.resultado !== null && regla.tipo === 'accionar');
   const { ofrecidas, vistas } = pistas.value;
   const hayPistas = !resuelta && ofrecidas > 0;
+  const hayNueva = vistas < ofrecidas;
   const mostrarPistas = verPistas && hayPistas;
 
   const props = {
@@ -248,9 +260,28 @@ export default function PanelMecanismo() {
       )
     ));
 
+  // Con una pista nueva, el botón la abre de una vez y la muestra en el panel (como el aviso de
+  // la sesión B); si no, muestra las ya abiertas. Va arriba, junto a «Ver»: siempre a la vista.
+  const botonPistas = hayPistas && !mostrarPistas && (
+    <button
+      type="button"
+      class={`boton ${hayNueva ? 'boton-principal' : 'boton-secundario'}`}
+      aria-label={hayNueva ? 'Pista nueva' : 'Pistas'}
+      onClick={() => {
+        if (hayNueva) enviar({ t: 'ver_pista' });
+        setVerPistas(true);
+      }}
+    >
+      Pista
+    </button>
+  );
+
   return enFranja(
     puzzle.titulo,
-    textoEtapa(puzzle.sala, vista.numero, puzzle.etapas.length),
+    {
+      largo: textoEtapa(puzzle.sala, vista.numero, puzzle.etapas.length),
+      corto: `Sala ${puzzle.sala} · ${vista.numero + 1}/${puzzle.etapas.length}`,
+    },
     <>
       {mostrarPistas && (
         <div class="mecanismo-pistas">
@@ -284,18 +315,10 @@ export default function PanelMecanismo() {
             <Anotacion puzzle={puzzle} etapa={vista.numero} sello={vista.sello} />
           </>
         )}
-        {hayPistas && (
-          <button
-            type="button"
-            class="boton boton-secundario mecanismo-boton-pistas"
-            onClick={() => setVerPistas(true)}
-          >
-            {vistas < ofrecidas ? 'Pista nueva' : 'Pistas'}
-          </button>
-        )}
       </div>
     </>,
     acciones,
+    botonPistas,
   );
 }
 

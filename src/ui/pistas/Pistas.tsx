@@ -57,35 +57,6 @@ export function SeccionPistas() {
   );
 }
 
-/**
- * Aviso de pista nueva en la barra de abajo del panel de una máquina (correcciones del 25 de
- * noviembre). Con el panel abierto, el HUD queda tapado y la lista de pistas está al final del
- * panel: en un celular en horizontal, fuera de la pantalla. La barra de abajo siempre se ve.
- * Tocarlo abre la pista y lleva la vista a la lista.
- */
-export function BotonPistaNueva() {
-  const { ofrecidas, vistas } = pistas.value;
-  if (vistas >= ofrecidas) return null;
-  return (
-    <button
-      type="button"
-      class="boton boton-secundario pistas-aviso"
-      onClick={() => {
-        enviar({ t: 'ver_pista' });
-        // Después de redibujar, con la pista ya en la lista.
-        window.requestAnimationFrame(() => {
-          document
-            .getElementById('pistas-titulo')
-            ?.closest('.pistas')
-            ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        });
-      }}
-    >
-      Pista nueva
-    </button>
-  );
-}
-
 /** Panel de pistas, desde el botón «Pista» del HUD. */
 export default function PanelPistas() {
   const numero = SALAS_CON_SELLO.findIndex((s) => s === sala.value) + 1;

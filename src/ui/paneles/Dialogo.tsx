@@ -7,7 +7,7 @@ import './dialogo.css';
 interface Props {
   titulo: string;
   /** Texto pequeño sobre el título (p. ej. «Inspección»). */
-  antetitulo?: string;
+  antetitulo?: ComponentChildren;
   alCerrar: () => void;
   /** Texto del botón de cerrar. */
   cerrar?: string;

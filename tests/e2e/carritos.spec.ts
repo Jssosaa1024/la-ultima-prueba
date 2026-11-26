@@ -137,25 +137,25 @@ test('torcer: al tercer reparto que no sirve se ofrece la primera pista y se pue
   await expect(panel).toContainText('Sala 4 · Etapa 2 de 3');
   await expect(panel.getByRole('button', { name: 'Pista nueva' })).toHaveCount(0);
 
-  // Tres libros del lunes al viernes: la mediana sigue en 4. El carrito de origen queda
-  // elegido entre un libro y otro. Entre uno y otro, el jugador mira las lámparas.
-  await lugar(panel, 'Carrito del lunes').click();
+  // Tres libros del lunes al viernes, con «−» y «+»: la mediana sigue en 4. Entre uno y otro,
+  // el jugador mira las lámparas.
   for (const quedan of [/5 libros/, /6 libros/, /7 libros/]) {
-    await lugar(panel, 'Carrito del viernes').click();
-    await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(quedan);
+    await quitar(panel, 'lunes').click();
+    await poner(panel, 'viernes').click();
+    await expect(carrito(panel, 'viernes')).toHaveAccessibleName(quedan);
     await page.waitForTimeout(3_500);
   }
-  await expect(lugar(panel, 'Carrito del lunes')).toHaveAccessibleName(/1 libro\./);
+  await expect(carrito(panel, 'lunes')).toHaveAccessibleName(/: 1 libro$/);
 
-  // La pista se avisa en la barra de abajo del panel, que se ve sin desplazarse, y no se abre
-  // sola: antes solo salía al final del panel, fuera de la pantalla del celular.
+  // La pista se avisa al pie del panel, que se ve sin desplazarse, y no se abre sola: antes
+  // solo salía al final del panel, fuera de la pantalla del celular. Con la franja (sesión C)
+  // se abre en la misma columna.
   const aviso = panel.getByRole('button', { name: 'Pista nueva' });
   await expect(aviso).toBeInViewport({ timeout: 15_000 });
-  await expect(panel).toContainText('Pistas (0 de 3 abiertas)');
   await expect(panel).toContainText('Sala 4 · Etapa 2 de 3');
   await page.screenshot({ path: info.outputPath('pista-ofrecida.png') });
   await aviso.click();
-  await expect(panel.getByText('Mueve un libro de un carrito a otro.')).toBeInViewport();
+  await expect(panel.getByText('Quita un libro de un carrito y ponlo en otro.')).toBeInViewport();
   await expect(panel).toContainText('Pistas (1 de 3 abiertas)');
   await expect(aviso).toHaveCount(0);
   await page.screenshot({ path: info.outputPath('pista-abierta.png') });
