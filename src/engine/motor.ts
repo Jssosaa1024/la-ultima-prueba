@@ -16,7 +16,7 @@ import { conectarTactil } from '../input/tactil';
 import { ajustes } from '../signals/ajustes';
 import { joystick, punteroBloqueado } from '../signals/controles';
 import { controlesActivos, enfocado, panel } from '../signals/interfaz';
-import { estadoMotor } from '../signals/motor';
+import { encuadre as encuadreActual, estadoMotor } from '../signals/motor';
 import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
 import { fase, modo, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
@@ -35,6 +35,13 @@ import type { Companeros } from './coop/companeros';
 import { crearInteraccion } from './interaccion/interaccion';
 import type { Interaccion } from './interaccion/interaccion';
 import { aplicarACamara, girar } from './jugador/camara';
+import {
+  cajaDe,
+  crearEncuadre,
+  FRACCION_LIBRE,
+  grupoDeMaquina,
+  poseDeEncuadre,
+} from './jugador/encuadre';
 import type { Orientacion } from './jugador/camara';
 import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
@@ -62,9 +69,10 @@ export const ALTURA_OJOS = 1.6;
 /** Al entrar a una sala se mira un poco hacia abajo, a la altura de los muebles. */
 const PITCH_INICIAL = -0.12;
 /**
- * Con un panel 2D abierto la escena casi no se ve: se dibuja a unos 10 cuadros por segundo,
- * lo justo para que la animación de la máquina termine detrás (punto 21 del hito 1). En un
- * celular es batería y calor, y en las e2e deja el procesador libre para los clics.
+ * Con un panel 2D abierto y nada que se mueva, se dibuja a unos 10 cuadros por segundo (punto
+ * 21 del hito 1): en un celular es batería y calor, y en las e2e deja el procesador libre para
+ * los clics. Mientras la máquina se anima o la cámara se acerca a ella, a velocidad normal
+ * (corrección del 25 de noviembre).
  */
 export const MS_POR_CUADRO_CON_PANEL = 100;
 /** Espera antes de preparar la siguiente sala, para no competir con la entrada. */
@@ -146,6 +154,17 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   // (corrección del 25 de noviembre).
   const retroalimentacion = crearRetroalimentacion(sonar);
   const dejarDeEscucharRetroalimentacion = escucharRetroalimentacion(retroalimentacion);
+  // Con el panel de una máquina abierto, la cámara se acerca a ella (corrección del 25 de
+  // noviembre). Se dibuja con otra cámara: la del jugador no se mueve.
+  const encuadre = crearEncuadre(
+    () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+  );
+  let camaraDibujo: PerspectiveCamera = camara;
+  /** Algo se mueve en la escena: la máquina o la cámara del encuadre. */
+  const hayMovimiento = (): boolean =>
+    (animacion?.animando ?? false) ||
+    encuadre.estado === 'acercando' ||
+    encuadre.estado === 'volviendo';
   // Pasillos: en la portería con su pasillo solo se dibuja lo que se ve desde donde está el
   // jugador (`vista-por-celdas.ts`).
   let vista: VistaPorCeldas | null = null;
@@ -169,7 +188,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     if (canvas.dataset['geometrias'] !== geometrias) canvas.dataset['geometrias'] = geometrias;
     seguirTamano(renderer, camara);
     renderer.info.reset();
-    renderer.render(escena, camara);
+    renderer.render(escena, camaraDibujo);
     if (medirPrimerCuadro) {
       medirPrimerCuadro = false;
       marcarPrimerCuadro();
@@ -387,6 +406,12 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
         }
       }
       retroalimentacion.actualizar(dt, animacion?.animando ?? false);
+      camaraDibujo = encuadre.actualizar(dt, camara);
+      if (encuadreActual.peek() !== encuadre.estado) {
+        encuadreActual.value = encuadre.estado;
+        // Atributo para las pruebas e2e.
+        canvas.dataset['encuadre'] = encuadre.estado;
+      }
       publicarJoystick(entrada);
       dibujar();
       medirRendimiento(dt);
@@ -403,12 +428,32 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     },
     // Hasta que empiece la partida no hay nada que animar.
     permitido: fase.peek() === 'jugando',
-    intervaloMs: () => (panel.peek() === null ? 0 : MS_POR_CUADRO_CON_PANEL),
+    intervaloMs: () => (panel.peek() === null || hayMovimiento() ? 0 : MS_POR_CUADRO_CON_PANEL),
   });
 
   // El motor solo dibuja durante la partida (T20b). Detrás del menú y de las pantallas de
   // final, que tapan la escena, se detiene del todo: en un celular es batería y calor. Lo
   // mismo detrás del aviso de girar el teléfono (T41b).
+  // El panel de una máquina abierto: la cámara se acerca a ella y la deja en la parte de la
+  // pantalla que el panel no tapa; al cerrarlo, vuelve a donde estaba. El grupo de piezas que
+  // se encuadra es el del objeto que se usó.
+  const dejarDeSeguirEncuadre = effect(() => {
+    const abierto = panel.value === 'mecanismo';
+    const raiz = cargador.actual?.raiz;
+    const grupo =
+      abierto && mostrada ? grupoDeMaquina(mostrada, enfocado.peek()?.id ?? null) : null;
+    const caja = grupo && raiz ? cajaDe(raiz, grupo) : null;
+    if (!caja) {
+      encuadre.volver();
+      return;
+    }
+    const libre = FRACCION_LIBRE;
+    encuadre.acercar(
+      poseDeEncuadre(camara.position, caja, camara.fov, camara.aspect, libre),
+      libre,
+    );
+  });
+
   const dejarDeSeguirFase = effect(() => {
     const jugando = fase.value === 'jugando' && !girarTelefono.value;
     if (!jugando) {
@@ -482,6 +527,8 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     medidor = null;
     detenerAudio();
     dejarDeEscucharRetroalimentacion();
+    dejarDeSeguirEncuadre();
+    encuadreActual.value = 'libre';
     dejarDeSeguirAudio();
     desconectarTactil();
     desconectarEscritorio();
