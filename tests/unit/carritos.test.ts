@@ -20,13 +20,16 @@ import { reiniciarPartida, sellos } from '../../src/signals/partida';
 import {
   dia,
   diaCorto,
-  etiquetaLugar,
+  etiquetaPoner,
+  etiquetaQuitar,
+  INSTRUCCION,
   LAMPARAS,
   libros,
   nombreLugar,
   numero,
-  textoInstruccion,
+  textoCarrito,
   textoMovimiento,
+  textoPila,
 } from '../../src/ui/mecanismos/carritos/textos';
 
 /**
@@ -140,35 +143,16 @@ describe('carritos: textos del panel (T64)', () => {
     expect(numero(4)).toBe('4');
   });
 
-  it('la instrucción dice qué hará el siguiente toque', () => {
-    expect(textoInstruccion(null, true)).toBe(
-      'Toca de dónde quieres sacar un libro: la pila o un carrito.',
-    );
-    expect(textoInstruccion('pila', true)).toBe(
-      'Estás sacando libros de la pila. Toca un carrito para dejar uno.',
-    );
-    expect(textoInstruccion(4, true)).toBe(
-      'Estás sacando libros del carrito del viernes. Toca otro carrito o la pila para dejar uno.',
-    );
+  it('cada carrito tiene su «+» y su «−», y cada toque mueve un solo libro', () => {
+    expect(INSTRUCCION).toBe('+ pone un libro de la pila en el carrito; − lo devuelve a la pila.');
+    expect(etiquetaPoner(0)).toBe('Poner un libro en el carrito del lunes');
+    expect(etiquetaQuitar(4)).toBe('Quitar un libro del carrito del viernes');
+    expect(textoCarrito(2, 3)).toBe('Carrito del miércoles: 3 libros');
+    expect(textoCarrito(1, 0)).toBe('Carrito del martes: ningún libro');
+    expect(textoPila(20)).toBe('Pila: 20 libros');
+    expect(textoPila(1)).toBe('Pila: 1 libro');
     expect(textoMovimiento('pila', 0)).toBe('Pasaste un libro de la pila al carrito del lunes.');
-    expect(textoMovimiento(0, 4)).toBe(
-      'Pasaste un libro del carrito del lunes al carrito del viernes.',
-    );
     expect(textoMovimiento(3, 'pila')).toBe('Pasaste un libro del carrito del jueves a la pila.');
-  });
-
-  it('cada botón dice cuántos libros tiene y qué pasa al tocarlo', () => {
-    expect(etiquetaLugar('pila', 20, null)).toBe('Pila: 20 libros. Sacar libros de aquí.');
-    expect(etiquetaLugar(0, 0, null)).toBe('Carrito del lunes: ningún libro.');
-    expect(etiquetaLugar('pila', 12, 'pila')).toBe(
-      'Pila: 12 libros. Dejar de sacar libros de aquí.',
-    );
-    expect(etiquetaLugar(1, 3, 'pila')).toBe(
-      'Carrito del martes: 3 libros. Dejar aquí un libro de la pila.',
-    );
-    expect(etiquetaLugar('pila', 0, 2)).toBe(
-      'Pila: ningún libro. Dejar aquí un libro del carrito del miércoles.',
-    );
   });
 
   it('las lámparas van en el orden de la pared y con los rótulos del diseño', () => {
@@ -181,15 +165,13 @@ describe('carritos: textos del panel (T64)', () => {
 
   it('ningún texto explica qué mira una lámpara ni califica el reparto', () => {
     const textos = [
-      textoInstruccion(null, true),
-      textoInstruccion(null, false),
-      textoInstruccion('pila', true),
-      textoInstruccion(2, true),
+      INSTRUCCION,
       textoMovimiento('pila', 1),
-      textoMovimiento(1, 2),
-      etiquetaLugar(0, 4, null),
-      etiquetaLugar(0, 4, 0),
-      etiquetaLugar(0, 4, 'pila'),
+      textoMovimiento(1, 'pila'),
+      etiquetaPoner(0),
+      etiquetaQuitar(0),
+      textoCarrito(0, 4),
+      textoPila(12),
     ];
     for (const t of textos) {
       expect(t).not.toMatch(/incorrect|error|\bmal\b|promedio|del medio|se repite|suma|divid/i);

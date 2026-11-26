@@ -47,7 +47,7 @@
       "nivel": 1,
       "tras_segundos": 120,
       "tras_intentos": 3,
-      "texto": "Mueve un libro de un carrito a otro. ¿Se apagó la lámpara de la media?"
+      "texto": "Quita un libro de un carrito y ponlo en otro. ¿Cómo queda la lámpara de la media?"
     },
     {
       "nivel": 2,
