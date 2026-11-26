@@ -299,8 +299,11 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
       }
     },
     get animando() {
-      // La corrida con su campana y, con el sello, la bandeja de la incubadora que sale.
-      return corrida !== null || (conSello && apertura < 1);
+      // La corrida hasta que la campana deja de sacudirse. Con el sello, además, la pausa
+      // después de la campana y la bandeja de la incubadora que sale: el acierto y el sello
+      // suenan después, sin chocar con ella.
+      if (corrida && (conSello || corrida.t < corrida.duracion + DURACION_CAMPANA_S)) return true;
+      return conSello && apertura < 1;
     },
     get estado() {
       if (corrida) return corrida.t < corrida.duracion ? 'corriendo' : 'campana';
