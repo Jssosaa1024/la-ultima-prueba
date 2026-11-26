@@ -395,7 +395,7 @@ Las pistas se ofrecen por tiempo o por intentos fallidos en la etapa (`tras_inte
 | Sala | Etapas | Regla | Cuenta un intento cuando… |
 | --- | --- | --- | --- |
 | 1 · Etiquetadora | las tres | `accionar` `s1-palanca` | se baja la palanca y el precio impreso no es el de la pizarra (también sin rodillos) |
-| 2 · Tanques | las tres | `accionar` `s2-palanca` | se arranca una corrida que no abre la incubadora; cuenta al arrancar, no al sonar la campana |
+| 2 · Tanques | las tres | `accionar` `s2-palanca-1`, `-2` y `-3` (una estación por etapa) | se arranca una corrida que no resuelve su estación; cuenta al arrancar, no al sonar la campana |
 | 3 · Reflector | presentar y torcer | `reposo` 5 s | tras mover la muesca o un poste, todo queda quieto 5 s y algún sensor no suena |
 | 3 · Reflector | dominar | `accionar` `s3-polea` | se suelta la polea con una longitud que no es la altura del marcador |
 | 4 · Carritos | las tres | `reposo` 5 s | con la pila vacía, los libros quedan quietos 5 s y falta alguna lámpara |

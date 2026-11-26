@@ -195,66 +195,215 @@
     ]
   },
   {
-    "id": "s2-tanque-a",
+    "id": "s2-tanque-a-1",
     "descripcion": "Un cilindro de vidrio con líquido verde y una regla pintada de 0 a 60 cm.",
     "bloques": [
       {
         "tipo": "texto",
-        "texto": "Su caudal se ajusta con la perilla verde. Al terminar cada corrida vuelve solo al nivel en que empezó."
+        "texto": "Empieza vacío: el líquido va en 0 cm."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Tiene una línea roja pintada a los 30 cm."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Su caudal se ajusta con la perilla verde de su tablero. Al terminar cada corrida vuelve solo al nivel en que empezó."
       }
     ],
     "por_etapa": [
       [
-        { "tipo": "texto", "texto": "Ahora está vacío: el líquido va en 0 cm." },
-        { "tipo": "texto", "texto": "Tiene una línea roja pintada a los 30 cm." }
+        {
+          "tipo": "texto",
+          "texto": "La estación 1 está encendida: es la que toca."
+        }
       ],
-      [{ "tipo": "texto", "texto": "Ahora el líquido va en 10 cm." }],
-      [{ "tipo": "texto", "texto": "Ahora está vacío: el líquido va en 0 cm." }],
-      [{ "tipo": "texto", "texto": "Está vacío. La incubadora ya se abrió." }]
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 1 ya está resuelta."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 1 ya está resuelta."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 1 ya está resuelta."
+        }
+      ]
     ]
   },
   {
-    "id": "s2-tanque-b",
+    "id": "s2-tanque-a-2",
+    "descripcion": "Un cilindro de vidrio con líquido verde y una regla pintada de 0 a 60 cm.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Empieza con el líquido en 10 cm."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Su caudal se ajusta con la perilla verde de su tablero. Al terminar cada corrida vuelve solo al nivel en que empezó."
+      }
+    ],
+    "por_etapa": [
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 2 todavía está apagada: se enciende cuando se resuelva la estación 1."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 2 está encendida: es la que toca."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 2 ya está resuelta."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 2 ya está resuelta."
+        }
+      ]
+    ]
+  },
+  {
+    "id": "s2-tanque-b-2",
     "descripcion": "Un cilindro de vidrio con líquido morado y una regla pintada de 0 a 60 cm.",
-    "bloques": [],
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Empieza con el líquido en 50 cm."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Por debajo tiene un desagüe: en cada corrida se vacía, no se llena."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Su perilla morada tiene un candado: está trabada en «vaciar: 2 cm por segundo» y no gira."
+      }
+    ],
     "por_etapa": [
-      [{ "tipo": "texto", "texto": "Está vacío y tiene un letrero colgado: «Hoy no se usa»." }],
       [
-        { "tipo": "texto", "texto": "Ahora el líquido va en 50 cm." },
         {
           "tipo": "texto",
-          "texto": "Por debajo tiene un desagüe: en cada corrida se vacía, no se llena."
+          "texto": "La estación 2 todavía está apagada: se enciende cuando se resuelva la estación 1."
         }
       ],
       [
         {
           "tipo": "texto",
-          "texto": "Está envuelto en cinta de enmascarar de arriba abajo: no se ve en cuánto va el líquido."
-        },
-        { "tipo": "texto", "texto": "Por debajo, el desagüe sigue ahí." }
+          "texto": "La estación 2 está encendida: es la que toca."
+        }
       ],
-      [{ "tipo": "texto", "texto": "Está vacío. La incubadora ya se abrió." }]
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 2 ya está resuelta."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 2 ya está resuelta."
+        }
+      ]
     ]
   },
   {
-    "id": "s2-perilla-morada",
-    "descripcion": "La perilla del tanque B. Tiene un candado pequeño.",
-    "bloques": [],
+    "id": "s2-tanque-a-3",
+    "descripcion": "Un cilindro de vidrio con líquido verde y una regla pintada de 0 a 60 cm.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Empieza vacío: el líquido va en 0 cm."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Su caudal se ajusta con la perilla verde de su tablero. Al terminar cada corrida vuelve solo al nivel en que empezó."
+      }
+    ],
     "por_etapa": [
-      [{ "tipo": "texto", "texto": "Está en 0 y no gira: el tanque B no se usa por ahora." }],
       [
         {
           "tipo": "texto",
-          "texto": "Está trabada con el candado en «vaciar: 2 cm por segundo». No gira."
+          "texto": "La estación 3 todavía está apagada: se enciende cuando se resuelva la estación 2."
         }
       ],
       [
         {
           "tipo": "texto",
-          "texto": "Sigue con candado. La misma cinta que envuelve el tanque le tapa los números."
+          "texto": "La estación 3 todavía está apagada: se enciende cuando se resuelva la estación 2."
         }
       ],
-      [{ "tipo": "texto", "texto": "Sigue con candado." }]
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 3 está encendida: es la que toca."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 3 ya está resuelta."
+        }
+      ]
+    ]
+  },
+  {
+    "id": "s2-tanque-b-3",
+    "descripcion": "Un cilindro de vidrio con líquido morado y una regla pintada de 0 a 60 cm.",
+    "bloques": [
+      {
+        "tipo": "texto",
+        "texto": "Está envuelto en cinta de enmascarar de arriba abajo: no se ve en cuánto va el líquido."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Por debajo tiene un desagüe, como el de la estación 2."
+      },
+      {
+        "tipo": "texto",
+        "texto": "Su perilla morada tiene candado, y la misma cinta le tapa los números."
+      }
+    ],
+    "por_etapa": [
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 3 todavía está apagada: se enciende cuando se resuelva la estación 2."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 3 todavía está apagada: se enciende cuando se resuelva la estación 2."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 3 está encendida: es la que toca."
+        }
+      ],
+      [
+        {
+          "tipo": "texto",
+          "texto": "La estación 3 ya está resuelta."
+        }
+      ]
     ]
   },
   {
@@ -271,7 +420,7 @@
       },
       {
         "tipo": "texto",
-        "texto": "Solo dibuja mientras el líquido corre. Para verlo trabajar, baja la palanca de los tanques."
+        "texto": "Solo dibuja mientras el líquido corre. Para verlo trabajar, baja la palanca de la estación encendida."
       }
     ],
     "por_etapa": [
@@ -285,31 +434,36 @@
   },
   {
     "id": "s2-campana",
-    "descripcion": "Una campana sobre la incubadora, con un temporizador de números grandes.",
+    "descripcion": "Una campana en una repisa de la pared, con un temporizador de números grandes. Suena para la estación encendida.",
     "bloques": [],
     "por_etapa": [
       [
         { "tipo": "texto", "texto": "El temporizador marca 10 segundos." },
         {
           "tipo": "nota",
-          "texto": "Letrero de la incubadora: «Abro si el tanque A está en la línea roja cuando suene la campana»."
+          "texto": "Letrero de la estación 1: «El tanque A debe estar en la línea roja cuando suene la campana»."
         }
       ],
       [
         { "tipo": "texto", "texto": "El temporizador marca 8 segundos." },
         {
           "tipo": "nota",
-          "texto": "Letrero de la incubadora: «Abro si los dos tanques están a la misma altura cuando suene la campana»."
+          "texto": "Letrero de la estación 2: «Los dos tanques deben estar a la misma altura cuando suene la campana»."
         }
       ],
       [
         { "tipo": "texto", "texto": "El temporizador marca 12 segundos." },
         {
           "tipo": "nota",
-          "texto": "Letrero de la incubadora: «Abro si los dos tanques están a la misma altura cuando suene la campana»."
+          "texto": "Letrero de la estación 3: «Los dos tanques deben estar a la misma altura cuando suene la campana»."
         }
       ],
-      [{ "tipo": "texto", "texto": "El temporizador está apagado. La incubadora ya se abrió." }]
+      [
+        {
+          "tipo": "texto",
+          "texto": "El temporizador está apagado. Las tres estaciones están resueltas."
+        }
+      ]
     ]
   },
   {

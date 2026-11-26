@@ -71,7 +71,7 @@ const tanques = () => ({
         b: { nivel: 50, caudal: -2, visible: true },
       },
     },
-    { tipo: 'accionar', objeto: 's2-palanca' },
+    { tipo: 'accionar', objeto: 's2-palanca-1' },
   ),
 });
 

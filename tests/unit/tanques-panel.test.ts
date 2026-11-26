@@ -108,7 +108,7 @@ describe('lo que pasó al sonar la campana', () => {
     const fallo = lineas(dominar, 3);
     expect(fallo).toEqual([
       'Al sonar la campana, a los 12 segundos, el tanque A estaba en 36 cm. El B sigue tapado.',
-      'La incubadora no se movió: los dos niveles no eran iguales.',
+      'Los dos niveles no eran iguales.',
       'Los tanques volvieron a como estaban. Puedes mover la perilla y probar otra vez.',
     ]);
     // B estaba en 24 cm: ese número no aparece.
@@ -117,7 +117,7 @@ describe('lo que pasó al sonar la campana', () => {
     expect(lineas(dominar, 2, true)).toEqual([
       'Al sonar la campana, a los 12 segundos, el tanque A estaba en 24 cm. El B sigue tapado.',
       'Los dos estaban a la misma altura.',
-      'La incubadora se abrió.',
+      'Las tres estaciones quedaron resueltas.',
     ]);
   });
 

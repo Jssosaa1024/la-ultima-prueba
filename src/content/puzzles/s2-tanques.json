@@ -19,7 +19,7 @@
       "controles": { "perillas": ["a"], "caudal_min": 0, "caudal_max": 6, "altura_cm": 60 },
       "exito": { "campana_s": 10, "objetivo": { "tipo": "linea", "nivel": 30 } },
       "solucion": { "a": { "nivel": 0, "caudal": 3, "visible": true }, "b": null },
-      "intento": { "tipo": "accionar", "objeto": "s2-palanca" }
+      "intento": { "tipo": "accionar", "objeto": "s2-palanca-1" }
     },
     {
       "id": "torcer",
@@ -35,7 +35,7 @@
         "a": { "nivel": 10, "caudal": 3, "visible": true },
         "b": { "nivel": 50, "caudal": -2, "visible": true }
       },
-      "intento": { "tipo": "accionar", "objeto": "s2-palanca" }
+      "intento": { "tipo": "accionar", "objeto": "s2-palanca-2" }
     },
     {
       "id": "dominar",
@@ -67,7 +67,7 @@
           ]
         }
       },
-      "intento": { "tipo": "accionar", "objeto": "s2-palanca" }
+      "intento": { "tipo": "accionar", "objeto": "s2-palanca-3" }
     }
   ],
   "pistas": [
@@ -96,8 +96,8 @@
   },
   "pista_por_jugador": {
     "A": {
-      "objeto": "s2-perilla-verde",
-      "texto": "La perilla verde cambia el caudal del tanque A de 1 en 1 cm por segundo."
+      "objeto": "s2-tablero-1",
+      "texto": "La perilla verde de cada tablero cambia el caudal de su tanque A de 1 en 1 cm por segundo."
     },
     "B": {
       "objeto": "s2-hoja-ayer",
@@ -108,8 +108,8 @@
       "texto": "El temporizador de la campana dice a qué segundo sonará."
     },
     "D": {
-      "objeto": "s2-palanca",
-      "texto": "La palanca arranca la corrida y el graficador dibuja mientras el líquido corre."
+      "objeto": "s2-palanca-1",
+      "texto": "Cada estación tiene su palanca: arranca la corrida y el graficador dibuja mientras el líquido corre."
     }
   }
 }

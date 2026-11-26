@@ -90,10 +90,10 @@ describe('sumarAFija y vestirMalla', () => {
       'position',
     ]);
 
-    const palanca = raiz.getObjectByName('s2-palanca') as Mesh;
+    const palanca = raiz.getObjectByName('s2-palanca-1') as Mesh;
     const material = palanca.material as MeshLambertMaterial;
     expect(vestirMalla(palanca, new Piezas().caja([0.1, 0.1, 0.1], '#ff0000'))).toBe(palanca);
-    expect(palanca.name).toBe('s2-palanca');
+    expect(palanca.name).toBe('s2-palanca-1');
     expect(material.vertexColors).toBe(true);
     expect(material.color.getHex()).toBe(0xffffff);
     // Dos veces no la vuelve a vestir.

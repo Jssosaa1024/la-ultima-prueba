@@ -1,25 +1,27 @@
 /**
  * Sala 2 · El laboratorio, pulido por código (pulir salas, sesión A).
  *
- * Lo que anima la máquina de los tanques se rehace con más detalle sin cambiar su malla, su id,
- * su pivote ni su caja de choque: las perillas (con su dial y, la morada, su candado), la
- * palanca (rótula, varilla y mango) y la campana (cúpula de latón y botón). Los tanques, su
- * líquido y la bandeja de la incubadora los arma `tanques.ts`.
+ * Desde el 25 de noviembre la máquina de los tanques son tres estaciones, una por etapa
+ * (`content/estaciones.ts`): cada una con su tanque A (y, desde la segunda, su tanque B), su
+ * tablero y su palanca. Lo que se toca o se anima se rehace con más detalle sin cambiar su malla,
+ * su id, su pivote ni su caja de choque: el tablero de cada estación, la palanca (rótula, varilla
+ * y mango) y la campana (cúpula de latón y botón). Los tanques y su líquido los arma `tanques.ts`.
  *
  * Lo fijo nuevo va unido a la malla fija de la sala (sin draw calls nuevas): las bases y tapas
  * de los tanques con su regla y sus varillas, las tuberías con bridas, codos, manómetro y la
- * válvula que une los tanques, la caja de la palanca, los pilotos del tablero, la base de la
- * campana con su temporizador, el microscopio, el computador, la gradilla con sus tubos y el extintor.
+ * válvula que une los tanques de una estación, las perillas (la morada con su candado), la caja
+ * de cada palanca, los pilotos con el número de la estación, la repisa de la campana con su
+ * temporizador, el microscopio, el computador, la gradilla con sus tubos y el extintor.
  *
  * La taza se toca: se viste igual que las piezas de la máquina. El graficador y la hoja de ayer
  * son láminas de papel cuadriculado (`lamina` en `salas.json`, de la sesión C).
  */
 import type { Object3D } from 'three';
+import { ESTACIONES, type Estacion } from '../../content/estaciones';
+import { salaPorId } from '../../content/salas';
 import { extintor, PALETA } from './piezas-comunes';
 import { Piezas, sumarAFija, vestirMalla } from './piezas-por-codigo';
 
-/** Centro de los tanques en el piso (x) y su fila (z), como en `salas.json`. */
-export const TANQUES_X = [-2, -0.6] as const;
 const TANQUES_Z = -1.8;
 /** Radio y alto del vidrio de un tanque (el cilindro de `salas.json`). */
 const RADIO_TANQUE = 0.35;
@@ -29,7 +31,8 @@ const Y_TUBO = 2.66;
 const Z_PARED_NORTE = -3;
 /** Cubierta del tablero, donde van las perillas y la palanca. */
 const Y_TABLERO = 0.9;
-const CAMPANA = { x: 3.7, y: 1.2, z: -2.4 } as const;
+/** La campana, en su repisa de la pared norte (como en `salas.json`). */
+const CAMPANA = { x: 0.8, y: 1.9, z: -2.83 } as const;
 
 const C = PALETA;
 
@@ -94,40 +97,52 @@ function tanque(p: Piezas, x: number): void {
   });
 }
 
-/** Tuberías de los tanques al techo y a la pared norte, y la válvula que los une abajo. */
-function tuberias(p: Piezas): void {
-  for (const [i, x] of TANQUES_X.entries()) {
-    const z = TANQUES_Z;
-    p.barra([x, 1.76, z], [x, Y_TUBO, z], 0.045, C.metal, 10);
-    p.cilindro(0.066, 0.03, C.metalOscuro, { pos: [x, 1.76, z], bisel: 0.008 });
-    p.cilindro(0.066, 0.03, C.metalOscuro, { pos: [x, 2.45, z], bisel: 0.008 });
-    p.esfera(0.06, C.metal, { pos: [x, Y_TUBO, z], lados: 10, anillos: 5 });
-    p.barra([x, Y_TUBO, z], [x, Y_TUBO, Z_PARED_NORTE], 0.045, C.metal, 10);
-    p.cilindro(0.08, 0.03, C.metalOscuro, {
-      pos: [x, Y_TUBO, Z_PARED_NORTE + 0.005],
-      giro: [90, 0, 0],
-      bisel: 0.008,
+/** Dónde está una pieza de la sala, según `salas.json`: x del centro, z y su tamaño. */
+interface Lugar {
+  x: number;
+  z: number;
+  tam: readonly number[];
+}
+
+function lugarDe(id: string): Lugar | null {
+  const o = salaPorId('s2-laboratorio').objetos.find((x) => x.id === id);
+  return o ? { x: o.pos[0], z: o.pos[2], tam: o.tam } : null;
+}
+
+/** Tubería de un tanque al techo y a la pared norte; con `manometro`, su reloj. */
+function tuberia(p: Piezas, x: number, manometro: boolean): void {
+  const z = TANQUES_Z;
+  p.barra([x, 1.76, z], [x, Y_TUBO, z], 0.045, C.metal, 10);
+  p.cilindro(0.066, 0.03, C.metalOscuro, { pos: [x, 1.76, z], bisel: 0.008 });
+  p.cilindro(0.066, 0.03, C.metalOscuro, { pos: [x, 2.45, z], bisel: 0.008 });
+  p.esfera(0.06, C.metal, { pos: [x, Y_TUBO, z], lados: 10, anillos: 5 });
+  p.barra([x, Y_TUBO, z], [x, Y_TUBO, Z_PARED_NORTE], 0.045, C.metal, 10);
+  p.cilindro(0.08, 0.03, C.metalOscuro, {
+    pos: [x, Y_TUBO, Z_PARED_NORTE + 0.005],
+    giro: [90, 0, 0],
+    bisel: 0.008,
+  });
+  // Abrazadera en la mitad del tramo horizontal.
+  p.caja([0.13, 0.03, 0.05], C.metalOscuro, {
+    pos: [x, Y_TUBO + 0.05, (z + Z_PARED_NORTE) / 2],
+    bisel: 0.008,
+  });
+  if (manometro) {
+    p.barra([x, 2.1, z], [x, 2.1, z + 0.08], 0.014, C.cromo, 6);
+    p.cilindro(0.068, 0.03, C.negro, { pos: [x, 2.1, z + 0.07], giro: [90, 0, 0], bisel: 0.008 });
+    p.cilindro(0.057, 0.004, C.blanco, { pos: [x, 2.1, z + 0.1], giro: [90, 0, 0] });
+    p.caja([0.006, 0.045, 0.003], C.rojo, {
+      pos: [x + 0.011, 2.116, z + 0.105],
+      giro: [0, 0, -30],
     });
-    // Abrazadera en la mitad del tramo horizontal.
-    p.caja([0.13, 0.03, 0.05], C.metalOscuro, {
-      pos: [x, Y_TUBO + 0.05, (z + Z_PARED_NORTE) / 2],
-      bisel: 0.008,
-    });
-    // Manómetro en la tubería del tanque A.
-    if (i === 0) {
-      p.barra([x, 2.1, z], [x, 2.1, z + 0.08], 0.014, C.cromo, 6);
-      p.cilindro(0.068, 0.03, C.negro, { pos: [x, 2.1, z + 0.07], giro: [90, 0, 0], bisel: 0.008 });
-      p.cilindro(0.057, 0.004, C.blanco, { pos: [x, 2.1, z + 0.1], giro: [90, 0, 0] });
-      p.caja([0.006, 0.045, 0.003], C.rojo, {
-        pos: [x + 0.011, 2.116, z + 0.105],
-        giro: [0, 0, -30],
-      });
-    }
-    // Salida de abajo, hacia la válvula de atrás.
-    p.barra([x, 0.11, z - 0.42], [x, 0.11, z - 0.5], 0.032, C.metal, 8);
-    p.esfera(0.04, C.metal, { pos: [x, 0.11, z - 0.5], lados: 8, anillos: 4 });
   }
-  const [xa, xb] = TANQUES_X;
+  // Salida de abajo, hacia atrás.
+  p.barra([x, 0.11, z - 0.42], [x, 0.11, z - 0.5], 0.032, C.metal, 8);
+  p.esfera(0.04, C.metal, { pos: [x, 0.11, z - 0.5], lados: 8, anillos: 4 });
+}
+
+/** La válvula de atrás que une los dos tanques de una estación. */
+function valvula(p: Piezas, xa: number, xb: number): void {
   const zv = TANQUES_Z - 0.5;
   p.barra([xa, 0.11, zv], [xb, 0.11, zv], 0.032, C.metal, 8);
   const xv = (xa + xb) / 2;
@@ -138,23 +153,84 @@ function tuberias(p: Piezas): void {
   p.barra([xv, 0.27, zv - 0.065], [xv, 0.27, zv + 0.065], 0.007, C.rojo, 5);
 }
 
-/** La caja de la palanca y los pilotos de los tanques sobre el tablero. */
-function tablero(p: Piezas): void {
-  p.caja([0.13, 0.045, 0.22], C.negro, { pos: [-1.3, Y_TABLERO + 0.0225, -1], bisel: 0.01 });
-  p.caja([0.026, 0.004, 0.17], C.ranura, { pos: [-1.3, Y_TABLERO + 0.046, -1] });
-  for (const [x, color] of [
-    [TANQUES_X[0], C.verde],
-    [TANQUES_X[1], C.morado],
-  ] as const) {
-    p.cilindro(0.024, 0.012, C.metalOscuro, { pos: [x + 0.13, Y_TABLERO, -0.93], bisel: 0.004 });
-    p.esfera(0.016, color, { pos: [x + 0.13, Y_TABLERO + 0.014, -0.93], lados: 8, anillos: 4 });
+/**
+ * Lo fijo de una estación: bases, tuberías, válvula, perillas, la caja de la palanca y, sobre el
+ * tablero, tantos pilotos como el número de la estación (uno, dos o tres).
+ */
+function estacion(p: Piezas, e: Estacion): void {
+  const a = lugarDe(e.tanqueA);
+  const b = e.tanqueB ? lugarDe(e.tanqueB) : null;
+  const tablero = lugarDe(e.tablero);
+  const palanca = lugarDe(e.palanca);
+  if (!a || !tablero) return;
+  tanque(p, a.x);
+  tuberia(p, a.x, true);
+  if (b) {
+    tanque(p, b.x);
+    tuberia(p, b.x, false);
+    valvula(p, a.x, b.x);
+  }
+  const zt = tablero.z;
+  // Perilla verde frente al tanque A y, si hay tanque B, la morada con su candado.
+  const xVerde = b ? a.x : a.x - 0.2;
+  p.en({ pos: [xVerde, Y_TABLERO, zt] }, () => perilla(C.verde, false, p));
+  if (b) p.en({ pos: [b.x, Y_TABLERO, zt] }, () => perilla(C.morado, true, p));
+  if (palanca) {
+    p.caja([0.13, 0.045, 0.22], C.negro, {
+      pos: [palanca.x, Y_TABLERO + 0.0225, zt],
+      bisel: 0.01,
+    });
+    p.caja([0.026, 0.004, 0.17], C.ranura, { pos: [palanca.x, Y_TABLERO + 0.046, zt] });
+  }
+  // Pilotos con el número de la estación, en la esquina izquierda del tablero.
+  const ancho = tablero.tam[0] ?? 1;
+  const x0 = tablero.x - ancho / 2 + 0.08;
+  for (let i = 0; i <= e.etapa; i++) {
+    const x = x0 + i * 0.06;
+    p.cilindro(0.022, 0.012, C.metalOscuro, { pos: [x, Y_TABLERO, zt + 0.08], bisel: 0.004 });
+    p.esfera(0.015, C.amarillo, { pos: [x, Y_TABLERO + 0.014, zt + 0.08], lados: 8, anillos: 4 });
   }
 }
 
-/** Base de madera de la campana, con el temporizador de cocina a un lado. */
+/**
+ * El tablero de una estación (con la base en y = 0 y centrado, como su caja): un mueble
+ * metálico con zócalo, puertas al frente con sus manijas y la cubierta donde van las perillas.
+ */
+function mueble(ancho: number, alto: number, fondo: number): Piezas {
+  const p = new Piezas()
+    .caja([ancho - 0.04, 0.08, fondo - 0.04], C.negro, { pos: [0, 0.04, 0], bisel: 0.01 })
+    .caja([ancho, alto - 0.11, fondo], C.metalOscuro, {
+      pos: [0, 0.08 + (alto - 0.11) / 2, 0],
+      bisel: 0.015,
+    })
+    .caja([ancho + 0.02, 0.03, fondo + 0.02], C.metal, { pos: [0, alto - 0.015, 0], bisel: 0.008 });
+  const puertas = Math.max(1, Math.round(ancho / 0.9));
+  const anchoPuerta = (ancho - 0.06) / puertas;
+  for (let i = 0; i < puertas; i++) {
+    const x = -ancho / 2 + 0.03 + anchoPuerta * (i + 0.5);
+    p.caja([anchoPuerta - 0.03, alto - 0.3, 0.008], C.metal, {
+      pos: [x, 0.1 + (alto - 0.3) / 2 + 0.03, fondo / 2 + 0.004],
+      bisel: 0.004,
+    });
+    p.barra(
+      [x + anchoPuerta / 2 - 0.08, alto - 0.3, fondo / 2 + 0.03],
+      [x + anchoPuerta / 2 - 0.08, alto - 0.42, fondo / 2 + 0.03],
+      0.008,
+      C.cromo,
+      6,
+    );
+  }
+  return p;
+}
+
+/** Repisa de madera de la campana en la pared, con sus escuadras y el temporizador a un lado. */
 function baseCampana(p: Piezas): void {
   const { x, y, z } = CAMPANA;
-  p.caja([0.36, 0.025, 0.23], C.madera, { pos: [x + 0.05, y + 0.0125, z], bisel: 0.007 });
+  p.caja([0.36, 0.025, 0.3], C.madera, { pos: [x + 0.05, y + 0.0125, z - 0.02], bisel: 0.007 });
+  for (const dx of [-0.08, 0.18]) {
+    p.barra([x + dx, y, Z_PARED_NORTE], [x + dx, y - 0.16, Z_PARED_NORTE], 0.012, C.metalOscuro, 5);
+    p.barra([x + dx, y - 0.16, Z_PARED_NORTE], [x + dx, y, z + 0.08], 0.01, C.metalOscuro, 5);
+  }
   p.cilindro(0.04, 0.04, C.blanco, { pos: [x + 0.175, y + 0.025, z + 0.03], bisel: 0.01 });
   p.cilindro(0.032, 0.012, C.rojo, { pos: [x + 0.175, y + 0.065, z + 0.03], bisel: 0.004 });
   p.caja([0.006, 0.004, 0.026], C.negro, { pos: [x + 0.175, y + 0.079, z + 0.04] });
@@ -280,8 +356,8 @@ function taza(): Piezas {
 }
 
 /** Una perilla: base negra con su dial, perilla de color con raya blanca. */
-function perilla(color: string, bloqueada: boolean): Piezas {
-  const p = new Piezas().cilindro(0.07, 0.012, C.negro, { bisel: 0.004, lados: 16 });
+function perilla(color: string, bloqueada: boolean, p: Piezas = new Piezas()): Piezas {
+  p.cilindro(0.07, 0.012, C.negro, { bisel: 0.004, lados: 16 });
   for (let i = 0; i < 7; i++) {
     const grados = -135 + i * 45;
     const a = (grados * Math.PI) / 180;
@@ -375,16 +451,19 @@ function campana(): Piezas {
  * caché): lo hecho no se repite.
  */
 export function pulirLaboratorio(raiz: Object3D): void {
-  vestirMalla(raiz.getObjectByName('s2-perilla-verde'), perilla(C.verde, false));
-  vestirMalla(raiz.getObjectByName('s2-perilla-morada'), perilla(C.morado, true));
-  vestirMalla(raiz.getObjectByName('s2-palanca'), palanca());
+  for (const e of ESTACIONES) {
+    vestirMalla(raiz.getObjectByName(e.palanca), palanca());
+    const tablero = lugarDe(e.tablero);
+    if (tablero) {
+      const [ancho = 1, alto = 0.9, fondo = 0.3] = tablero.tam;
+      vestirMalla(raiz.getObjectByName(e.tablero), mueble(ancho, alto, fondo));
+    }
+  }
   vestirMalla(raiz.getObjectByName('s2-campana'), campana());
   vestirMalla(raiz.getObjectByName('s2-taza'), taza());
 
   const fijas = new Piezas();
-  for (const x of TANQUES_X) tanque(fijas, x);
-  tuberias(fijas);
-  tablero(fijas);
+  for (const e of ESTACIONES) estacion(fijas, e);
   baseCampana(fijas);
   microscopio(fijas);
   gradilla(fijas);
