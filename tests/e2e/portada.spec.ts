@@ -215,3 +215,24 @@ test('«Ver el tráiler» abre el video en un diálogo y «Cerrar» lo detiene',
   expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
   expect(errores).toEqual([]);
 });
+
+// Correcciones del 25 nov: el logo de Sinapsis, pequeño, al pie de la portada y en la pantalla
+// de carga del juego.
+test('al pie va «Un proyecto de» con el logo de Sinapsis, pequeño', async ({ page }) => {
+  await page.goto('/');
+  const pie = page.getByRole('contentinfo');
+  await expect(pie).toContainText('Un proyecto de');
+  const logo = pie.getByRole('img', { name: 'Sinapsis' });
+  await expect(logo).toBeVisible();
+  const caja = await logo.boundingBox();
+  expect(caja?.height ?? 0).toBeLessThanOrEqual(32);
+  expect(await logo.evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+});
+
+test('la pantalla de carga del juego lleva el logo de Sinapsis', async ({ page }) => {
+  const html = await (await page.request.get('/jugar')).text();
+  // Es lo que se ve mientras baja el juego (`slot="fallback"` de la isla).
+  const logo = html.match(/<img[^>]*sinapsis\.webp[^>]*>/)?.[0] ?? '';
+  expect(logo).toContain('src="/marca/sinapsis.webp"');
+  expect(logo).toContain('alt="Sinapsis"');
+});

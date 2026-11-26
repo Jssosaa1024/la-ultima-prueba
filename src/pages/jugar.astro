@@ -6,9 +6,17 @@ import IslaJuego from '../ui/IslaJuego';
 <Juego title="Jugar · La Última Prueba">
   <!-- client:only: el juego necesita el navegador (canvas, WebGL), no se renderiza en el build. -->
   <IslaJuego client:only="preact">
-    <p slot="fallback" class="cargando">
-      Cargando…
-    </p>
+    <div slot="fallback" class="cargando">
+      <img
+        class="cargando-logo"
+        src="/marca/sinapsis.webp"
+        alt="Sinapsis"
+        width="360"
+        height="172"
+        decoding="async"
+      />
+      <p>Cargando…</p>
+    </div>
   </IslaJuego>
 </Juego>
 
@@ -16,8 +24,21 @@ import IslaJuego from '../ui/IslaJuego';
   .cargando {
     position: fixed;
     inset: 0;
-    display: grid;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
     margin: 0;
+  }
+
+  .cargando p {
+    margin: 0;
+  }
+
+  /* El logo de Sinapsis mientras baja el juego (correcciones del 25 nov). */
+  .cargando-logo {
+    width: auto;
+    height: min(96px, 22vh);
   }
 </style>

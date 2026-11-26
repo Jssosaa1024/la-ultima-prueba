@@ -26,6 +26,8 @@ export const NUCLEO_FIJO = [
   '/iconos/icono-180.png',
   '/iconos/icono-192.png',
   '/iconos/icono-512.png',
+  // El logo de la pantalla de carga (correcciones del 25 nov): también sin conexión.
+  '/marca/sinapsis.webp',
 ] as const;
 
 const PLANTILLA = fileURLToPath(new URL('./sw.js', import.meta.url));
