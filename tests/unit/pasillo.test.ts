@@ -26,6 +26,7 @@ import {
   segmentosDeParedes,
   seVe,
   visiblesPorCelda,
+  type Huella,
 } from '../../src/engine/salas/visibilidad';
 import { crearVistaPorCeldas } from '../../src/engine/salas/vista-por-celdas';
 
@@ -45,6 +46,53 @@ const RECORRIDO: [number, number][] = [
   [-14.6, -8.4],
   [-14.6, 0.18],
 ];
+
+/**
+ * Fondo mínimo del cuarto que hay detrás de cada puerta falsa, en metros (correcciones del 25
+ * de noviembre). Detrás de una puerta real va su sala, con el fondo que tiene en `salas.json`.
+ */
+const FONDO_FALSA: Readonly<Record<string, number>> = {
+  profesores: 4,
+  'aula-10a': 6,
+  'aula-10b': 6,
+  'aula-11a': 6,
+  'aula-11b': 6,
+  banos: 3,
+  aseo: 2,
+};
+/** Ancho del marco de una puerta del pasillo. */
+const ANCHO_MARCO = 1.26;
+
+/**
+ * El cuarto que hay del otro lado de una puerta: del ancho del marco y con el fondo de la sala
+ * (o el mínimo de la puerta falsa), contado desde la pared hacia atrás.
+ */
+function cuartoDetras(o: ObjetoSala): Huella {
+  const g = (o.giro ?? 0) * GRADOS;
+  const fondo = o.puerta ? salaPorId(o.puerta).fondo : (FONDO_FALSA[o.falsa ?? ''] ?? 0);
+  // La cara mira hacia (sen g, cos g): la pared está 2 cm detrás y el cuarto sigue hacia atrás.
+  const atras = { x: -Math.sin(g), z: -Math.cos(g) };
+  const lado = { x: Math.cos(g), z: -Math.sin(g) };
+  const pared = { x: o.pos[0] + atras.x * 0.02, z: o.pos[2] + atras.z * 0.02 };
+  const esquinas = [-1, 1].flatMap((s) =>
+    [0, fondo].map((f) => ({
+      x: pared.x + lado.x * s * (ANCHO_MARCO / 2) + atras.x * f,
+      z: pared.z + lado.z * s * (ANCHO_MARCO / 2) + atras.z * f,
+    })),
+  );
+  return {
+    minX: Math.min(...esquinas.map((e) => e.x)),
+    maxX: Math.max(...esquinas.map((e) => e.x)),
+    minZ: Math.min(...esquinas.map((e) => e.z)),
+    maxZ: Math.max(...esquinas.map((e) => e.z)),
+  };
+}
+
+const solapan = (a: Huella, b: Huella): boolean =>
+  a.minX < b.maxX - 1e-6 &&
+  b.minX < a.maxX - 1e-6 &&
+  a.minZ < b.maxZ - 1e-6 &&
+  b.minZ < a.maxZ - 1e-6;
 
 describe('planta con tramos', () => {
   it('un rectángulo solo da sus cuatro paredes, todas con rincones', () => {
@@ -152,6 +200,40 @@ describe('el pasillo en los datos', () => {
     }
   });
 
+  it('detrás de cada puerta cabe su cuarto: no da a la portería, al pasillo ni a otro cuarto', () => {
+    // La portería y lo que se ve desde ella (por el vano, las ventanas y la salida): todo lo
+    // que queda al este de la cara oeste del vano.
+    const vano = porteria.tramos?.[0];
+    if (!vano) throw new Error('la portería no tiene su vano');
+    const ladoPorteria: Huella = {
+      minX: vano.x[0],
+      maxX: Infinity,
+      minZ: -Infinity,
+      maxZ: Infinity,
+    };
+    const pasillo: Huella[] = rectangulosDe(porteria).map((r) => ({
+      minX: r.x[0],
+      maxX: r.x[1],
+      minZ: r.z[0],
+      maxZ: r.z[1],
+    }));
+    const puertas = puertasDelPasillo();
+    const cuartos = puertas.map(cuartoDetras);
+    const errores: string[] = [];
+    puertas.forEach((o, i) => {
+      const c = cuartos[i];
+      if (!c) return;
+      if (c.maxZ - c.minZ < 1 || c.maxX - c.minX < 1) errores.push(`${o.id}: sin fondo`);
+      if (solapan(c, ladoPorteria)) errores.push(`${o.id}: da a la portería`);
+      if (pasillo.some((r) => solapan(c, r))) errores.push(`${o.id}: da al pasillo`);
+      puertas.forEach((p, j) => {
+        const otro = cuartos[j];
+        if (j > i && otro && solapan(c, otro)) errores.push(`${o.id}: da al cuarto de ${p.id}`);
+      });
+    });
+    expect(errores).toEqual([]);
+  });
+
   it('cada puerta tiene su cartel encima y hay tres flechas', () => {
     for (const o of puertasDelPasillo()) {
       const clave = o.puerta ? `s${o.id.slice(-1)}` : o.id.replace('pasillo-puerta-', '');
@@ -167,7 +249,7 @@ describe('el pasillo en los datos', () => {
     // La flecha va dibujada como figura (`flecha`), no como «←»: la letra no trae ese signo.
     expect(flechas.map((o) => [o.lamina?.titulo, o.lamina?.flecha])).toEqual([
       ['SALAS 1 A 5', undefined],
-      ['SALAS 3 A 5', 'izquierda'],
+      ['SALAS 2 A 5', 'izquierda'],
       ['SALAS 4 Y 5', 'izquierda'],
     ]);
   });
