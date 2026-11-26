@@ -43,8 +43,8 @@ export const GRABACIONES_ESCONDIDAS: readonly Grabacion[] = [
     id: 'grab-3',
     numero: 3,
     sala: 's4-biblioteca',
-    objeto: 's4-libro-m',
-    lugar: 'En el libro que sobresalía del estante M de la biblioteca',
+    objeto: 's4-cactus',
+    lugar: 'En la maceta del cactus del estante M de la biblioteca',
     texto:
       'Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.',
   },

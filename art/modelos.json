@@ -676,14 +676,13 @@
     "giro": 90
   },
   {
-    "archivo": "public/assets/salas/s4-biblioteca/libro.glb",
+    "archivo": "public/assets/salas/s4-biblioteca/cactus.glb",
     "piezas": [
       {
-        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/book_single.gltf"
+        "original": "art/compartido/originales/kaykit-furniture-bits/KayKit_Furniture_Bits_1.0_FREE.zip#KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/cactus_small_A.gltf"
       }
     ],
-    "caja": [0.25, 0.34, 0.14],
-    "giro": -90
+    "caja": [0.2, 0.26, 0.2]
   },
   {
     "archivo": "public/assets/salas/s4-biblioteca/casilleros.glb",

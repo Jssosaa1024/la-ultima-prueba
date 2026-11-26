@@ -16,6 +16,7 @@ import {
   alCambiarEstado,
   avanzarReposo,
   intentoAlAccionar,
+  msParaReposo,
   reglaDeIntento,
   type Reposo,
 } from '../game/intentos';
@@ -324,9 +325,10 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
           e = contarIntento(e, puzzle);
           // La máquina quedó quieta mostrando un resultado que no resuelve: suena el error.
           falloEnVivo.value++;
-        } else if (!r.reposo.pendiente) {
-          // Se cumplió el reposo sin contar intento: o los ajustes resuelven la etapa, o
-          // todavía no forman un resultado (libros sin repartir).
+        }
+        if (!r.reposo.pendiente) {
+          // Se cumplieron los segundos de la regla: o los ajustes resuelven la etapa, o no
+          // sirven (el intento ya se contó al mirarlos), o todavía no forman un resultado.
           const evaluacion = evaluar(puzzle, n, estado);
           if (evaluacion?.resuelta) resuelve = evaluacion;
         }
@@ -443,12 +445,11 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       if (!esperas.has(`${actual.sala}:${actual.etapa}`)) {
         espera = Math.min(espera, ESPERA_VOZ_MS - msSinTocar);
       }
-      // En las etapas que responden en vivo, el momento en que se cumple el reposo.
-      const regla = reglaDeIntento(actual.puzzle, actual.etapa);
+      // En las etapas que responden en vivo, el momento en que se mira el resultado (y cuenta
+      // el intento) o en que se cumple el reposo.
       const quieto = reposos[actual.sala];
-      if (regla?.tipo === 'reposo' && quieto?.pendiente) {
-        espera = Math.min(espera, regla.segundos * 1000 - quieto.msQuieto);
-      }
+      const reposo = quieto ? msParaReposo(actual.puzzle, actual.etapa, quieto) : null;
+      if (reposo !== null) espera = Math.min(espera, reposo);
     }
     temporizador = setTimeout(alVencer, Math.max(0, Math.ceil(espera)));
   }

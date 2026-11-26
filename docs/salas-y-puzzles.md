@@ -219,7 +219,7 @@ La solución de la etapa 3 es única (salvo el orden de los días), lo que se ve
 
 **Cooperativo:** A tiene la pila de libros; B lee las lámparas, que solo se ven desde el mostrador; C tiene el pedazo de ficha rota con la palabra «moda» subrayada; D mueve los carritos y confirma.
 
-**Secretos:** en la caja de devoluciones, una ficha con letra de Inés: «Devolver a T. R.: cuaderno de grabaciones, estante M». En el estante M un libro sobresale y guarda la **grabación 3**.
+**Secretos:** en la caja de devoluciones, una ficha con letra de Inés: «Devolver a T. R.: cuaderno de grabaciones, estante M». En el estante M, un cactus guarda la **grabación 3** (hasta el 25 de noviembre la guardaba un libro que sobresalía; Alex la pasó al cactus).
 
 ### Sala 5 · La rectoría: el juego justo de La Voz
 
@@ -262,7 +262,7 @@ Las tres grabaciones son opcionales y están en las salas 2, 3 y 4. Juntas desbl
 | --- | --- | --- | --- |
 | `grab-1` | 2 · Gabinete del laboratorio | Siguiendo las flechas que revela la luz UV | «Grabación uno. Treinta y cuatro años diciendo “revisa tus cuentas”. Esta vez quiero decir otra cosa.» |
 | `grab-2` | 3 · Balón desinflado en el carro | Es el único balón que no rebota al tocarlo | «Grabación dos. Una nota mide una mañana, no a una persona. Eso no sale en ningún boletín.» |
-| `grab-3` | 4 · Libro del estante M | La ficha de Inés en la caja de devoluciones dice dónde | «Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.» |
+| `grab-3` | 4 · Cactus del estante M | La ficha de Inés en la caja de devoluciones dice dónde | «Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.» |
 
 ### Los cuatro finales
 

@@ -12,7 +12,7 @@ import { useRestanteEspera } from '../coop/BarraCoop';
 import { aliasDe, textoCuenta, textoEsperaD } from '../coop/textos';
 import { anotacionDeEtapa } from '../cuaderno/descubrimientos';
 import Dialogo from '../paneles/Dialogo';
-import { SeccionPistas } from '../pistas/Pistas';
+import { BotonPistaNueva, SeccionPistas } from '../pistas/Pistas';
 import type { PropsPanel } from './marco/tipos';
 import { vistaDelPanel } from './marco/vista';
 import { PANELES } from './paneles';
@@ -114,26 +114,30 @@ export default function PanelMecanismo() {
       cerrarSecundario
       alCerrar={cerrarPanel}
       acciones={
-        !ocupado &&
-        (resuelta ? (
-          <button type="button" class="boton boton-principal" onClick={seguir}>
-            {vista.sello ? 'Volver a la sala' : 'Seguir'}
-          </button>
-        ) : enGrupo ? (
-          <AccionesGrupo soyD={soyD} accionar={regla.tipo === 'accionar' ? regla.objeto : null}>
-            {regla.tipo === 'accionar' ? TEXTO_ACCIONAR[puzzle.mecanismo] : 'Proponer al grupo'}
-          </AccionesGrupo>
-        ) : (
-          regla.tipo === 'accionar' && (
-            <button
-              type="button"
-              class="boton boton-principal"
-              onClick={() => enviar({ t: 'accionar', objeto: regla.objeto })}
-            >
-              {TEXTO_ACCIONAR[puzzle.mecanismo]}
-            </button>
-          )
-        ))
+        !ocupado && (
+          <>
+            {!resuelta && <BotonPistaNueva />}
+            {resuelta ? (
+              <button type="button" class="boton boton-principal" onClick={seguir}>
+                {vista.sello ? 'Volver a la sala' : 'Seguir'}
+              </button>
+            ) : enGrupo ? (
+              <AccionesGrupo soyD={soyD} accionar={regla.tipo === 'accionar' ? regla.objeto : null}>
+                {regla.tipo === 'accionar' ? TEXTO_ACCIONAR[puzzle.mecanismo] : 'Proponer al grupo'}
+              </AccionesGrupo>
+            ) : (
+              regla.tipo === 'accionar' && (
+                <button
+                  type="button"
+                  class="boton boton-principal"
+                  onClick={() => enviar({ t: 'accionar', objeto: regla.objeto })}
+                >
+                  {TEXTO_ACCIONAR[puzzle.mecanismo]}
+                </button>
+              )
+            )}
+          </>
+        )
       }
     >
       <p class="mecanismo-situacion">{datos.situacion}</p>

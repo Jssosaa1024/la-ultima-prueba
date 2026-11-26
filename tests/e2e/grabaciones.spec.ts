@@ -19,8 +19,8 @@ const GABINETE: Punto3 = [-3.9, 1, -2.4];
 /** Los balones naranja y verde, sobre el carro del gimnasio. */
 const BALON_NARANJA: Punto3 = [-8.42, 1.02, 0.16];
 const BALON_VERDE: Punto3 = [-8.78, 1.02, 0.16];
-/** El libro que sobresale del estante M de la biblioteca. */
-const LIBRO: Punto3 = [-4.4, 1.58, 1.5];
+/** El cactus del estante M de la biblioteca (correcciones del 25 de noviembre). */
+const CACTUS: Punto3 = [-4.45, 1.54, 1.5];
 
 /**
  * Camina hacia el objeto hasta tenerlo a menos de `cerca` metros. El objeto (o su mueble) es
@@ -114,17 +114,15 @@ test('sala 3: los balones rebotan y el que no rebota entrega la grabación 2', a
   await expect(panel).toContainText('Llevas 2 de 3 grabaciones. Falta una, en otras salas.');
 });
 
-test('sala 4: el libro que sobresale del estante M entrega la grabación 3', async ({
-  page,
-}, info) => {
+test('sala 4: el cactus del estante M entrega la grabación 3', async ({ page }, info) => {
   const conDedo = info.project.use.hasTouch === true;
   const caja = await continuarEn(page, {
     sala: 's4-biblioteca',
     grabaciones: ['grab-1', 'grab-2'],
   });
-  await acercarse(page, caja, LIBRO, 2, conDedo);
-  await tocarObjeto(page, caja, LIBRO, conDedo, /Usar.*Libro que sobresale/);
-  await page.getByRole('button', { name: /Usar.*Libro que sobresale/ }).click();
+  await acercarse(page, caja, CACTUS, 2, conDedo);
+  await tocarObjeto(page, caja, CACTUS, conDedo, /Usar.*Cactus del estante M/);
+  await page.getByRole('button', { name: /Usar.*Cactus del estante M/ }).click();
 
   const panel = page.getByRole('dialog', { name: 'Encontraste una grabación' });
   await expect(panel).toContainText('Grabación 3 de 3');

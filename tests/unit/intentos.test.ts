@@ -5,6 +5,8 @@ import { SALAS_3D } from '../../src/content/salas';
 import {
   alCambiarEstado,
   avanzarReposo,
+  MS_MIRAR,
+  msParaReposo,
   estadoFallido,
   intentoAlAccionar,
   reglaDeIntento,
@@ -89,22 +91,42 @@ describe('sala 4: lámparas en vivo, intento por reposo (T27b)', () => {
   const completo = { carritos: [4, 4, 4, 4, 4] };
   const avanzar = (r: Reposo, estado: unknown, ms: number) => avanzarReposo(s4, 1, estado, r, ms);
 
-  it('cuenta una vez cuando el reparto completo se queda quieto 5 s sin resolver', () => {
-    let r = avanzar(alCambiarEstado(), completo, 4 * SEG);
+  it('cuenta una vez cuando el reparto completo se queda quieto 3 s sin resolver', () => {
+    let r = avanzar(alCambiarEstado(), completo, MS_MIRAR - 1);
     expect(r.intento).toBe(false);
-    r = avanzar(r.reposo, completo, 1 * SEG);
+    r = avanzar(r.reposo, completo, 1);
     expect(r.intento).toBe(true);
+    // Sigue pendiente hasta los 5 s de la regla, cuando se revisa si resuelve.
+    expect(r.reposo.pendiente).toBe(true);
+    r = avanzar(r.reposo, completo, 5 * SEG - MS_MIRAR);
+    expect(r.intento).toBe(false);
+    expect(r.reposo.pendiente).toBe(false);
     r = avanzar(r.reposo, completo, 60 * SEG);
     expect(r.intento).toBe(false);
   });
 
+  it('de golpe, más de 5 s quieta también cuenta una sola vez', () => {
+    const r = avanzar(alCambiarEstado(), completo, 60 * SEG);
+    expect(r.intento).toBe(true);
+    expect(r.reposo).toEqual({ msQuieto: 60 * SEG, pendiente: false, mirado: true });
+  });
+
   it('un cambio reinicia la cuenta', () => {
-    const r = avanzar(alCambiarEstado(), completo, 4 * SEG);
-    expect(r.reposo.msQuieto).toBe(4 * SEG);
+    const r = avanzar(alCambiarEstado(), completo, 2 * SEG);
+    expect(r.reposo.msQuieto).toBe(2 * SEG);
     const otro = { carritos: [3, 5, 4, 4, 4] };
-    const tras = avanzar(alCambiarEstado(), otro, 4 * SEG);
+    const tras = avanzar(alCambiarEstado(), otro, 2 * SEG);
     expect(tras.intento).toBe(false);
     expect(avanzar(tras.reposo, otro, 1 * SEG).intento).toBe(true);
+  });
+
+  it('dice cuánto falta para mirar y para revisar', () => {
+    expect(msParaReposo(s4, 1, REPOSO_INICIAL)).toBeNull();
+    expect(msParaReposo(s4, 1, alCambiarEstado())).toBe(MS_MIRAR);
+    const mirado = avanzar(alCambiarEstado(), completo, MS_MIRAR).reposo;
+    expect(msParaReposo(s4, 1, mirado)).toBe(5 * SEG - MS_MIRAR);
+    // Las etapas que se accionan no esperan reposo.
+    expect(msParaReposo(s1, 0, alCambiarEstado())).toBeNull();
   });
 
   it('no cuenta sin cambios, con libros en la pila, resuelto ni con un estado inválido', () => {
@@ -116,7 +138,7 @@ describe('sala 4: lámparas en vivo, intento por reposo (T27b)', () => {
     expect(estadoFallido(s4, 1, { carritos: [4, 4, 4, 4, 3] })).toBe(false);
   });
 
-  it('tres reposos fallidos ofrecen la primera pista', () => {
+  it('tres repartos fallidos, mirados 3 s cada uno, ofrecen la primera pista', () => {
     let pistas = PISTAS_INICIALES;
     const repartos = [
       [5, 3, 4, 4, 4],
@@ -124,7 +146,7 @@ describe('sala 4: lámparas en vivo, intento por reposo (T27b)', () => {
       [7, 1, 4, 4, 4],
     ];
     for (const carritos of repartos) {
-      if (avanzar(alCambiarEstado(), { carritos }, 5 * SEG).intento) {
+      if (avanzar(alCambiarEstado(), { carritos }, MS_MIRAR).intento) {
         pistas = registrarIntento(pistas, s4.pistas);
       }
     }

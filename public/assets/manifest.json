@@ -1138,6 +1138,23 @@
     "s4-biblioteca": {
       "archivos": [
         {
+          "archivo": "salas/s4-biblioteca/cactus.c028f99c.glb",
+          "sha256": "c028f99c1b90297f9cddfc1d43162eefc1a4e9a35b92c2b83148e8c696c781a0",
+          "bytes": 13632,
+          "triangulos": 252,
+          "drawCalls": 1,
+          "texturas": [
+            {
+              "nombre": "furniturebits_texture",
+              "ancho": 256,
+              "alto": 256,
+              "formato": "etc1s",
+              "alfa": false,
+              "bytesGpu": 43581
+            }
+          ]
+        },
+        {
           "archivo": "salas/s4-biblioteca/caja-devoluciones.74b1051d.glb",
           "sha256": "74b1051d85eb5de23ce393587cadc1079f2ec8d41aef6747a1e17eafd39ae1d7",
           "bytes": 14064,
@@ -1210,23 +1227,6 @@
           "sha256": "10864fc334068d48fd18a44b85d311c52af4f31374ffba7f2f06dae310612de0",
           "bytes": 83444,
           "triangulos": 3744,
-          "drawCalls": 1,
-          "texturas": [
-            {
-              "nombre": "furniturebits_texture",
-              "ancho": 256,
-              "alto": 256,
-              "formato": "etc1s",
-              "alfa": false,
-              "bytesGpu": 43581
-            }
-          ]
-        },
-        {
-          "archivo": "salas/s4-biblioteca/libro.bd104ada.glb",
-          "sha256": "bd104ada55cd2fc2cfb3210211c0c3be788b4b12bd254d2c12fa816a92368b39",
-          "bytes": 11568,
-          "triangulos": 68,
           "drawCalls": 1,
           "texturas": [
             {
@@ -1329,9 +1329,9 @@
         }
       ],
       "totales": {
-        "bytes": 447188,
+        "bytes": 449252,
         "bytesAudio": 115245,
-        "triangulos": 17748,
+        "triangulos": 17932,
         "drawCalls": 10,
         "bytesGpu": 435810
       }
