@@ -660,10 +660,10 @@
     "evidencia": "art/evidencia/kaykit-furniture-bits.png"
   },
   {
-    "archivo": "public/assets/salas/s4-biblioteca/libro.glb",
+    "archivo": "public/assets/salas/s4-biblioteca/cactus.glb",
     "sala": "s4-biblioteca",
     "tipo": "modelo",
-    "titulo": "book_single (Furniture Bits)",
+    "titulo": "cactus_small_A (Furniture Bits)",
     "autor": "Kay Lousberg",
     "fuente": "kaykit",
     "url": "https://kaylousberg.itch.io/furniture-bits",

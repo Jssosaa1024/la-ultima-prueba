@@ -1403,14 +1403,14 @@
         "modelo": "estante-m"
       },
       {
-        "id": "s4-libro-m",
-        "nombre": "Libro que sobresale del estante M",
+        "id": "s4-cactus",
+        "nombre": "Cactus del estante M",
         "forma": "caja",
-        "tam": [0.25, 0.34, 0.14],
-        "pos": [-4.435, 1.41, 1.5],
-        "color": "#c0392b",
+        "tam": [0.2, 0.26, 0.2],
+        "pos": [-4.45, 1.41, 1.5],
+        "color": "#5f8f4e",
         "accion": "usar",
-        "modelo": "libro"
+        "modelo": "cactus"
       },
       {
         "id": "s4-casilleros",

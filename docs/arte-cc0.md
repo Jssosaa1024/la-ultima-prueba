@@ -289,8 +289,8 @@ Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen se
 | --- | --- | --- | --- | --- |
 | `s4-puerta` | Restaurant · `door_A` | 188 | `puerta` | La misma de las otras salas |
 | `s4-estante-1` · 0,5 × 2,2 × 2,5 | Furniture · 2 `cabinet_medium`, 6 repisas `shelf_B`, 8 `book_set` | 4.236 | `estante-a` | Mueble bajo con repisas llenas de libros, de lado contra la pared oeste |
-| `s4-estante-m` · 0,5 × 2,2 × 2 | Furniture · `cabinet_medium` + `cabinet_small`, repisas y libros | 3.744 | `estante-m` | Con el hueco del libro M en la fila 2 |
-| `s4-libro-m` | Furniture · `book_single` | 68 | `libro` | Sobresale 18 cm de su fila, con el lomo hacia la sala |
+| `s4-estante-m` · 0,5 × 2,2 × 2 | Furniture · `cabinet_medium` + `cabinet_small`, repisas y libros | 3.744 | `estante-m` | Con un hueco en la fila 2, donde va el cactus |
+| `s4-cactus` (25 de noviembre) | Furniture · `cactus_small_A` | — | `cactus` | En el hueco de la fila 2 del estante M; guarda la grabación 3. Reemplaza al libro M (`book_single`), que se quitó |
 | `s4-casilleros` · 4 × 2 × 0,5 | Restaurant · `kitchencabinet` × 6 | 936 | `casilleros` | |
 | `s4-mostrador` · 2,4 × 1 × 0,7 | Furniture · `cabinet_medium` × 2 | 856 | `mostrador` | |
 | `s4-caja-devoluciones` | Restaurant · `crate` | 132 | `caja-devoluciones` | |
@@ -302,7 +302,7 @@ Hecha en T19n, toda con KayKit (Furniture Bits y Restaurant Bits). El resumen se
 Nuevo: una alfombra vinotinto bajo el rincón de lectura (va en la malla fija; desde la sesión B es una pieza por código, ver abajo).
 
 - **Superficies:** parqué (WoodFloor071) con tinte claro, pañete crema y techo de oficina.
-- **Acabados:** zócalo verde con franja ocre; la lámpara del oeste titila (alumbra el estante M y el libro), la del centro está encendida (carritos y pila) y la del mostrador, apagada; dos ventanas de noche en la pared norte, con luna en la del este.
+- **Acabados:** zócalo verde con franja ocre; la lámpara del oeste titila (alumbra el estante M y su cactus), la del centro está encendida (carritos y pila) y la del mostrador, apagada; dos ventanas de noche en la pared norte, con luna en la del este.
 - **Luz:** cielo azul de luna y relleno neutro; la direccional entra desde el sureste.
 - **Medidas:** 10 GLB, 17.748 triángulos, 0,44 MB. Prueba del cooperativo: 39 de 40. Cada estante se armó con 16 piezas como máximo (el límite de `optimize-models`), solo con las repisas de adelante.
 

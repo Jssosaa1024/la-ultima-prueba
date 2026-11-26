@@ -84,7 +84,9 @@ describe('contenido de las grabaciones', () => {
       expect(esObjetoSuelto(id), id).toBe(false);
     }
     expect(esObjetoSuelto('s2-gabinete')).toBe(true);
-    expect(esObjetoSuelto('s4-libro-m')).toBe(true);
+    expect(esObjetoSuelto('s4-cactus')).toBe(true);
+    // Correcciones del 25 de noviembre: el libro M ya no existe; la grabación está en el cactus.
+    expect(objeto('s4-libro-m')).toBeUndefined();
   });
 
   it('la linterna existe en la portería y se recoge', () => {
@@ -191,9 +193,9 @@ describe('controlador: recoger las grabaciones', () => {
     expect(panel.value).toBe('grabacion');
   });
 
-  it('el libro del estante M entrega la grabación 3', () => {
+  it('el cactus del estante M entrega la grabación 3', () => {
     continuarEn('s4-biblioteca', ['grab-1', 'grab-2']);
-    usar('s4-libro-m');
+    usar('s4-cactus');
     expect(grabaciones.value).toEqual(['grab-1', 'grab-2', 'grab-3']);
     expect(panel.value).toBe('grabacion');
     // Con las tres ya no falta ninguna para «Restaurar archivo».

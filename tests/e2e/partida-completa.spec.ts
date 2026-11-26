@@ -27,7 +27,7 @@ type SalaId = (typeof SALAS)[number];
 const ESCONDITES: Partial<Record<SalaId, string>> = {
   's2-laboratorio': 's2-gabinete',
   's3-gimnasio': 's3-balon-3',
-  's4-biblioteca': 's4-libro-m',
+  's4-biblioteca': 's4-cactus',
 };
 
 const prefijo = (sala: SalaId): string => sala.slice(0, 2);
