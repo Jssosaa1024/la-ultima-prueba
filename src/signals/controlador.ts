@@ -68,6 +68,7 @@ import {
 import {
   condiciones,
   etapa,
+  falloEnVivo,
   maquinaResuelta,
   mecanismo,
   pistas,
@@ -321,6 +322,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         reposos[s] = r.reposo;
         if (r.intento) {
           e = contarIntento(e, puzzle);
+          // La máquina quedó quieta mostrando un resultado que no resuelve: suena el error.
+          falloEnVivo.value++;
         } else if (!r.reposo.pendiente) {
           // Se cumplió el reposo sin contar intento: o los ajustes resuelven la etapa, o
           // todavía no forman un resultado (libros sin repartir).

@@ -11,6 +11,13 @@ export interface AnimacionSala {
   /** En qué va la máquina, en una palabra. Para las pruebas e2e (`data-maquina` del canvas). */
   readonly estado: string;
   /**
+   * La máquina se está moviendo por lo último que respondió (una impresión, una corrida, las
+   * sombras que se acomodan, la mano de la urna) o abre lo que guarda el sello. Con eso el
+   * sonido de acierto o de error espera a que termine (corrección del 25 de noviembre). Sin
+   * máquina, falso.
+   */
+  readonly animando?: boolean;
+  /**
    * Lo demás que se anima en la sala y no es su máquina (las flechas del laboratorio), en una
    * palabra. Para las pruebas e2e (`data-detalle` del canvas).
    */

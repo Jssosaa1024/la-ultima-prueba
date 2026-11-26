@@ -47,35 +47,35 @@ export function lineasDeLugar(lugar: string): string[] {
   }).map((l) => l.id);
 }
 /**
- * Cuánto esperan algunos efectos desde que responde la máquina, en segundos: el sello, a que
- * termine la máquina; la imprenta, a que la palanca de la etiquetadora llegue abajo (T42c).
+ * Cuánto esperan algunos efectos desde que responde la máquina, en segundos: la imprenta, a
+ * que la palanca de la etiquetadora llegue abajo (T42c). El acierto, el error y el sello
+ * esperan a que la máquina termine de moverse (`retroalimentacion.ts`).
  */
-export const RETRASOS: Partial<Record<NombreEfecto, number>> = { sello: 0.45, imprenta: 0.36 };
+export const RETRASOS: Partial<Record<NombreEfecto, number>> = { imprenta: 0.36 };
 
-/** Qué suena cuando responde la máquina de cada puzzle. */
+/**
+ * Qué suena cuando responde la máquina de cada puzzle, en ese momento. El acierto o el error
+ * y el sello suenan después, cuando la máquina termina de moverse (`retroalimentacion.ts`).
+ */
 export function efectosDeResultado(r: ResultadoMecanismo): NombreEfecto[] {
-  const maquina = ((): NombreEfecto[] => {
-    switch (r.puzzle) {
-      case 's1-etiquetadora':
-        // La palanca baja y la etiqueta se imprime (T42c).
-        return ['palanca', 'imprenta'];
-      case 's2-tanques':
-        // La campana (y el sello) suenan al final de la corrida: los pide la animación.
-        return ['palanca'];
-      case 's3-reflector':
-        // Las dos primeras etapas responden solas (reposo); la tercera es la polea.
-        return r.etapa === 2 ? ['polea'] : ['clic'];
-      case 's5-urna':
-        return ['manija', 'fichas'];
-      case 's4-carritos':
-        // Con las cuatro lámparas en verde, la pared de casilleros se abre (T42c).
-        return r.sello ? ['clic', 'casilleros'] : ['clic'];
-      default:
-        return ['clic'];
-    }
-  })();
-  // En los tanques, el sello espera a la campana (lo pide su animación).
-  return r.sello && r.puzzle !== 's2-tanques' ? [...maquina, 'sello'] : maquina;
+  switch (r.puzzle) {
+    case 's1-etiquetadora':
+      // La palanca baja y la etiqueta se imprime (T42c).
+      return ['palanca', 'imprenta'];
+    case 's2-tanques':
+      // La campana suena al final de la corrida: la pide la animación.
+      return ['palanca'];
+    case 's3-reflector':
+      // Las dos primeras etapas responden solas (reposo); la tercera es la polea.
+      return r.etapa === 2 ? ['polea'] : ['clic'];
+    case 's5-urna':
+      return ['manija', 'fichas'];
+    case 's4-carritos':
+      // Con las cuatro lámparas en verde, la pared de casilleros se abre (T42c).
+      return r.sello ? ['clic', 'casilleros'] : ['clic'];
+    default:
+      return ['clic'];
+  }
 }
 
 export interface OpcionesAudio {
