@@ -34,12 +34,32 @@ test('la etiquetadora suena al usarla y al imprimir; con el sello, la registrado
   await expect(canvas).toHaveAttribute('data-sonidos', /(^| )clac( |$)/);
   const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
   await panel.getByRole('button', { name: 'Bajar la palanca' }).click();
-  // La palanca, la imprenta, el arpegio del sello y, cuando termina la impresión, la campanita
-  // del cajón de la registradora. La Voz puede hablar en medio.
+  // La palanca y la imprenta; cuando termina la impresión, la campanita del cajón de la
+  // registradora; con la máquina quieta, el acierto y, después, el arpegio del sello
+  // (corrección del 25 de noviembre). La Voz puede hablar en medio.
   await expect(canvas).toHaveAttribute(
     'data-sonidos',
-    /(^| )palanca imprenta sello( .*)? registradora( |$)/,
+    /(^| )palanca imprenta( .*)? registradora( .*)? acierto( .*)? sello( |$)/,
   );
+});
+
+test('una etapa que no se resuelve suena con el error, después de la impresión', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  // Primera etapa con un rodillo que sube el precio: imprime, pero no la etiqueta pedida.
+  const caja = await continuarEn(page, {
+    sala: 's1-cooperativa',
+    ajustes: { producto: 'jugo', precio: 2000, rodillos: [20] },
+  });
+  const canvas = page.getByLabel('Escena del juego');
+  await expect(canvas).toHaveAttribute('data-audio', 'listo');
+  await tocarObjeto(page, caja, ETIQUETADORA, conDedo, /Usar.*Etiquetadora/);
+  await page.getByRole('button', { name: /Usar.*Etiquetadora/ }).click();
+  const panel = page.getByRole('dialog', { name: 'La etiquetadora' });
+  await panel.getByRole('button', { name: 'Bajar la palanca' }).click();
+  await expect(canvas).toHaveAttribute('data-sonidos', /(^| )palanca imprenta( .*)? error( |$)/);
+  expect(await canvas.getAttribute('data-sonidos')).not.toMatch(/(^| )(acierto|sello)( |$)/);
 });
 
 test('la registradora suena con sus teclas al usarla', async ({ page }, info) => {

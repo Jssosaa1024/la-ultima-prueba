@@ -135,6 +135,36 @@ export const sello: Efecto = (c, d, t) => {
   return NOTAS_SELLO.length * 0.11 + 0.7;
 };
 
+// --- Retroalimentación de cada etapa (corrección del 25 de noviembre). -----------------
+
+/** Notas del acierto: dos tonos que suben (la, mi). Más corto y más agudo que el sello. */
+export const NOTAS_ACIERTO = [880, 1318.5];
+
+/** La etapa quedó resuelta: dos tonos claros que suben. */
+export const acierto: Efecto = (c, d, t) => {
+  NOTAS_ACIERTO.forEach((f, i) => {
+    tono(c, d, t + i * 0.1, { frecuencia: f, tipo: 'triangle', pico: 0.3, dura: 0.28 });
+  });
+  return 0.1 * (NOTAS_ACIERTO.length - 1) + 0.28;
+};
+
+/** Notas del error: dos tonos graves que bajan (mi bemol, si bemol). Suaves: no regañan. */
+export const NOTAS_ERROR = [311.1, 233.1];
+
+/** La máquina respondió, pero la etapa no quedó resuelta: dos tonos graves y suaves. */
+export const error: Efecto = (c, d, t) => {
+  NOTAS_ERROR.forEach((f, i) => {
+    tono(c, d, t + i * 0.16, {
+      frecuencia: f,
+      hasta: f * 0.94,
+      tipo: 'triangle',
+      pico: 0.32,
+      dura: 0.22,
+    });
+  });
+  return 0.16 * (NOTAS_ERROR.length - 1) + 0.22;
+};
+
 // --- La rectoría (sala 5): la urna, la mano mecánica y la caja fuerte. -------------------
 
 /** La manija de la urna: un trinquete de seis dientes. */
@@ -322,6 +352,8 @@ export const EFECTOS = {
   campana,
   polea: reforzado(polea, 3),
   sello,
+  acierto: reforzado(acierto, 1.6),
+  error: reforzado(error, 1.8),
   manija: reforzado(manija, 3),
   fichas: reforzado(fichas, 4),
   mano: reforzado(mano, 2),

@@ -285,6 +285,11 @@ export function animarUrna(raiz: Object3D, azar: () => number = Math.random): An
         if (panel.peek() === null) empezarSiHayPendiente();
       }
     },
+    get animando() {
+      // Solo mientras la mano juega: con el panel encima espera, y el panel ya muestra lo
+      // que salió.
+      return tiempo !== null;
+    },
     get estado() {
       return estado;
     },

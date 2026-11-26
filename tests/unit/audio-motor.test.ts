@@ -296,14 +296,16 @@ describe('qué suena cuando responde una máquina', () => {
     sello,
   });
 
-  it('palanca, polea, manija y clic según la máquina; el sello al final', () => {
+  it('palanca, polea, manija y clic según la máquina; el sello no suena con ellos', () => {
     expect(efectosDeResultado(r('s1-etiquetadora'))).toEqual(['palanca', 'imprenta']);
     expect(efectosDeResultado(r('s3-reflector', 0))).toEqual(['clic']);
-    expect(efectosDeResultado(r('s3-reflector', 2, true))).toEqual(['polea', 'sello']);
+    // Corrección del 25 de noviembre: el sello suena después del acierto, cuando la máquina
+    // termina de moverse (`retroalimentacion.ts`).
+    expect(efectosDeResultado(r('s3-reflector', 2, true))).toEqual(['polea']);
     expect(efectosDeResultado(r('s4-carritos'))).toEqual(['clic']);
     // T42c: con el sello de la biblioteca se abre la pared de casilleros.
-    expect(efectosDeResultado(r('s4-carritos', 2, true))).toEqual(['clic', 'casilleros', 'sello']);
-    expect(efectosDeResultado(r('s5-urna', 2, true))).toEqual(['manija', 'fichas', 'sello']);
+    expect(efectosDeResultado(r('s4-carritos', 2, true))).toEqual(['clic', 'casilleros']);
+    expect(efectosDeResultado(r('s5-urna', 2, true))).toEqual(['manija', 'fichas']);
   });
 
   it('en los tanques el sello espera a la campana: no suena con la palanca', () => {
@@ -344,8 +346,9 @@ describe('iniciarAudio', () => {
       resuelta: true,
       sello: true,
     };
-    // Entrar a la sala jugando abre su puerta (T42c).
-    expect(sonidos).toEqual(['puerta', 'palanca', 'imprenta', 'sello']);
+    // Entrar a la sala jugando abre su puerta (T42c). El acierto y el sello esperan a la
+    // máquina: los pide el motor (`retroalimentacion.ts`).
+    expect(sonidos).toEqual(['puerta', 'palanca', 'imprenta']);
 
     sonar('mano');
     expect(sonidos.at(-1)).toBe('mano');

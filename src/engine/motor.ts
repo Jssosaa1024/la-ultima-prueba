@@ -29,6 +29,8 @@ import {
 } from '../debug/metricas';
 import type { MedidorMotor } from '../debug/medidor';
 import { iniciarAudio } from './audio/audio';
+import { sonar } from './audio/eventos';
+import { crearRetroalimentacion, escucharRetroalimentacion } from './audio/retroalimentacion';
 import type { Companeros } from './coop/companeros';
 import { crearInteraccion } from './interaccion/interaccion';
 import type { Interaccion } from './interaccion/interaccion';
@@ -140,6 +142,10 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
   let interaccion: Interaccion | null = null;
   // La máquina de la sala se opera en su panel 2D; en la escena solo anima lo que pasó (T45).
   let animacion: AnimacionSala | null = null;
+  // El acierto o el error de cada etapa suenan cuando la máquina termina de moverse
+  // (corrección del 25 de noviembre).
+  const retroalimentacion = crearRetroalimentacion(sonar);
+  const dejarDeEscucharRetroalimentacion = escucharRetroalimentacion(retroalimentacion);
   // Pasillos: en la portería con su pasillo solo se dibuja lo que se ve desde donde está el
   // jugador (`vista-por-celdas.ts`).
   let vista: VistaPorCeldas | null = null;
@@ -380,6 +386,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
           canvas.dataset['detalle'] = detalle;
         }
       }
+      retroalimentacion.actualizar(dt, animacion?.animando ?? false);
       publicarJoystick(entrada);
       dibujar();
       medirRendimiento(dt);
@@ -474,6 +481,7 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     medidor?.liberar();
     medidor = null;
     detenerAudio();
+    dejarDeEscucharRetroalimentacion();
     dejarDeSeguirAudio();
     desconectarTactil();
     desconectarEscritorio();

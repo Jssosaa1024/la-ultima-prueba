@@ -32,6 +32,9 @@ export function conDetalle(maquina: AnimacionSala, extra: AnimacionSala): Animac
     get estado() {
       return maquina.estado;
     },
+    get animando() {
+      return maquina.animando ?? false;
+    },
     get detalle() {
       return extra.estado;
     },
@@ -55,6 +58,9 @@ export function conAmbiente(maquina: AnimacionSala, ambiente: AnimacionSala): An
     },
     get estado() {
       return maquina.estado;
+    },
+    get animando() {
+      return maquina.animando ?? false;
     },
     liberar() {
       maquina.liberar();
