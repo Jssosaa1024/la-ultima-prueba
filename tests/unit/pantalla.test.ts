@@ -29,24 +29,34 @@ describe('debeGirar (T41b)', () => {
 
 describe('areaVisible (corrección del 25 de noviembre: pantalla corrida)', () => {
   it('sin zoom, el juego toma el tamaño de lo que se ve', () => {
-    expect(areaVisible({ width: 851, height: 393, scale: 1 }, false)).toEqual({
+    expect(
+      areaVisible({ width: 851, height: 393, offsetLeft: 0, offsetTop: 0, scale: 1 }, false),
+    ).toEqual({
       ancho: 851,
       alto: 393,
+      izquierda: 0,
+      arriba: 0,
     });
-    expect(areaVisible({ width: 850.6, height: 360.4, scale: 1 }, false)).toEqual({
-      ancho: 851,
-      alto: 360,
-    });
+    // Lo visible quedó corrido 33 px hacia abajo: el juego se corre con ello.
+    expect(
+      areaVisible({ width: 850.6, height: 360.4, offsetLeft: 0, offsetTop: 32.7, scale: 1 }, false),
+    ).toEqual({ ancho: 851, alto: 360, izquierda: 0, arriba: 33 });
   });
 
   it('sin visualViewport, con zoom o escribiendo se deja el CSS de siempre', () => {
     expect(areaVisible(null, false)).toBeNull();
-    expect(areaVisible({ width: 425, height: 196, scale: 2 }, false)).toBeNull();
+    expect(
+      areaVisible({ width: 425, height: 196, offsetLeft: 10, offsetTop: 10, scale: 2 }, false),
+    ).toBeNull();
     // El teclado achica lo visible: el formulario no debe encogerse por eso.
-    expect(areaVisible({ width: 851, height: 150, scale: 1 }, true)).toBeNull();
+    expect(
+      areaVisible({ width: 851, height: 150, offsetLeft: 0, offsetTop: 0, scale: 1 }, true),
+    ).toBeNull();
   });
 
   it('un tamaño vacío no se usa', () => {
-    expect(areaVisible({ width: 0, height: 393, scale: 1 }, false)).toBeNull();
+    expect(
+      areaVisible({ width: 0, height: 393, offsetLeft: 0, offsetTop: 0, scale: 1 }, false),
+    ).toBeNull();
   });
 });

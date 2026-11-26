@@ -122,6 +122,7 @@ test('al volver a la página después de girar, el juego cubre justo lo que se v
     if (!juego) throw new Error('sin .juego');
     juego.style.setProperty('--alto-visible', '900px');
     juego.style.setProperty('--ancho-visible', '1200px');
+    juego.style.setProperty('--arriba-visible', '-120px');
     document.dispatchEvent(new Event('visibilitychange'));
   });
 

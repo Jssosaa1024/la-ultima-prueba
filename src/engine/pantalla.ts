@@ -23,12 +23,14 @@ function esTactil(): boolean {
 export interface VistaVisible {
   width: number;
   height: number;
+  offsetLeft: number;
+  offsetTop: number;
   scale: number;
 }
 
 /**
- * Tamaño en píxeles CSS que debe tener el contenedor del juego para cubrir justo lo que se ve
- * (corrección del 25 de noviembre: pantalla corrida al volver al navegador).
+ * Tamaño y posición en píxeles CSS que debe tener el contenedor del juego para cubrir justo lo
+ * que se ve (corrección del 25 de noviembre: pantalla corrida al volver al navegador).
  *
  * `null` deja el CSS de siempre (`inset: 0`): sin `visualViewport`, con zoom (escala distinta
  * de 1) o mientras el jugador escribe, porque el teclado achica lo visible y el formulario no
@@ -37,13 +39,18 @@ export interface VistaVisible {
 export function areaVisible(
   vista: VistaVisible | null,
   escribiendo: boolean,
-): { ancho: number; alto: number } | null {
+): { ancho: number; alto: number; izquierda: number; arriba: number } | null {
   if (!vista || escribiendo) return null;
   if (Math.abs(vista.scale - 1) > 0.01) return null;
   const ancho = Math.round(vista.width);
   const alto = Math.round(vista.height);
   if (ancho <= 0 || alto <= 0) return null;
-  return { ancho, alto };
+  return {
+    ancho,
+    alto,
+    izquierda: Math.round(vista.offsetLeft),
+    arriba: Math.round(vista.offsetTop),
+  };
 }
 
 /** Hay un campo de texto con el foco (el teclado del celular puede estar abierto). */
@@ -59,9 +66,11 @@ function escribiendo(): boolean {
  * Al salir del navegador en pantalla completa y volver (sobre todo si el teléfono se giró
  * mientras tanto), el navegador puede dejar la página desplazada o con la ventana de diseño
  * de otro tamaño que la parte visible. Como la página no tiene scroll, el jugador no puede
- * corregirlo y queda un pedazo del juego por fuera. Aquí, al volver a la página, al girar, al
- * salir de pantalla completa y cuando cambia lo visible: se quita cualquier desplazamiento y
- * el contenedor toma el tamaño de `visualViewport`. Se repite en los cuadros siguientes porque
+ * corregirlo y queda un pedazo del juego por fuera (hasta ahora se arreglaba saliendo y
+ * volviendo a entrar a pantalla completa, que obliga al navegador a medir de nuevo). Aquí, al
+ * volver a la página, al girar, al entrar o salir de pantalla completa y cuando cambia lo
+ * visible: se quita cualquier desplazamiento y el contenedor toma el tamaño y la posición de
+ * `visualViewport`, que es lo que de verdad se ve. Se repite en los cuadros siguientes porque
  * algunos navegadores avisan del giro antes de tener las medidas nuevas.
  * Devuelve una función para detenerlo.
  */
@@ -78,9 +87,10 @@ export function seguirAreaVisible(contenedor: HTMLElement): () => void {
     if (area) {
       contenedor.style.setProperty('--ancho-visible', `${area.ancho}px`);
       contenedor.style.setProperty('--alto-visible', `${area.alto}px`);
+      contenedor.style.setProperty('--izquierda-visible', `${area.izquierda}px`);
+      contenedor.style.setProperty('--arriba-visible', `${area.arriba}px`);
     } else {
-      contenedor.style.removeProperty('--ancho-visible');
-      contenedor.style.removeProperty('--alto-visible');
+      quitarVariables(contenedor);
     }
   };
 
@@ -118,9 +128,20 @@ export function seguirAreaVisible(contenedor: HTMLElement): () => void {
     window.removeEventListener('resize', ajustarYRepetir);
     vista?.removeEventListener('resize', ajustarYRepetir);
     vista?.removeEventListener('scroll', ajustar);
-    contenedor.style.removeProperty('--ancho-visible');
-    contenedor.style.removeProperty('--alto-visible');
+    quitarVariables(contenedor);
   };
+}
+
+/** Sin variables, el contenedor vuelve al CSS de siempre: toda la ventana. */
+function quitarVariables(contenedor: HTMLElement): void {
+  for (const v of [
+    '--ancho-visible',
+    '--alto-visible',
+    '--izquierda-visible',
+    '--arriba-visible',
+  ]) {
+    contenedor.style.removeProperty(v);
+  }
 }
 
 /**
