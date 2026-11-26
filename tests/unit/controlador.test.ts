@@ -11,7 +11,9 @@ import {
   type Almacen,
   type Guardado,
 } from '../../src/game/guardado';
+import { estadoFallido, MS_MIRAR } from '../../src/game/intentos';
 import { aplicar, crearPartida, type Accion } from '../../src/game/partida';
+import { estadosPosibles } from '../../src/game/puzzles/estados';
 import {
   iniciarControlador,
   OBJETO_CUADERNO,
@@ -983,6 +985,36 @@ describe('controlador: órdenes de los mecanismos (T31d)', () => {
       expect(etapa.value?.etapa).toBe(1);
     });
 
+    it('quien mueve un libro cada 3 s recibe la primera pista al tercer reparto que no sirve', () => {
+      // Correcciones del 25 de noviembre: Alex jugó la sala 4 y no vio ninguna pista. Con el
+      // intento a los 5 s, este jugador solo la recibía a los dos minutos de la etapa.
+      entrarALaBiblioteca();
+      resolverEtapa(s4, 0);
+      const repartos = [
+        [5, 4, 4, 4, 3],
+        [5, 5, 4, 3, 3],
+        [6, 5, 4, 3, 2],
+      ];
+      for (const carritos of repartos) {
+        expect(pistas.value.ofrecidas).toBe(0);
+        ajustar({ carritos });
+        avanzar(3_000);
+      }
+      expect(pistas.value).toEqual({ ofrecidas: 1, vistas: 0 });
+      expect(etapa.value?.etapa).toBe(1);
+    });
+
+    it('la primera etapa no puede fallar: su pista llega por tiempo', () => {
+      entrarALaBiblioteca();
+      // Con los 20 libros repartidos la media siempre es 4: no hay reparto completo que falle.
+      const e = s4.etapas[0];
+      if (!e) throw new Error('falta la etapa');
+      expect([...estadosPosibles(s4, 0)].some((x) => estadoFallido(s4, 0, x))).toBe(false);
+      ajustar({ carritos: [10, 0, 0, 0, 0] });
+      avanzar((s4.pistas[0]?.tras_segundos ?? 0) * 1000);
+      expect(pistas.value.ofrecidas).toBe(1);
+    });
+
     it('con libros sin repartir no cuenta intento, y en pausa el reposo no avanza', () => {
       entrarALaBiblioteca();
       resolverEtapa(s4, 0);
@@ -1000,6 +1032,32 @@ describe('controlador: órdenes de los mecanismos (T31d)', () => {
       avanzar(reposo);
       expect(etapa.value?.etapa).toBe(2);
     });
+  });
+
+  // Correcciones del 25 de noviembre: en cada sala, tres intentos que no resuelven ofrecen la
+  // primera pista, sea la máquina de accionar o de las que responden en vivo.
+  it.each([1, 2, 3, 4, 5])('sala %i: tres intentos fallidos ofrecen la primera pista', (n) => {
+    jugar();
+    for (let m = 1; m < n; m++) {
+      usar('porteria-puerta-' + String(m));
+      for (const e of [0, 1, 2]) resolverEtapa(puzzle(m), e);
+      usar('s' + String(m) + '-puerta');
+    }
+    usar('porteria-puerta-' + String(n));
+    const p = puzzle(n);
+    // La primera etapa en la que se puede fallar (en la sala 4, la segunda).
+    let e = 0;
+    while (![...estadosPosibles(p, e)].some((x) => estadoFallido(p, e, x))) resolverEtapa(p, e++);
+    expect(etapa.value?.etapa).toBe(e);
+    const fallidos = [...estadosPosibles(p, e)].filter((x) => estadoFallido(p, e, x)).slice(0, 3);
+    for (const estado of fallidos) {
+      expect(pistas.value.ofrecidas).toBe(0);
+      ajustar(estado);
+      const regla = p.etapas[e]?.intento;
+      if (regla?.tipo === 'accionar') accionarMaquina(regla.objeto);
+      else avanzar(MS_MIRAR);
+    }
+    expect(pistas.value).toEqual({ ofrecidas: 1, vistas: 0 });
   });
 
   it('una partida completa: cinco sellos y la puerta de salida deja salir', () => {

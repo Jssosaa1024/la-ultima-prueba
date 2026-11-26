@@ -116,3 +116,44 @@ test('dominar: con las cuatro lámparas encendidas se gana el sello de la sala 4
   await expect(page.getByRole('img', { name: 'Sellos: 4 de 5' })).toBeVisible();
   await expect(page.getByLabel('Escena del juego')).toHaveAttribute('data-maquina', 'lamparas-4');
 });
+
+// Correcciones del 25 de noviembre: Alex jugó la sala 4 y no vio ninguna pista. Ahora cada
+// reparto que no sirve cuenta como intento a los 3 s de mirarlo, y al tercero sale la pista.
+test('torcer: al tercer reparto que no sirve se ofrece la primera pista y se puede abrir', async ({
+  page,
+}, info) => {
+  const conDedo = info.project.use.hasTouch === true;
+  const panel = await abrirCarritos(page, conDedo, 1, [4, 4, 4, 4, 4]);
+  await expect(panel).toContainText('Sala 4 · Etapa 2 de 3');
+  await expect(panel.getByRole('button', { name: 'Pista nueva' })).toHaveCount(0);
+
+  // Tres movimientos que dejan la mediana en 4. Entre uno y otro, el jugador mira las lámparas.
+  const movimientos: [string, string, RegExp][] = [
+    ['lunes', 'viernes', /5 libros/],
+    ['martes', 'viernes', /6 libros/],
+    ['jueves', 'lunes', /4 libros/],
+  ];
+  for (const [de, a, quedan] of movimientos) {
+    await lugar(panel, `Carrito del ${de}`).click();
+    await lugar(panel, `Carrito del ${a}`).click();
+    await expect(lugar(panel, `Carrito del ${a}`)).toHaveAccessibleName(quedan);
+    await page.waitForTimeout(3_500);
+  }
+
+  // La pista se avisa en la barra de abajo del panel, que se ve sin desplazarse, y no se abre
+  // sola: antes solo salía al final del panel, fuera de la pantalla del celular.
+  const aviso = panel.getByRole('button', { name: 'Pista nueva' });
+  await expect(aviso).toBeInViewport({ timeout: 15_000 });
+  await expect(panel).toContainText('Pistas (0 de 3 abiertas)');
+  await expect(panel).toContainText('Sala 4 · Etapa 2 de 3');
+  await page.screenshot({ path: info.outputPath('pista-ofrecida.png') });
+  await aviso.click();
+  await expect(panel.getByText('Mueve un libro de un carrito a otro.')).toBeInViewport();
+  await expect(panel).toContainText('Pistas (1 de 3 abiertas)');
+  await expect(aviso).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('pista-abierta.png') });
+
+  // Al cerrar el panel, el HUD guarda el botón para releerla.
+  await panel.getByRole('button', { name: 'Cerrar' }).first().click();
+  await expect(page.getByRole('button', { name: 'Pistas', exact: true })).toBeVisible();
+});

@@ -16,6 +16,7 @@ import {
   alCambiarEstado,
   avanzarReposo,
   intentoAlAccionar,
+  msParaReposo,
   reglaDeIntento,
   type Reposo,
 } from '../game/intentos';
@@ -319,9 +320,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       if (quieto?.pendiente && estado !== undefined) {
         const r = avanzarReposo(puzzle, n, estado, quieto, ms);
         reposos[s] = r.reposo;
-        if (r.intento) {
-          e = contarIntento(e, puzzle);
-        } else if (!r.reposo.pendiente) {
+        if (r.intento) e = contarIntento(e, puzzle);
+        if (!r.reposo.pendiente) {
           // Se cumplió el reposo sin contar intento: o los ajustes resuelven la etapa, o
           // todavía no forman un resultado (libros sin repartir).
           const evaluacion = evaluar(puzzle, n, estado);
@@ -440,12 +440,11 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       if (!esperas.has(`${actual.sala}:${actual.etapa}`)) {
         espera = Math.min(espera, ESPERA_VOZ_MS - msSinTocar);
       }
-      // En las etapas que responden en vivo, el momento en que se cumple el reposo.
-      const regla = reglaDeIntento(actual.puzzle, actual.etapa);
+      // En las etapas que responden en vivo, el momento en que se mira el resultado (y cuenta
+      // el intento) o en que se cumple el reposo.
       const quieto = reposos[actual.sala];
-      if (regla?.tipo === 'reposo' && quieto?.pendiente) {
-        espera = Math.min(espera, regla.segundos * 1000 - quieto.msQuieto);
-      }
+      const reposo = quieto ? msParaReposo(actual.puzzle, actual.etapa, quieto) : null;
+      if (reposo !== null) espera = Math.min(espera, reposo);
     }
     temporizador = setTimeout(alVencer, Math.max(0, Math.ceil(espera)));
   }
