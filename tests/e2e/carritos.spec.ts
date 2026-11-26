@@ -127,18 +127,15 @@ test('torcer: al tercer reparto que no sirve se ofrece la primera pista y se pue
   await expect(panel).toContainText('Sala 4 · Etapa 2 de 3');
   await expect(panel.getByRole('button', { name: 'Pista nueva' })).toHaveCount(0);
 
-  // Tres movimientos que dejan la mediana en 4. Entre uno y otro, el jugador mira las lámparas.
-  const movimientos: [string, string, RegExp][] = [
-    ['lunes', 'viernes', /5 libros/],
-    ['martes', 'viernes', /6 libros/],
-    ['jueves', 'lunes', /4 libros/],
-  ];
-  for (const [de, a, quedan] of movimientos) {
-    await lugar(panel, `Carrito del ${de}`).click();
-    await lugar(panel, `Carrito del ${a}`).click();
-    await expect(lugar(panel, `Carrito del ${a}`)).toHaveAccessibleName(quedan);
+  // Tres libros del lunes al viernes: la mediana sigue en 4. El carrito de origen queda
+  // elegido entre un libro y otro. Entre uno y otro, el jugador mira las lámparas.
+  await lugar(panel, 'Carrito del lunes').click();
+  for (const quedan of [/5 libros/, /6 libros/, /7 libros/]) {
+    await lugar(panel, 'Carrito del viernes').click();
+    await expect(lugar(panel, 'Carrito del viernes')).toHaveAccessibleName(quedan);
     await page.waitForTimeout(3_500);
   }
+  await expect(lugar(panel, 'Carrito del lunes')).toHaveAccessibleName(/1 libro\./);
 
   // La pista se avisa en la barra de abajo del panel, que se ve sin desplazarse, y no se abre
   // sola: antes solo salía al final del panel, fuera de la pantalla del celular.
