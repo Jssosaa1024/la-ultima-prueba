@@ -108,19 +108,26 @@ describe('laboratorio: las piezas de la máquina conservan su tamaño', () => {
   const sala = construirSala(salaPorId('s2-laboratorio'));
   pulirLaboratorio(sala.raiz);
 
-  it('perillas de 14 cm, palanca de 40 cm y campana de 25 cm', () => {
-    const verde = medidas(sala.raiz.getObjectByName('s2-perilla-verde'));
-    expect(verde[0]).toBeCloseTo(0.14, 2);
-    expect(verde[1]).toBeCloseTo(0.0725, 2);
-    const palanca = medidas(sala.raiz.getObjectByName('s2-palanca'));
-    expect(palanca[1]).toBeCloseTo(0.404, 2);
+  it('tableros del tamaño de su caja, palancas de 40 cm y campana de 25 cm', () => {
+    for (const [id, ancho] of [
+      ['s2-tablero-1', 0.9],
+      ['s2-tablero-2', 1.8],
+      ['s2-tablero-3', 1.8],
+    ] as const) {
+      const [x, y] = medidas(sala.raiz.getObjectByName(id));
+      expect(x, id).toBeCloseTo(ancho + 0.02, 2);
+      expect(y, id).toBeCloseTo(0.9, 2);
+    }
+    for (const id of ['s2-palanca-1', 's2-palanca-2', 's2-palanca-3']) {
+      expect(medidas(sala.raiz.getObjectByName(id))[1], id).toBeCloseTo(0.404, 2);
+    }
     const campana = medidas(sala.raiz.getObjectByName('s2-campana'));
     expect(campana[0]).toBeCloseTo(0.2, 2);
     expect(campana[1]).toBeLessThan(0.21);
   });
 
   it('la palanca y la campana giran desde su base', () => {
-    for (const id of ['s2-palanca', 's2-campana']) {
+    for (const id of ['s2-palanca-1', 's2-palanca-2', 's2-palanca-3', 's2-campana']) {
       const g = (sala.raiz.getObjectByName(id) as Mesh).geometry;
       g.computeBoundingBox();
       expect(g.boundingBox?.min.y ?? -1, id).toBeGreaterThanOrEqual(-0.03);

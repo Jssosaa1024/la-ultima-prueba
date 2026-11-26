@@ -149,9 +149,9 @@ En la etapa 3, la única pareja de rodillos que da $3.000 es −50 % con +50 % (
 
 **Intuición que se pone a prueba:** «para que se encuentren, el que va más abajo tiene que subir más rápido». Es cierto, pero ¿cuánto más? La gráfica lo responde mejor que cualquier cuenta.
 
-**Espacio:** laboratorio de 9 × 6 m en penumbra. Dos cilindros de vidrio con líquido de colores, A (verde) y B (morado), cada uno con una perilla de caudal que se ajusta de 1 en 1 cm por segundo. En la pared, un graficador de tinta dibuja en tiempo real la altura de cada tanque contra el tiempo, con su color. Sobre la incubadora, una campana suena a los segundos que indica su temporizador.
+**Espacio:** laboratorio de 9 × 6 m en penumbra. Contra la pared norte hay tres estaciones, una por etapa (corrección del 25 de noviembre de 2026): cada una con sus cilindros de vidrio con líquido de colores, A (verde) y, desde la segunda, B (morado), su tablero con la perilla de caudal que se ajusta de 1 en 1 cm por segundo y su palanca. Solo la estación de la etapa pendiente está encendida. En la pared sur, un graficador de tinta dibuja en tiempo real la altura de cada tanque contra el tiempo, con su color. En una repisa, una campana suena a los segundos que indica su temporizador.
 
-**La mecánica:** ajustas las perillas, bajas la palanca y el líquido corre mientras el graficador dibuja. La incubadora se abre si los dos niveles son iguales justo cuando suena la campana. Cada corrida dura hasta que suena la campana (10, 8 y 12 segundos según la etapa) y luego los tanques se vacían solos: probar es posible, pero pensar antes ahorra tiempo.
+**La mecánica:** en la estación encendida ajustas la perilla, bajas su palanca y el líquido corre mientras el graficador dibuja. La estación queda resuelta (y se enciende la siguiente) si los niveles cumplen su letrero justo cuando suena la campana. Cada corrida dura hasta que suena la campana (10, 8 y 12 segundos según la etapa) y luego los tanques se vacían solos: probar es posible, pero pensar antes ahorra tiempo.
 
 | Etapa | Situación | Solución | El «ajá» |
 | --- | --- | --- | --- |

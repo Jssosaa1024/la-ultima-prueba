@@ -191,9 +191,9 @@ describe('fichas de inspección: lo que no deben decir (T35c)', () => {
   });
 
   it('sala 2: nada dice dónde empezó el tanque B tapado ni a qué ritmo baja en esa etapa', () => {
-    const dominar =
-      textoDe(fichaDeObjeto('s2-tanque-b', 2)) + textoDe(fichaDeObjeto('s2-perilla-morada', 2));
-    expect(dominar).not.toMatch(/48|2 cm/);
+    for (const n of [0, 1, 2, 3]) {
+      expect(textoDe(fichaDeObjeto('s2-tanque-b-3', n))).not.toMatch(/48|2 cm/);
+    }
     expect(textoDe(fichaDeObjeto('s2-hoja-ayer', 2))).not.toMatch(/48|por segundo/);
   });
 
@@ -248,23 +248,30 @@ describe('fichas de inspección: coinciden con los puzzles (T35c)', () => {
     );
   });
 
-  it('sala 2: la campana, los tanques y la hoja de ayer traen los números de cada etapa', () => {
+  it('sala 2: la campana, los tanques de cada estación y la hoja de ayer traen sus números', () => {
     const etapas = puzzle('tanques').etapas;
     etapas.forEach((e, n) => {
+      // Corrección del 25 de noviembre: una estación por etapa, con sus tanques.
+      const estacion = n + 1;
+      const a = textoDe(fichaDeObjeto(`s2-tanque-a-${estacion}`, n));
       expect(textoDe(fichaDeObjeto('s2-campana', n))).toContain(`${e.exito.campana_s} segundos`);
-      expect(textoDe(fichaDeObjeto('s2-tanque-a', n))).toContain(`${e.estado_inicial.a.nivel} cm`);
-      expect(textoDe(fichaDeObjeto('s2-tanque-a', n))).toContain(`${e.controles.altura_cm} cm`);
+      expect(textoDe(fichaDeObjeto('s2-campana', n))).toContain(`estación ${estacion}`);
+      expect(a).toContain(`${e.estado_inicial.a.nivel} cm`);
+      expect(a).toContain(`${e.controles.altura_cm} cm`);
+      expect(a).toContain(`La estación ${estacion} está encendida`);
       const b = e.estado_inicial.b;
       if (b?.visible) {
-        expect(textoDe(fichaDeObjeto('s2-tanque-b', n))).toContain(`${b.nivel} cm`);
-        expect(textoDe(fichaDeObjeto('s2-perilla-morada', n))).toContain(
-          `${Math.abs(b.caudal)} cm por segundo`,
-        );
+        const textoB = textoDe(fichaDeObjeto(`s2-tanque-b-${estacion}`, n));
+        expect(textoB).toContain(`${b.nivel} cm`);
+        expect(textoB).toContain(`${Math.abs(b.caudal)} cm por segundo`);
       }
       if (e.exito.objetivo.tipo === 'linea') {
-        expect(textoDe(fichaDeObjeto('s2-tanque-a', n))).toContain(`${e.exito.objetivo.nivel} cm`);
+        expect(a).toContain(`${e.exito.objetivo.nivel} cm`);
       }
     });
+    // Las demás estaciones dicen si están apagadas o resueltas.
+    expect(textoDe(fichaDeObjeto('s2-tanque-a-3', 0))).toContain('todavía está apagada');
+    expect(textoDe(fichaDeObjeto('s2-tanque-a-1', 2))).toContain('ya está resuelta');
     const registro = etapas[2]?.estado_inicial.b?.registro ?? [];
     expect(registro).toHaveLength(2);
     expect(filasDe(fichaDeObjeto('s2-hoja-ayer'))).toEqual(

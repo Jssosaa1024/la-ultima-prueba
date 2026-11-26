@@ -43,6 +43,7 @@ import {
   type EstadoPistas,
 } from '../game/pistas';
 import { resumenDeAprendizaje } from '../game/aprendizaje';
+import { estacionAjena } from '../game/estaciones';
 import type { Evaluacion } from '../game/puzzles';
 import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
@@ -652,6 +653,15 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       }
       // Los balones que sí rebotan tampoco: el motor los anima y no pasa nada más.
       if (esObjetoSuelto(objeto)) return true;
+      // Sala 2: cada estación responde solo en su etapa (corrección del 25 de noviembre).
+      const ajena =
+        partida && partida.lugar !== 'porteria'
+          ? estacionAjena(objeto, etapaActual(partida, partida.lugar))
+          : null;
+      if (ajena) {
+        avisar({ t: 'estacion', ...ajena });
+        return true;
+      }
       // En una sala, cualquier otro objeto que se usa es parte de su máquina: abre el panel
       // del mecanismo (el objeto 3D solo anima). El objeto sigue enfocado para volver a él.
       abrirPanel('mecanismo');

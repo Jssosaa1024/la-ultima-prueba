@@ -52,7 +52,7 @@ describe('contenido de las grabaciones', () => {
       expect(objeto(g.objeto)?.accion, g.objeto).toBe('usar');
       expect(grabacionDeObjeto(g.objeto)).toBe(g);
     }
-    expect(grabacionDeObjeto('s2-palanca')).toBeNull();
+    expect(grabacionDeObjeto('s2-palanca-1')).toBeNull();
   });
 
   it('las transcripciones son las del documento de diseño', () => {
@@ -79,7 +79,13 @@ describe('contenido de las grabaciones', () => {
   });
 
   it('los objetos de las máquinas no son objetos sueltos', () => {
-    for (const id of ['s1-etiquetadora', 's2-panel', 's2-palanca', 's3-polea', 's4-carritos']) {
+    for (const id of [
+      's1-etiquetadora',
+      's2-tablero-1',
+      's2-palanca-3',
+      's3-polea',
+      's4-carritos',
+    ]) {
       expect(objeto(id), id).toBeDefined();
       expect(esObjetoSuelto(id), id).toBe(false);
     }
@@ -204,7 +210,7 @@ describe('controlador: recoger las grabaciones', () => {
 
   it('los objetos de la máquina siguen abriendo su panel', () => {
     continuarEn('s2-laboratorio');
-    usar('s2-panel');
+    usar('s2-tablero-1');
     expect(panel.value).toBe('mecanismo');
     expect(grabaciones.value).toEqual([]);
   });

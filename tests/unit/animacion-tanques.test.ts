@@ -3,14 +3,15 @@ import type { Mesh, MeshLambertMaterial, Object3D } from 'three';
 import { liberarObjeto } from '../../src/engine/carga/liberar';
 import { idaYVuelta, mezclar, suave } from '../../src/engine/mecanismos/curvas';
 import { animacionDeSala } from '../../src/engine/mecanismos';
-import { animarTanques, DURACION_BANDEJA_S, PAUSA_S } from '../../src/engine/mecanismos/tanques';
+import { animarTanques, PAUSA_S } from '../../src/engine/mecanismos/tanques';
 import { construirSala } from '../../src/engine/salas/construir';
 import { salaPorId } from '../../src/content/salas';
 import { etapa, reiniciarMecanismo, resultado } from '../../src/signals/mecanismo';
 import type { ResultadoMecanismo } from '../../src/signals/mecanismo';
 import { sellos } from '../../src/signals/partida';
 
-// T52: los tanques en 3D solo animan lo que pasó en el panel.
+// T52: los tanques en 3D solo animan lo que pasó en el panel. Desde la corrección del 25 de
+// noviembre hay una estación por etapa, con sus tanques y su palanca.
 
 const enEtapa = (n: number): void => {
   etapa.value = { sala: 's2-laboratorio', puzzle: 's2-tanques', etapa: n };
@@ -49,8 +50,7 @@ function montar() {
   return {
     raiz,
     animacion,
-    liquidoA: pieza(raiz, 'liquido-s2-tanque-a'),
-    liquidoB: pieza(raiz, 'liquido-s2-tanque-b'),
+    liquido: (tanque: string) => pieza(raiz, `liquido-s2-tanque-${tanque}`),
   };
 }
 
@@ -84,70 +84,83 @@ describe('animación de los tanques en la sala 2', () => {
     liberarObjeto(raiz);
   });
 
-  it('los tanques son de vidrio y en reposo muestran cómo empieza la etapa', () => {
+  it('cada estación muestra cómo empieza su etapa, y las resueltas cómo quedaron', () => {
     enEtapa(1);
-    const { raiz, animacion, liquidoA, liquidoB } = montar();
-    expect(material(pieza(raiz, 's2-tanque-a')).transparent).toBe(true);
-    expect(material(pieza(raiz, 's2-tanque-a')).opacity).toBeLessThan(1);
-    // Etapa 2: A empieza en 10 cm y B en 50 cm, de 60.
-    expect(liquidoA.visible).toBe(true);
-    expect(liquidoB.visible).toBe(true);
-    expect(liquidoB.scale.y / liquidoA.scale.y).toBeCloseTo(5);
+    const { raiz, animacion, liquido } = montar();
+    expect(material(pieza(raiz, 's2-tanque-a-2')).transparent).toBe(true);
+    expect(material(pieza(raiz, 's2-tanque-a-2')).opacity).toBeLessThan(1);
+    // Estación 2 (etapa en curso): A empieza en 10 cm y B en 50 cm, de 60.
+    expect(liquido('a-2').visible).toBe(true);
+    expect(liquido('b-2').visible).toBe(true);
+    expect(liquido('b-2').scale.y / liquido('a-2').scale.y).toBeCloseTo(5);
+    // Estación 1 (resuelta): A quedó en la línea roja, 30 cm.
+    expect(liquido('a-1').scale.y / liquido('a-2').scale.y).toBeCloseTo(3);
+    // Estación 3 (apagada): A vacío y B tapado con cinta.
+    expect(liquido('a-3').visible).toBe(false);
+    expect(liquido('b-3').visible).toBe(false);
 
-    // Etapa 1: A vacío y no hay tanque B.
+    // Al empezar la sala, la estación 1 está vacía.
     enEtapa(0);
-    expect(liquidoA.visible).toBe(false);
-    expect(liquidoB.visible).toBe(false);
+    expect(liquido('a-1').visible).toBe(false);
     animacion.liberar();
   });
 
   it('el tanque tapado con cinta se ve opaco y no deja ver su líquido', () => {
     enEtapa(2);
-    const { raiz, animacion, liquidoB } = montar();
-    expect(liquidoB.visible).toBe(false);
-    expect(material(pieza(raiz, 's2-tanque-b')).opacity).toBe(1);
-    // Al cambiar de etapa vuelve a ser de vidrio, con su color.
-    const cinta = material(pieza(raiz, 's2-tanque-b')).color.getHex();
-    enEtapa(1);
-    expect(material(pieza(raiz, 's2-tanque-b')).opacity).toBeLessThan(1);
-    expect(material(pieza(raiz, 's2-tanque-b')).color.getHex()).not.toBe(cinta);
+    const { raiz, animacion, liquido } = montar();
+    expect(liquido('b-3').visible).toBe(false);
+    expect(material(pieza(raiz, 's2-tanque-b-3')).opacity).toBe(1);
+    // El B de la estación 2 es de vidrio, con su color.
+    expect(material(pieza(raiz, 's2-tanque-b-2')).opacity).toBeLessThan(1);
     animacion.liberar();
   });
 
-  it('la corrida dura hasta la campana, se queda quieta y los tanques vuelven a su nivel', () => {
+  it('la corrida mueve solo la estación de su etapa, hasta la campana, y vuelve al reposo', () => {
     enEtapa(0);
-    const { animacion, liquidoA } = montar();
+    const { animacion, liquido } = montar();
     // Etapa 1 con caudal 3: de 0 a 30 cm en 10 s.
     responder(1, { resuelta: false, condiciones: { nivel: false } });
     avanzar(animacion, 5);
     expect(animacion.estado).toBe('corriendo');
-    const mitad = liquidoA.scale.y;
-    expect(liquidoA.visible).toBe(true);
+    expect(animacion.animando).toBe(true);
+    const mitad = liquido('a-1').scale.y;
+    expect(liquido('a-1').visible).toBe(true);
+    // Las otras estaciones no se mueven.
+    expect(liquido('a-3').visible).toBe(false);
 
     avanzar(animacion, 5.5);
     expect(animacion.estado).toBe('campana');
-    expect(liquidoA.scale.y).toBeCloseTo(mitad * 2, 1);
-    // Tras la campana los niveles no cambian.
-    const alSonar = liquidoA.scale.y;
+    expect(liquido('a-1').scale.y).toBeCloseTo(mitad * 2, 1);
+    // Tras la campana los niveles no cambian, y la máquina deja de animarse.
+    const alSonar = liquido('a-1').scale.y;
     avanzar(animacion, 1);
-    expect(liquidoA.scale.y).toBe(alSonar);
+    expect(liquido('a-1').scale.y).toBe(alSonar);
+    expect(animacion.animando).toBe(false);
 
     avanzar(animacion, PAUSA_S);
     expect(animacion.estado).toBe('reposo');
-    expect(liquidoA.visible).toBe(false);
+    expect(liquido('a-1').visible).toBe(false);
     animacion.liberar();
   });
 
-  it('la palanca baja al arrancar y la campana se sacude al sonar', () => {
-    enEtapa(0);
+  it('baja la palanca de la estación de la etapa y la campana se sacude al sonar', () => {
+    enEtapa(1);
     const { raiz, animacion } = montar();
-    const palanca = pieza(raiz, 's2-palanca');
+    const palanca = pieza(raiz, 's2-palanca-2');
+    const otra = pieza(raiz, 's2-palanca-1');
     const campana = pieza(raiz, 's2-campana');
-    responder(1);
+    responder(1, {
+      etapa: 1,
+      estado: {
+        a: { nivel: 10, caudal: 3, visible: true },
+        b: { nivel: 50, caudal: -2, visible: true },
+      },
+    });
     avanzar(animacion, 0.35);
     expect(palanca.rotation.x).toBeGreaterThan(0.9);
+    expect(otra.rotation.x).toBe(0);
     expect(campana.rotation.z).toBe(0);
-    avanzar(animacion, 9.8);
+    avanzar(animacion, 7.8);
     expect(palanca.rotation.x).toBe(0);
     expect(campana.rotation.z).not.toBe(0);
     avanzar(animacion, PAUSA_S + 0.2);
@@ -166,38 +179,18 @@ describe('animación de los tanques en la sala 2', () => {
     animacion.liberar();
   });
 
-  it('con el sello, la incubadora se abre cuando termina la corrida', () => {
-    enEtapa(2);
-    const { raiz, animacion } = montar();
-    const bandeja = pieza(raiz, 'bandeja-incubadora');
-    expect(bandeja.visible).toBe(false);
-    expect(bandeja.parent?.name).toBe('s2-incubadora');
-
-    responder(1, {
-      etapa: 2,
-      estado: {
-        a: { nivel: 0, caudal: 2, visible: true },
-        b: { nivel: 48, caudal: -2, visible: false },
-      },
-      sello: true,
-    });
+  it('con el sello, las tres estaciones quedan como se resolvieron', () => {
     sellos.value = ['s1-cooperativa', 's2-laboratorio'];
-    etapa.value = null;
-    // La corrida de la etapa 3 dura 12 s: mientras tanto la incubadora sigue cerrada.
-    avanzar(animacion, 12.5);
-    expect(bandeja.visible).toBe(false);
-    avanzar(animacion, PAUSA_S + DURACION_BANDEJA_S + 0.2);
-    expect(animacion.estado).toBe('incubadora-abierta');
-    expect(bandeja.visible).toBe(true);
-    animacion.liberar();
-  });
-
-  it('al volver a la sala con sello, la incubadora ya está abierta y los tanques vacíos', () => {
-    sellos.value = ['s1-cooperativa', 's2-laboratorio'];
-    const { animacion, liquidoA, liquidoB } = montar();
-    expect(animacion.estado).toBe('incubadora-abierta');
-    expect(liquidoA.visible).toBe(false);
-    expect(liquidoB.visible).toBe(false);
+    const { animacion, liquido } = montar();
+    expect(animacion.estado).toBe('sellada');
+    expect(liquido('a-1').visible).toBe(true);
+    expect(liquido('a-2').visible).toBe(true);
+    expect(liquido('b-2').visible).toBe(true);
+    // A y B de la estación 2 se cruzaron: quedaron a la misma altura.
+    expect(liquido('a-2').scale.y).toBeCloseTo(liquido('b-2').scale.y);
+    expect(liquido('a-3').visible).toBe(true);
+    // El B de la estación 3 sigue tapado.
+    expect(liquido('b-3').visible).toBe(false);
     animacion.liberar();
   });
 
@@ -212,9 +205,9 @@ describe('animación de los tanques en la sala 2', () => {
     };
     const antes = contar();
     const animacion = animarTanques(raiz);
-    // Dos líquidos, la bandeja y la gota.
-    expect(contar()).toBe(antes + 4);
+    // El líquido de cada uno de los cinco tanques.
+    expect(contar()).toBe(antes + 5);
     animacion.liberar();
-    expect(liberarObjeto(raiz).geometrias).toBeGreaterThanOrEqual(antes + 4);
+    expect(liberarObjeto(raiz).geometrias).toBeGreaterThanOrEqual(antes + 5);
   });
 });

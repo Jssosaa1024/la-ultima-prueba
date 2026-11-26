@@ -1,29 +1,31 @@
 /**
- * Sala 2 · Los tanques en 3D (T52).
+ * Sala 2 · Los tanques en 3D (T52), en tres estaciones (corrección del 25 de noviembre).
  *
- * Los dos tanques son de vidrio y dejan ver su líquido. En reposo muestran el nivel inicial
- * de la etapa. Cada vez que la máquina responde (signal `resultado`), la palanca baja y el
- * líquido corre en tiempo real hasta que suena la campana, que se sacude; los niveles se
- * quedan quietos un momento y vuelven a como estaban. Con el sello, la incubadora se abre.
+ * Cada etapa tiene su estación (`content/estaciones.ts`): su tanque A, desde la segunda su
+ * tanque B, y su palanca. Los tanques son de vidrio y dejan ver su líquido. En reposo, cada
+ * estación muestra cómo empieza su etapa; las ya resueltas, cómo quedaron al sonar la campana.
+ * Cada vez que la máquina responde (signal `resultado`), baja la palanca de la estación de esa
+ * etapa y su líquido corre en tiempo real hasta que suena la campana, que se sacude; los niveles
+ * se quedan quietos un momento y vuelven a su reposo.
  *
  * Un tanque tapado con cinta se ve gris y opaco: no deja ver su nivel.
  *
- * Son cuatro mallas más en la sala (dos líquidos, la bandeja de la incubadora y su gota).
+ * Son cinco mallas más en la sala: el líquido de cada tanque.
  *
  * Pulir salas (sesión A): el vidrio es más redondo y casi incoloro, para que el color lo dé el
  * líquido; el líquido tiene la superficie más clara (el menisco) y la bandeja, bordes y asa.
  * Las bases, tapas, varillas y regla de los tanques las pone `laboratorio-piezas.ts`.
  */
 import { effect } from '@preact/signals';
-import { Color, CylinderGeometry, Mesh, MeshLambertMaterial, SphereGeometry } from 'three';
+import { Color, CylinderGeometry, Mesh, MeshLambertMaterial } from 'three';
 import type { Object3D } from 'three';
 import type { PuzzleDe } from '../../content/esquema';
+import { ESTACIONES } from '../../content/estaciones';
 import { PUZZLES } from '../../content/puzzles';
 import { duracionCorridaS, nivelEn } from '../../game/puzzles';
 import { etapa, mecanismo, resultado } from '../../signals/mecanismo';
 import { sellos } from '../../signals/partida';
-import { idaYVuelta, mezclar, suave } from './curvas';
-import { PALETA } from './piezas-comunes';
+import { idaYVuelta } from './curvas';
 import { Piezas } from './piezas-por-codigo';
 import { sonar } from '../audio/eventos';
 import type { AnimacionSala } from './tipos';
@@ -36,8 +38,6 @@ export const PAUSA_S = 2;
 /** Lo que dura el movimiento de la palanca y la sacudida de la campana. */
 const DURACION_PALANCA_S = 0.9;
 const DURACION_CAMPANA_S = 0.8;
-/** Lo que tarda en salir la bandeja de la incubadora. */
-export const DURACION_BANDEJA_S = 0.7;
 const ANGULO_PALANCA = 1.1;
 
 /** Alto del líquido con el tanque lleno, en metros (el tanque mide 1,6 m). */
@@ -50,9 +50,6 @@ const BLANQUEO_VIDRIO = 0.55;
 const LADOS_VIDRIO = 32;
 /** Radio del líquido, por dentro del vidrio (0,35 m). */
 const RADIO_LIQUIDO = 0.3;
-
-const BANDEJA_DENTRO = 0.1;
-const BANDEJA_FUERA = 0.55;
 
 /** Lo que la animación necesita de un tanque. */
 interface Tanque {
@@ -155,50 +152,34 @@ function crearVidrio(tanque: Object3D | undefined): Vidrio {
   };
 }
 
-/** La bandeja de la incubadora (70 × 6 × 50 cm, centrada): fondo, bordes y un asa al frente. */
-function geometriaBandeja(): Piezas {
-  const p = new Piezas().caja([0.7, 0.016, 0.5], PALETA.metal, {
-    pos: [0, -0.022, 0],
-    bisel: 0.005,
-  });
-  for (const s of [1, -1]) {
-    p.caja([0.7, 0.06, 0.018], PALETA.cromo, { pos: [0, 0, s * 0.241], bisel: 0.005 });
-    p.caja([0.018, 0.06, 0.5], PALETA.cromo, { pos: [s * 0.341, 0, 0], bisel: 0.005 });
-    p.barra([s * 0.12, 0.005, 0.25], [s * 0.12, 0.005, 0.285], 0.009, PALETA.metalOscuro, 6);
-  }
-  return p.barra([-0.13, 0.005, 0.285], [0.13, 0.005, 0.285], 0.011, PALETA.metalOscuro, 8);
+/** Un tanque de una etapa: cómo empieza y su nivel cuando suena la campana. */
+function nivelesDe(
+  t: { nivel: number; caudal: number; visible: boolean } | null,
+  campanaS: number,
+  alto: number,
+  alSonar: boolean,
+): { nivel: number | null; tapado: boolean } {
+  if (!t) return { nivel: null, tapado: false };
+  return { nivel: alSonar ? nivelEn(t, campanaS, alto) : t.nivel, tapado: !t.visible };
 }
 
 /**
- * @param raiz  la sala ya construida: se buscan los tanques, la palanca, la campana y la
- *              incubadora por su id. Si falta alguno, esa parte no se anima.
+ * @param raiz  la sala ya construida: se buscan los tanques y la palanca de cada estación y la
+ *              campana por su id. Si falta alguno, esa parte no se anima.
  */
 export function animarTanques(raiz: Object3D): AnimacionSala {
   const puzzle = PUZZLES.find((p): p is PuzzleDe<'tanques'> => p.mecanismo === 'tanques');
-  const palanca = raiz.getObjectByName('s2-palanca');
   const campana = raiz.getObjectByName('s2-campana');
-  const incubadora = raiz.getObjectByName('s2-incubadora');
-  const vidrioA = crearVidrio(raiz.getObjectByName('s2-tanque-a'));
-  const vidrioB = crearVidrio(raiz.getObjectByName('s2-tanque-b'));
+  const estaciones = ESTACIONES.map((e) => ({
+    etapa: e.etapa,
+    vidrioA: crearVidrio(raiz.getObjectByName(e.tanqueA)),
+    vidrioB: e.tanqueB ? crearVidrio(raiz.getObjectByName(e.tanqueB)) : null,
+    palanca: raiz.getObjectByName(e.palanca),
+  }));
 
-  const bandeja = new Mesh(
-    geometriaBandeja().geometria(),
-    new MeshLambertMaterial({ vertexColors: true }),
-  );
-  bandeja.name = 'bandeja-incubadora';
-  bandeja.position.set(0, 0.55, BANDEJA_DENTRO);
-  // La gota es la silueta del sello de la sala 2 en el mural de la portería.
-  const gota = new Mesh(
-    new SphereGeometry(0.07, 12, 8),
-    new MeshLambertMaterial({ color: 0x3498db }),
-  );
-  gota.scale.y = 1.3;
-  gota.position.set(0, 0.12, 0.12);
-  bandeja.add(gota);
-  incubadora?.add(bandeja);
-
-  /** La corrida en curso: con qué ajustes arrancó, cuánto dura y cuánto lleva. */
+  /** La corrida en curso: en qué estación, con qué ajustes, cuánto dura y cuánto lleva. */
   let corrida: {
+    estacion: number;
     a: Tanque | null;
     b: Tanque | null;
     duracion: number;
@@ -206,28 +187,26 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
     t: number;
   } | null = null;
   let conSello = sellos.peek().includes(SALA);
-  let apertura = conSello ? 1 : 0;
 
-  const colocarBandeja = (): void => {
-    bandeja.visible = apertura > 0;
-    bandeja.position.z = mezclar(BANDEJA_DENTRO, BANDEJA_FUERA, suave(apertura));
-  };
-  colocarBandeja();
-
-  /** En reposo los tanques muestran cómo empieza la etapa pendiente; sin etapa, vacíos. */
+  /**
+   * En reposo, cada estación muestra cómo empieza su etapa; las que ya se resolvieron, cómo
+   * quedaron al sonar la campana (con la solución: cada etapa tiene un solo caudal que sirve).
+   */
   const mostrarReposo = (): void => {
     const actual = etapa.peek();
-    const datos = actual?.puzzle === PUZZLE ? puzzle?.etapas[actual.etapa] : undefined;
-    if (!datos) {
-      vidrioA.mostrar(null, 1, false);
-      vidrioB.mostrar(null, 1, false);
-      return;
+    const enCurso = conSello ? 3 : actual?.puzzle === PUZZLE ? actual.etapa : 0;
+    for (const e of estaciones) {
+      const datos = puzzle?.etapas[e.etapa];
+      if (!datos) continue;
+      const resuelta = e.etapa < enCurso;
+      const fuente = resuelta ? datos.solucion : datos.estado_inicial;
+      const alto = datos.controles.altura_cm;
+      const s = datos.exito.campana_s;
+      const a = nivelesDe(fuente.a, s, alto, resuelta);
+      const b = nivelesDe(fuente.b, s, alto, resuelta);
+      e.vidrioA.mostrar(a.nivel, alto, a.tapado);
+      e.vidrioB?.mostrar(b.nivel, alto, b.tapado);
     }
-    // Los niveles iniciales salen del contenido: los ajustes solo cambian el caudal.
-    const { a, b } = datos.estado_inicial;
-    const alto = datos.controles.altura_cm;
-    vidrioA.mostrar(a.nivel, alto, !a.visible);
-    vidrioB.mostrar(b ? b.nivel : null, alto, b ? !b.visible : false);
   };
 
   // El resultado que ya estaba al entrar no se anima: pasó antes de llegar.
@@ -240,6 +219,7 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
     if (!datos) return;
     const { a, b } = leerTanques(r.estado);
     corrida = {
+      estacion: r.etapa,
       a,
       b,
       duracion: duracionCorridaS(datos),
@@ -255,59 +235,46 @@ export function animarTanques(raiz: Object3D): AnimacionSala {
   });
   const dejarSellos = effect(() => {
     conSello = sellos.value.includes(SALA);
-    if (!conSello) {
-      apertura = 0;
-      colocarBandeja();
-    }
+    if (!corrida) mostrarReposo();
   });
 
   return {
     actualizar(dt) {
-      if (corrida) {
-        const antes = corrida.t;
-        corrida.t += dt;
-        // La campana suena cuando la corrida llega a su tiempo (T43).
-        if (antes < corrida.duracion && corrida.t >= corrida.duracion) {
-          // El sello suena después del acierto, con su pausa (`audio/retroalimentacion.ts`).
-          sonar('campana');
-        }
-        const { a, b, duracion, alto, t } = corrida;
-        // El líquido corre hasta la campana y ahí se queda quieto.
-        const s = Math.min(t, duracion);
-        vidrioA.mostrar(a ? nivelEn(a, s, alto) : null, alto, a ? !a.visible : false);
-        vidrioB.mostrar(b ? nivelEn(b, s, alto) : null, alto, b ? !b.visible : false);
-        if (palanca) palanca.rotation.x = ANGULO_PALANCA * idaYVuelta(t, DURACION_PALANCA_S);
-        if (campana) {
-          // La campana se sacude al sonar, cada vez menos.
-          const desde = t - duracion;
-          const fuerza =
-            desde > 0 && desde < DURACION_CAMPANA_S ? 1 - desde / DURACION_CAMPANA_S : 0;
-          campana.rotation.z = fuerza > 0 ? 0.35 * fuerza * Math.sin(desde * 40) : 0;
-        }
-        if (t >= duracion + PAUSA_S) {
-          corrida = null;
-          if (campana) campana.rotation.z = 0;
-          mostrarReposo();
-        }
+      if (!corrida) return;
+      const antes = corrida.t;
+      corrida.t += dt;
+      // La campana suena cuando la corrida llega a su tiempo (T43). El acierto o el error y el
+      // sello suenan después, con su pausa (`audio/retroalimentacion.ts`).
+      if (antes < corrida.duracion && corrida.t >= corrida.duracion) sonar('campana');
+      const { a, b, duracion, alto, t } = corrida;
+      const estacion = estaciones[corrida.estacion];
+      // El líquido corre hasta la campana y ahí se queda quieto.
+      const s = Math.min(t, duracion);
+      estacion?.vidrioA.mostrar(a ? nivelEn(a, s, alto) : null, alto, a ? !a.visible : false);
+      estacion?.vidrioB?.mostrar(b ? nivelEn(b, s, alto) : null, alto, b ? !b.visible : false);
+      if (estacion?.palanca) {
+        estacion.palanca.rotation.x = ANGULO_PALANCA * idaYVuelta(t, DURACION_PALANCA_S);
       }
-      // La bandeja espera a que termine la corrida que ganó el sello.
-      if (conSello && !corrida && apertura < 1) {
-        // La incubadora suena al empezar a abrirse (T42c).
-        if (apertura === 0) sonar('incubadora');
-        apertura = Math.min(1, apertura + dt / DURACION_BANDEJA_S);
-        colocarBandeja();
+      if (campana) {
+        // La campana se sacude al sonar, cada vez menos.
+        const desde = t - duracion;
+        const fuerza = desde > 0 && desde < DURACION_CAMPANA_S ? 1 - desde / DURACION_CAMPANA_S : 0;
+        campana.rotation.z = fuerza > 0 ? 0.35 * fuerza * Math.sin(desde * 40) : 0;
+      }
+      if (t >= duracion + PAUSA_S) {
+        corrida = null;
+        if (campana) campana.rotation.z = 0;
+        if (estacion?.palanca) estacion.palanca.rotation.x = 0;
+        mostrarReposo();
       }
     },
     get animando() {
-      // La corrida hasta que la campana deja de sacudirse. Con el sello, además, la pausa
-      // después de la campana y la bandeja de la incubadora que sale: el acierto y el sello
-      // suenan después, sin chocar con ella.
-      if (corrida && (conSello || corrida.t < corrida.duracion + DURACION_CAMPANA_S)) return true;
-      return conSello && apertura < 1;
+      // La corrida hasta que la campana deja de sacudirse: después suena el acierto o el error.
+      return corrida !== null && corrida.t < corrida.duracion + DURACION_CAMPANA_S;
     },
     get estado() {
       if (corrida) return corrida.t < corrida.duracion ? 'corriendo' : 'campana';
-      return apertura >= 1 ? 'incubadora-abierta' : 'reposo';
+      return conSello ? 'sellada' : 'reposo';
     },
     liberar() {
       dejarResultado();

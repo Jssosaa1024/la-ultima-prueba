@@ -33,7 +33,7 @@ describe('reglas', () => {
   it('cada objeto usado suena con un efecto que existe; la registradora con sus teclas', () => {
     expect(efectoDeUso('s1-registradora')).toBe('teclas');
     expect(efectoDeUso('porteria-intercomunicador')).toBe('interfono');
-    expect(efectoDeUso('s2-palanca')).toBe('clac');
+    expect(efectoDeUso('s2-palanca-1')).toBe('clac');
     expect(efectoDeUso(null)).toBe('clac');
     for (const p of PUZZLES) expect(EFECTOS).toHaveProperty(efectoDeAjuste(p.id));
     expect(efectoDeAjuste('s4-carritos')).toBe('libro');

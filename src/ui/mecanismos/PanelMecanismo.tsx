@@ -16,7 +16,14 @@ import { BotonPistaNueva, SeccionPistas } from '../pistas/Pistas';
 import type { PropsPanel } from './marco/tipos';
 import { vistaDelPanel } from './marco/vista';
 import { PANELES } from './paneles';
-import { TEXTO_ACCIONAR, TEXTO_TERMINADA, textoEtapa, textoReposo, textoResuelta } from './textos';
+import {
+  TEXTO_ACCIONAR,
+  TEXTO_TERMINADA,
+  textoEstacionResuelta,
+  textoEtapa,
+  textoReposo,
+  textoResuelta,
+} from './textos';
 import './mecanismos.css';
 
 /**
@@ -88,11 +95,15 @@ export default function PanelMecanismo() {
 
   const resuelta = vista.tipo === 'resuelta';
   const regla = datos.intento;
+  // Sala 2: la etapa siguiente está en otra estación (corrección del 25 de noviembre).
+  const porEstaciones = puzzle.mecanismo === 'tanques';
+  const volverALaSala = resuelta && (vista.sello || porEstaciones);
   const seguir = (): void => {
     if (vista.tipo !== 'resuelta') return;
     resultadoVisto.value = vista.resultado.n;
-    // Con el sello ya no queda etapa que mostrar: se vuelve a la sala.
-    if (vista.sello) cerrarPanel();
+    // Con el sello ya no queda etapa que mostrar, y en la sala 2 la siguiente se juega en su
+    // propia estación: se vuelve a la sala.
+    if (volverALaSala) cerrarPanel();
   };
 
   const props = {
@@ -119,7 +130,7 @@ export default function PanelMecanismo() {
             {!resuelta && <BotonPistaNueva />}
             {resuelta ? (
               <button type="button" class="boton boton-principal" onClick={seguir}>
-                {vista.sello ? 'Volver a la sala' : 'Seguir'}
+                {volverALaSala ? 'Volver a la sala' : 'Seguir'}
               </button>
             ) : enGrupo ? (
               <AccionesGrupo soyD={soyD} accionar={regla.tipo === 'accionar' ? regla.objeto : null}>
@@ -149,7 +160,9 @@ export default function PanelMecanismo() {
       {resuelta && !ocupado && (
         <>
           <p class="mecanismo-resuelta" role="status">
-            {textoResuelta(vista.sello, puzzle.sala, PUZZLES.length)}
+            {porEstaciones && !vista.sello
+              ? textoEstacionResuelta(vista.numero)
+              : textoResuelta(vista.sello, puzzle.sala, PUZZLES.length)}
           </p>
           <Anotacion puzzle={puzzle} etapa={vista.numero} sello={vista.sello} />
         </>
