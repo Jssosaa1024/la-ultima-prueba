@@ -292,6 +292,15 @@ describe('el pasillo en los datos', () => {
     for (const l of lineas) expect(l.sala).toBe('porteria');
   });
 
+  it('la frase de La Voz cabe en un renglón de la tirita, junto al rótulo de la puerta', () => {
+    // Historia B: la tirita del HUD es de un renglón en un celular horizontal (hud.css). El
+    // rótulo ya dice qué puerta es, así que la frase no necesita repetirlo.
+    for (const f of FRASES_PUERTAS_FALSAS.filter((x) => x.voz)) {
+      const linea = (guion as LineaGuion[]).find((l) => l.id === f.voz);
+      expect((linea?.texto.length ?? 0) + f.rotulo.length, f.id).toBeLessThanOrEqual(70);
+    }
+  });
+
   it('las frases son cortas, una por puerta, y llevan texto o voz', () => {
     for (const f of FRASES_PUERTAS_FALSAS) {
       expect(esquemaFrasePuertaFalsa.safeParse(f).success, f.id).toBe(true);

@@ -131,16 +131,16 @@
     "id": "voz-pasillo-profesores",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "La sala de profesores. Ahí se decidió todo en cuarenta minutos.",
-    "duracion_s": 4.5,
+    "texto": "Ahí se decidió todo en cuarenta minutos.",
+    "duracion_s": 3.0,
     "origen": "historia"
   },
   {
     "id": "voz-pasillo-10a",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "El 10-A. Treinta y cuatro promociones pasaron por ahí sin saber nada.",
-    "duracion_s": 5,
+    "texto": "Treinta y cuatro promociones pasaron por ahí sin saberlo.",
+    "duracion_s": 4.0,
     "origen": "historia"
   },
   {
@@ -155,24 +155,24 @@
     "id": "voz-pasillo-aseo",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "El cuarto del aseo. Alguien lo mantiene impecable desde hace treinta años.",
-    "duracion_s": 5,
+    "texto": "Alguien lo deja impecable desde hace treinta años.",
+    "duracion_s": 3.5,
     "origen": "historia"
   },
   {
     "id": "voz-pasillo-10b",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "El 10-B. Un puesto de ese salón quedó vacío en noviembre de 1991.",
-    "duracion_s": 5.5,
+    "texto": "Un puesto de ese salón quedó vacío en noviembre de 1991.",
+    "duracion_s": 4.5,
     "origen": "historia"
   },
   {
     "id": "voz-pasillo-11a",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "El 11-A. Él nunca llegó a este salón.",
-    "duracion_s": 3.5,
+    "texto": "Él nunca llegó a este salón.",
+    "duracion_s": 3.0,
     "origen": "historia"
   },
   {

@@ -72,7 +72,7 @@ test('sala 2: con la linterna se ven las flechas y el gabinete entrega la grabac
   const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
   const seccion = cuaderno.getByRole('region', { name: 'Grabaciones' });
   await expect(seccion).toContainText('Grabación 1 de 3');
-  await expect(seccion).toContainText('Esta vez quiero decir otra cosa.');
+  await expect(seccion).toContainText('Guardé las pruebas por si alguien quería revisar.');
   await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
 
   // Usar el gabinete otra vez la muestra de nuevo, sin sumar otra.

@@ -51,12 +51,12 @@ Reglas: cada línea dura menos de 6 segundos (unas 15 palabras), nunca dice la r
 | `voz-espera` | 90 s sin interactuar en una sala | «El jurado decidió sin mirar dos veces. Tú sí puedes mirar otra vez.» |
 | `voz-fallo` | Tercer intento fallido | «Equivocarse aquí es gratis. El error de verdad es no volver a revisar.» |
 | `voz-final` | Cinco sellos en la portería | «Cinco pruebas. Puedes salir con lo tuyo, o salvar el archivo. Tú decides.» |
-| `voz-pasillo-profesores` | Toca la puerta falsa de la sala de profesores (pasillo) | «La sala de profesores. Ahí se decidió todo en cuarenta minutos.» |
-| `voz-pasillo-10a` | Toca la puerta falsa del aula 10-A | «El 10-A. Treinta y cuatro promociones pasaron por ahí sin saber nada.» |
+| `voz-pasillo-profesores` | Toca la puerta falsa de la sala de profesores (pasillo) | «Ahí se decidió todo en cuarenta minutos.» |
+| `voz-pasillo-10a` | Toca la puerta falsa del aula 10-A | «Treinta y cuatro promociones pasaron por ahí sin saberlo.» |
 | `voz-pasillo-11b` | Toca la puerta falsa del aula 11-B | «Esa no es. Las salas que buscas tienen cartel con número.» |
-| `voz-pasillo-aseo` | Toca la puerta falsa del cuarto del aseo | «El cuarto del aseo. Alguien lo mantiene impecable desde hace treinta años.» |
-| `voz-pasillo-10b` | Toca la puerta falsa del aula 10-B | «El 10-B. Un puesto de ese salón quedó vacío en noviembre de 1991.» |
-| `voz-pasillo-11a` | Toca la puerta falsa del aula 11-A | «El 11-A. Él nunca llegó a este salón.» |
+| `voz-pasillo-aseo` | Toca la puerta falsa del cuarto del aseo | «Alguien lo deja impecable desde hace treinta años.» |
+| `voz-pasillo-10b` | Toca la puerta falsa del aula 10-B | «Un puesto de ese salón quedó vacío en noviembre de 1991.» |
+| `voz-pasillo-11a` | Toca la puerta falsa del aula 11-A | «Él nunca llegó a este salón.» |
 | `voz-fin-legado` | Final «El legado» | «Efraín, nunca fue copia. Perdóname por tardar treinta y cuatro años en probarlo.» |
 | `voz-fin-justo` | Final «Justo a tiempo» | «Ahí está tu memoria. Mañana, en tu feria, que nadie decida sin mirar dos veces.» |
 | `voz-fin-ayuda` | Final «También vale pedir ayuda» | «Pedir ayuda a tiempo también es pensar. Don Efraín tiene la llave.» |
