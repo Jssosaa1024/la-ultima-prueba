@@ -9,11 +9,11 @@ La sesión A hace las escenas de la intro y de los finales en Three.js (rama `hi
 | Momento | Sesión A (escena) | Sesión C (pantalla «archivo») |
 | --- | --- | --- |
 | Antes de jugar | — | El menú es la carátula del expediente 1991-14. |
-| Al tocar «Jugar solo» | La escena de la intro arranca sola (solo la primera vez en cada equipo). | Nada en medio: «Jugar solo» sigue arrancando la partida como antes. |
+| Al tocar «Jugar solo» | La escena de la intro arranca sola, cada vez (decisión de Alex). Las e2e la apagan con `lup:sin-escenas`. | Nada en medio: «Jugar solo» sigue arrancando la partida como antes. |
 | Al llegar a un final | La escena del final (no hay escena para «Pedir ayuda»). | Después de la escena: el acta de la noche, los créditos y la escena de la fotocopiadora. |
 
 - No se agregó una pantalla extra entre «Jugar solo» y la escena: serían dos pantallas seguidas antes de jugar, y unas 20 pruebas e2e esperan que «Jugar solo» arranque directo.
-- **Pendiente, de una línea:** hoy el acta del final hace que La Voz diga la línea del final. Si la escena de A ya la dijo, sonaría dos veces. Quien llegue segundo a `main` pone en `PantallaFinal.tsx` la condición «no decirla si `escenaTerminada.value?.id === final.value`» (el signal es de A). La voz se queda para cuando no hubo escena: «Pedir ayuda», la segunda vez en el mismo equipo o si la escena no cargó.
+- **Pendiente, de una línea:** hoy el acta del final hace que La Voz diga la línea del final. Si la escena de A ya la dijo, sonaría dos veces. Quien llegue segundo a `main` pone en `PantallaFinal.tsx` la condición «no decirla si `escenaTerminada.value?.id === final.value`» (el signal es de A). La voz se queda para cuando no hubo escena: «Pedir ayuda» o si la escena no cargó.
 
 ## 1 · La intro: el menú es la carátula del caso
 
