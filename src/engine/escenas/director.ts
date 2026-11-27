@@ -87,19 +87,20 @@ function crearEfrain(): { grupo: Group; gorra: Group } {
   return { grupo, gorra };
 }
 
-/** La pantalla de la portería: un marco oscuro y el vidrio, que cambia de color. */
+/** La pantalla de la portería: un monitor sobre el casillero; el vidrio cambia de color. */
 function crearPantalla(): { grupo: Group; vidrio: MeshBasicMaterial } {
   const grupo = new Group();
   grupo.name = 'escena-pantalla';
-  const marco = new Mesh(
-    new BoxGeometry(0.95, 0.6, 0.05),
-    new MeshLambertMaterial({ color: 0x1b1d22 }),
-  );
+  const negro = new MeshLambertMaterial({ color: 0x1b1d22 });
+  const marco = new Mesh(new BoxGeometry(0.8, 0.5, 0.06), negro);
+  // El pie llega al techo del casillero (1,8 m).
+  const pie = new Mesh(new BoxGeometry(0.14, 0.1, 0.14), negro);
+  pie.position.y = 1.85 - PANTALLA[1];
   const vidrio = new MeshBasicMaterial({ color: COLOR_PANTALLA.apagada });
-  const plano = new Mesh(new PlaneGeometry(0.85, 0.5), vidrio);
-  plano.position.z = 0.026;
-  grupo.add(marco, plano);
-  grupo.position.set(PANTALLA[0], PANTALLA[1], PANTALLA[2] - 0.02);
+  const plano = new Mesh(new PlaneGeometry(0.72, 0.42), vidrio);
+  plano.position.z = 0.031;
+  grupo.add(marco, pie, plano);
+  grupo.position.set(PANTALLA[0], PANTALLA[1], PANTALLA[2]);
   return { grupo, vidrio };
 }
 

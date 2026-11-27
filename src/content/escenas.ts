@@ -119,8 +119,8 @@ const INICIO: Toma = { pos: [0, OJOS, 4.2], mira: [0, OJOS - 9.2 * Math.tan(0.12
 const CASILLERO: Punto3 = [2, 1.05, -4.7];
 const PUERTA: Punto3 = [0, 1.35, -5];
 const RELOJ: Punto3 = [0, 2.55, -4.98];
-/** La pantalla de la portería (prop de la escena, encima del casillero). */
-export const PANTALLA: Punto3 = [2, 2.35, -4.94];
+/** La pantalla de la portería: un monitor sobre el casillero (prop de la escena). */
+export const PANTALLA: Punto3 = [2, 2.12, -4.62];
 /** Don Efraín mirando hacia el jugador (al sur). */
 const AL_SUR: readonly [number, number] = [0, 5];
 
@@ -177,16 +177,16 @@ const INTRO: Escena = {
       pantalla: 'encendida',
     },
     {
-      // La cámara gira hacia la entrada: la puerta automática se cierra detrás.
+      // Detrás, la puerta automática se cierra (se oye; la entrada no se ve).
       dura: 2.5,
-      desde: { pos: [0, OJOS, 4.2], mira: [0.4, OJOS - 0.1, 9] },
+      desde: { pos: [0, OJOS, 4.2], mira: CASILLERO },
       sonido: 'puerta-cerrada',
       pantalla: 'encendida',
     },
     {
-      // Vuelve a mirar a la salida, donde empieza la partida. Al terminar, corte al juego.
+      // Mira hacia la salida, donde empieza la partida. Al terminar, corte al juego.
       dura: 2,
-      desde: { pos: [0, OJOS, 4.2], mira: [0.4, OJOS - 0.1, 9] },
+      desde: { pos: [0, OJOS, 4.2], mira: CASILLERO },
       hasta: INICIO,
       pantalla: 'encendida',
     },
@@ -226,10 +226,10 @@ const EL_LEGADO: Escena = {
       efrain: { x: 0.7, z: -4.25, mira: [PANTALLA[0], PANTALLA[2]], gorra: true },
     },
     {
-      // Plano medio: se quita la gorra y mira la pantalla un largo rato.
+      // Plano medio, de frente y a un lado: se quita la gorra y mira la pantalla un largo rato.
       dura: 5,
-      desde: { pos: [-0.4, 1.55, -2.5], mira: [0.7, 1.4, -4.25] },
-      hasta: { pos: [-0.2, 1.55, -2.9], mira: [0.7, 1.4, -4.25] },
+      desde: { pos: [1.9, 1.5, -2.7], mira: [0.7, 1.35, -4.25] },
+      hasta: { pos: [1.7, 1.5, -3.1], mira: [0.7, 1.35, -4.25] },
       efrainDice: 'Ese era yo.',
       puerta: true,
       pantalla: 'encendida',
@@ -255,8 +255,8 @@ const JUSTO_A_TIEMPO: Escena = {
   planos: [
     {
       dura: 4.5,
-      desde: { pos: [1.4, 1.55, -3.0], mira: CASILLERO },
-      hasta: { pos: [1.85, 1.35, -3.75], mira: CASILLERO },
+      desde: { pos: [0.6, 1.65, -1.9], mira: CASILLERO },
+      hasta: { pos: [1.2, 1.5, -3.0], mira: CASILLERO },
       texto: 'Tu memoria USB.',
       sonido: 'casilleros',
       pantalla: 'encendida',
@@ -438,13 +438,13 @@ export function orientacionHacia(pos: Punto3, mira: Punto3): { yaw: number; pitc
 }
 
 /**
- * Segundos para leer un texto con calma: el mismo ritmo de `duracionEstimada`
- * (`esquema-guion.ts`, 2,8 palabras por segundo) más un segundo de aire. No se importa de allá
- * porque ese archivo trae zod, que no va en el juego.
+ * Segundos para leer un subtítulo sin voz con calma: 2,4 palabras por segundo más un poco de
+ * aire, y nunca menos de 3 s. (Es más lento que `duracionEstimada` de `esquema-guion.ts`, que
+ * no se importa porque trae zod.)
  */
 export function segundosDeLectura(texto: string): number {
   const palabras = texto.split(/\s+/).filter((p) => /[\p{L}\p{N}]/u.test(p)).length;
-  return palabras / 2.8 + 1;
+  return Math.max(3, palabras / 2.4 + 1.2);
 }
 
 /** Quién habla en un subtítulo. */

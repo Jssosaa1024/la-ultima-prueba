@@ -146,23 +146,44 @@
 
 .tarjeta-foto {
   margin: 0;
+  width: 100%;
   height: 100%;
-  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
-.tarjeta-foto svg {
-  flex: 1 1 auto;
-  min-height: 0;
+/* El marco conserva la proporción de la foto (320 × 200) en cualquier pantalla. */
+.tarjeta-foto-marco {
+  position: relative;
+  height: calc(100% - 30px);
   max-width: 100%;
+  aspect-ratio: 320 / 200;
+  overflow: hidden;
   border: 8px solid #e9e4d8;
   border-bottom-width: 18px;
   box-shadow: var(--tema-sombra-papel);
+}
+
+.tarjeta-foto-vieja .tarjeta-foto-marco {
+  height: 100%;
+  transform: rotate(3deg);
+}
+
+.tarjeta-foto-marco svg {
+  display: block;
+  width: 100%;
+  height: 100%;
   filter: grayscale(1) sepia(0.25) contrast(1.05);
+  transform-origin: 50% 60%;
   animation: escena-acercar 7s linear both;
+}
+
+.tarjeta-foto-vieja svg {
+  filter: grayscale(1) sepia(0.55) contrast(0.9) brightness(0.92);
+  animation: none;
 }
 
 .tarjeta-foto figcaption {
@@ -170,16 +191,21 @@
   font-size: 0.95rem;
 }
 
-.tarjeta-foto-vieja svg {
-  transform: rotate(3deg);
-  filter: grayscale(1) sepia(0.55) contrast(0.9) brightness(0.92);
-  animation: none;
-}
-
-.tarjeta-foto-cartel {
-  font-family: var(--tema-letra-maquina);
-  font-size: 8px;
-  fill: #26241f;
+/* El cartel del puesto, escrito a mano sobre el mantel. */
+.tarjeta-foto-letrero {
+  position: absolute;
+  left: 17%;
+  top: 56%;
+  width: 66%;
+  padding: 2px 4px;
+  border: 1px solid #4a4842;
+  background: #f2efe7;
+  color: #26241f;
+  font-size: max(14px, 0.9rem);
+  line-height: 1.2;
+  text-align: center;
+  transform: rotate(-2deg);
+  filter: grayscale(1) sepia(0.25);
 }
 
 .tarjeta-hojas {
@@ -310,7 +336,7 @@
 @media (prefers-reduced-motion: reduce) {
   .escena-tarjeta,
   .escena-texto,
-  .tarjeta-foto svg {
+  .tarjeta-foto-marco svg {
     animation: none;
   }
 

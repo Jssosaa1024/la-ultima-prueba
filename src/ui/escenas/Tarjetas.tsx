@@ -117,38 +117,39 @@ function Pantalla({ children }: { children: ComponentChildren }) {
 function Foto({ cartel, pie, vieja = false }: { cartel: string; pie?: string; vieja?: boolean }) {
   return (
     <figure class={vieja ? 'tarjeta-foto tarjeta-foto-vieja' : 'tarjeta-foto'}>
-      <svg
-        viewBox="0 0 320 200"
-        role="img"
-        aria-label={`Foto en blanco y negro de un puesto de feria con un filtro de agua. Cartel: ${cartel}.`}
-      >
-        <rect width="320" height="200" fill="#a8a49c" />
-        <rect width="320" height="120" fill="#7d7a73" />
-        <rect y="150" width="320" height="50" fill="#bdb9b0" />
-        {/* El poste y su sombra en el piso. */}
-        <rect x="34" y="28" width="6" height="124" fill="#3a3834" />
-        <polygon points="37,151 104,158 104,161 37,154" fill="#55524c" />
-        {/* La mesa con su mantel. */}
-        <rect x="110" y="108" width="170" height="10" fill="#e4e0d6" />
-        <rect x="116" y="118" width="158" height="34" fill="#d3cec3" />
-        {/* El filtro: botella con capas de grava, arena y carbón. */}
-        <rect x="150" y="30" width="34" height="78" rx="5" fill="#d9d6cf" stroke="#4a4842" />
-        <rect x="152" y="40" width="30" height="16" fill="#8a867e" />
-        <rect x="152" y="56" width="30" height="18" fill="#b8b3a8" />
-        <rect x="152" y="74" width="30" height="16" fill="#3e3c38" />
-        <rect x="163" y="22" width="8" height="9" fill="#4a4842" />
-        {/* La manguera, las gotas y el frasco del agua limpia. */}
-        <path d="M184 96 q20 0 26 12" stroke="#4a4842" stroke-width="3" fill="none" />
-        <circle cx="211" cy="113" r="2" fill="#5f6a74" />
-        <circle cx="212" cy="120" r="1.6" fill="#5f6a74" />
-        <rect x="200" y="124" width="26" height="28" rx="3" fill="#cfd5d9" stroke="#4a4842" />
-        <rect x="202" y="136" width="22" height="14" fill="#a9b6bf" />
-        {/* El cartel escrito a mano. */}
-        <rect x="124" y="124" width="70" height="20" fill="#f2efe7" stroke="#4a4842" />
-        <text x="159" y="137" text-anchor="middle" class="tarjeta-foto-cartel">
+      <div class="tarjeta-foto-marco">
+        <svg
+          viewBox="0 0 320 200"
+          role="img"
+          aria-label={`Foto en blanco y negro de un puesto de feria con un filtro de agua. Cartel: ${cartel}.`}
+        >
+          <rect width="320" height="200" fill="#a8a49c" />
+          <rect width="320" height="120" fill="#7d7a73" />
+          <rect y="150" width="320" height="50" fill="#bdb9b0" />
+          {/* El poste y su sombra en el piso. */}
+          <rect x="34" y="28" width="6" height="124" fill="#3a3834" />
+          <polygon points="37,151 104,158 104,161 37,154" fill="#55524c" />
+          {/* La mesa con su mantel. */}
+          <rect x="110" y="108" width="170" height="10" fill="#e4e0d6" />
+          <rect x="116" y="118" width="158" height="34" fill="#d3cec3" />
+          {/* El filtro: botella con capas de grava, arena y carbón. */}
+          <rect x="150" y="30" width="34" height="78" rx="5" fill="#d9d6cf" stroke="#4a4842" />
+          <rect x="152" y="40" width="30" height="16" fill="#8a867e" />
+          <rect x="152" y="56" width="30" height="18" fill="#b8b3a8" />
+          <rect x="152" y="74" width="30" height="16" fill="#3e3c38" />
+          <rect x="163" y="22" width="8" height="9" fill="#4a4842" />
+          {/* La llave, las gotas y el frasco del agua limpia, sobre la mesa. */}
+          <rect x="184" y="80" width="12" height="3" fill="#4a4842" />
+          <circle cx="194" cy="87" r="1.8" fill="#5f6a74" />
+          <circle cx="194" cy="93" r="1.4" fill="#5f6a74" />
+          <rect x="186" y="96" width="24" height="12" rx="2" fill="#cfd5d9" stroke="#4a4842" />
+          <rect x="188" y="101" width="20" height="6" fill="#a9b6bf" />
+        </svg>
+        {/* El cartel escrito a mano va en HTML, encima del mantel: así se lee (14 px o más). */}
+        <span class="tarjeta-foto-letrero" aria-hidden="true">
           {cartel}
-        </text>
-      </svg>
+        </span>
+      </div>
       {pie && <figcaption>{pie}</figcaption>}
     </figure>
   );
