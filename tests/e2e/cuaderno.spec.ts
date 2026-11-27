@@ -95,4 +95,8 @@ test('cada sello trae su prueba del caso de 1991 al cuaderno', async ({ page }) 
   await expediente.getByText('Prueba 2 · La bitácora').click();
   await expect(expediente).toContainText('Dos rectas distintas se cruzan en un solo punto');
   await expect(expediente).toContainText('E. C., 10-B');
+  // Historia · sesión C: la bitácora dibuja sus dos rectas y dice dónde se cruzan.
+  await expect(expediente.locator('.cuaderno-grafica')).toContainText(
+    'Se cruzan una sola vez, en el minuto 15.',
+  );
 });

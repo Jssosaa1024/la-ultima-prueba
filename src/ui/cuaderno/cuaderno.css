@@ -180,3 +180,178 @@
   font-weight: 700;
   color: var(--tema-ambar);
 }
+
+/*
+ * Fichas de evidencia (Historia · sesión C): cada prueba se ve como su documento. Todo el texto
+ * sigue en tinta sobre papel claro (contraste AA) y a 14 px o más.
+ */
+.cuaderno-prueba > .cuaderno-acusacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.cuaderno-acusacion-sello.tema-sello {
+  /* Sobre la carpeta oscura, el sello va en claro y sin mezclarse con el fondo. */
+  --sello-color: #f19a8f;
+
+  mix-blend-mode: normal;
+}
+
+.cuaderno-documento {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 0 8px 10px;
+}
+
+.cuaderno-documento > .ficha {
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 2px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 45%);
+}
+
+/* Sala 1 · El recibo: papel de caja registradora, angosto, a máquina y con el borde picado. */
+.cuaderno-prueba-s1-cooperativa .cuaderno-documento > .ficha {
+  max-width: 24rem;
+  padding-bottom: 22px;
+  background: #fbf7ec;
+  font-family: var(--tema-letra-maquina);
+  font-size: 1rem;
+  /* El borde de abajo, arrancado del rollo: dientes de 10 px. */
+  mask:
+    linear-gradient(#000, #000) top / 100% calc(100% - 8px) no-repeat,
+    conic-gradient(from 135deg at 50% 0, #000 90deg, #0000 0) bottom / 10px 8px repeat-x;
+}
+
+.cuaderno-prueba-s1-cooperativa .ficha-tabla td {
+  border-bottom-style: dashed;
+}
+
+/* Sala 2 · La bitácora: hoja cuadriculada. */
+.cuaderno-prueba-s2-laboratorio .cuaderno-documento > .ficha,
+.cuaderno-grafica {
+  background:
+    linear-gradient(rgb(70 110 160 / 18%) 1px, transparent 1px) 0 0 / 14px 14px,
+    linear-gradient(90deg, rgb(70 110 160 / 18%) 1px, transparent 1px) 0 0 / 14px 14px,
+    #f7f4ea;
+}
+
+.cuaderno-grafica {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 24rem;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 2px;
+  color: var(--tema-tinta);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 45%);
+}
+
+.cuaderno-grafica-dibujo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cuaderno-grafica-eje {
+  stroke: var(--tema-tinta-suave);
+  stroke-width: 1.5;
+}
+
+.cuaderno-grafica-propio,
+.cuaderno-grafica-otro {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cuaderno-grafica-propio {
+  stroke: var(--tema-sello-azul);
+}
+
+.cuaderno-grafica-otro {
+  stroke: var(--tema-sello-rojo);
+  stroke-dasharray: 7 6;
+}
+
+.cuaderno-grafica-cruce {
+  fill: none;
+  stroke: var(--tema-tinta);
+  stroke-width: 2;
+}
+
+.cuaderno-grafica-pie {
+  margin-top: 6px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.cuaderno-grafica-clave {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 12px;
+  font-weight: 700;
+}
+
+/* La clave dibuja la misma raya que la recta: continua o punteada. */
+.cuaderno-grafica-clave::before {
+  content: '';
+  width: 22px;
+  border-top: 3px solid var(--tema-sello-azul);
+}
+
+.cuaderno-grafica-clave-otro::before {
+  border-top-style: dashed;
+  border-top-color: var(--tema-sello-rojo);
+}
+
+/* Sala 3 · La foto de la feria, y su respaldo con las medidas. */
+.cuaderno-foto {
+  margin-top: 4px;
+}
+
+/* Sala 4 · Las fichas de préstamo: cartulina de biblioteca con renglones y margen rojo. */
+.cuaderno-prueba-s4-biblioteca .cuaderno-documento > .ficha {
+  background:
+    linear-gradient(var(--tema-margen), var(--tema-margen)) 0 0 / 100% 3px no-repeat,
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(1.75rem - 1px),
+      var(--tema-renglon) calc(1.75rem - 1px) 1.75rem
+    ),
+    #f3e6c4;
+}
+
+/* Sala 5 · El acta: hoja oficial con doble raya de membrete. */
+.cuaderno-prueba-s5-rectoria .cuaderno-documento > .ficha {
+  border-top: 6px double var(--tema-tinta);
+  background: var(--tema-grano), #fbf8f0;
+}
+
+.cuaderno-prueba-s5-rectoria .cuaderno-documento > .ficha::before {
+  content: 'Acta · Rectoría · 1991';
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tema-tinta-suave);
+}
+
+/* Una prueba pendiente es un folio vacío: el borde punteado dice que falta. */
+.cuaderno-prueba-pendiente {
+  border: 2px dashed var(--tema-noche-linea);
+  background: transparent;
+}
+
+.cuaderno-grafica-frase {
+  display: block;
+  margin-top: 4px;
+}

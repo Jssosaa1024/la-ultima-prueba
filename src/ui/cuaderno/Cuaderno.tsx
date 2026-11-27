@@ -13,6 +13,7 @@ import GrabacionesCuaderno from '../grabaciones/GrabacionesCuaderno';
 import ContenidoFicha from '../inspeccion/ContenidoFicha';
 import Dialogo from '../paneles/Dialogo';
 import { descubrimientos } from './descubrimientos';
+import PruebaExpediente from './PruebaExpediente';
 import './cuaderno.css';
 
 /**
@@ -93,14 +94,7 @@ function Expediente() {
       <div class="cuaderno-datos">
         {estado.map(({ prueba: p, conseguida }) =>
           conseguida ? (
-            <details key={p.id} class="cuaderno-dato cuaderno-prueba">
-              <summary>
-                Prueba {p.numero} · {p.titulo}
-              </summary>
-              <p class="cuaderno-acusacion">Lo que dijo el jurado: {p.acusacion}</p>
-              <ContenidoFicha ficha={{ titulo: p.titulo, bloques: p.bloques }} />
-              <p class="cuaderno-lo-que-prueba">{p.prueba}</p>
-            </details>
+            <PruebaExpediente key={p.id} prueba={p} />
           ) : (
             <div key={p.id} class="cuaderno-dato cuaderno-prueba cuaderno-prueba-pendiente">
               <p class="cuaderno-prueba-titulo">
