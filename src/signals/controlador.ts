@@ -49,6 +49,7 @@ import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
 import { agotado, crearReloj, pausar, reanudar, restante } from '../game/reloj';
 import { fichas, type Ficha } from './contenido';
+import { escena, escenaVista, iniciarEscena, reiniciarEscena, seguirFinales } from './escena';
 import { decir, reiniciarVoz } from './voz';
 import {
   cuadernoActivo,
@@ -145,6 +146,12 @@ export interface OpcionesControlador {
   documento?: DocumentoVisible | null;
   /** Por defecto, `localStorage`. `null`: no se guarda la partida. */
   almacen?: Almacen | null;
+  /**
+   * Escenas de la historia (Historia A): la intro al empezar una partida nueva y la de cada
+   * final. Por defecto, solo con el documento y el almacén del navegador: las pruebas de unidad
+   * que pasan los suyos juegan sin escenas, salvo que las pidan.
+   */
+  escenas?: boolean;
 }
 
 /** `localStorage`, o `null` si no existe o el navegador no deja usarlo (pestaña privada). */
@@ -188,7 +195,7 @@ function objetoDeInventario(id: string): ObjetoInventario | null {
  * - `oculta`: la pestaña no se ve (otra app, pantalla bloqueada);
  * - `vertical`: el celular está en vertical y se ve el aviso de girarlo (T41b).
  */
-type MotivoPausa = 'orden' | 'oculta' | 'vertical';
+type MotivoPausa = 'orden' | 'oculta' | 'vertical' | 'escena';
 
 interface EtapaEnCurso {
   sala: SalaId;
@@ -224,6 +231,8 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
         ? null
         : document;
   const almacen = opciones.almacen !== undefined ? opciones.almacen : almacenDelNavegador();
+  const conEscenas =
+    opciones.escenas ?? (opciones.almacen === undefined && opciones.documento === undefined);
 
   let partida: Partida | null = null;
   const motivos = new Set<MotivoPausa>();
@@ -529,6 +538,11 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
    * cerrada no cuenta: el reloj sigue desde lo que quedaba.
    */
   function empezar(g: Guardado | null): void {
+    // La intro (Historia A) cuenta el caso de 1991 la primera vez en este equipo. Mientras se
+    // ve, el reloj no corre; al terminar o saltarla, La Voz se presenta como siempre.
+    const conIntro = !g && conEscenas && !escenaVista('intro', almacen);
+    // Antes de pedir la pausa de la intro: así quitar una escena anterior no la suelta.
+    reiniciarEscena();
     cambiar((t) => {
       partida = g ? g.partida : crearPartida();
       pistasPorSala = g ? { ...g.pistas } : {};
@@ -544,6 +558,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       motivos.clear();
       if (documento?.hidden) motivos.add('oculta');
       if (girarTelefono.peek()) motivos.add('vertical');
+      if (conIntro) motivos.add('escena');
       batch(() => {
         reiniciarInterfaz();
         reiniciarPartida();
@@ -561,14 +576,18 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
           cuadernoActivo.value = g.inventario.includes(OBJETO_CUADERNO);
         }
       });
-      // Una partida nueva empieza con la puerta que se cierra y La Voz presentándose.
-      if (!g) {
-        decirUnaVez('voz-intro-1');
-        decirUnaVez('voz-intro-2');
-      }
+      // Una partida nueva empieza con la puerta que se cierra y La Voz presentándose (después de
+      // la intro, si la hay).
+      if (conIntro) iniciarEscena('intro', almacen);
+      else if (!g) presentarVoz();
       // Si se guardó justo al acabarse el tiempo, no queda nada que jugar.
       if (g && g.restanteMs <= 0) partida = aplicar(partida, { t: 'tiempo_agotado' });
     });
+  }
+
+  function presentarVoz(): void {
+    decirUnaVez('voz-intro-1');
+    decirUnaVez('voz-intro-2');
   }
 
   function salir(): void {
@@ -588,6 +607,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
     }
     batch(() => {
       fichas.value = {};
+      reiniciarEscena();
       reiniciarInterfaz();
       reiniciarPartida();
       reiniciarCuaderno();
@@ -797,8 +817,18 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       else motivos.delete('vertical');
     });
   });
+  // Terminó la intro (sola o saltada): corre el reloj y La Voz se presenta.
+  const dejarDeSeguirEscena = escena.subscribe((e) => {
+    if (e || !partida || !motivos.has('escena')) return;
+    cambiar(() => motivos.delete('escena'));
+    presentarVoz();
+  });
+  // Los finales con escena, en individual y en grupo.
+  const dejarDeSeguirFinales = conEscenas ? seguirFinales(almacen) : () => undefined;
   mirarGuardado();
   return () => {
+    dejarDeSeguirEscena();
+    dejarDeSeguirFinales();
     dejarDeEscuchar();
     dejarDeMirarOrientacion();
     documento?.removeEventListener('visibilitychange', alCambiarVisibilidad);

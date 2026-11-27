@@ -1,4 +1,5 @@
 import { batch, computed, signal } from '@preact/signals';
+import { escena } from './escena';
 import { girarTelefono } from './pantalla';
 import { fase } from './partida';
 import type { Alias } from '../net/protocolo';
@@ -102,11 +103,15 @@ export const panelRecogido = signal(false);
 export const aviso = signal<Aviso | null>(null);
 
 /**
- * El motor solo mueve al jugador y lee toques cuando se está jugando, no hay panel abierto y
- * el celular no está en vertical (T41b).
+ * El motor solo mueve al jugador y lee toques cuando se está jugando, no hay panel abierto, no
+ * se ve una escena de la historia y el celular no está en vertical (T41b).
  */
 export const controlesActivos = computed(
-  () => fase.value === 'jugando' && panel.value === null && !girarTelefono.value,
+  () =>
+    fase.value === 'jugando' &&
+    panel.value === null &&
+    escena.value === null &&
+    !girarTelefono.value,
 );
 
 /** Abre la vista de inspección de un objeto. */

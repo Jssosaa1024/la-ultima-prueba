@@ -78,8 +78,7 @@ describe('guion.json', () => {
     // Desde la historia B, el diseño trae también las líneas del caso de Don Efraín.
     const delDiseno = GUION.filter(
       (l) =>
-        (l.origen === 'salas-y-puzzles' || l.origen === 'historia') &&
-        l.momento !== 'escena_intro',
+        (l.origen === 'salas-y-puzzles' || l.origen === 'historia') && l.momento !== 'escena_intro',
     );
     expect(delDiseno).toHaveLength(27);
     for (const l of delDiseno) expect(diseno, l.id).toContain(`«${l.texto}»`);
