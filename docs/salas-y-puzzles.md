@@ -19,32 +19,15 @@ Decisiones nuevas que propongo:
 
 ## Narrativa
 
-La historia es un misterio amable: nadie está en peligro, el colegio no es una amenaza y La Voz no es un villano. El tono es el de un profe exigente con humor seco que quiere que aprendas a pensar con calma cuando el tiempo apremia.
+**Desde el 26 de noviembre de 2026 (decisión de Alex) la historia es «El caso de Don Efraín»: está completa en `docs/historia.md`**, que manda sobre esta sección. En resumen: La Voz es la grabación que dejó el profe Tobías Rincón antes de jubilarse; en la feria de ciencias de 1991 acusaron de copia a un estudiante de 10-B y Rincón guardó las pruebas en la carpeta `ULTIMA_PRUEBA`, que se borra a las 00:40. Cada sala da una prueba matemática de su inocencia, y el acusado era Don Efraín, el celador. Los puzzles no cambian: cambia lo que significa resolverlos.
+
+El tono sigue siendo un misterio amable: nadie está en peligro, el colegio no es una amenaza y nadie es villano. La Voz es un profe exigente con humor seco que quiere que aprendas a pensar con calma cuando el tiempo apremia.
 
 ### Mundo
 
 Institución Educativa Los Almendros, un colegio público ficticio de una ciudad intermedia colombiana. Es miércoles a las 23:59 y la feria de ciencias empieza mañana a las 7:00. El jugador, estudiante de grado 10, olvidó en el colegio la memoria USB con su proyecto y entra justo cuando la puerta automática de la portería se cierra.
 
-### Personajes
-
-| Personaje | Quién es | Cómo aparece |
-| --- | --- | --- |
-| La Voz / profe Tobías Rincón | Docente de matemáticas jubilado hace un año, 34 años en el colegio. Programó el sistema de parlantes como despedida antes de irse. | Solo voz por parlantes y subtítulos. Se revela al final con las tres grabaciones. |
-| Don Efraín | Celador del turno de noche. Tenía la llave desde el principio. | Por el intercomunicador de la portería; aparece en persona solo en el final «También vale pedir ayuda». |
-| Profe Marta (geometría), profe Julián (estadística), profe Inés (español) | Sospechosos del misterio y cameos de los créditos. | Solo por objetos: una taza, una firma, una letra manuscrita. |
-| El jugador | Estudiante de grado 10 sin nombre ni género definido. | Primera persona; en cooperativo, avatares de bajo polígono con alias de lista. |
-
-### El misterio
-
-El servidor del colegio tiene programada una migración automática a las 00:40 que borrará la carpeta `ULTIMA_PRUEBA`, donde el profe Tobías guardó mensajes de voz para cada promoción futura. Nadie sabe quién la dejó. Cada sala deja una señal que descarta a un sospechoso; las grabaciones confirman quién es.
-
-| Sala | Señal (opcional, en la vista de inspección) | Qué descarta o revela |
-| --- | --- | --- |
-| 1. Cooperativa | Lista de turnos del tablero: «profe Marta, incapacidad desde octubre». | Marta no pudo programar nada. |
-| 2. Laboratorio | Taza con iniciales «T. R.» junto al computador del termostato. | Primera pista hacia Tobías. |
-| 3. Gimnasio | Planilla del torneo de profes firmada por Julián: «no sé ni prender el parlante». | Descarta a Julián. |
-| 4. Biblioteca | Ficha de préstamo con letra de Inés y una corrección en rojo de otra mano a un texto de La Voz. | Inés corrigió los textos, pero no los grabó. |
-| 5. Rectoría | Carta de jubilación de Tobías en el escritorio del rector. | Confirma la identidad si se tienen las grabaciones. |
+Los personajes, las pruebas de cada sala, cómo se siembra el giro y los finales están en `docs/historia.md`. Las señales del misterio anterior (los turnos de la profe Marta, la planilla del profe Julián, la ficha de la profe Inés) siguen en las salas como ambiente; el corcho de la cooperativa ahora trae un recorte sobre la feria de 1991.
 
 ### Guion de La Voz
 
@@ -53,25 +36,33 @@ Reglas: cada línea dura menos de 6 segundos (unas 15 palabras), nunca dice la r
 | Id | Momento | Línea |
 | --- | --- | --- |
 | `voz-intro-1` | Se cierra la puerta | «Buenas noches. Llegas tarde, como siempre a lo importante.» |
-| `voz-intro-2` | Primer paso en la portería | «Cinco salas, cinco sellos. Con ellos se abre esta puerta.» |
-| `voz-intro-3` | Mira el reloj de la portería | «A las 00:40 algo se borra. Tú decides si te importa.» |
-| `voz-s1-entrar` | Entra a la cooperativa | «La cooperativa. Aquí aprendieron a pagar de más varias generaciones.» |
-| `voz-s1-sello` | Abre la registradora | «Cuentas claras. El descuento no se le aplica a la paciencia.» |
-| `voz-s2-entrar` | Entra al laboratorio | «Aquí todo cambia a ritmo constante. Casi como yo esperando respuestas.» |
-| `voz-s2-sello` | Abre el compartimento | «Una línea recta. Lo más honesto que hay en un laboratorio.» |
-| `voz-s3-entrar` | Entra al gimnasio | «El gimnasio. Lo que está alto no siempre es inalcanzable.» |
-| `voz-s3-sello` | Baja el sello | «Un ángulo y una distancia. Con eso se mide lo que no se alcanza.» |
-| `voz-s4-entrar` | Entra a la biblioteca | «Silencio, por favor. Y orden, sobre todo orden.» |
-| `voz-s4-sello` | Abre el casillero | «Cuatro números y una sola semana posible. Eso es deducir.» |
-| `voz-s5-entrar` | Entra a la rectoría | «La última. Aquí nada vuelve a donde estaba.» |
-| `voz-s5-sello` | Abre la caja fuerte | «Ya no me necesitas. Eso era lo que quería oír.» |
-| `voz-espera` | 90 s sin interactuar en una sala | «El cuaderno también sirve para pensar, no solo para copiar.» |
-| `voz-fallo` | Tercer intento fallido | «Equivocarse aquí es gratis. Y enseña más que acertar de suerte.» |
-| `voz-final` | Cinco sellos en la portería | «Salir o salvar el archivo. No hay respuesta incorrecta esta vez.» |
-| `voz-pasillo-profesores` | Toca la puerta falsa de la sala de profesores (pasillo) | «La sala de profesores. Ni yo tengo llave de ahí.» |
-| `voz-pasillo-10a` | Toca la puerta falsa del aula 10-A | «Esa puerta no lleva a ninguna prueba. Ni siquiera a un recreo.» |
+| `voz-intro-2` | Primer paso en la portería | «Cinco salas, cinco sellos. Cada sello guarda una prueba de un caso de 1991.» |
+| `voz-intro-3` | Mira el reloj de la portería | «A las 00:40 el archivo se borra. Y con él, la verdad de un muchacho.» |
+| `voz-s1-entrar` | Entra a la cooperativa | «La cooperativa. Aquí compró sus materiales. El recibo dice más de lo que parece.» |
+| `voz-s1-sello` | Abre la registradora | «Cuentas claras. Su recibo cuadraba; el que no cuadró fue el jurado.» |
+| `voz-s2-entrar` | Entra al laboratorio | «El laboratorio. Él midió su filtro cada cinco minutos durante tres semanas.» |
+| `voz-s2-sello` | Abre el compartimento | «Una recta no se copia: se mide. Y la suya era otra.» |
+| `voz-s3-entrar` | Entra al gimnasio | «El gimnasio. Aquí fue la feria de 1991. Alguien tomó una foto.» |
+| `voz-s3-sello` | Baja el sello | «La sombra no miente: la foto es de muy temprano. Él llegó primero.» |
+| `voz-s4-entrar` | Entra a la biblioteca | «La biblioteca. Las fichas de préstamo saben quién estudió, y cuándo.» |
+| `voz-s4-sello` | Abre el casillero | «Semanas enteras leyendo sobre agua. Eso no lo hace alguien que copia.» |
+| `voz-s5-entrar` | Entra a la rectoría | «La rectoría. Aquí firmaron que era imposible por casualidad.» |
+| `voz-s5-sello` | Abre la caja fuerte | ««Imposible por casualidad». Bastaba contar con calma. Ya no me necesitas.» |
+| `voz-espera` | 90 s sin interactuar en una sala | «El jurado decidió sin mirar dos veces. Tú sí puedes mirar otra vez.» |
+| `voz-fallo` | Tercer intento fallido | «Equivocarse aquí es gratis. El error de verdad es no volver a revisar.» |
+| `voz-final` | Cinco sellos en la portería | «Cinco pruebas. Puedes salir con lo tuyo, o salvar el archivo. Tú decides.» |
+| `voz-pasillo-profesores` | Toca la puerta falsa de la sala de profesores (pasillo) | «La sala de profesores. Ahí se decidió todo en cuarenta minutos.» |
+| `voz-pasillo-10a` | Toca la puerta falsa del aula 10-A | «El 10-A. Treinta y cuatro promociones pasaron por ahí sin saber nada.» |
 | `voz-pasillo-11b` | Toca la puerta falsa del aula 11-B | «Esa no es. Las salas que buscas tienen cartel con número.» |
-| `voz-pasillo-aseo` | Toca la puerta falsa del cuarto del aseo | «El cuarto del aseo. Lo único ordenado del colegio, y está cerrado.» |
+| `voz-pasillo-aseo` | Toca la puerta falsa del cuarto del aseo | «El cuarto del aseo. Alguien lo mantiene impecable desde hace treinta años.» |
+| `voz-pasillo-10b` | Toca la puerta falsa del aula 10-B | «El 10-B. Un puesto de ese salón quedó vacío en noviembre de 1991.» |
+| `voz-pasillo-11a` | Toca la puerta falsa del aula 11-A | «El 11-A. Él nunca llegó a este salón.» |
+| `voz-fin-legado` | Final «El legado» | «Efraín, nunca fue copia. Perdóname por tardar treinta y cuatro años en probarlo.» |
+| `voz-fin-justo` | Final «Justo a tiempo» | «Ahí está tu memoria. Mañana, en tu feria, que nadie decida sin mirar dos veces.» |
+| `voz-fin-ayuda` | Final «También vale pedir ayuda» | «Pedir ayuda a tiempo también es pensar. Don Efraín tiene la llave.» |
+| `voz-fin-tiempo` | Final «Tiempo cumplido» | «Las 00:40. El archivo se fue. Lo que entendiste esta noche, no.» |
+
+Las líneas del caso de Don Efraín (26 de noviembre de 2026) llevan `origen: "historia"` en `src/content/guion.json`. Las grabaciones están en «Las tres grabaciones», más abajo.
 
 ## Estructura de la partida
 
@@ -254,15 +245,15 @@ La caja verifica la composición exacta, no el resultado del simulador, así que
 
 ## Grabaciones y finales
 
-Las tres grabaciones son opcionales y están en las salas 2, 3 y 4. Juntas desbloquean «El legado» y revelan que La Voz es el profe Tobías. Cada una dura menos de 20 segundos, se escucha al recogerla y queda en el cuaderno con su transcripción.
+Las tres grabaciones son opcionales y están en las salas 2, 3 y 4. Juntas desbloquean «El legado» y cuentan el lado del profe Tobías: por qué votó en contra, quién era el estudiante y que «él nunca se fue del todo». Cada una dura menos de 20 segundos, se escucha al recogerla y queda en el cuaderno con su transcripción.
 
 ### Las tres grabaciones
 
 | Id | Sala y escondite | Cómo se encuentra | Transcripción |
 | --- | --- | --- | --- |
-| `grab-1` | 2 · Gabinete del laboratorio | Siguiendo las flechas que revela la luz UV | «Grabación uno. Treinta y cuatro años diciendo “revisa tus cuentas”. Esta vez quiero decir otra cosa.» |
-| `grab-2` | 3 · Balón desinflado en el carro | Es el único balón que no rebota al tocarlo | «Grabación dos. Una nota mide una mañana, no a una persona. Eso no sale en ningún boletín.» |
-| `grab-3` | 4 · Cactus del estante M | La ficha de Inés en la caja de devoluciones dice dónde | «Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.» |
+| `grab-1` | 2 · Gabinete del laboratorio | Siguiendo las flechas que revela la luz UV | «Grabación uno. Soy Tobías Rincón. En 1991 fui el jurado más nuevo. Voté en contra y perdí. Guardé las pruebas por si alguien quería revisar.» |
+| `grab-2` | 3 · Balón desinflado en el carro | Es el único balón que no rebota al tocarlo | «Grabación dos. Tenía quince años y un filtro de agua para su vereda. Después de la sanción no volvió. Yo tampoco fui el mismo profe.» |
+| `grab-3` | 4 · Cactus del estante M | La ficha de Inés en la caja de devoluciones dice dónde | «Grabación tres. Él nunca se fue del todo. Está más cerca de lo que crees. Si restauras el archivo, que él lo vea primero.» |
 
 ### Los cuatro finales
 
@@ -270,10 +261,10 @@ El final se elige en la portería, frente a la puerta de salida, después de col
 
 | Final | Condición | Qué se ve |
 | --- | --- | --- |
-| «El legado» | 5 sellos + 3 grabaciones y elegir «Restaurar archivo» | La carpeta se copia a un pendrive que el jugador se lleva; La Voz se despide con su nombre; se abre la puerta. |
-| «Justo a tiempo» | 5 sellos y elegir «Salir» (con o sin grabaciones) | El casillero de objetos perdidos se abre, se recupera la memoria USB y el archivo se borra a las 00:40 mientras el jugador sale. |
+| «El legado» | 5 sellos + 3 grabaciones y elegir «Restaurar archivo» | Final bueno de `docs/historia.md`: la carpeta se copia a un pendrive, Don Efraín abre la puerta y ve en la pantalla su proyecto de 1991. |
+| «Justo a tiempo» | 5 sellos y elegir «Salir» (con o sin grabaciones) | El casillero se abre y se recupera la memoria USB; el archivo se borra a las 00:40 y Don Efraín abre la puerta en silencio (final malo). |
 | «También vale pedir ayuda» | Usar el intercomunicador en cualquier momento y confirmar | Don Efraín abre con su llave y ofrece repasar las salas pendientes en modo práctica. |
-| «Tiempo cumplido» | El reloj llega a 00:40 | La puerta se libera; los acertijos pendientes quedan en modo práctica sin reloj. |
+| «Tiempo cumplido» | El reloj llega a 00:40 | El archivo se borra, Don Efraín abre la puerta en silencio (final malo) y los acertijos pendientes quedan en modo práctica sin reloj. |
 
 Con cinco sellos y menos de tres grabaciones, el botón «Restaurar archivo» aparece desactivado con el texto «Faltan N grabaciones» y un mapa de las salas que aún esconden una. Así el jugador sabe que puede volver sin que se le diga dónde mirar.
 
