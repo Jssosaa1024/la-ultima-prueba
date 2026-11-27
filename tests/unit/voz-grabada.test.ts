@@ -205,8 +205,46 @@ describe('dónde se publica la voz', () => {
  * Líneas nuevas que la sesión A todavía no grabó (`npm run voz -- --solo …`). Mientras tanto el
  * juego muestra el subtítulo con su duración estimada. Al grabarlas, se quitan de aquí: la prueba
  * de abajo avisa. Las cuatro de las puertas falsas del pasillo se grabaron en T77h.
+ *
+ * Historia B (26 de noviembre de 2026, `docs/historia.md`): el caso de Don Efraín cambió el
+ * texto de 24 líneas y agregó 2 (las puertas del 10-B y el 11-A). A las líneas cambiadas se les
+ * quitaron el .m4a, el original y su entrada en `art/credits.json`, para que el juego no diga
+ * una frase con el subtítulo de otra. Así, `npm run voz` sin opciones genera justo estas.
  */
-const POR_GRABAR: readonly string[] = [];
+const POR_GRABAR: readonly string[] = [
+  // Portería
+  'voz-intro-2',
+  'voz-intro-3',
+  'voz-final',
+  // Entrada y sello de cada sala
+  'voz-s1-entrar',
+  'voz-s1-sello',
+  'voz-s2-entrar',
+  'voz-s2-sello',
+  'voz-s3-entrar',
+  'voz-s3-sello',
+  'voz-s4-entrar',
+  'voz-s4-sello',
+  'voz-s5-entrar',
+  'voz-s5-sello',
+  // Cualquier sala
+  'voz-espera',
+  'voz-fallo',
+  // Puertas falsas del pasillo (las dos últimas son nuevas)
+  'voz-pasillo-profesores',
+  'voz-pasillo-10a',
+  'voz-pasillo-aseo',
+  'voz-pasillo-10b',
+  'voz-pasillo-11a',
+  // Grabaciones del profe Tobías
+  'grab-1',
+  'grab-2',
+  'grab-3',
+  // Finales
+  'voz-fin-legado',
+  'voz-fin-justo',
+  'voz-fin-tiempo',
+];
 
 describe('líneas por grabar', () => {
   it('siguen sin audio: cuando se graben, se quitan de POR_GRABAR', () => {
