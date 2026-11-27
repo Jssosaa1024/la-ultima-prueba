@@ -40,7 +40,8 @@ export default function MenuInicio() {
       <main class="menu archivo tema-fondo" aria-labelledby="menu-titulo" inert={conAjustes}>
         <div class={`menu-caja${hoja === 'principal' ? '' : ' menu-caja-ancha'}`}>
           <header class="menu-portada">
-            <p class="menu-antetitulo tema-etiqueta">Archivo de la I. E. Los Almendros</p>
+            {/* La carátula del caso (Historia · sesión C): la escena de la intro va después. */}
+            <p class="menu-antetitulo tema-etiqueta">Expediente 1991-14</p>
             <h1 id="menu-titulo" class="menu-titulo tema-titulo">
               La Última Prueba
             </h1>
@@ -49,8 +50,9 @@ export default function MenuInicio() {
               <span>El archivo se borra a las</span> <strong>00:40</strong>
             </p>
             <p class="menu-texto">
-              Son las 23:59 y las puertas del colegio se cerraron contigo adentro. Por los parlantes
-              despierta La Voz: supera cinco salas y recupera la salida. Tienes 40 minutos.
+              Mañana es tu feria de ciencias y tu memoria USB se quedó en el colegio. Entras por
+              ella a las 23:59 y la puerta se cierra. La Voz te pide revisar un caso de 1991 antes
+              de que se borre.
             </p>
             {/* T95: en iPhone, la única forma de quitar las barras de Safari. */}
             {instalar && <p class="menu-nota menu-instalar">{TEXTO_INSTALAR}</p>}
@@ -58,7 +60,7 @@ export default function MenuInicio() {
           <Ficha
             key={hoja}
             variante={hoja === 'principal' ? 'renglones' : 'papel'}
-            pestana={hoja === 'principal' ? 'Expediente 00:40' : 'Expediente en grupo'}
+            pestana={hoja === 'principal' ? 'Caso: copia de proyecto' : 'Expediente en grupo'}
             entra
             clase="menu-ficha"
           >

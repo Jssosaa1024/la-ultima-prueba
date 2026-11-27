@@ -52,6 +52,10 @@ test('con los cinco sellos, «Salir» lleva al final «Justo a tiempo»', async 
   await expect(encabezado).toBeVisible();
   await expect(encabezado).toBeFocused();
   await expect(page.getByRole('timer')).toHaveCount(0);
+  // Historia · sesión C: el acta de la noche lleva la foto vieja, sin el nombre del estudiante.
+  await expect(page.getByText(/Cerrada a las \d\d:\d\d/)).toBeVisible();
+  await expect(page.getByRole('img', { name: /Foto vieja en blanco y negro/ })).toBeVisible();
+  await expect(page.getByText(/Cárdenas/)).toHaveCount(0);
   // Resumen de aprendizaje (punto 15 del hito 1): las cinco salas, cómo terminó cada una y
   // cómo funcionaba su máquina. La partida de prueba no abrió pistas.
   // La línea de La Voz de este final (T34).
@@ -81,14 +85,18 @@ test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El 
   await expect(page.getByRole('heading', { level: 1, name: 'El legado' })).toBeFocused();
   await expect(page.getByText('5 de 5', { exact: true })).toBeVisible();
   await expect(page.getByText('3 de 3', { exact: true })).toBeVisible();
+  // Historia · sesión C: en «El legado» la foto de la feria muestra el cartel con su nombre.
+  await expect(page.getByRole('img', { name: /«Efraín Cárdenas, 10-B»/ })).toBeVisible();
 
   await page.getByRole('button', { name: 'Ver créditos' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'La Última Prueba' })).toBeFocused();
   await expect(page.getByText(/tenía la llave desde el principio/)).toBeVisible();
   // Historia B: los créditos cuentan el caso de 1991; con el archivo restaurado, se reabre.
-  await expect(page.getByText(/Expediente 1991-14/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Expediente 1991-14/ })).toBeVisible();
   await expect(page.getByText('Efraín Cárdenas.', { exact: true })).toBeVisible();
   await expect(page.getByText(/Reabierto esta noche/)).toBeVisible();
+  // Historia · sesión C: los cinco folios del expediente, todos revisados y en el pendrive.
+  await expect(page.getByText('Revisado · en el pendrive')).toHaveCount(5);
   // Correcciones del 25 nov: al final de los créditos, «Un proyecto de» con el logo de Sinapsis.
   await expect(page.getByRole('img', { name: 'Sinapsis' })).toBeVisible();
 
@@ -109,6 +117,7 @@ test('cuando se acaba el reloj aparece «Tiempo cumplido»', async ({ page }) =>
   await expect(encabezado).toBeVisible();
   await expect(encabezado).toBeFocused();
   await expect(page.getByRole('timer')).toHaveCount(0);
+  await expect(page.getByText('Cerrada a las 00:40')).toBeVisible();
   // Ningún final castiga: también se explican las salas que faltaron, sin prometer un modo
   // práctica que no existe.
   const resumen = page.getByRole('region', { name: 'Lo que aprendiste esta noche' });

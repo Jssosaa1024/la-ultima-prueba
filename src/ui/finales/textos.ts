@@ -61,7 +61,8 @@ export const EXPEDIENTE_CREDITOS = {
   rotulo: 'Expediente 1991-14 · Feria de ciencias',
   apertura:
     'Abierto el 8 de noviembre de 1991 por «copia de proyecto». Cerrado el mismo día, en cuarenta minutos.',
-  pruebas: 'Folios: un recibo, una bitácora, una foto, unas fichas de préstamo y un acta.',
+  folios: 'Folios del expediente',
+  personas: 'Personas del caso',
   personajes: [
     {
       nombre: 'Efraín Cárdenas',
@@ -83,6 +84,56 @@ export const EXPEDIENTE_CREDITOS = {
   reabierto: 'Reabierto esta noche. Las cinco pruebas están en el pendrive.',
   cerrado: 'Sigue cerrado. Las pruebas se borraron a las 00:40.',
 } as const;
+
+/** Cómo quedó cada folio del expediente en los créditos. */
+export function estadoFolio(revisado: boolean, reabierto: boolean): string {
+  if (!revisado) return 'Sin revisar';
+  return reabierto ? 'Revisado · en el pendrive' : 'Revisado · se borró a las 00:40';
+}
+
+/**
+ * La foto de la feria que acompaña cada final (Historia · sesión C). En «El legado» se ve el
+ * cartel con el nombre; en los dos finales malos es la foto vieja que guarda Don Efraín, sin
+ * nombre. «Pedir ayuda» no tiene foto: es la salida amable, sin giro.
+ */
+export interface FotoFinal {
+  cartel?: string;
+  pie: string;
+  descripcion: string;
+}
+
+const FOTO_VIEJA: FotoFinal = {
+  pie: 'La foto vieja que guarda Don Efraín.',
+  descripcion:
+    'Foto vieja en blanco y negro de una feria de ciencias: un filtro de agua que gotea sobre una mesa y un cartel que ya no se lee.',
+};
+
+export const FOTO_FINAL: Readonly<Record<FinalId, FotoFinal | null>> = {
+  el_legado: {
+    cartel: 'Efraín Cárdenas, 10-B',
+    pie: 'En la pantalla de la portería: la feria de ciencias de 1991.',
+    descripcion:
+      'Foto de la feria de ciencias de 1991: un filtro de agua que gotea y un cartel escrito a mano, «Efraín Cárdenas, 10-B».',
+  },
+  justo_a_tiempo: FOTO_VIEJA,
+  tiempo_cumplido: FOTO_VIEJA,
+  pedir_ayuda: null,
+};
+
+/** La partida empieza a las 23:59 (`docs/historia.md`). */
+const INICIO_MIN = 23 * 60 + 59;
+
+/**
+ * La hora en que se cerró el acta de la noche: las 23:59 más el tiempo usado, en reloj de 24
+ * horas. Con el tiempo cumplido son las 00:40, la hora del borrado.
+ */
+export function horaDeCierre(id: FinalId, usadoMs: number): string {
+  if (id === 'tiempo_cumplido') return '00:40';
+  const minutos = (INICIO_MIN + Math.floor(Math.max(0, usadoMs) / 60_000)) % (24 * 60);
+  const hh = String(Math.floor(minutos / 60)).padStart(2, '0');
+  const mm = String(minutos % 60).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
 
 /** El estado del expediente al final: solo «El legado» lo reabre. */
 export function expedienteReabierto(id: FinalId): boolean {
