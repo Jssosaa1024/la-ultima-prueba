@@ -1,8 +1,9 @@
 import { useId, useState } from 'preact/hooks';
 import { fichas } from '../../signals/contenido';
 import { datosEncontrados, MAX_NOTA, MAX_NOTAS, notas } from '../../signals/cuaderno';
-import { pruebasConSello } from '../../content/expediente';
+import { estadoExpediente, NOTA_RINCON } from '../../content/expediente';
 import { PUZZLES } from '../../content/puzzles';
+import { salaPorId } from '../../content/salas';
 import { cerrarPanel } from '../../signals/interfaz';
 import { pistasVistas } from '../../signals/mecanismo';
 import { avance, modo, SALAS_CON_SELLO } from '../../signals/partida';
@@ -73,31 +74,42 @@ function Descubrimientos() {
 }
 
 /**
- * Las pruebas del caso de 1991 (`docs/historia.md`): cada sello trae una. La sección aparece
- * con el primer sello. En el cooperativo el avance es del grupo, así que todos ven las mismas.
+ * El caso de 1991 (`docs/historia.md`): la nota de Rincón y las cinco acusaciones del jurado,
+ * desde que se recoge el cuaderno. Cada sello trae la prueba de su sala; las demás quedan
+ * pendientes. En el cooperativo el avance es del grupo, así que todos ven las mismas.
  */
 function Expediente() {
-  const pruebas = pruebasConSello(avance.value);
-  if (pruebas.length === 0) return null;
+  const estado = estadoExpediente(avance.value);
+  const tiene = estado.filter((e) => e.conseguida).length;
   return (
     <section class="cuaderno-seccion" aria-labelledby="cuaderno-expediente">
       <h3 id="cuaderno-expediente" class="cuaderno-subtitulo">
         Expediente 1991
       </h3>
+      <p class="ficha-nota cuaderno-nota-rincon">{NOTA_RINCON}</p>
       <p class="cuaderno-expediente-avance">
-        {pruebas.length === 1 ? 'Tienes 1 de 5 pruebas.' : `Tienes ${pruebas.length} de 5 pruebas.`}
+        {tiene === 1 ? 'Tienes 1 de 5 pruebas.' : `Tienes ${tiene} de 5 pruebas.`}
       </p>
       <div class="cuaderno-datos">
-        {pruebas.map((p) => (
-          <details key={p.id} class="cuaderno-dato cuaderno-prueba">
-            <summary>
-              Prueba {p.numero} · {p.titulo}
-            </summary>
-            <p class="cuaderno-acusacion">Lo que dijo el jurado: {p.acusacion}</p>
-            <ContenidoFicha ficha={{ titulo: p.titulo, bloques: p.bloques }} />
-            <p class="cuaderno-lo-que-prueba">{p.prueba}</p>
-          </details>
-        ))}
+        {estado.map(({ prueba: p, conseguida }) =>
+          conseguida ? (
+            <details key={p.id} class="cuaderno-dato cuaderno-prueba">
+              <summary>
+                Prueba {p.numero} · {p.titulo}
+              </summary>
+              <p class="cuaderno-acusacion">Lo que dijo el jurado: {p.acusacion}</p>
+              <ContenidoFicha ficha={{ titulo: p.titulo, bloques: p.bloques }} />
+              <p class="cuaderno-lo-que-prueba">{p.prueba}</p>
+            </details>
+          ) : (
+            <div key={p.id} class="cuaderno-dato cuaderno-prueba cuaderno-prueba-pendiente">
+              <p class="cuaderno-prueba-titulo">
+                Prueba {p.numero} · {salaPorId(p.id).nombre}: pendiente
+              </p>
+              <p class="cuaderno-acusacion">Lo que dijo el jurado: {p.acusacion}</p>
+            </div>
+          ),
+        )}
       </div>
     </section>
   );

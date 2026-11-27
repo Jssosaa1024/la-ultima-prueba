@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { esquemaPrueba } from '../../src/content/esquema-expediente';
-import { EXPEDIENTE, pruebasConSello } from '../../src/content/expediente';
+import {
+  estadoExpediente,
+  EXPEDIENTE,
+  NOTA_RINCON,
+  pruebasConSello,
+} from '../../src/content/expediente';
 import fichas from '../../src/content/fichas.json';
 import { GRABACIONES_ESCONDIDAS } from '../../src/content/grabaciones';
 import { GUION } from '../../src/content/guion';
@@ -42,11 +47,30 @@ describe('expediente 1991', () => {
   });
 });
 
+describe('el expediente desde el principio', () => {
+  it('sin sellos, las cinco acusaciones están pendientes', () => {
+    const estado = estadoExpediente({});
+    expect(estado.map((e) => e.prueba.numero)).toEqual([1, 2, 3, 4, 5]);
+    expect(estado.every((e) => !e.conseguida)).toBe(true);
+  });
+
+  it('cada sello cambia su acusación de pendiente a conseguida', () => {
+    const estado = estadoExpediente({ 's1-cooperativa': 3, 's2-laboratorio': 2 });
+    expect(estado.map((e) => e.conseguida)).toEqual([true, false, false, false, false]);
+  });
+
+  it('la nota de Rincón cuenta el caso: 1991, la copia y las pruebas', () => {
+    expect(NOTA_RINCON).toMatch(/1991/);
+    expect(NOTA_RINCON).toMatch(/copiar el proyecto de otro colegio/);
+    expect(NOTA_RINCON).toMatch(/pruebas/);
+  });
+});
+
 describe('el giro no se adelanta', () => {
   const nombre = /Efra[íi]n|C[áa]rdenas/;
 
   it('el expediente nombra al estudiante solo como «E. C., 10-B»', () => {
-    const texto = JSON.stringify(EXPEDIENTE);
+    const texto = JSON.stringify(EXPEDIENTE) + NOTA_RINCON;
     expect(texto).not.toMatch(nombre);
     expect(texto).toContain('E. C., 10-B');
   });

@@ -21,7 +21,7 @@
 ## 2 · Contenido
 
 - **La Voz:** 24 líneas reescritas (entrada y sello de cada sala, espera, fallo, cinco sellos, tres grabaciones y tres finales) y 2 nuevas (puertas del 10-B y el 11-A). Quedan iguales «Buenas noches. Llegas tarde…» (la que escogió Alex), la puerta del 11-B y el final de pedir ayuda. Todas cumplen las reglas del guion: menos de 6 s y 16 palabras; las grabaciones, 25 palabras como mucho. Las frases de las puertas no repiten el nombre de la puerta (lo dice el rótulo), para que la tirita del pasillo quede de un renglón en el celular.
-- **Prueba en el cuaderno:** cada sello trae una ficha de evidencia a la sección nueva «Expediente 1991» del cuaderno (`src/content/expediente.json`, validado en el build). El aviso del sello lo dice. En el cooperativo todos la ven, porque el avance es del grupo.
+- **Expediente en el cuaderno:** desde que se recoge el cuaderno, la sección nueva «Expediente 1991» abre con una nota de Rincón que cuenta el caso (para quien no vea el video de la intro) y muestra las cinco acusaciones del jurado como pendientes. Cada sello trae la ficha de evidencia de su sala (`src/content/expediente.json`, validado en el build), y el aviso del sello lo dice. En el cooperativo todos la ven, porque el avance es del grupo.
 - **Siembra en las salas:** el corcho de la cooperativa tiene un recorte de la feria de 1991; la carta de Rincón dice «algo que le debo a alguien desde 1991»; el computador de la rectoría dice qué hay en la carpeta.
 - **Finales y salida:** los cuatro textos de final siguen la historia; la puerta de salida explica que al salir se borran las pruebas de 1991.
 - **Docs:** `docs/diseno.md`, `docs/salas-y-puzzles.md` (narrativa, tabla del guion y grabaciones) y la página `/docentes` cuentan el caso.

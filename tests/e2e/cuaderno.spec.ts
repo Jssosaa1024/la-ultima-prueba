@@ -14,8 +14,11 @@ test('con el cuaderno abierto el reloj sigue corriendo', async ({ page }) => {
   await expect(cuaderno).toBeVisible();
   await expect(cuaderno).not.toContainText('El reloj está en pausa');
   await expect(cuaderno).toContainText('Todavía no hay datos');
-  // Sin sellos todavía no hay pruebas del caso de 1991.
-  await expect(cuaderno).not.toContainText('Expediente 1991');
+  // Sin sellos, el expediente ya cuenta el caso y las cinco acusaciones están pendientes.
+  const expediente = cuaderno.getByRole('region', { name: 'Expediente 1991' });
+  await expect(expediente).toContainText('En la feria de ciencias de 1991 acusaron');
+  await expect(expediente).toContainText('Tienes 0 de 5 pruebas.');
+  await expect(expediente).toContainText('Prueba 1 · La cooperativa: pendiente');
   // Con un panel abierto el HUD queda inerte: se lee el reloj por su clase. No dice «en pausa»
   // y la cuenta baja mientras el cuaderno sigue abierto.
   const reloj = page.locator('.hud-reloj');
@@ -88,7 +91,7 @@ test('cada sello trae su prueba del caso de 1991 al cuaderno', async ({ page }) 
   const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
   const expediente = cuaderno.getByRole('region', { name: 'Expediente 1991' });
   await expect(expediente).toContainText('Tienes 2 de 5 pruebas.');
-  await expect(expediente.getByText('Prueba 3', { exact: false })).toHaveCount(0);
+  await expect(expediente).toContainText('Prueba 3 · El gimnasio: pendiente');
   await expediente.getByText('Prueba 2 · La bitácora').click();
   await expect(expediente).toContainText('Dos rectas distintas se cruzan en un solo punto');
   await expect(expediente).toContainText('E. C., 10-B');
