@@ -355,3 +355,97 @@
   margin-top: 1rem;
   font-weight: 600;
 }
+
+/*
+ * Historia · sesión C: el cierre como expediente. El final es el acta de la noche (con la hora
+ * de cierre y la foto de la feria); los créditos, la carpeta 1991-14 con su carátula, sus folios
+ * y el membrete de Sinapsis.
+ */
+.final-acta-hora {
+  margin: 0;
+  color: var(--tema-tinta-suave);
+}
+
+.final-foto {
+  margin: 0.5rem auto 1.25rem;
+}
+
+/* Dentro de la carpeta de cartón van hojas de papel: la carátula y el cierre. */
+.tema-ficha.final-carpeta {
+  padding: 14px;
+}
+
+.final-caratula {
+  padding: 16px 18px;
+  border: 1px solid var(--tema-papel-borde);
+  border-radius: var(--tema-radio);
+  background: var(--tema-grano), var(--tema-envejecido), var(--tema-papel);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
+}
+
+.final-caratula + .final-caratula {
+  margin-top: 12px;
+}
+
+.final-caratula > :first-child {
+  margin-top: 0;
+}
+
+.final-caratula > :last-child {
+  margin-bottom: 0;
+}
+
+.final-caratula-membrete {
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--tema-tinta);
+  color: var(--tema-tinta-suave);
+}
+
+/* Los cinco folios: una fila por prueba, con su estado a la derecha. */
+.final-folios {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.final-folio {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 12px;
+  padding: 6px 10px;
+  border: 1px dashed var(--tema-papel-borde);
+  border-left: 4px solid var(--tema-sello-azul);
+  border-radius: var(--tema-radio);
+  background: rgb(255 255 255 / 35%);
+}
+
+.final-folio-pendiente {
+  border-left-color: var(--tema-tinta-suave);
+}
+
+.final-folio-titulo {
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+}
+
+.final-folio-estado {
+  color: var(--tema-tinta-suave);
+  font-size: 0.875rem;
+}
+
+/* El membrete: «Un proyecto de» y el logo de Sinapsis, centrados al pie del expediente. */
+.final-cierre .final-marca {
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 1.25rem;
+  padding-top: 12px;
+  border-top: 1px dashed var(--tema-papel-borde);
+}
+
+.final-cierre .final-marca-logo {
+  height: 72px;
+}

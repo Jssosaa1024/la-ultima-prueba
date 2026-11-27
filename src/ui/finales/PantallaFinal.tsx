@@ -3,8 +3,10 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { GUION } from '../../content/guion';
 import { textoResumen } from '../../content/resumenes';
 import type { ResultadoSala } from '../../game/aprendizaje';
+import { estadoExpediente } from '../../content/expediente';
 import {
   aprendizaje,
+  avance,
   DURACION_MS,
   final,
   type FinalId,
@@ -17,12 +19,16 @@ import { enviar } from '../../signals/puente';
 import { mostrarLinea, ocultarLinea } from '../../signals/voz';
 import { formatoReloj } from '../hud/formato';
 import Ficha from '../tema/Ficha';
+import FotoFeria from '../tema/FotoFeria';
 import Sello, { type ColorSello } from '../tema/Sello';
 import {
   AGRADECIMIENTO,
+  estadoFolio,
   EXPEDIENTE_CREDITOS,
   expedienteReabierto,
   FINALES_TEXTO,
+  FOTO_FINAL,
+  horaDeCierre,
   POSCREDITOS,
   textoResultadoSala,
   textoTotalAprendizaje,
@@ -67,27 +73,42 @@ export default function PantallaFinal() {
       <div class="final-caja">
         {paso === 'final' && <Resumen tituloRef={titulo} alSeguir={() => setPaso('creditos')} />}
         {paso === 'creditos' && (
-          <Ficha como="section" variante="renglones" pestana="Créditos" entra clase="final-ficha">
-            <h1 id="final-titulo" ref={titulo} tabIndex={-1} class="final-titulo">
-              La Última Prueba
-            </h1>
-            <Expediente id={final.value ?? 'tiempo_cumplido'} />
-            <p class="final-agradecimiento">{AGRADECIMIENTO}</p>
-            <p class="final-nota">
-              Los personajes de estos créditos son ficticios. Los créditos de modelos, imágenes y
-              sonidos se publicarán en la página de créditos del sitio.
-            </p>
-            <p class="final-marca">
-              Un proyecto de
-              <img
-                class="final-marca-logo"
-                src="/marca/sinapsis.webp"
-                alt="Sinapsis"
-                width={360}
-                height={172}
-                decoding="async"
-              />
-            </p>
+          // Los créditos son el expediente 1991-14 (Historia · sesión C): una carpeta de cartón
+          // con la carátula del caso, sus folios y las personas, y el membrete de Sinapsis.
+          <Ficha
+            como="section"
+            variante="carpeta"
+            pestana="Expediente 1991-14"
+            entra
+            clase="final-ficha final-carpeta"
+          >
+            <div class="final-caratula">
+              <p class="final-caratula-membrete tema-etiqueta">
+                I. E. Los Almendros · Archivo de rectoría
+              </p>
+              <h1 id="final-titulo" ref={titulo} tabIndex={-1} class="final-titulo">
+                La Última Prueba
+              </h1>
+              <Expediente id={final.value ?? 'tiempo_cumplido'} />
+            </div>
+            <div class="final-caratula final-cierre">
+              <p class="final-agradecimiento">{AGRADECIMIENTO}</p>
+              <p class="final-nota">
+                Los personajes de estos créditos son ficticios. Los créditos de modelos, imágenes y
+                sonidos se publicarán en la página de créditos del sitio.
+              </p>
+              <p class="final-marca">
+                <span class="tema-etiqueta">Un proyecto de</span>
+                <img
+                  class="final-marca-logo"
+                  src="/marca/sinapsis.webp"
+                  alt="Sinapsis"
+                  width={360}
+                  height={172}
+                  decoding="async"
+                />
+              </p>
+            </div>
             <div class="final-acciones">
               <button
                 type="button"
@@ -141,14 +162,30 @@ function Resumen({
   // Al terminar, el controlador deja el reloj en pausa: `restanteMs` es lo que sobró.
   const usado = DURACION_MS - reloj.value.restanteMs;
   const sello = SELLO_FINAL[id];
+  const foto = FOTO_FINAL[id];
 
   return (
-    <Ficha como="section" pestana="Expediente cerrado · Final" entra clase="final-ficha">
+    <Ficha
+      como="section"
+      variante="renglones"
+      pestana="Expediente 1991-14 · Acta de la noche"
+      entra
+      clase="final-ficha final-acta"
+    >
       {/* El sello repite el título: es adorno y el lector de pantalla no lo lee dos veces. */}
       <Sello texto={sello.texto} color={sello.color} grande golpe decorativo clase="final-sello" />
+      <p class="final-acta-hora tema-etiqueta">Cerrada a las {horaDeCierre(id, usado)}</p>
       <h1 id="final-titulo" ref={tituloRef} tabIndex={-1} class="final-titulo">
         {texto.titulo}
       </h1>
+      {foto && (
+        <FotoFeria
+          cartel={foto.cartel}
+          pie={foto.pie}
+          descripcion={foto.descripcion}
+          clase="final-foto"
+        />
+      )}
       {texto.parrafos.map((p) => (
         <p key={p}>{p}</p>
       ))}
@@ -236,10 +273,34 @@ function Aprendizaje() {
 function Expediente({ id }: { id: FinalId }) {
   const e = EXPEDIENTE_CREDITOS;
   const reabierto = expedienteReabierto(id);
+  const folios = estadoExpediente(avance.value);
   return (
     <>
       <h2 class="final-subtitulo">{e.rotulo}</h2>
       <p>{e.apertura}</p>
+      <p class="final-expediente-estado">
+        <Sello
+          texto={reabierto ? 'Reabierto' : 'Cerrado'}
+          color={reabierto ? 'azul' : 'rojo'}
+          grande
+          golpe
+          decorativo
+          clase="final-expediente-sello"
+        />
+        {reabierto ? e.reabierto : e.cerrado}
+      </p>
+      <h2 class="final-subtitulo">{e.folios}</h2>
+      <ol class="final-folios">
+        {folios.map(({ prueba: p, conseguida }) => (
+          <li key={p.id} class={conseguida ? 'final-folio' : 'final-folio final-folio-pendiente'}>
+            <span class="final-folio-titulo">
+              Folio {p.numero} · {p.titulo}
+            </span>
+            <span class="final-folio-estado">{estadoFolio(conseguida, reabierto)}</span>
+          </li>
+        ))}
+      </ol>
+      <h2 class="final-subtitulo">{e.personas}</h2>
       <ul class="final-lista final-personajes">
         {e.personajes.map((p) => (
           <li key={p.nombre}>
@@ -247,16 +308,6 @@ function Expediente({ id }: { id: FinalId }) {
           </li>
         ))}
       </ul>
-      <p class="final-nota">{e.pruebas}</p>
-      <p class="final-expediente-estado">
-        <Sello
-          texto={reabierto ? 'Reabierto' : 'Cerrado'}
-          color={reabierto ? 'azul' : 'rojo'}
-          decorativo
-          clase="final-expediente-sello"
-        />
-        {reabierto ? e.reabierto : e.cerrado}
-      </p>
     </>
   );
 }
