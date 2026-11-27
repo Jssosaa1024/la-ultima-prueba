@@ -1,0 +1,346 @@
+/*
+ * Escenas de la historia (Historia A): la capa que va encima de la portería mientras la cámara
+ * guiada hace su recorrido. Celular primero: en un teléfono en horizontal (unos 390 px de alto)
+ * la tarjeta, el texto y el subtítulo caben sin tocarse. Con movimiento reducido no hay
+ * acercamientos ni fundidos: cortes secos.
+ */
+.escena {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  color: var(--tema-claro);
+  font-family: var(--tema-letra-texto);
+  /* Barras de cine arriba y abajo, apenas: la portería se ve en el centro. */
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 70%) 0,
+    transparent 14%,
+    transparent 78%,
+    rgb(0 0 0 / 75%) 100%
+  );
+}
+
+.escena-completa {
+  background: var(--tema-noche);
+}
+
+.escena-tarjeta {
+  position: absolute;
+  inset: calc(56px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: escena-entra 0.5s ease-out both;
+}
+
+/* Las de la pantalla de la portería dejan ver la escena: van arriba, más pequeñas. */
+.escena:not(.escena-completa) .escena-tarjeta {
+  align-items: flex-start;
+}
+
+.escena-abajo {
+  position: absolute;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.escena-texto {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 60%);
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+  animation: escena-entra 0.5s ease-out both;
+}
+
+.escena-subtitulos {
+  min-height: 1px;
+}
+
+.escena-saltar {
+  position: absolute;
+  top: calc(8px + env(safe-area-inset-top));
+  right: calc(12px + env(safe-area-inset-right));
+  min-height: 48px;
+  padding: 0 1.25rem;
+  background: rgb(0 0 0 / 55%);
+}
+
+.escena-fundido {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.6s ease-in;
+}
+
+.escena-fundido-activo {
+  opacity: 1;
+}
+
+@keyframes escena-entra {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes escena-acercar {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+/* ---------- Tarjetas ---------- */
+
+.tarjeta-titulo {
+  text-align: center;
+  font-family: var(--tema-letra-maquina);
+}
+
+.tarjeta-titulo-lugar {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+}
+
+.tarjeta-titulo-hora {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--tema-ambar-brillo);
+}
+
+.tarjeta-cartel {
+  max-width: 22rem;
+  text-align: center;
+  color: var(--tema-tinta);
+  transform: rotate(-2deg);
+}
+
+.tarjeta-cartel-titulo {
+  margin: 0;
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.tarjeta-cartel-hora {
+  margin: 0.25rem 0 0;
+}
+
+.tarjeta-foto {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* El marco conserva la proporción de la foto (320 × 200) en cualquier pantalla. */
+.tarjeta-foto-marco {
+  position: relative;
+  height: calc(100% - 30px);
+  max-width: 100%;
+  aspect-ratio: 320 / 200;
+  overflow: hidden;
+  border: 8px solid #e9e4d8;
+  border-bottom-width: 18px;
+  box-shadow: var(--tema-sombra-papel);
+}
+
+.tarjeta-foto-vieja .tarjeta-foto-marco {
+  height: 100%;
+  transform: rotate(3deg);
+}
+
+.tarjeta-foto-marco svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: grayscale(1) sepia(0.25) contrast(1.05);
+  transform-origin: 50% 60%;
+  animation: escena-acercar 7s linear both;
+}
+
+.tarjeta-foto-vieja svg {
+  filter: grayscale(1) sepia(0.55) contrast(0.9) brightness(0.92);
+  animation: none;
+}
+
+.tarjeta-foto figcaption {
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.95rem;
+}
+
+/* El cartel del puesto, escrito a mano sobre el mantel. */
+.tarjeta-foto-letrero {
+  position: absolute;
+  left: 17%;
+  top: 56%;
+  width: 66%;
+  padding: 2px 4px;
+  border: 1px solid #4a4842;
+  background: #f2efe7;
+  color: #26241f;
+  font-size: max(14px, 0.9rem);
+  line-height: 1.2;
+  text-align: center;
+  transform: rotate(-2deg);
+  filter: grayscale(1) sepia(0.25);
+}
+
+.tarjeta-hojas {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;
+  max-height: 100%;
+}
+
+.tarjeta-hoja {
+  color: var(--tema-tinta);
+  padding: 8px 14px;
+}
+
+.tarjeta-hoja table {
+  border-collapse: collapse;
+  font-family: var(--tema-letra-maquina);
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+.tarjeta-hoja caption {
+  font-weight: 700;
+  padding-bottom: 4px;
+}
+
+.tarjeta-hoja th,
+.tarjeta-hoja td {
+  padding: 1px 10px;
+  text-align: right;
+}
+
+/* El dato que el jurado encerró en rojo, en las dos hojas. */
+.tarjeta-dato-marcado {
+  display: inline-block;
+  padding: 0 6px;
+  border: 2px solid var(--tema-sello-rojo);
+  border-radius: 50%;
+}
+
+.tarjeta-acta {
+  position: relative;
+  max-width: 26rem;
+  color: var(--tema-tinta);
+}
+
+.tarjeta-acta-titulo {
+  margin: 0 0 0.5rem;
+  font-family: var(--tema-letra-maquina);
+  font-weight: 700;
+}
+
+.tarjeta-acta-datos {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin: 0;
+}
+
+.tarjeta-acta-datos dt {
+  font-weight: 700;
+}
+
+.tarjeta-acta-datos dd {
+  margin: 0;
+}
+
+.tarjeta-acta-sello {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+}
+
+.tarjeta-pantalla {
+  min-width: min(20rem, 100%);
+  padding: 10px 16px;
+  border: 3px solid #1b1d22;
+  border-radius: 6px;
+  background: #0d1a2e;
+  color: #d8e6ff;
+  font-family: var(--tema-letra-maquina);
+  line-height: 1.35;
+}
+
+.tarjeta-pantalla p {
+  margin: 0.2rem 0;
+}
+
+.tarjeta-pantalla-carpeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.tarjeta-pantalla-icono {
+  width: 22px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--tema-ambar);
+}
+
+.tarjeta-pantalla-barra {
+  height: 12px;
+  margin: 6px 0;
+  border: 1px solid #8fb2e8;
+  background: #08101c;
+}
+
+.tarjeta-pantalla-barra span {
+  display: block;
+  height: 100%;
+  background: #4fb37a;
+}
+
+.tarjeta-reloj {
+  margin: 0;
+  padding: 6px 18px;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 70%);
+  color: #ff6a55;
+  font-family: var(--tema-letra-maquina);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .escena-tarjeta,
+  .escena-texto,
+  .tarjeta-foto-marco svg {
+    animation: none;
+  }
+
+  .escena-fundido {
+    transition: none;
+  }
+}

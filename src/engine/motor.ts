@@ -22,6 +22,8 @@ import { escalaResolucion, girarTelefono, pantalla } from '../signals/pantalla';
 import { fase, modo, sala, sellos } from '../signals/partida';
 import { enviar, escuchar } from '../signals/puente';
 import { audioDesbloqueado } from '../signals/audio';
+import { escena as escenaHistoria } from '../signals/escena';
+import type { EscenaEnCurso } from '../signals/escena';
 import {
   depuracionAbierta,
   estresActivo,
@@ -47,6 +49,8 @@ import type { Orientacion } from './jugador/camara';
 import { moverConColision } from './jugador/colision';
 import { desplazamiento } from './jugador/movimiento';
 import { crearEscalaDinamica } from './escala';
+import { crearDirector } from './escenas/director';
+import type { Director } from './escenas/director';
 import { crearBucle } from './loop';
 import { animacionDeSala } from './mecanismos';
 import type { AnimacionSala } from './mecanismos';
@@ -161,6 +165,12 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
   );
   let camaraDibujo: PerspectiveCamera = camara;
+  // Escenas de la historia (Historia A): la intro y los finales se ven en la portería con una
+  // cámara guiada. El director se crea cuando la portería ya está en pantalla.
+  let escenaPedida: EscenaEnCurso | null = null;
+  let director: Director | null = null;
+  const movimientoReducido = (): boolean =>
+    globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   /** Algo se mueve en la escena: la máquina o la cámara del encuadre. */
   const hayMovimiento = (): boolean =>
     (animacion?.animando ?? false) ||
@@ -408,6 +418,23 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
       }
       retroalimentacion.actualizar(dt, animacion?.animando ?? false);
       camaraDibujo = encuadre.actualizar(dt, camara);
+      if (escenaPedida && !director) {
+        const raiz = cargador.actual?.raiz;
+        // La portería ya cargó y es la que se ve (`data-sala` cambia al terminar de cargar).
+        if (raiz && mostrada === 'porteria' && canvas.dataset['sala'] === 'porteria') {
+          director = crearDirector({
+            id: escenaPedida.id,
+            desde: escenaPedida.desde,
+            raiz,
+            reducido: movimientoReducido,
+          });
+        }
+      }
+      if (director) {
+        const donde = director.actualizar(performance.now(), camara.aspect);
+        vista?.actualizar(donde.x, donde.z);
+        camaraDibujo = director.camara;
+      }
       if (encuadreActual.peek() !== encuadre.estado) {
         encuadreActual.value = encuadre.estado;
         // Atributo para las pruebas e2e.
@@ -471,8 +498,36 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     canvas.dataset['libre'] = (1 - derecha).toFixed(2);
   });
 
+  // Una escena de la historia: se muestra la portería (que siempre está en la GPU) y el bucle
+  // corre también detrás de un final. Al terminar, la cámara vuelve a ser la del jugador.
+  const dejarDeSeguirEscena = effect(() => {
+    const e = escenaHistoria.value;
+    untracked(() => {
+      director?.liberar();
+      director = null;
+      // La intro termina donde empieza la partida: el jugador queda ahí, sin salto de cámara.
+      if (!e && escenaPedida?.id === 'intro' && mostrada === 'porteria') {
+        const p = puntoDeEntrada(salaPorId('porteria'), null);
+        camara.position.set(p.x, ALTURA_OJOS, p.z);
+        orientacion = { yaw: p.yaw, pitch: PITCH_INICIAL };
+        aplicarACamara(camara, orientacion);
+      }
+      escenaPedida = e;
+      vista?.actualizar(camara.position.x, camara.position.z);
+      if (!e) {
+        delete canvas.dataset['escena'];
+        dibujarSiEnPausa();
+        return;
+      }
+      // Atributo para las pruebas e2e.
+      canvas.dataset['escena'] = e.id;
+      void cambiarA('porteria');
+    });
+  });
+
   const dejarDeSeguirFase = effect(() => {
-    const jugando = fase.value === 'jugando' && !girarTelefono.value;
+    const jugando =
+      (fase.value === 'jugando' || escenaHistoria.value !== null) && !girarTelefono.value;
     if (!jugando) {
       // Lo que hacía el bucle en cada cuadro sin controles: soltar dedos, teclas y ratón.
       soltarTodo(entrada);
@@ -556,6 +611,9 @@ export function iniciarMotor(canvas: HTMLCanvasElement): () => void {
     dejarDeSeguirSala();
     dejarDeSeguirBrillo();
     dejarDeSeguirFase();
+    dejarDeSeguirEscena();
+    director?.liberar();
+    director = null;
     dejarDeEscuchar();
     interaccion?.liberar();
     animacion?.liberar();

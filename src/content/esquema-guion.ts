@@ -63,6 +63,11 @@ export const MOMENTOS_GUION = [
    * es la frase de una sola puerta.
    */
   'puerta_falsa',
+  /**
+   * Historia A: la escena de la intro (`src/content/escenas.ts`), antes de la portería. Cuenta
+   * el caso de 1991 sin decir quién es el estudiante.
+   */
+  'escena_intro',
 ] as const;
 export type MomentoGuion = (typeof MOMENTOS_GUION)[number];
 
@@ -139,6 +144,7 @@ const EN_PORTERIA: readonly MomentoGuion[] = [
   'cinco_sellos',
   'final',
   'puerta_falsa',
+  'escena_intro',
 ];
 
 /** Problemas de una línea sola: sala, momento, id y duración que no cuadran. */

@@ -1,4 +1,8 @@
 ﻿id,quien,sala,momento,final,texto,palabras,duracion_s,origen,archivo_audio
+"voz-intro-caso-1","La Voz (parlantes)","porteria","escena_intro","","En 1991, un estudiante presentó un filtro de agua para su vereda.","12","5","historia","public/assets/audio/es-CO/porteria/voz-intro-caso-1.m4a"
+"voz-intro-caso-2","La Voz (parlantes)","porteria","escena_intro","","Dio el mismo dato que el filtro de otro colegio. El jurado dijo: copia.","14","5,5","historia","public/assets/audio/es-CO/porteria/voz-intro-caso-2.m4a"
+"voz-intro-caso-3","La Voz (parlantes)","porteria","escena_intro","","Decidieron en cuarenta minutos. Lo sancionaron, y dejó el colegio.","10","4,5","historia","public/assets/audio/es-CO/porteria/voz-intro-caso-3.m4a"
+"voz-intro-caso-4","La Voz (parlantes)","porteria","escena_intro","","Yo guardé las pruebas. Esta noche, a las 00:40, se borran.","11","4,5","historia","public/assets/audio/es-CO/porteria/voz-intro-caso-4.m4a"
 "voz-intro-1","La Voz (parlantes)","porteria","puerta_cerrada","","Buenas noches. Llegas tarde, como siempre a lo importante.","9","4","salas-y-puzzles","public/assets/audio/es-CO/porteria/voz-intro-1.m4a"
 "voz-intro-2","La Voz (parlantes)","porteria","primer_paso","","Cinco salas, cinco sellos. Cada sello guarda una prueba de un caso de 1991.","14","5,5","historia","public/assets/audio/es-CO/porteria/voz-intro-2.m4a"
 "voz-intro-3","La Voz (parlantes)","porteria","mira_reloj","","A las 00:40 el archivo se borra. Y con él, la verdad de un muchacho.","15","6","historia","public/assets/audio/es-CO/porteria/voz-intro-3.m4a"

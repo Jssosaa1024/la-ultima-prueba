@@ -1,3 +1,4 @@
+import { escena } from '../signals/escena';
 import { cerrarPanel, panel } from '../signals/interfaz';
 import { girarTelefono } from '../signals/pantalla';
 import { fase, modo } from '../signals/partida';
@@ -9,6 +10,7 @@ import IndicadorCarga from './carga/IndicadorCarga';
 import BarraCoop from './coop/BarraCoop';
 import Controles from './controles/Controles';
 import Cuaderno from './cuaderno/Cuaderno';
+import CapaEscena from './escenas/CapaEscena';
 import PanelGrabacion from './grabaciones/PanelGrabacion';
 import Hud from './hud/Hud';
 import Inspeccion from './inspeccion/Inspeccion';
@@ -28,9 +30,20 @@ import GirarTelefono from './orientacion/GirarTelefono';
  * montado (un panel abierto queda igual al girar) pero no se lee ni se toca.
  */
 export default function Partida() {
+  const girar = girarTelefono.value;
+  // Historia A: la intro y los finales del caso de Don Efraín tapan todo mientras se ven.
+  if (escena.value) {
+    return (
+      <>
+        <div inert={girar} aria-hidden={girar || undefined}>
+          <CapaEscena />
+        </div>
+        {girar && <GirarTelefono />}
+      </>
+    );
+  }
   if (fase.value === 'final') return <PantallaFinal />;
   const abierto = panel.value;
-  const girar = girarTelefono.value;
   return (
     <>
       <div class="partida-capas" inert={girar} aria-hidden={girar || undefined}>

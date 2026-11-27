@@ -57,8 +57,9 @@ describe('guion.json', () => {
 
   it('tiene la portería, la entrada y el sello de cada sala, las grabaciones y los finales', () => {
     // 23 de la partida y 6 de las puertas falsas del pasillo (docs/pasillos.md; la historia
-    // del caso de Don Efraín agregó el 10-B y el 11-A).
-    expect(GUION).toHaveLength(29);
+    // del caso de Don Efraín agregó el 10-B y el 11-A), más las 4 de la escena de la intro.
+    expect(GUION).toHaveLength(33);
+    expect(lineasDe('escena_intro', 'porteria')).toHaveLength(4);
     expect(lineasDe('puerta_falsa', 'porteria')).toHaveLength(6);
     for (const sala of SALAS) {
       expect(lineasDe('entrar_sala', sala).map((l) => l.id)).toContain(
@@ -76,10 +77,18 @@ describe('guion.json', () => {
     const diseno = leer('docs/salas-y-puzzles.md');
     // Desde la historia B, el diseño trae también las líneas del caso de Don Efraín.
     const delDiseno = GUION.filter(
-      (l) => l.origen === 'salas-y-puzzles' || l.origen === 'historia',
+      (l) =>
+        (l.origen === 'salas-y-puzzles' || l.origen === 'historia') && l.momento !== 'escena_intro',
     );
     expect(delDiseno).toHaveLength(27);
     for (const l of delDiseno) expect(diseno, l.id).toContain(`«${l.texto}»`);
+  });
+
+  it('las líneas de la escena de la intro son las del guion de docs/escenas.md', () => {
+    const escenas = leer('docs/escenas.md');
+    for (const l of lineasDe('escena_intro', 'porteria')) {
+      expect(escenas, l.id).toContain(`«${l.texto}»`);
+    }
   });
 
   it('las grabaciones dicen lo mismo que el cuaderno', () => {

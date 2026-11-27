@@ -1,5 +1,37 @@
 [
   {
+    "id": "voz-intro-caso-1",
+    "sala": "porteria",
+    "momento": "escena_intro",
+    "texto": "En 1991, un estudiante presentó un filtro de agua para su vereda.",
+    "duracion_s": 5,
+    "origen": "historia"
+  },
+  {
+    "id": "voz-intro-caso-2",
+    "sala": "porteria",
+    "momento": "escena_intro",
+    "texto": "Dio el mismo dato que el filtro de otro colegio. El jurado dijo: copia.",
+    "duracion_s": 5.5,
+    "origen": "historia"
+  },
+  {
+    "id": "voz-intro-caso-3",
+    "sala": "porteria",
+    "momento": "escena_intro",
+    "texto": "Decidieron en cuarenta minutos. Lo sancionaron, y dejó el colegio.",
+    "duracion_s": 4.5,
+    "origen": "historia"
+  },
+  {
+    "id": "voz-intro-caso-4",
+    "sala": "porteria",
+    "momento": "escena_intro",
+    "texto": "Yo guardé las pruebas. Esta noche, a las 00:40, se borran.",
+    "duracion_s": 4.5,
+    "origen": "historia"
+  },
+  {
     "id": "voz-intro-1",
     "sala": "porteria",
     "momento": "puerta_cerrada",
@@ -132,7 +164,7 @@
     "sala": "porteria",
     "momento": "puerta_falsa",
     "texto": "Ahí se decidió todo en cuarenta minutos.",
-    "duracion_s": 3.0,
+    "duracion_s": 3,
     "origen": "historia"
   },
   {
@@ -140,7 +172,7 @@
     "sala": "porteria",
     "momento": "puerta_falsa",
     "texto": "Treinta y cuatro promociones pasaron por ahí sin saberlo.",
-    "duracion_s": 4.0,
+    "duracion_s": 4,
     "origen": "historia"
   },
   {
@@ -172,7 +204,7 @@
     "sala": "porteria",
     "momento": "puerta_falsa",
     "texto": "Él nunca llegó a este salón.",
-    "duracion_s": 3.0,
+    "duracion_s": 3,
     "origen": "historia"
   },
   {

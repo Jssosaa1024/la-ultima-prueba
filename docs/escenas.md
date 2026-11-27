@@ -4,6 +4,18 @@ Guion de texto y de cámara de los videos de «El caso de Don Efraín» (`docs/h
 
 El trailer no está en este documento: su guion se escribe aparte, cuando se haga.
 
+## Escenas dentro del juego (Historia A, 27 de noviembre de 2026)
+
+Mientras no haya videos, la intro y los tres finales con giro (`El legado`, `Justo a tiempo` y `Tiempo cumplido`) se ven **dentro del juego**, siguiendo estos guiones: la portería en Three.js con una cámara guiada, las fotos y documentos de 1991 y la pantalla de la portería como tarjetas 2D, La Voz grabada y subtítulos. No descargan nada: Don Efraín (una silueta con gorra), la pantalla encima del casillero y la luz de la puerta abierta son primitivas hechas por código.
+
+- **Dónde está:** los planos en `src/content/escenas.ts` (tiempos, tomas, tarjetas, voz, sonidos y dónde está Don Efraín); la cámara en `src/engine/escenas/director.ts`; las tarjetas, los subtítulos y «Saltar» en `src/ui/escenas/`; el estado en `src/signals/escena.ts`.
+- **Cuándo:** siempre (decisión de Alex, 27 de noviembre de 2026). La intro, al empezar cada partida nueva en modo individual (no al continuar una guardada), con el reloj detenido; al terminar, La Voz dice «Buenas noches…» en la portería como antes. Los finales, al llegar al final, antes de su pantalla. «También vale pedir ayuda» no tiene escena. Solo las pruebas e2e las apagan, con `lup:sin-escenas` = `1` en `localStorage`.
+- **Saltar:** el botón «Saltar» (48 px, con el foco) o Escape.
+- **Movimiento reducido:** cortes secos (la cámara no se desplaza), sin acercamientos ni fundidos.
+- **Cooperativo:** cada jugador ve el final en su pantalla; la intro no sale en grupo.
+- **Voz:** las cuatro frases de la intro son `voz-intro-caso-1` a `-4` en `guion.json` (momento `escena_intro`), grabadas. Don Efraín sigue solo con subtítulo.
+- **Diferencias con la tabla:** sin exterior del colegio (la intro empieza en negro y sigue dentro de la portería, con el cartel de la feria como tarjeta); «desde la calle» en «Justo a tiempo» se ve desde dentro, mirando la pantalla y el reloj.
+
 ## Reglas para todos los videos
 
 - **Formato:** MP4 con video H.264 y audio AAC, para que funcione en iPhone. Dos tamaños: 720p y uno más liviano para el Android de referencia. Subtítulos en WebVTT, en español de Colombia; todo lo que se oye tiene subtítulo.
