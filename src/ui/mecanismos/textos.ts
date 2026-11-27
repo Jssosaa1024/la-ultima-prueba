@@ -22,13 +22,17 @@ export function textoReposo(segundos: number): string {
   return `Responde sola: déjala quieta ${segundos} segundos y revisa lo que hay.`;
 }
 
-/** Lo que el marco dice al resolver una etapa. Con sello, depende de si era la última sala. */
+/**
+ * Lo que el marco dice al resolver una etapa. Con sello, depende de si era la última sala, y
+ * avisa que llegó una prueba del caso de 1991 al cuaderno (`docs/historia.md`).
+ */
 export function textoResuelta(sello: boolean, sala: number, salas: number): string {
   if (!sello) return 'La máquina aceptó los ajustes. Ahora pide algo distinto.';
+  const prueba = `Con él llega la prueba ${sala} del caso de 1991: está en tu cuaderno.`;
   if (sala === salas) {
-    return 'Conseguiste el último sello. La puerta de salida de la portería ya puede abrirse.';
+    return `Conseguiste el último sello. La puerta de salida de la portería ya puede abrirse. ${prueba}`;
   }
-  return `Conseguiste el sello de esta sala. En la portería ya se abre la puerta ${sala + 1}.`;
+  return `Conseguiste el sello de esta sala. En la portería ya se abre la puerta ${sala + 1}. ${prueba}`;
 }
 
 /**

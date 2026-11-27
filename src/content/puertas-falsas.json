@@ -2,16 +2,8 @@
   { "id": "profesores", "rotulo": "Sala de profesores", "voz": "voz-pasillo-profesores" },
   { "id": "banos", "rotulo": "Baños", "texto": "Cerrado. Un letrero dice: «Fuera de servicio»." },
   { "id": "aula-10a", "rotulo": "Aula 10-A", "voz": "voz-pasillo-10a" },
-  {
-    "id": "aula-10b",
-    "rotulo": "Aula 10-B",
-    "texto": "Cerrada. En la puerta hay un horario con letra muy pequeña."
-  },
+  { "id": "aula-10b", "rotulo": "Aula 10-B", "voz": "voz-pasillo-10b" },
   { "id": "aula-11b", "rotulo": "Aula 11-B", "voz": "voz-pasillo-11b" },
-  {
-    "id": "aula-11a",
-    "rotulo": "Aula 11-A",
-    "texto": "Cerrada. Alguien dejó una sombrilla colgada del picaporte."
-  },
+  { "id": "aula-11a", "rotulo": "Aula 11-A", "voz": "voz-pasillo-11a" },
   { "id": "aseo", "rotulo": "Cuarto del aseo", "voz": "voz-pasillo-aseo" }
 ]

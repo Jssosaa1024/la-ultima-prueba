@@ -283,12 +283,22 @@ describe('el pasillo en los datos', () => {
     expect(esquemaSalas.safeParse(enOtraSala).success).toBe(false);
   });
 
-  it('cuatro frases las dice La Voz, cada una con su línea del guion', () => {
+  it('seis frases las dice La Voz, cada una con su línea del guion', () => {
+    // Historia B: el 10-B y el 11-A también hablan del caso de 1991.
     const conVoz = FRASES_PUERTAS_FALSAS.filter((f) => f.voz);
-    expect(conVoz).toHaveLength(4);
+    expect(conVoz).toHaveLength(6);
     const lineas = (guion as LineaGuion[]).filter((l) => l.momento === 'puerta_falsa');
     expect(conVoz.map((f) => f.voz).sort()).toEqual(lineas.map((l) => l.id).sort());
     for (const l of lineas) expect(l.sala).toBe('porteria');
+  });
+
+  it('la frase de La Voz cabe en un renglón de la tirita, junto al rótulo de la puerta', () => {
+    // Historia B: la tirita del HUD es de un renglón en un celular horizontal (hud.css). El
+    // rótulo ya dice qué puerta es, así que la frase no necesita repetirlo.
+    for (const f of FRASES_PUERTAS_FALSAS.filter((x) => x.voz)) {
+      const linea = (guion as LineaGuion[]).find((l) => l.id === f.voz);
+      expect((linea?.texto.length ?? 0) + f.rotulo.length, f.id).toBeLessThanOrEqual(70);
+    }
   });
 
   it('las frases son cortas, una por puerta, y llevan texto o voz', () => {

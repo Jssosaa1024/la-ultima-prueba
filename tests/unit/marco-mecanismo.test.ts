@@ -129,5 +129,7 @@ describe('textos y paneles del marco', () => {
     expect(textoResuelta(false, 1, 5)).not.toMatch(/sello/);
     expect(textoResuelta(true, 1, 5)).toContain('puerta 2');
     expect(textoResuelta(true, 5, 5)).toContain('puerta de salida');
+    // Historia B: el sello trae la prueba de su sala al cuaderno.
+    expect(textoResuelta(true, 3, 5)).toContain('la prueba 3 del caso de 1991');
   });
 });

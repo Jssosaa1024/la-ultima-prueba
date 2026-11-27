@@ -61,7 +61,7 @@ test('sala 2: con la linterna se ven las flechas y el gabinete entrega la grabac
   const panel = page.getByRole('dialog', { name: 'Encontraste una grabación' });
   await expect(panel).toContainText('Grabación 1 de 3');
   await expect(panel).toContainText('En el gabinete del laboratorio');
-  await expect(panel).toContainText('Treinta y cuatro años diciendo “revisa tus cuentas”');
+  await expect(panel).toContainText('Soy Tobías Rincón. En 1991 fui el jurado más nuevo.');
   await expect(panel).toContainText('Llevas 1 de 3 grabaciones. Faltan 2, en otras salas.');
   await panel.getByRole('button', { name: 'Seguir' }).click();
   await expect(panel).toHaveCount(0);
@@ -72,7 +72,7 @@ test('sala 2: con la linterna se ven las flechas y el gabinete entrega la grabac
   const cuaderno = page.getByRole('dialog', { name: 'Tu cuaderno' });
   const seccion = cuaderno.getByRole('region', { name: 'Grabaciones' });
   await expect(seccion).toContainText('Grabación 1 de 3');
-  await expect(seccion).toContainText('Esta vez quiero decir otra cosa.');
+  await expect(seccion).toContainText('Guardé las pruebas por si alguien quería revisar.');
   await cuaderno.getByRole('button', { name: 'Cerrar' }).click();
 
   // Usar el gabinete otra vez la muestra de nuevo, sin sumar otra.
@@ -110,7 +110,7 @@ test('sala 3: los balones rebotan y el que no rebota entrega la grabación 2', a
   await expect(canvas).toHaveAttribute('data-detalle', 'sin-rebote');
   const panel = page.getByRole('dialog', { name: 'Encontraste una grabación' });
   await expect(panel).toContainText('Grabación 2 de 3');
-  await expect(panel).toContainText('Una nota mide una mañana, no a una persona.');
+  await expect(panel).toContainText('Tenía quince años y un filtro de agua para su vereda.');
   await expect(panel).toContainText('Llevas 2 de 3 grabaciones. Falta una, en otras salas.');
 });
 
@@ -126,6 +126,6 @@ test('sala 4: el cactus del estante M entrega la grabación 3', async ({ page },
 
   const panel = page.getByRole('dialog', { name: 'Encontraste una grabación' });
   await expect(panel).toContainText('Grabación 3 de 3');
-  await expect(panel).toContainText('Soy Tobías Rincón.');
+  await expect(panel).toContainText('Él nunca se fue del todo.');
   await expect(panel).toContainText('Ya tienes las tres grabaciones');
 });

@@ -76,9 +76,10 @@ export const FINALES_GUION = [
 
 /**
  * De dónde sale el texto: `salas-y-puzzles` está escrito tal cual en el diseño; `propuesta`
- * lo escribió una sesión porque el diseño no lo trae (los finales). Alex revisa las propuestas.
+ * lo escribió una sesión porque el diseño no lo trae (los finales); `historia` sigue el caso de
+ * Don Efraín de `docs/historia.md` (26 de noviembre de 2026). Alex revisa las propuestas.
  */
-export const ORIGENES_GUION = ['salas-y-puzzles', 'propuesta'] as const;
+export const ORIGENES_GUION = ['salas-y-puzzles', 'propuesta', 'historia'] as const;
 
 /** Límites de duración del diseño, en segundos. */
 export const MAX_SEGUNDOS_LINEA = 6;

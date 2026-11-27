@@ -186,7 +186,7 @@
       },
       {
         "tipo": "nota",
-        "texto": "Junto al nombre tachado: «Profe Marta, incapacidad desde octubre»."
+        "texto": "Recorte amarillento del periódico escolar: «Feria de ciencias de 1991: sancionan un proyecto por copia». Encima, a lápiz: «¿Seguro?»."
       },
       {
         "tipo": "texto",
@@ -667,7 +667,7 @@
     "bloques": [
       {
         "tipo": "texto",
-        "texto": "En la pantalla hay un aviso: «Migración automática programada para las 00:40. Se borrará la carpeta ULTIMA_PRUEBA»."
+        "texto": "En la pantalla hay un aviso: «Migración automática programada para las 00:40. Se borrará la carpeta ULTIMA_PRUEBA (expediente 1991, grabaciones T. R.)»."
       },
       {
         "tipo": "texto",
@@ -711,7 +711,7 @@
       },
       {
         "tipo": "texto",
-        "texto": "«Le pido un último favor: no desconecte los parlantes. Dejé ahí algo para los que vienen»."
+        "texto": "«Le pido un último favor: no desconecte los parlantes. Dejé ahí algo que le debo a alguien desde 1991»."
       },
       { "tipo": "nota", "texto": "Firma: «Tobías Rincón, docente de matemáticas»." }
     ]

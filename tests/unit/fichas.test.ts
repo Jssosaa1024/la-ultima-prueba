@@ -313,7 +313,10 @@ describe('fichas de inspección: coinciden con los puzzles (T35c)', () => {
   });
 
   it('las señales del misterio están donde dice el diseño', () => {
-    expect(textoDe(fichaDeObjeto('s1-corcho'))).toContain('Profe Marta, incapacidad desde octubre');
+    // Historia B: el corcho ya no descarta a la profe Marta; siembra el caso de 1991.
+    expect(textoDe(fichaDeObjeto('s1-corcho'))).toContain(
+      '«Feria de ciencias de 1991: sancionan un proyecto por copia»',
+    );
     expect(textoDe(fichaDeObjeto('s2-taza'))).toContain('«T. R.»');
     expect(textoDe(fichaDeObjeto('s3-planilla'))).toContain('no sé ni prender el parlante');
     expect(textoDe(fichaDeObjeto('s4-caja-devoluciones'))).toContain(

@@ -144,3 +144,39 @@
 .cuaderno-concepto-texto {
   margin: 0;
 }
+
+/* Expediente 1991 (docs/historia.md): la prueba que trae cada sello. */
+.cuaderno-expediente-avance {
+  margin: 0 0 8px;
+}
+
+/* La nota de Rincón abre el expediente: cuenta el caso a quien no vio la intro. */
+.cuaderno-nota-rincon {
+  margin: 0 0 10px;
+}
+
+/* Una acusación sin prueba todavía: se lee, pero no se abre. */
+.cuaderno-prueba-pendiente {
+  padding-top: 12px;
+  opacity: 0.85;
+}
+
+.cuaderno-prueba-titulo {
+  margin: 0 14px 6px;
+  font-weight: 600;
+}
+
+.cuaderno-prueba-pendiente > .cuaderno-acusacion {
+  padding-bottom: 12px;
+}
+
+.cuaderno-prueba > .cuaderno-acusacion,
+.cuaderno-prueba > .cuaderno-lo-que-prueba {
+  margin: 0 14px 8px;
+}
+
+.cuaderno-prueba > .cuaderno-lo-que-prueba {
+  padding-bottom: 12px;
+  font-weight: 700;
+  color: var(--tema-ambar);
+}

@@ -345,3 +345,13 @@
   width: auto;
   height: 56px;
 }
+
+/* Créditos del caso (docs/historia.md): el estado del expediente al final de la noche. */
+.final-expediente-estado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  font-weight: 600;
+}

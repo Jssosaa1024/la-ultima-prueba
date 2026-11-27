@@ -63,7 +63,7 @@ describe('puertas falsas: el toque', () => {
     expect(colaVoz.value).toEqual([]);
     expect(aviso.value).toEqual({ t: 'puerta_falsa', frase: 'hablada', hablada: false });
     expect(textoDeAviso(ultimoAviso())).toBe(
-      'Cinco salas, cinco sellos. Con ellos se abre esta puerta.',
+      'Cinco salas, cinco sellos. Cada sello guarda una prueba de un caso de 1991.',
     );
   });
 

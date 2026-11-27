@@ -11,137 +11,137 @@
     "id": "voz-intro-2",
     "sala": "porteria",
     "momento": "primer_paso",
-    "texto": "Cinco salas, cinco sellos. Con ellos se abre esta puerta.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Cinco salas, cinco sellos. Cada sello guarda una prueba de un caso de 1991.",
+    "duracion_s": 5.5,
+    "origen": "historia"
   },
   {
     "id": "voz-intro-3",
     "sala": "porteria",
     "momento": "mira_reloj",
-    "texto": "A las 00:40 algo se borra. Tú decides si te importa.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "A las 00:40 el archivo se borra. Y con él, la verdad de un muchacho.",
+    "duracion_s": 6,
+    "origen": "historia"
   },
   {
     "id": "voz-s1-entrar",
     "sala": "s1-cooperativa",
     "momento": "entrar_sala",
-    "texto": "La cooperativa. Aquí aprendieron a pagar de más varias generaciones.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "La cooperativa. Aquí compró sus materiales. El recibo dice más de lo que parece.",
+    "duracion_s": 5.5,
+    "origen": "historia"
   },
   {
     "id": "voz-s1-sello",
     "sala": "s1-cooperativa",
     "momento": "sello",
-    "texto": "Cuentas claras. El descuento no se le aplica a la paciencia.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Cuentas claras. Su recibo cuadraba; el que no cuadró fue el jurado.",
+    "duracion_s": 5,
+    "origen": "historia"
   },
   {
     "id": "voz-s2-entrar",
     "sala": "s2-laboratorio",
     "momento": "entrar_sala",
-    "texto": "Aquí todo cambia a ritmo constante. Casi como yo esperando respuestas.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "El laboratorio. Él midió su filtro cada cinco minutos durante tres semanas.",
+    "duracion_s": 5,
+    "origen": "historia"
   },
   {
     "id": "voz-s2-sello",
     "sala": "s2-laboratorio",
     "momento": "sello",
-    "texto": "Una línea recta. Lo más honesto que hay en un laboratorio.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Una recta no se copia: se mide. Y la suya era otra.",
+    "duracion_s": 5,
+    "origen": "historia"
   },
   {
     "id": "voz-s3-entrar",
     "sala": "s3-gimnasio",
     "momento": "entrar_sala",
-    "texto": "El gimnasio. Lo que está alto no siempre es inalcanzable.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "El gimnasio. Aquí fue la feria de 1991. Alguien tomó una foto.",
+    "duracion_s": 5,
+    "origen": "historia"
   },
   {
     "id": "voz-s3-sello",
     "sala": "s3-gimnasio",
     "momento": "sello",
-    "texto": "Un ángulo y una distancia. Con eso se mide lo que no se alcanza.",
+    "texto": "La sombra no miente: la foto es de muy temprano. Él llegó primero.",
     "duracion_s": 5.5,
-    "origen": "salas-y-puzzles"
+    "origen": "historia"
   },
   {
     "id": "voz-s4-entrar",
     "sala": "s4-biblioteca",
     "momento": "entrar_sala",
-    "texto": "Silencio, por favor. Y orden, sobre todo orden.",
-    "duracion_s": 3.5,
-    "origen": "salas-y-puzzles"
+    "texto": "La biblioteca. Las fichas de préstamo saben quién estudió, y cuándo.",
+    "duracion_s": 4.5,
+    "origen": "historia"
   },
   {
     "id": "voz-s4-sello",
     "sala": "s4-biblioteca",
     "momento": "sello",
-    "texto": "Cuatro números y una sola semana posible. Eso es deducir.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Semanas enteras leyendo sobre agua. Eso no lo hace alguien que copia.",
+    "duracion_s": 5,
+    "origen": "historia"
   },
   {
     "id": "voz-s5-entrar",
     "sala": "s5-rectoria",
     "momento": "entrar_sala",
-    "texto": "La última. Aquí nada vuelve a donde estaba.",
-    "duracion_s": 3.5,
-    "origen": "salas-y-puzzles"
+    "texto": "La rectoría. Aquí firmaron que era imposible por casualidad.",
+    "duracion_s": 4,
+    "origen": "historia"
   },
   {
     "id": "voz-s5-sello",
     "sala": "s5-rectoria",
     "momento": "sello",
-    "texto": "Ya no me necesitas. Eso era lo que quería oír.",
+    "texto": "«Imposible por casualidad». Bastaba contar con calma. Ya no me necesitas.",
     "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "origen": "historia"
   },
   {
     "id": "voz-espera",
     "sala": "cualquiera",
     "momento": "espera",
-    "texto": "El cuaderno también sirve para pensar, no solo para copiar.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "El jurado decidió sin mirar dos veces. Tú sí puedes mirar otra vez.",
+    "duracion_s": 5.5,
+    "origen": "historia"
   },
   {
     "id": "voz-fallo",
     "sala": "cualquiera",
     "momento": "fallo",
-    "texto": "Equivocarse aquí es gratis. Y enseña más que acertar de suerte.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Equivocarse aquí es gratis. El error de verdad es no volver a revisar.",
+    "duracion_s": 5.5,
+    "origen": "historia"
   },
   {
     "id": "voz-final",
     "sala": "porteria",
     "momento": "cinco_sellos",
-    "texto": "Salir o salvar el archivo. No hay respuesta incorrecta esta vez.",
-    "duracion_s": 4.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Cinco pruebas. Puedes salir con lo tuyo, o salvar el archivo. Tú decides.",
+    "duracion_s": 5.5,
+    "origen": "historia"
   },
   {
     "id": "voz-pasillo-profesores",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "La sala de profesores. Ni yo tengo llave de ahí.",
-    "duracion_s": 4.5,
-    "origen": "propuesta"
+    "texto": "Ahí se decidió todo en cuarenta minutos.",
+    "duracion_s": 3.0,
+    "origen": "historia"
   },
   {
     "id": "voz-pasillo-10a",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "Esa puerta no lleva a ninguna prueba. Ni siquiera a un recreo.",
-    "duracion_s": 5.0,
-    "origen": "propuesta"
+    "texto": "Treinta y cuatro promociones pasaron por ahí sin saberlo.",
+    "duracion_s": 4.0,
+    "origen": "historia"
   },
   {
     "id": "voz-pasillo-11b",
@@ -155,51 +155,67 @@
     "id": "voz-pasillo-aseo",
     "sala": "porteria",
     "momento": "puerta_falsa",
-    "texto": "El cuarto del aseo. Lo único ordenado del colegio, y está cerrado.",
-    "duracion_s": 5.0,
-    "origen": "propuesta"
+    "texto": "Alguien lo deja impecable desde hace treinta años.",
+    "duracion_s": 3.5,
+    "origen": "historia"
+  },
+  {
+    "id": "voz-pasillo-10b",
+    "sala": "porteria",
+    "momento": "puerta_falsa",
+    "texto": "Un puesto de ese salón quedó vacío en noviembre de 1991.",
+    "duracion_s": 4.5,
+    "origen": "historia"
+  },
+  {
+    "id": "voz-pasillo-11a",
+    "sala": "porteria",
+    "momento": "puerta_falsa",
+    "texto": "Él nunca llegó a este salón.",
+    "duracion_s": 3.0,
+    "origen": "historia"
   },
   {
     "id": "grab-1",
     "sala": "s2-laboratorio",
     "momento": "grabacion",
-    "texto": "Grabación uno. Treinta y cuatro años diciendo “revisa tus cuentas”. Esta vez quiero decir otra cosa.",
-    "duracion_s": 6.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Grabación uno. Soy Tobías Rincón. En 1991 fui el jurado más nuevo. Voté en contra y perdí. Guardé las pruebas por si alguien quería revisar.",
+    "duracion_s": 9.5,
+    "origen": "historia"
   },
   {
     "id": "grab-2",
     "sala": "s3-gimnasio",
     "momento": "grabacion",
-    "texto": "Grabación dos. Una nota mide una mañana, no a una persona. Eso no sale en ningún boletín.",
-    "duracion_s": 7,
-    "origen": "salas-y-puzzles"
+    "texto": "Grabación dos. Tenía quince años y un filtro de agua para su vereda. Después de la sanción no volvió. Yo tampoco fui el mismo profe.",
+    "duracion_s": 9.5,
+    "origen": "historia"
   },
   {
     "id": "grab-3",
     "sala": "s4-biblioteca",
     "momento": "grabacion",
-    "texto": "Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.",
-    "duracion_s": 7.5,
-    "origen": "salas-y-puzzles"
+    "texto": "Grabación tres. Él nunca se fue del todo. Está más cerca de lo que crees. Si restauras el archivo, que él lo vea primero.",
+    "duracion_s": 9.5,
+    "origen": "historia"
   },
   {
     "id": "voz-fin-legado",
     "sala": "porteria",
     "momento": "final",
     "final": "el_legado",
-    "texto": "Me llamo Tobías Rincón. Treinta y cuatro años, y la última clase la diste tú.",
-    "duracion_s": 6,
-    "origen": "propuesta"
+    "texto": "Efraín, nunca fue copia. Perdóname por tardar treinta y cuatro años en probarlo.",
+    "duracion_s": 5.5,
+    "origen": "historia"
   },
   {
     "id": "voz-fin-justo",
     "sala": "porteria",
     "momento": "final",
     "final": "justo_a_tiempo",
-    "texto": "Ahí está tu memoria. El archivo se va; lo que pensaste aquí se queda.",
-    "duracion_s": 5.5,
-    "origen": "propuesta"
+    "texto": "Ahí está tu memoria. Mañana, en tu feria, que nadie decida sin mirar dos veces.",
+    "duracion_s": 6,
+    "origen": "historia"
   },
   {
     "id": "voz-fin-ayuda",
@@ -215,8 +231,8 @@
     "sala": "porteria",
     "momento": "final",
     "final": "tiempo_cumplido",
-    "texto": "Las 00:40. Se acabó el reloj, no las ganas de entender.",
-    "duracion_s": 4.5,
-    "origen": "propuesta"
+    "texto": "Las 00:40. El archivo se fue. Lo que entendiste esta noche, no.",
+    "duracion_s": 5,
+    "origen": "historia"
   }
 ]
