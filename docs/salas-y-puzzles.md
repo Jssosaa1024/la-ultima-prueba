@@ -262,7 +262,7 @@ El final se elige en la portería, frente a la puerta de salida, después de col
 | Final | Condición | Qué se ve |
 | --- | --- | --- |
 | «El legado» | 5 sellos + 3 grabaciones y elegir «Restaurar archivo» | Final bueno de `docs/historia.md`: la carpeta se copia a un pendrive, Don Efraín abre la puerta y ve en la pantalla su proyecto de 1991. |
-| «Justo a tiempo» | 5 sellos y elegir «Salir» (con o sin grabaciones) | El casillero se abre y se recupera la memoria USB; el archivo se borra a las 00:40 y Don Efraín abre la puerta en silencio (final malo). |
+| «Justo a tiempo» | 5 sellos y elegir «Salir» (con o sin grabaciones) | Final malo, aparte: se recupera la memoria USB, Don Efraín desea suerte en la feria y a las 00:40 el archivo se borra. |
 | «También vale pedir ayuda» | Usar el intercomunicador en cualquier momento y confirmar | Don Efraín abre con su llave y ofrece repasar las salas pendientes en modo práctica. |
 | «Tiempo cumplido» | El reloj llega a 00:40 | El archivo se borra, Don Efraín abre la puerta en silencio (final malo) y los acertijos pendientes quedan en modo práctica sin reloj. |
 

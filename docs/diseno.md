@@ -9,7 +9,7 @@ Actualizado el 12 de noviembre de 2026 (y el 21 de noviembre, el pasillo) según
 
 Es miércoles a las 23:59 y la feria de ciencias empieza mañana a las 7:00. Eres estudiante de grado 10 en la Institución Educativa Los Almendros, un colegio público ficticio, y olvidaste allí la memoria USB con tu proyecto. Entras justo cuando la puerta automática de la portería se cierra. Detrás del vidrio del casillero de objetos perdidos ves tu memoria. Por los parlantes despierta **La Voz**: cinco salas, cinco sellos, y con ellos se abre la puerta. A las 00:40 una migración automática borrará la carpeta `ULTIMA_PRUEBA` del servidor del colegio.
 
-**El caso de Don Efraín** (decisión de Alex, 26 de noviembre de 2026; completo en `docs/historia.md`). La Voz es la grabación que dejó el profe Tobías Rincón antes de jubilarse. En la feria de ciencias de 1991 acusaron a un estudiante de copiar su proyecto; lo sancionaron y dejó el colegio. Rincón nunca creyó la acusación y guardó las pruebas en la carpeta que se borra a las 00:40. Cada sello trae una prueba matemática de su inocencia, que queda en el cuaderno. El giro: el acusado era Don Efraín, el celador. Los puzzles no cambian: cambia lo que significa resolverlos.
+**El caso de Don Efraín** (decisión de Alex, 26 de noviembre de 2026; completo en `docs/historia.md`). La Voz es la grabación que dejó el profe Tobías Rincón antes de jubilarse. En la feria de ciencias de 1991 acusaron a un estudiante de copiar el proyecto de otro colegio, porque su filtro de agua dio el mismo dato; lo sancionaron y dejó el colegio. Rincón nunca creyó la acusación y guardó las pruebas en la carpeta que se borra a las 00:40. Cada sello trae una prueba matemática de su inocencia, que queda en el cuaderno. El giro: el acusado era Don Efraín, el celador. Los puzzles no cambian: cambia lo que significa resolverlos.
 
 El tono es un misterio amable: nadie está en peligro, nadie es villano y La Voz es un profe exigente con humor seco.
 
@@ -53,10 +53,10 @@ Los encargos rotan entre salas y los objetos pueden pasarse. Accionar el mecanis
 
 ## Grabaciones y finales
 
-Las salas 2, 3 y 4 esconden tres grabaciones opcionales del profe Tobías Rincón: por qué votó en contra de la sanción en 1991, quién era el estudiante y que «él nunca se fue del todo». El final se elige en la portería después de colocar los cinco sellos. La historia tiene dos finales, bueno y malo (`docs/historia.md`); los cuatro del juego encajan así:
+Las salas 2, 3 y 4 esconden tres grabaciones opcionales del profe Tobías Rincón: por qué votó en contra de la sanción en 1991, quién era el estudiante y que «él nunca se fue del todo». El final se elige en la portería después de colocar los cinco sellos. La historia tiene un final bueno y dos malos, más una salida amable (`docs/historia.md`). Cada final tendrá su video, igual que la intro, y el juego tiene además un trailer (`docs/escenas.md`; se hacen después):
 
 - **«El legado»** (final bueno): cinco sellos, tres grabaciones y elegir restaurar el archivo. La carpeta se copia a un pendrive, Don Efraín abre la puerta y ve en la pantalla su proyecto de 1991.
-- **«Justo a tiempo»** (final malo): cinco sellos y elegir salir. Recuperas la memoria USB, el archivo se borra a las 00:40 y Don Efraín abre la puerta en silencio.
+- **«Justo a tiempo»** (final malo, aparte): cinco sellos y elegir salir sin restaurar. Recuperas tu memoria USB y Don Efraín te desea suerte en la feria; a las 00:40 el archivo se borra. Salvaste tu proyecto y el de 1991 se perdió otra vez.
 - **«Tiempo cumplido»** (final malo): el reloj llega a 00:40. El archivo se borra, Don Efraín abre la puerta en silencio y los puzzles pendientes quedan en modo práctica sin reloj.
 - **«También vale pedir ayuda»:** usar el intercomunicador en cualquier momento. Don Efraín abre con su llave y cuenta cómo funcionaba cada máquina.
 

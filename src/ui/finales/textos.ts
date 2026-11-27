@@ -16,9 +16,9 @@ export const FINALES_TEXTO: Readonly<Record<FinalId, TextoFinal>> = {
   justo_a_tiempo: {
     titulo: 'Justo a tiempo',
     parrafos: [
-      'Colocaste los cinco sellos y elegiste salir. El casillero de objetos perdidos se abre: ahí está tu memoria USB con el proyecto de la feria de ciencias.',
-      'A las 00:40, mientras cruzas la portería, el archivo termina de borrarse. Don Efraín te abre la puerta sin decir nada.',
-      'Antes de cerrar, se queda mirando la pantalla apagada y guarda en el bolsillo una foto vieja de una feria de ciencias.',
+      'Colocaste los cinco sellos y elegiste salir sin restaurar el archivo. El casillero de objetos perdidos se abre: ahí está tu memoria USB con el proyecto de mañana.',
+      'Don Efraín te abre la puerta. «Suerte mañana en su feria», te dice. En la otra mano tiene una foto vieja de una feria de ciencias.',
+      'Desde la calle ves que a las 00:40 la pantalla de la portería se apaga. Salvaste tu proyecto; el de 1991 se perdió otra vez.',
     ],
   },
   el_legado: {

@@ -1,6 +1,6 @@
 # Historia · sesión B · El caso de Don Efraín
 
-26 de noviembre de 2026. Alex eligió el misterio «El caso de Don Efraín»: en la feria de ciencias de 1991 acusaron a un estudiante de copiar su proyecto, el profe Tobías Rincón guardó las pruebas y el acusado era Don Efraín, el celador. Los puzzles no cambian: cambia lo que significa resolverlos.
+26 de noviembre de 2026. Alex eligió el misterio «El caso de Don Efraín»: en la feria de ciencias de 1991 acusaron a un estudiante de copiar el proyecto de otro colegio, el profe Tobías Rincón guardó las pruebas y el acusado era Don Efraín, el celador. Los puzzles no cambian: cambia lo que significa resolverlos.
 
 ## PR de esta sesión
 
@@ -15,7 +15,8 @@
 - **El caso:** un estudiante de 10-B presentó un filtro de agua para su vereda. Dio el mismo dato que el filtro de otro colegio y el jurado lo sancionó por copia en cuarenta minutos. Rincón, el jurado más nuevo, votó en contra y perdió.
 - **Cada sala es una prueba** y cada una desmiente una acusación con la idea matemática de su máquina: el recibo (los descuentos se multiplican), la bitácora (dos rectas distintas se cruzan en un solo punto), la foto de la feria (la sombra da la hora), las fichas de préstamo (la media del año esconde las semanas de estudio) y el acta (contando parejas, «imposible por casualidad» no era cierto).
 - **El giro, sin adelantarlo:** el estudiante es siempre «E. C., 10-B». Las migas: el papel del casillero firmado por Don Efraín, las puertas del pasillo («impecable desde hace treinta años», «un puesto quedó vacío en 1991»), la foto («siempre llegaba primero y abría la puerta») y la grabación 3 («está más cerca de lo que crees»). El nombre completo, Efraín Cárdenas, solo sale en los finales y los créditos. Una prueba de unidad lo vigila.
-- **Dos finales:** el bueno («El legado») y el malo («Tiempo cumplido» y «Justo a tiempo»). «Pedir ayuda» queda como salida amable. El código de los finales no cambió.
+- **Finales:** uno bueno («El legado») y dos malos, cada uno aparte: «Justo a tiempo» (salvas tu proyecto y el de 1991 se pierde) y «Tiempo cumplido». «Pedir ayuda» queda como salida amable. El código de los finales no cambió.
+- **Videos** (decisión de Alex): el juego tendrá un trailer, un video de intro y uno por cada final. Los hará otro agente, después; `docs/escenas.md` tiene el guion de cada uno.
 
 ## 2 · Contenido
 
@@ -25,9 +26,9 @@
 - **Finales y salida:** los cuatro textos de final siguen la historia; la puerta de salida explica que al salir se borran las pruebas de 1991.
 - **Docs:** `docs/diseno.md`, `docs/salas-y-puzzles.md` (narrativa, tabla del guion y grabaciones) y la página `/docentes` cuentan el caso.
 
-## 3 · Intro y finales (`docs/escenas.md`)
+## 3 · Videos de la intro y los finales (`docs/escenas.md`)
 
-Guion de texto y de cámara de una intro de unos 40 s (por qué estás ahí y qué se borra a las 00:40), del final bueno (30 s) y del final malo (25 s). La intro no necesita grabaciones nuevas: usa `voz-intro-1` y tres textos en pantalla. **Las escenas no están implementadas:** hoy el juego empieza en la portería y los finales son pantallas de texto que ya dicen lo mismo.
+Alex decidió que el juego tiene un trailer, un video de intro y un video por cada final; los hace otro agente, después. `docs/escenas.md` trae el guion de texto y de cámara de la intro (unos 45 s, que cuenta el caso de 1991 sin decir quién es el estudiante) y de los cuatro finales, más las reglas para todos: MP4 H.264 + AAC, subtítulos, botón «Saltar», carga aparte y estilo grabado desde el propio juego. La intro necesita 4 frases nuevas de La Voz, que se agregan al guion cuando se haga el video. **Falta decidir** si los videos cuentan para el límite de 3 MB de la primera sala y cómo se acreditan si se hacen con IA. Mientras no existan, el juego empieza en la portería y los finales son pantallas de texto que dicen lo mismo.
 
 ## 4 · Créditos
 
@@ -48,7 +49,6 @@ Portería: `voz-intro-2`, `voz-intro-3`, `voz-final`. Salas: `voz-s1-entrar` a `
 ## Lo que necesita a Alex
 
 - Leer `docs/historia.md` (#192) antes de fusionar el contenido.
-- Decidir si «Justo a tiempo» sigue como final aparte o si «Salir» lleva directo al final malo.
 - El apellido del estudiante es una propuesta: Cárdenas.
 - Las frases de Don Efraín en los finales («Ese era yo», «Mañana llegue temprano a su feria») van como texto. Si las quiere con voz, hace falta otra voz en ElevenLabs.
 - Mientras la sesión A no grabe, 26 líneas salen solo con subtítulo.
