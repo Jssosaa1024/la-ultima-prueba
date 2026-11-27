@@ -20,7 +20,8 @@ import Ficha from '../tema/Ficha';
 import Sello, { type ColorSello } from '../tema/Sello';
 import {
   AGRADECIMIENTO,
-  CAMEOS,
+  EXPEDIENTE_CREDITOS,
+  expedienteReabierto,
   FINALES_TEXTO,
   POSCREDITOS,
   textoResultadoSala,
@@ -48,7 +49,7 @@ const COLOR_RESULTADO: Readonly<Record<ResultadoSala, ColorSello>> = {
 type Paso = 'final' | 'creditos' | 'poscreditos';
 
 /**
- * Pantallas del cierre (T40): el final que se obtuvo, los créditos con humor y la escena
+ * Pantallas del cierre (T40): el final que se obtuvo, los créditos del caso y la escena
  * poscréditos. Cada paso lleva el foco a su título para que el lector de pantalla lo anuncie.
  */
 export default function PantallaFinal() {
@@ -70,12 +71,7 @@ export default function PantallaFinal() {
             <h1 id="final-titulo" ref={titulo} tabIndex={-1} class="final-titulo">
               La Última Prueba
             </h1>
-            <h2 class="final-subtitulo">Con la participación especial de</h2>
-            <ul class="final-lista">
-              {CAMEOS.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
+            <Expediente id={final.value ?? 'tiempo_cumplido'} />
             <p class="final-agradecimiento">{AGRADECIMIENTO}</p>
             <p class="final-nota">
               Los personajes de estos créditos son ficticios. Los créditos de modelos, imágenes y
@@ -230,5 +226,37 @@ function Aprendizaje() {
         })}
       </ol>
     </section>
+  );
+}
+
+/**
+ * Los créditos cuentan el caso (`docs/historia.md`): el expediente de 1991, con cada personaje
+ * y su papel, y su estado al final de la noche. Solo «El legado» lo reabre.
+ */
+function Expediente({ id }: { id: FinalId }) {
+  const e = EXPEDIENTE_CREDITOS;
+  const reabierto = expedienteReabierto(id);
+  return (
+    <>
+      <h2 class="final-subtitulo">{e.rotulo}</h2>
+      <p>{e.apertura}</p>
+      <ul class="final-lista final-personajes">
+        {e.personajes.map((p) => (
+          <li key={p.nombre}>
+            <strong>{p.nombre}.</strong> {p.papel}
+          </li>
+        ))}
+      </ul>
+      <p class="final-nota">{e.pruebas}</p>
+      <p class="final-expediente-estado">
+        <Sello
+          texto={reabierto ? 'Reabierto' : 'Cerrado'}
+          color={reabierto ? 'azul' : 'rojo'}
+          decorativo
+          clase="final-expediente-sello"
+        />
+        {reabierto ? e.reabierto : e.cerrado}
+      </p>
+    </>
   );
 }

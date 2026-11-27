@@ -85,6 +85,10 @@ test('con los sellos y las tres grabaciones, «Restaurar archivo» lleva a «El 
   await page.getByRole('button', { name: 'Ver créditos' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'La Última Prueba' })).toBeFocused();
   await expect(page.getByText(/tenía la llave desde el principio/)).toBeVisible();
+  // Historia B: los créditos cuentan el caso de 1991; con el archivo restaurado, se reabre.
+  await expect(page.getByText(/Expediente 1991-14/)).toBeVisible();
+  await expect(page.getByText('Efraín Cárdenas.', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Reabierto esta noche/)).toBeVisible();
   // Correcciones del 25 nov: al final de los créditos, «Un proyecto de» con el logo de Sinapsis.
   await expect(page.getByRole('img', { name: 'Sinapsis' })).toBeVisible();
 

@@ -72,7 +72,9 @@ export default function EleccionFinal() {
       </p>
       <ul class="eleccion">
         <li class="eleccion-opcion">
-          <p class="eleccion-texto">Sales del colegio con la memoria USB antes de las 00:40.</p>
+          <p class="eleccion-texto">
+            Sales con tu memoria USB. A las 00:40 se borra el archivo con las pruebas de 1991.
+          </p>
           <button
             type="button"
             class="boton boton-principal"
@@ -84,7 +86,7 @@ export default function EleccionFinal() {
         <li class="eleccion-opcion">
           <p class="eleccion-texto" id="eleccion-restaurar">
             {opciones.restaurar
-              ? 'Con las tres grabaciones puedes restaurar el archivo antes de salir.'
+              ? 'Con las tres grabaciones puedes restaurar el archivo y salvar las pruebas de 1991.'
               : textoGrabacionesFaltantes(
                   opciones.faltanGrabaciones,
                   opciones.salasConGrabacion.map((s) => salaPorId(s).nombre),
