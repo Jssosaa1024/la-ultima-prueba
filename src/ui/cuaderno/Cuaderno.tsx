@@ -1,6 +1,7 @@
 import { useId, useState } from 'preact/hooks';
 import { fichas } from '../../signals/contenido';
 import { datosEncontrados, MAX_NOTA, MAX_NOTAS, notas } from '../../signals/cuaderno';
+import { pruebasConSello } from '../../content/expediente';
 import { PUZZLES } from '../../content/puzzles';
 import { cerrarPanel } from '../../signals/interfaz';
 import { pistasVistas } from '../../signals/mecanismo';
@@ -25,6 +26,7 @@ export default function Cuaderno() {
       {/* En grupo (T86): la pista del encargo de este jugador en la sala actual. */}
       {!individual && <Encargos />}
       <Descubrimientos />
+      <Expediente />
       <DatosEncontrados />
       <PistasAbiertas grupo={!individual} />
       <GrabacionesCuaderno />
@@ -66,6 +68,37 @@ function Descubrimientos() {
           )}
         </article>
       ))}
+    </section>
+  );
+}
+
+/**
+ * Las pruebas del caso de 1991 (`docs/historia.md`): cada sello trae una. La sección aparece
+ * con el primer sello. En el cooperativo el avance es del grupo, así que todos ven las mismas.
+ */
+function Expediente() {
+  const pruebas = pruebasConSello(avance.value);
+  if (pruebas.length === 0) return null;
+  return (
+    <section class="cuaderno-seccion" aria-labelledby="cuaderno-expediente">
+      <h3 id="cuaderno-expediente" class="cuaderno-subtitulo">
+        Expediente 1991
+      </h3>
+      <p class="cuaderno-expediente-avance">
+        {pruebas.length === 1 ? 'Tienes 1 de 5 pruebas.' : `Tienes ${pruebas.length} de 5 pruebas.`}
+      </p>
+      <div class="cuaderno-datos">
+        {pruebas.map((p) => (
+          <details key={p.id} class="cuaderno-dato cuaderno-prueba">
+            <summary>
+              Prueba {p.numero} · {p.titulo}
+            </summary>
+            <p class="cuaderno-acusacion">Lo que dijo el jurado: {p.acusacion}</p>
+            <ContenidoFicha ficha={{ titulo: p.titulo, bloques: p.bloques }} />
+            <p class="cuaderno-lo-que-prueba">{p.prueba}</p>
+          </details>
+        ))}
+      </div>
     </section>
   );
 }

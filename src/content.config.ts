@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { esquemaPuzzle } from './content/esquema';
+import { esquemaPrueba } from './content/esquema-expediente';
 import { esquemaFichaValidada } from './content/esquema-fichas';
 import { esquemaLineaGuionValidada } from './content/esquema-guion';
 import { esquemaFrasePuertaFalsa } from './content/esquema-puertas-falsas';
@@ -46,4 +47,18 @@ const puertasFalsas = defineCollection({
   schema: esquemaFrasePuertaFalsa,
 });
 
-export const collections = { puzzles, salas, fichas, guion, resumenes, puertasFalsas };
+/** La prueba de 1991 que trae el sello de cada sala (`docs/historia.md`). */
+const expediente = defineCollection({
+  loader: file('./src/content/expediente.json'),
+  schema: esquemaPrueba,
+});
+
+export const collections = {
+  puzzles,
+  salas,
+  fichas,
+  guion,
+  resumenes,
+  puertasFalsas,
+  expediente,
+};
