@@ -28,7 +28,7 @@ export const GRABACIONES_ESCONDIDAS: readonly Grabacion[] = [
     objeto: 's2-gabinete',
     lugar: 'En el gabinete del laboratorio',
     texto:
-      'Grabación uno. Treinta y cuatro años diciendo “revisa tus cuentas”. Esta vez quiero decir otra cosa.',
+      'Grabación uno. Soy Tobías Rincón. En 1991 fui el jurado más nuevo. Voté en contra y perdí. Guardé las pruebas por si alguien quería revisar.',
   },
   {
     id: 'grab-2',
@@ -37,7 +37,7 @@ export const GRABACIONES_ESCONDIDAS: readonly Grabacion[] = [
     objeto: 's3-balon-3',
     lugar: 'En el balón desinflado del carro del gimnasio',
     texto:
-      'Grabación dos. Una nota mide una mañana, no a una persona. Eso no sale en ningún boletín.',
+      'Grabación dos. Tenía quince años y un filtro de agua para su vereda. Después de la sanción no volvió. Yo tampoco fui el mismo profe.',
   },
   {
     id: 'grab-3',
@@ -46,7 +46,7 @@ export const GRABACIONES_ESCONDIDAS: readonly Grabacion[] = [
     objeto: 's4-cactus',
     lugar: 'En la maceta del cactus del estante M de la biblioteca',
     texto:
-      'Grabación tres. Soy Tobías Rincón. Dejé un mensaje para cada promoción. Guárdalos. Y ve a dormir, que mañana madrugas.',
+      'Grabación tres. Él nunca se fue del todo. Está más cerca de lo que crees. Si restauras el archivo, que él lo vea primero.',
   },
 ];
 

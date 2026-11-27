@@ -283,9 +283,10 @@ describe('el pasillo en los datos', () => {
     expect(esquemaSalas.safeParse(enOtraSala).success).toBe(false);
   });
 
-  it('cuatro frases las dice La Voz, cada una con su línea del guion', () => {
+  it('seis frases las dice La Voz, cada una con su línea del guion', () => {
+    // Historia B: el 10-B y el 11-A también hablan del caso de 1991.
     const conVoz = FRASES_PUERTAS_FALSAS.filter((f) => f.voz);
-    expect(conVoz).toHaveLength(4);
+    expect(conVoz).toHaveLength(6);
     const lineas = (guion as LineaGuion[]).filter((l) => l.momento === 'puerta_falsa');
     expect(conVoz.map((f) => f.voz).sort()).toEqual(lineas.map((l) => l.id).sort());
     for (const l of lineas) expect(l.sala).toBe('porteria');

@@ -56,9 +56,10 @@ describe('guion.json', () => {
   });
 
   it('tiene la portería, la entrada y el sello de cada sala, las grabaciones y los finales', () => {
-    // 23 de la partida y 4 de las puertas falsas del pasillo (docs/pasillos.md).
-    expect(GUION).toHaveLength(27);
-    expect(lineasDe('puerta_falsa', 'porteria')).toHaveLength(4);
+    // 23 de la partida y 6 de las puertas falsas del pasillo (docs/pasillos.md; la historia
+    // del caso de Don Efraín agregó el 10-B y el 11-A).
+    expect(GUION).toHaveLength(29);
+    expect(lineasDe('puerta_falsa', 'porteria')).toHaveLength(6);
     for (const sala of SALAS) {
       expect(lineasDe('entrar_sala', sala).map((l) => l.id)).toContain(
         `voz-s${SALAS.indexOf(sala) + 1}-entrar`,
@@ -73,8 +74,11 @@ describe('guion.json', () => {
 
   it('las líneas del diseño están escritas tal cual en docs/salas-y-puzzles.md', () => {
     const diseno = leer('docs/salas-y-puzzles.md');
-    const delDiseno = GUION.filter((l) => l.origen === 'salas-y-puzzles');
-    expect(delDiseno).toHaveLength(19);
+    // Desde la historia B, el diseño trae también las líneas del caso de Don Efraín.
+    const delDiseno = GUION.filter(
+      (l) => l.origen === 'salas-y-puzzles' || l.origen === 'historia',
+    );
+    expect(delDiseno).toHaveLength(27);
     for (const l of delDiseno) expect(diseno, l.id).toContain(`«${l.texto}»`);
   });
 
