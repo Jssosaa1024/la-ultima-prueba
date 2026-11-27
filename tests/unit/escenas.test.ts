@@ -2,12 +2,11 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  CLAVE_ESCENAS_VISTAS,
+  CLAVE_SIN_ESCENAS,
   duracionDe,
   escenaPorId,
   ESCENAS,
-  escribirVistas,
-  leerVistas,
+  escenasApagadas,
   orientacionHacia,
   planoEn,
   subtituloEn,
@@ -25,10 +24,10 @@ import { iniciarControlador } from '../../src/signals/controlador';
 import {
   escena,
   escenaTerminada,
-  escenaVista,
   iniciarEscena,
   reiniciarEscena,
   seguirFinales,
+  sinEscenas,
   terminarEscena,
 } from '../../src/signals/escena';
 import { controlesActivos, reiniciarInterfaz } from '../../src/signals/interfaz';
@@ -189,12 +188,12 @@ describe('el reloj de una escena', () => {
   });
 });
 
-describe('escenas vistas', () => {
-  it('solo se aceptan ids conocidos de lo guardado', () => {
-    expect([...leerVistas('intro,el_legado,<script>,intro')]).toEqual(['intro', 'el_legado']);
-    expect(leerVistas(null).size).toBe(0);
-    expect(leerVistas('x'.repeat(500)).size).toBe(0);
-    expect(escribirVistas(new Set(['tiempo_cumplido', 'intro']))).toBe('intro,tiempo_cumplido');
+describe('sin escenas (solo las pruebas e2e)', () => {
+  it('solo apaga las escenas el «1» exacto', () => {
+    expect(escenasApagadas('1')).toBe(true);
+    for (const otro of [null, '', '0', 'true', ' 1', '1<script>']) {
+      expect(escenasApagadas(otro), String(otro)).toBe(false);
+    }
   });
 });
 
@@ -204,14 +203,10 @@ describe('signals de la escena', () => {
     reiniciarPartida();
   });
 
-  it('iniciar la anota como vista; terminar dice cuál fue y cómo', () => {
-    const almacen = almacenFalso();
-    iniciarEscena('el_legado', almacen);
+  it('terminar dice cuál fue y cómo; con una en curso no empieza otra', () => {
+    iniciarEscena('el_legado');
     expect(escena.value?.id).toBe('el_legado');
-    expect(escenaVista('el_legado', almacen)).toBe(true);
-    expect(almacen.getItem(CLAVE_ESCENAS_VISTAS)).toBe('el_legado');
-    // Con una en curso no empieza otra.
-    iniciarEscena('intro', almacen);
+    iniciarEscena('intro');
     expect(escena.value?.id).toBe('el_legado');
     terminarEscena('saltada');
     expect(escena.value).toBeNull();
@@ -223,16 +218,11 @@ describe('signals de la escena', () => {
       getItem: () => {
         throw new Error('sin permiso');
       },
-      setItem: () => {
-        throw new Error('lleno');
-      },
     };
-    expect(escenaVista('intro', roto)).toBe(false);
-    iniciarEscena('intro', roto);
-    expect(escena.value?.id).toBe('intro');
+    expect(sinEscenas(roto)).toBe(false);
   });
 
-  it('al llegar a un final con escena, empieza sola una vez; pedir ayuda no tiene', () => {
+  it('al llegar a un final con escena, empieza sola cada vez; pedir ayuda no tiene', () => {
     const almacen = almacenFalso();
     const dejar = seguirFinales(almacen);
     final.value = 'pedir_ayuda';
@@ -243,9 +233,17 @@ describe('signals de la escena', () => {
     fase.value = 'final';
     expect(escena.value?.id).toBe('tiempo_cumplido');
     terminarEscena('fin');
-    // Otra partida con el mismo final: ya se vio en este equipo.
+    // Otra partida con el mismo final: sale otra vez.
     reiniciarPartida();
     final.value = 'tiempo_cumplido';
+    fase.value = 'final';
+    expect(escena.value?.id).toBe('tiempo_cumplido');
+    dejar();
+  });
+
+  it('con la clave de las pruebas, los finales no tienen escena', () => {
+    const dejar = seguirFinales(almacenFalso({ [CLAVE_SIN_ESCENAS]: '1' }));
+    final.value = 'el_legado';
     fase.value = 'final';
     expect(escena.value).toBeNull();
     dejar();
@@ -272,7 +270,7 @@ describe('la intro en la partida', () => {
     vi.restoreAllMocks();
   });
 
-  it('la primera vez: la intro, con el reloj quieto y sin controles; luego La Voz se presenta', () => {
+  it('la intro, con el reloj quieto y sin controles; luego La Voz se presenta', () => {
     const almacen = almacenFalso();
     detener = iniciarControlador({ documento: null, almacen, escenas: true });
     enviar({ t: 'iniciar', modo: 'individual' });
@@ -289,8 +287,19 @@ describe('la intro en la partida', () => {
     expect(colaVoz.value).toEqual(['voz-intro-1', 'voz-intro-2']);
   });
 
-  it('si ya se vio en este equipo, la partida empieza directo', () => {
-    const almacen = almacenFalso({ [CLAVE_ESCENAS_VISTAS]: 'intro' });
+  it('sale en cada partida nueva; con la clave de las pruebas, la partida empieza directo', () => {
+    detener = iniciarControlador({ documento: null, almacen: almacenFalso(), escenas: true });
+    enviar({ t: 'iniciar', modo: 'individual' });
+    terminarEscena('saltada');
+    enviar({ t: 'salir' });
+    enviar({ t: 'iniciar', modo: 'individual' });
+    expect(escena.value?.id).toBe('intro');
+    detener();
+    reiniciarEscena();
+    reiniciarPartida();
+    reiniciarVoz();
+
+    const almacen = almacenFalso({ [CLAVE_SIN_ESCENAS]: '1' });
     detener = iniciarControlador({ documento: null, almacen, escenas: true });
     enviar({ t: 'iniciar', modo: 'individual' });
     expect(escena.value).toBeNull();

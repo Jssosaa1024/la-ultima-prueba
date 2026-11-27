@@ -49,7 +49,7 @@ import { evaluar } from '../game/puzzles';
 import { iguales } from '../game/puzzles/tipos';
 import { agotado, crearReloj, pausar, reanudar, restante } from '../game/reloj';
 import { fichas, type Ficha } from './contenido';
-import { escena, escenaVista, iniciarEscena, reiniciarEscena, seguirFinales } from './escena';
+import { escena, iniciarEscena, reiniciarEscena, seguirFinales, sinEscenas } from './escena';
 import { decir, reiniciarVoz } from './voz';
 import {
   cuadernoActivo,
@@ -538,9 +538,9 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
    * cerrada no cuenta: el reloj sigue desde lo que quedaba.
    */
   function empezar(g: Guardado | null): void {
-    // La intro (Historia A) cuenta el caso de 1991 la primera vez en este equipo. Mientras se
-    // ve, el reloj no corre; al terminar o saltarla, La Voz se presenta como siempre.
-    const conIntro = !g && conEscenas && !escenaVista('intro', almacen);
+    // La intro (Historia A) cuenta el caso de 1991 en cada partida nueva. Mientras se ve, el
+    // reloj no corre; al terminar o saltarla, La Voz se presenta como siempre.
+    const conIntro = !g && conEscenas && !sinEscenas(almacen);
     // Antes de pedir la pausa de la intro: así quitar una escena anterior no la suelta.
     reiniciarEscena();
     cambiar((t) => {
@@ -578,7 +578,7 @@ export function iniciarControlador(opciones: OpcionesControlador = {}): () => vo
       });
       // Una partida nueva empieza con la puerta que se cierra y La Voz presentándose (después de
       // la intro, si la hay).
-      if (conIntro) iniciarEscena('intro', almacen);
+      if (conIntro) iniciarEscena('intro');
       else if (!g) presentarVoz();
       // Si se guardó justo al acabarse el tiempo, no queda nada que jugar.
       if (g && g.restanteMs <= 0) partida = aplicar(partida, { t: 'tiempo_agotado' });

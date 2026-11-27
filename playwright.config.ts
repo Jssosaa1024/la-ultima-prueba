@@ -22,17 +22,15 @@ export default defineConfig({
     // T94: sin service worker en las pruebas, salvo las suyas (pwa.spec.ts), para que no
     // descargue el núcleo en cada prueba ni se cruce con `page.route`.
     serviceWorkers: 'block',
-    // Historia A: las escenas de la historia (intro y finales) se ven solas la primera vez en
-    // cada equipo. Las pruebas empiezan con todas ya vistas, para ir directo al juego y a la
-    // pantalla de final; las de las escenas (escenas.spec.ts) las vuelven a pedir.
+    // Historia A: las escenas de la historia (intro y finales) salen en cada partida. Las
+    // pruebas las apagan con `lup:sin-escenas`, para ir directo al juego y a la pantalla de
+    // final; las de las escenas (escenas.spec.ts) empiezan sin esa clave.
     storageState: {
       cookies: [],
       origins: [
         {
           origin: `http://127.0.0.1:${PUERTO}`,
-          localStorage: [
-            { name: 'lup:escenas-vistas', value: 'intro,el_legado,justo_a_tiempo,tiempo_cumplido' },
-          ],
+          localStorage: [{ name: 'lup:sin-escenas', value: '1' }],
         },
       ],
     },

@@ -403,8 +403,8 @@ test('con el almacenamiento bloqueado (pestaña privada) se juega sin errores y 
     });
   });
   await abrirJuego(page);
-  // Historia A: sin almacenamiento no se puede anotar que la intro ya se vio, así que sale
-  // cada vez. Se salta.
+  // Historia A: sin almacenamiento, la clave con que las pruebas apagan las escenas no se lee,
+  // así que sale la intro. Se salta.
   await page.getByRole('button', { name: 'Saltar' }).click();
   await expect(page.getByRole('timer')).toBeVisible();
   // Ocultar la pestaña es uno de los momentos en que se guarda.

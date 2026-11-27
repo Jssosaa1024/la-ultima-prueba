@@ -2,13 +2,13 @@ import { expect, test } from '@playwright/test';
 import { continuarEn } from './escena';
 
 // Historia A: las escenas de la intro y de los finales del caso de Don Efraín. Las demás e2e
-// empiezan con las escenas ya vistas (playwright.config.ts); estas, con el equipo limpio.
+// las apagan con `lup:sin-escenas` (playwright.config.ts); estas empiezan sin esa clave.
 test.use({ storageState: { cookies: [], origins: [] } });
 
 const escenaDelCanvas = (page: import('@playwright/test').Page) =>
   page.getByLabel('Escena del juego');
 
-test('la intro cuenta el caso, se salta con un toque y no vuelve a salir', async ({ page }) => {
+test('la intro cuenta el caso, se salta con un toque y sale en cada partida', async ({ page }) => {
   await page.goto('/jugar');
   await page.getByRole('button', { name: 'Jugar solo' }).click();
 
@@ -29,8 +29,10 @@ test('la intro cuenta el caso, se salta con un toque y no vuelve a salir', async
   await expect(escenaDelCanvas(page)).not.toHaveAttribute('data-escena', /.+/);
   // La Voz se presenta como siempre, ya en la portería.
   await expect(page.locator('.subtitulo')).toContainText('Buenas noches.');
-  const vistas = await page.evaluate(() => localStorage.getItem('lup:escenas-vistas'));
-  expect(vistas).toBe('intro');
+  // Otra partida: la intro sale otra vez (decisión de Alex: siempre).
+  await page.reload();
+  await page.getByRole('button', { name: 'Jugar solo' }).click();
+  await expect(intro).toBeVisible();
 });
 
 test('la intro avanza por sus planos: la foto de 1991 y La Voz con subtítulo', async ({ page }) => {
@@ -62,8 +64,7 @@ test('con movimiento reducido no hay acercamientos y Escape la salta', async ({ 
 test('al acabarse el tiempo, la escena de «Tiempo cumplido» y después la pantalla de final', async ({
   page,
 }) => {
-  // La intro ya se vio; el final todavía no.
-  await page.addInitScript(() => localStorage.setItem('lup:escenas-vistas', 'intro'));
+  // Una partida guardada no vuelve a mostrar la intro: se continúa donde iba.
   await continuarEn(page, { sala: 's1-cooperativa', lugar: 'porteria', restanteMs: 2_000 });
 
   const escena = page.getByRole('region', { name: 'Final: Tiempo cumplido' });

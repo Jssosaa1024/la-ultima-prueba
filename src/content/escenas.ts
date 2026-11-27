@@ -506,19 +506,15 @@ export function tiempoParaHablar(e: Escena, indice: number): number {
   return duracionDe(e) - desde;
 }
 
-// ---------- Escenas ya vistas en este equipo ----------
+// ---------- Sin escenas: solo para las pruebas e2e ----------
 
-/** Clave de `localStorage`. Lo guardado es texto no confiable: solo se aceptan ids conocidos. */
-export const CLAVE_ESCENAS_VISTAS = 'lup:escenas-vistas';
+/**
+ * Las escenas salen siempre (decisión de Alex, 27 de noviembre de 2026). Las pruebas e2e, que
+ * empiezan y terminan cientos de partidas, las apagan con esta clave de `localStorage`, como
+ * `?sala=` o `?debug=1` en la URL. Lo guardado es texto no confiable: solo vale el `1` exacto.
+ */
+export const CLAVE_SIN_ESCENAS = 'lup:sin-escenas';
 
-/** Lee la lista guardada (`intro,el_legado`). Lo que no sea un id conocido se descarta. */
-export function leerVistas(texto: string | null): Set<EscenaId> {
-  const vistas = new Set<EscenaId>();
-  if (typeof texto !== 'string' || texto.length > 200) return vistas;
-  for (const parte of texto.split(',')) if (esEscena(parte)) vistas.add(parte);
-  return vistas;
-}
-
-export function escribirVistas(vistas: ReadonlySet<EscenaId>): string {
-  return ESCENAS.filter((id) => vistas.has(id)).join(',');
+export function escenasApagadas(texto: string | null): boolean {
+  return texto === '1';
 }

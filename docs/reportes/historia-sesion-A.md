@@ -25,11 +25,12 @@ La intro y los tres finales con giro se ven **dentro del juego**, siguiendo el g
 - **Se saltan con un toque:** botón «Saltar» de 48 px, arriba a la derecha y con el foco, o Escape.
 - **Movimiento reducido:** con `prefers-reduced-motion`, la cámara no se desplaza (un corte seco por plano), las fotos no se acercan y no hay fundidos.
 - **Voz y subtítulos:** La Voz suena con el mismo sistema de los subtítulos del juego; el subtítulo sigue al audio aunque cambie el plano. Don Efraín habla solo con subtítulo («Don Efraín: …»).
-- **Cuándo salen:** cada escena se ve sola **la primera vez en cada equipo** (`lup:escenas-vistas` en `localStorage`, validado contra la lista de ids). La intro sale al tocar «Jugar solo» en una partida nueva; mientras se ve, el reloj de 40 minutos no corre. Al terminar, La Voz dice «Buenas noches…» como antes. Los finales salen antes de su pantalla. «También vale pedir ayuda» no tiene escena.
+- **Cuándo salen:** **siempre** (Alex lo decidió al revisar el PR). La intro sale al tocar «Jugar solo» en cada partida nueva (no al continuar una guardada); mientras se ve, el reloj de 40 minutos no corre. Al terminar, La Voz dice «Buenas noches…» como antes. Los finales salen antes de su pantalla. «También vale pedir ayuda» no tiene escena.
+- **Las pruebas e2e las apagan** con `lup:sin-escenas` = `1` en `localStorage` (en `playwright.config.ts`), igual que usan `?sala=` o `?debug=1`: si no, cada prueba tendría que saltar la intro. Solo vale el `1` exacto.
 - **Cooperativo:** cada jugador ve la escena del final en su pantalla. La intro no sale en grupo (haría falta esperar a todos por la red).
 - **El giro se respeta:** la intro dice «E. C., 10-B» y nunca muestra a Don Efraín; el nombre completo solo sale en «El legado». Una prueba de unidad lo vigila.
 
-Archivos: `src/content/escenas.ts` (los planos), `src/signals/escena.ts`, `src/engine/escenas/director.ts`, `src/ui/escenas/` (capa, tarjetas y estilos). Cambios mínimos en archivos compartidos: `src/ui/Partida.tsx` (muestra la escena), `src/engine/motor.ts` (dibuja con la cámara de la escena y el bucle sigue detrás de un final), `src/signals/controlador.ts` (la intro y el reloj detenido), `src/signals/interfaz.ts` (sin controles durante la escena) y `playwright.config.ts` (las e2e empiezan con las escenas ya vistas).
+Archivos: `src/content/escenas.ts` (los planos), `src/signals/escena.ts`, `src/engine/escenas/director.ts`, `src/ui/escenas/` (capa, tarjetas y estilos). Cambios mínimos en archivos compartidos: `src/ui/Partida.tsx` (muestra la escena), `src/engine/motor.ts` (dibuja con la cámara de la escena y el bucle sigue detrás de un final), `src/signals/controlador.ts` (la intro y el reloj detenido), `src/signals/interfaz.ts` (sin controles durante la escena) y `playwright.config.ts` (las e2e apagan las escenas).
 
 ## Coordinación con la sesión C
 
@@ -47,14 +48,13 @@ Celular en horizontal (Pixel 5), en `docs/capturas/historia-A/`: el cartel de la
 ## Pruebas
 
 - `format:check`, `lint`, las 1.295 pruebas de unidad, `check-credits`, `check-audio`, `check-budget` y `astro build`: en verde.
-- Pruebas de unidad nuevas en `tests/unit/escenas.test.ts` (18): duración de cada escena, que cada línea de La Voz esté grabada y le alcance el plano para sonar entera (lee la duración del `.m4a`), que los sonidos existan, que la intro no diga quién es el estudiante, el reloj de los planos, el movimiento reducido, lo guardado en `localStorage` (solo ids conocidos) y la intro en la partida (reloj quieto, sin controles, La Voz después). `guion.test.ts` cuenta las 4 líneas nuevas y las compara con `docs/escenas.md`.
+- Pruebas de unidad nuevas en `tests/unit/escenas.test.ts` (19): duración de cada escena, que cada línea de La Voz esté grabada y le alcance el plano para sonar entera (lee la duración del `.m4a`), que los sonidos existan, que la intro no diga quién es el estudiante, el reloj de los planos, el movimiento reducido, la clave con que las pruebas apagan las escenas (solo el «1» exacto) y la intro en cada partida (reloj quieto, sin controles, La Voz después). `guion.test.ts` cuenta las 4 líneas nuevas y las compara con `docs/escenas.md`.
 - E2E nueva `tests/e2e/escenas.spec.ts`: la intro se ve y se salta, avanza hasta la foto con La Voz, movimiento reducido con Escape (solo en escritorio) y la escena de «Tiempo cumplido» antes de su pantalla.
 - E2E en celular y escritorio, con un solo navegador: `escenas`, `finales`, `csp`, `partida`, `subtitulos` y `accesibilidad` (68 pasan; la de Escape no aplica en celular) y antes `menu`, `audio`, `porteria`, `grabaciones` y `pasillo-puertas`. La primera corrida encontró dos fallos de verdad, ya corregidos: el manifiesto quedó viejo tras regenerar `voz-pasillo-11a`, y la prueba de la pestaña privada no esperaba la intro (sin almacenamiento sale cada vez).
 - No corrí la suite e2e completa (más de 30 minutos en este equipo con otras sesiones): solo los archivos que tocan el arranque, los finales, la voz y la CSP.
 
 ## Lo que necesita a Alex
 
-- Ver las escenas en el celular de verdad (pasos en el PR). La primera vez sale la intro; para verla otra vez, borrar los datos del sitio o abrir una pestaña de incógnito.
-- Decidir si las escenas salen **solo la primera vez** en cada equipo (así quedó) o siempre.
+- Ver las escenas en el celular de verdad (pasos en el PR).
 - Las frases de Don Efraín van sin voz; si las quiere con voz, hace falta otra voz en ElevenLabs.
 - Medir con `?debug=1` en el Android de referencia durante una escena (las escenas usan la misma portería; lo nuevo son 7 draw calls).
