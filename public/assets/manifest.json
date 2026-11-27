@@ -261,11 +261,23 @@
           "idioma": "es-CO",
           "sha256": "a6a7c1ed6e89e7bad5208428769843fa3211ad67687b2360c82da6ce07eb2eb3",
           "bytes": 10963
+        },
+        {
+          "archivo": "audio/es-CO/compartido/voz-espera.m4a",
+          "idioma": "es-CO",
+          "sha256": "3edb080956691568262b15c8f730fae385f586f18cd88cf70f004e9ba948e8ab",
+          "bytes": 34162
+        },
+        {
+          "archivo": "audio/es-CO/compartido/voz-fallo.m4a",
+          "idioma": "es-CO",
+          "sha256": "ae5e4df6d4d54db47e53d52526bd6e779ca3d9d87c936c13cbe33bb2161bcdd5",
+          "bytes": 41501
         }
       ],
       "totales": {
         "bytes": 973984,
-        "bytesAudio": 188295,
+        "bytesAudio": 263958,
         "triangulos": 3090,
         "drawCalls": 4,
         "bytesGpu": 3835168
@@ -469,21 +481,111 @@
           "bytes": 36314
         },
         {
+          "archivo": "audio/es-CO/porteria/voz-fin-justo.m4a",
+          "idioma": "es-CO",
+          "sha256": "da52890469d351f970cd87c3b3e3bc7e27e366e909e9792ce54ec031f10a8052",
+          "bytes": 42933
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-fin-legado.m4a",
+          "idioma": "es-CO",
+          "sha256": "6127055d5a2edec070b81d9867d8f04954d162b0ea61864e4b2dbb5cd5837528",
+          "bytes": 37450
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-fin-tiempo.m4a",
+          "idioma": "es-CO",
+          "sha256": "067a727ecd29e2c8b363fda02498ce8f28fdf5d8c708709b11aa6f08e2807e2b",
+          "bytes": 45814
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-final.m4a",
+          "idioma": "es-CO",
+          "sha256": "1f418f29c2db22d7d5d54294c36196dc8a63c67a0328a2fc5b381e1f7a98cecf",
+          "bytes": 38019
+        },
+        {
           "archivo": "audio/es-CO/porteria/voz-intro-1.m4a",
           "idioma": "es-CO",
           "sha256": "b9b6ffcaa210781fdde4a9b443f7afa87381c1de8c1104a4b531a29b63c15d96",
           "bytes": 38968
         },
         {
+          "archivo": "audio/es-CO/porteria/voz-intro-2.m4a",
+          "idioma": "es-CO",
+          "sha256": "73029b12a9cba7f26429328925413181408bcb9da84562e7dd7d35ee6933e039",
+          "bytes": 44331
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-intro-3.m4a",
+          "idioma": "es-CO",
+          "sha256": "dc25c0a5a56b9b9dfabcd97bb4f0caa2e6a954cdef87565534e8566c51a7d1b8",
+          "bytes": 42384
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-intro-caso-1.m4a",
+          "idioma": "es-CO",
+          "sha256": "ee06fa8a07ef9a9a94eef45a580e908987c2b1b82304d643effa4fd6872dc2e3",
+          "bytes": 33672
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-intro-caso-2.m4a",
+          "idioma": "es-CO",
+          "sha256": "895b31b45e3e508a110bfe47e0c1d2a9289b6428c97590bc6220d44fdca8ad12",
+          "bytes": 39012
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-intro-caso-3.m4a",
+          "idioma": "es-CO",
+          "sha256": "6d5f5b746cbe13b928b8207e8532c39e6aaee4b48c53ebe0e533d7a697dd8db9",
+          "bytes": 32428
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-intro-caso-4.m4a",
+          "idioma": "es-CO",
+          "sha256": "8e8b89c8cadcea247e835e44b4b760f193a36b91ee94d3c7bba4ce44d74f6dc0",
+          "bytes": 29178
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-10a.m4a",
+          "idioma": "es-CO",
+          "sha256": "c1a194ccce4e99f700ca283c8419d0620fe3215149bb36295cda30c7478893bc",
+          "bytes": 22043
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-10b.m4a",
+          "idioma": "es-CO",
+          "sha256": "0d7372e6f1dad55617c99f08ba424cfe2e6d1ee83c25c5c402812e341ad13c7d",
+          "bytes": 27706
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-11a.m4a",
+          "idioma": "es-CO",
+          "sha256": "caacf03c2c2f42118ac5f598cb83d73337d65de0db0efc1609ecc9a8c79ed2dd",
+          "bytes": 12431
+        },
+        {
           "archivo": "audio/es-CO/porteria/voz-pasillo-11b.m4a",
           "idioma": "es-CO",
           "sha256": "a7069ef180cc8bb9414c16625b5815a0a26e127523ccb12cdddbe618fecf9d0d",
           "bytes": 25301
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-aseo.m4a",
+          "idioma": "es-CO",
+          "sha256": "1d7e6f3a36595709061736625e1ad164f1f3bc5b3510a7e9c5b6c6fabb979ea1",
+          "bytes": 22253
+        },
+        {
+          "archivo": "audio/es-CO/porteria/voz-pasillo-profesores.m4a",
+          "idioma": "es-CO",
+          "sha256": "867d1a7a5b4a55558459b6fe9b244dd1c89e8322f77ef8e61d332b97b003ef08",
+          "bytes": 16762
         }
       ],
       "totales": {
         "bytes": 154112,
-        "bytesAudio": 100583,
+        "bytesAudio": 586999,
         "triangulos": 2616,
         "drawCalls": 11,
         "bytesGpu": 441258
@@ -764,10 +866,23 @@
           ]
         }
       ],
-      "audio": [],
+      "audio": [
+        {
+          "archivo": "audio/es-CO/s1-cooperativa/voz-s1-entrar.m4a",
+          "idioma": "es-CO",
+          "sha256": "20cf051f6710ae818bbe831436e5cc8f48fdb175d934e72722f3e56dbff8939a",
+          "bytes": 39018
+        },
+        {
+          "archivo": "audio/es-CO/s1-cooperativa/voz-s1-sello.m4a",
+          "idioma": "es-CO",
+          "sha256": "a318d7664f995b4e27194ee076b37176b5bc2fc7f2707e87309c489c2457c3ec",
+          "bytes": 38040
+        }
+      ],
       "totales": {
         "bytes": 331600,
-        "bytesAudio": 0,
+        "bytesAudio": 77058,
         "triangulos": 8546,
         "drawCalls": 16,
         "bytesGpu": 958786
@@ -912,10 +1027,29 @@
           ]
         }
       ],
-      "audio": [],
+      "audio": [
+        {
+          "archivo": "audio/es-CO/s2-laboratorio/grab-1.m4a",
+          "idioma": "es-CO",
+          "sha256": "b4febfed4640cc98992760728b88eafc7324deed902e07d5a0ef6580797172c4",
+          "bytes": 80979
+        },
+        {
+          "archivo": "audio/es-CO/s2-laboratorio/voz-s2-entrar.m4a",
+          "idioma": "es-CO",
+          "sha256": "5c7b35dba900e0ffb3baf3ebbfdb0e62a3ad4a4a984517dfb4ffeb7a963eef0c",
+          "bytes": 34063
+        },
+        {
+          "archivo": "audio/es-CO/s2-laboratorio/voz-s2-sello.m4a",
+          "idioma": "es-CO",
+          "sha256": "0c1f5ab73eb291153d436c72b092f7d4443b22da880c6c8983471f2431665af9",
+          "bytes": 28577
+        }
+      ],
       "totales": {
         "bytes": 141468,
-        "bytesAudio": 0,
+        "bytesAudio": 143619,
         "triangulos": 3172,
         "drawCalls": 8,
         "bytesGpu": 348648
@@ -1009,10 +1143,29 @@
           ]
         }
       ],
-      "audio": [],
+      "audio": [
+        {
+          "archivo": "audio/es-CO/s3-gimnasio/grab-2.m4a",
+          "idioma": "es-CO",
+          "sha256": "11f29268eef1de7ae7e3daba50706cd8628850ad37abf051524c2b5c009e30fa",
+          "bytes": 62532
+        },
+        {
+          "archivo": "audio/es-CO/s3-gimnasio/voz-s3-entrar.m4a",
+          "idioma": "es-CO",
+          "sha256": "66078915c82a45760403d63ff664f353bec15ef8f5bc5419c4122097018719b8",
+          "bytes": 41250
+        },
+        {
+          "archivo": "audio/es-CO/s3-gimnasio/voz-s3-sello.m4a",
+          "idioma": "es-CO",
+          "sha256": "ef371a47deeb94df28305068a78036fefc44df6e899bf186dcf3d7ffda2c82a7",
+          "bytes": 31732
+        }
+      ],
       "totales": {
         "bytes": 93244,
-        "bytesAudio": 0,
+        "bytesAudio": 135514,
         "triangulos": 1882,
         "drawCalls": 5,
         "bytesGpu": 348650
@@ -1191,10 +1344,29 @@
           ]
         }
       ],
-      "audio": [],
+      "audio": [
+        {
+          "archivo": "audio/es-CO/s4-biblioteca/grab-3.m4a",
+          "idioma": "es-CO",
+          "sha256": "47122d267c8504bac33ab51c656de74f9b0ec29027f81d274af8cca7c1ee9fdf",
+          "bytes": 54394
+        },
+        {
+          "archivo": "audio/es-CO/s4-biblioteca/voz-s4-entrar.m4a",
+          "idioma": "es-CO",
+          "sha256": "cdf407ec40669583556d3eef5574484583231e50dd4f74c388e6b68073cb9ace",
+          "bytes": 39518
+        },
+        {
+          "archivo": "audio/es-CO/s4-biblioteca/voz-s4-sello.m4a",
+          "idioma": "es-CO",
+          "sha256": "c0d031fbb30d370f6858a787303a26642aed20be21473c4f5502cead36da5b10",
+          "bytes": 36825
+        }
+      ],
       "totales": {
         "bytes": 449252,
-        "bytesAudio": 0,
+        "bytesAudio": 130737,
         "triangulos": 17932,
         "drawCalls": 10,
         "bytesGpu": 435810
@@ -1373,10 +1545,23 @@
           ]
         }
       ],
-      "audio": [],
+      "audio": [
+        {
+          "archivo": "audio/es-CO/s5-rectoria/voz-s5-entrar.m4a",
+          "idioma": "es-CO",
+          "sha256": "93ccbaa8d158a0195a9e4845735ecf1c4c17194a277405bd966ece6a00217199",
+          "bytes": 30452
+        },
+        {
+          "archivo": "audio/es-CO/s5-rectoria/voz-s5-sello.m4a",
+          "idioma": "es-CO",
+          "sha256": "2962c89400e2ab0d9b55e91bc1963f9237af6d2648cf327a511110625fbb5a57",
+          "bytes": 42319
+        }
+      ],
       "totales": {
         "bytes": 148916,
-        "bytesAudio": 0,
+        "bytesAudio": 72771,
         "triangulos": 3832,
         "drawCalls": 10,
         "bytesGpu": 305196

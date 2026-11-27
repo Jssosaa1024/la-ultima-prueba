@@ -37,6 +37,16 @@
         "speed": 1
       },
       "nota": "La bienvenida sonaba plana con el multilingüe; Alex escogió esta versión irónica del modelo v3 (19 de noviembre de 2026)."
+    },
+    "voz-pasillo-11a": {
+      "modelo": "eleven_v3",
+      "texto_voz": "[softly] Él nunca llegó a este salón.",
+      "ajustes": {
+        "stability": 0.5,
+        "style": 0,
+        "speed": 1
+      },
+      "nota": "La frase es corta (2 s) y con el multilingüe quedaba a −17 LUFS: el pico de «Él» no dejaba subirla. Con v3 y dicha en voz baja sale pareja (Historia A, 27 de noviembre de 2026)."
     }
   }
 }
